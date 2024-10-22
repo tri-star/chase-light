@@ -12,7 +12,10 @@ const serverlessConfiguration: Serverless = {
       bundle: true,
       minify: false,
       buildConcurrency: 3,
-      packages: "external",
+      external: [
+        "aws-lambda",
+        "@prisma/client",
+      ],
       target: "node20",
       platform: "node",
       sourcemap: {
@@ -22,12 +25,22 @@ const serverlessConfiguration: Serverless = {
     },
   },
   package: {
-    patterns: ["package.json"],
+    patterns: [
+      "package.json",
+      "node_modules/.prisma/client/**",
+      '!node_modules/.prisma/client/libquery_engine-*',
+      'node_modules/.prisma/client/libquery_engine-rhel-*',
+      "node_modules/@prisma/**",
+      "!node_modules/@prisma/engines/**",
+    ],
   },
   provider: {
     name: "aws",
     runtime: "nodejs20.x",
     region: "ap-northeast-1",
+    environment: {
+      DATABASE_URL: "${env:DATABASE_URL}"
+    }
   },
   functions: {
     hello: {

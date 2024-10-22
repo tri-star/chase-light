@@ -1,3 +1,5 @@
+import { PrismaClient } from '@prisma/client';
+
 import type {
   APIGatewayProxyEvent,
   APIGatewayProxyResult,
@@ -11,6 +13,27 @@ export const hello = async (
   try {
     // イベントのログ出力
     console.log("Received event:", JSON.stringify(event, null, 2));
+
+    const prisma = new PrismaClient({
+      log: [
+        {
+          emit: 'event',
+          level: 'query',
+        }
+      ]
+    });
+
+    prisma.$on('query', (e) => {
+      console.log(e)
+    })
+
+    // Userモデルのレコードを取得
+    const users = await prisma.user.findMany();
+    users.map(user => user.loginId)
+    console.log("Fetched users:", users);
+
+    const metrics = await prisma.$metrics.json()
+    console.dir(metrics, { depth: Infinity })
 
     // ここでビジネスロジックを実装
     const responseMessage = "Hello, World!";
