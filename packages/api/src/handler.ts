@@ -28,15 +28,17 @@ export const hello = async (
     })
 
     // Userモデルのレコードを取得
-    const users = await prisma.user.findMany();
-    users.map(user => user.loginId)
-    console.log("Fetched users:", users);
-
-    const metrics = await prisma.$metrics.json()
-    console.dir(metrics, { depth: Infinity })
+    const users = await prisma.user.findMany({
+      relationLoadStrategy: 'join',
+      include: {
+        notifications: {
+          take: 10,
+        },
+      }
+    });
 
     // ここでビジネスロジックを実装
-    const responseMessage = "Hello, World!";
+    const responseMessage = users;
 
     // 成功レスポンスの作成
     return {
