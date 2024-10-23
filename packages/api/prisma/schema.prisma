@@ -10,7 +10,7 @@ generator client {
   previewFeatures = ["relationJoins"]
   binaryTargets   = ["native", "rhel-openssl-3.0.x"]
   // NOTE: デプロイ時はコメント解除が必要
-  output          = "../node_modules/.prisma/client"
+  // output          = "../node_modules/.prisma/client"
 }
 
 datasource db {
