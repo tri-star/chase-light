@@ -1,0 +1,2 @@
+packages/app/.nuxt/**
+packages/api/prisma/seed/**
