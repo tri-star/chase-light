@@ -151,7 +151,7 @@
           "id": "public.feeds.name",
           "name": "name",
           "columnName": "name",
-          "type": "text",
+          "type": "varchar",
           "isRequired": true,
           "kind": "scalar",
           "isList": false,
@@ -159,13 +159,13 @@
           "sequence": false,
           "hasDefaultValue": false,
           "isId": false,
-          "maxLength": null
+          "maxLength": 100
         },
         {
           "id": "public.feeds.created_at",
           "name": "created_at",
           "columnName": "created_at",
-          "type": "timestamp",
+          "type": "timestamptz",
           "isRequired": true,
           "kind": "scalar",
           "isList": false,
@@ -179,7 +179,7 @@
           "id": "public.feeds.updated_at",
           "name": "updated_at",
           "columnName": "updated_at",
-          "type": "timestamp",
+          "type": "timestamptz",
           "isRequired": true,
           "kind": "scalar",
           "isList": false,
@@ -237,7 +237,7 @@
           "id": "public.notifications.title",
           "name": "title",
           "columnName": "title",
-          "type": "text",
+          "type": "varchar",
           "isRequired": true,
           "kind": "scalar",
           "isList": false,
@@ -245,7 +245,7 @@
           "sequence": false,
           "hasDefaultValue": false,
           "isId": false,
-          "maxLength": null
+          "maxLength": 255
         },
         {
           "id": "public.notifications.body",
@@ -265,7 +265,7 @@
           "id": "public.notifications.created_at",
           "name": "created_at",
           "columnName": "created_at",
-          "type": "timestamp",
+          "type": "timestamptz",
           "isRequired": true,
           "kind": "scalar",
           "isList": false,
@@ -279,7 +279,7 @@
           "id": "public.notifications.updated_at",
           "name": "updated_at",
           "columnName": "updated_at",
-          "type": "timestamp",
+          "type": "timestamptz",
           "isRequired": true,
           "kind": "scalar",
           "isList": false,
@@ -341,7 +341,7 @@
           "id": "public.users.name",
           "name": "name",
           "columnName": "name",
-          "type": "text",
+          "type": "varchar",
           "isRequired": true,
           "kind": "scalar",
           "isList": false,
@@ -349,13 +349,13 @@
           "sequence": false,
           "hasDefaultValue": false,
           "isId": false,
-          "maxLength": null
+          "maxLength": 50
         },
         {
           "id": "public.users.login_id",
           "name": "login_id",
           "columnName": "login_id",
-          "type": "text",
+          "type": "varchar",
           "isRequired": true,
           "kind": "scalar",
           "isList": false,
@@ -363,13 +363,13 @@
           "sequence": false,
           "hasDefaultValue": false,
           "isId": false,
-          "maxLength": null
+          "maxLength": 50
         },
         {
           "id": "public.users.email",
           "name": "email",
           "columnName": "email",
-          "type": "text",
+          "type": "varchar",
           "isRequired": true,
           "kind": "scalar",
           "isList": false,
@@ -377,13 +377,13 @@
           "sequence": false,
           "hasDefaultValue": false,
           "isId": false,
-          "maxLength": null
+          "maxLength": 255
         },
         {
           "id": "public.users.created_at",
           "name": "created_at",
           "columnName": "created_at",
-          "type": "timestamp",
+          "type": "timestamptz",
           "isRequired": true,
           "kind": "scalar",
           "isList": false,
@@ -397,7 +397,7 @@
           "id": "public.users.updated_at",
           "name": "updated_at",
           "columnName": "updated_at",
-          "type": "timestamp",
+          "type": "timestamptz",
           "isRequired": true,
           "kind": "scalar",
           "isList": false,
