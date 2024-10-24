@@ -20,3 +20,11 @@
 ```bash
 pnpm prisma migrate dev
 ```
+
+## Seeder
+
+DB 構成に変更があった場合以下を実行
+
+```
+pnpx @snaplet/seed sync
+```
