@@ -10,13 +10,18 @@
     "postinstall": "nuxt prepare"
   },
   "dependencies": {
-    "@auth0/auth0-vue": "^2.3.3",
     "@nuxt/eslint": "^0.6.0",
+    "@pinia/nuxt": "^0.5.5",
     "nuxt": "^3.13.2",
+    "nuxt-oidc-auth": "^0.18.0",
     "vue": "latest",
     "vue-router": "latest"
   },
   "devDependencies": {
+    "@types/auth0-js": "^9.21.6",
     "prettier": "^3.3.3"
+  },
+  "overrides": {
+    "vue": "latest"
   }
 }

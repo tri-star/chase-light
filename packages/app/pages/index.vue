@@ -1,5 +1,14 @@
-<script setup lang="ts"></script>
+<script setup lang="ts">
+const { user } = useOidcAuth()
+
+const handleLoginWithGitHubClick = () => {}
+</script>
 
 <template>
-  <div>LOGGED IN!</div>
+  <div>DASHBOARD</div>
+  <div>
+    <button @click="handleLoginWithGitHubClick">GitHubでログイン</button>
+  </div>
+  <div>User: {{ user }}</div>
+  <div />
 </template>
