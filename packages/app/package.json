@@ -13,13 +13,16 @@
     "@nuxt/eslint": "^0.6.0",
     "@pinia/nuxt": "^0.5.5",
     "nuxt": "^3.13.2",
+    "nuxt-auth-utils": "^0.5.0",
     "nuxt-oidc-auth": "^0.18.0",
+    "pinia": "^2.2.4",
     "vue": "latest",
     "vue-router": "latest"
   },
   "devDependencies": {
     "@types/auth0-js": "^9.21.6",
-    "prettier": "^3.3.3"
+    "prettier": "^3.3.3",
+    "rollup": "^4.24.0"
   },
   "overrides": {
     "vue": "latest"
