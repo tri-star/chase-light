@@ -1,7 +1,7 @@
 export default defineOAuthAuth0EventHandler({
   config: {
     connection: "github",
-    scope: ["profile", "email"],
+    scope: ["profile", "email", "openid"],
   },
   async onSuccess(event, { user, tokens }) {
     console.log("onSuccess", user, tokens)
