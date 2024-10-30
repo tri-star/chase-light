@@ -408,6 +408,34 @@
           "maxLength": null
         },
         {
+          "id": "public.users.email_verified",
+          "name": "email_verified",
+          "columnName": "email_verified",
+          "type": "bool",
+          "isRequired": true,
+          "kind": "scalar",
+          "isList": false,
+          "isGenerated": false,
+          "sequence": false,
+          "hasDefaultValue": true,
+          "isId": false,
+          "maxLength": null
+        },
+        {
+          "id": "public.users.provider_id",
+          "name": "provider_id",
+          "columnName": "provider_id",
+          "type": "varchar",
+          "isRequired": true,
+          "kind": "scalar",
+          "isList": false,
+          "isGenerated": false,
+          "sequence": false,
+          "hasDefaultValue": true,
+          "isId": false,
+          "maxLength": 50
+        },
+        {
           "name": "notifications",
           "type": "notifications",
           "isRequired": false,

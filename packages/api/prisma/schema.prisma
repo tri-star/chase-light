@@ -24,10 +24,14 @@ model User {
   name          String         @db.VarChar(50)
   loginId       String         @unique @map("login_id") @db.VarChar(50)
   email         String         @unique @db.VarChar(255)
+  emailVerified Boolean        @default(false) @map("email_verified")
+  providerId    String         @default("") @map("provider_id") @db.VarChar(50)
   notifications Notification[]
   createdAt     DateTime       @default(now()) @map("created_at") @db.Timestamptz
   updatedAt     DateTime       @updatedAt @map("updated_at") @db.Timestamptz
 
+  @@index([name])
+  @@index([providerId])
   @@map("users")
 }
 
