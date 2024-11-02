@@ -2,6 +2,7 @@
   "prettier.requireConfig": true,
   "prettier.configPath": ".prettierrc.js",
   "prettier.semi": false,
+  "biome.enabled": true,
   "editor.formatOnSave": true,
   "[typescript]": {
     "editor.defaultFormatter": "biomejs.biome"

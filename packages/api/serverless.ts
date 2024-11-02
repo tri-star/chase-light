@@ -1,4 +1,6 @@
 // Requiring @types/serverless in your project package.json
+import { userApp } from "@/features/user/functions"
+import { scalerUiApp } from "@/functions/open-api"
 import type { Serverless } from "serverless/aws"
 // serverless.ts
 const serverlessConfiguration: Serverless & { build: object } = {
@@ -30,6 +32,7 @@ const serverlessConfiguration: Serverless & { build: object } = {
       "node_modules/@prisma/**",
       "!node_modules/@prisma/engines/**",
     ],
+    individually: true,
   },
   provider: {
     name: "aws",
@@ -37,11 +40,14 @@ const serverlessConfiguration: Serverless & { build: object } = {
     region: "ap-northeast-1",
     memorySize: 512,
     environment: {
-      DATABASE_URL:
-        "${env:DATABASE_URL, ssm:/aws/reference/secretsmanager/${sls:stage}/supabase/db_url}}",
+      STAGE: "${sls:stage}",
       AWS_NODEJS_CONNECTION_REUSE_ENABLED: "1",
       // NODE_OPTIONS: "--enable-source-maps --stack-trace-limit=1000",
-      STAGE: "${sls:stage}",
+
+      API_URL: "${env:API_URL}",
+      DATABASE_URL:
+        "${env:DATABASE_URL, ssm:/aws/reference/secretsmanager/${sls:stage}/supabase/db_url}",
+      AUTH0_DOMAIN: "${env:AUTH0_DOMAIN}",
     },
     tracing: {
       apiGateway: true,
@@ -69,17 +75,8 @@ const serverlessConfiguration: Serverless & { build: object } = {
     },
   },
   functions: {
-    hello: {
-      handler: "src/handler.hello",
-      events: [
-        {
-          httpApi: {
-            method: "get",
-            path: "/",
-          },
-        },
-      ],
-    },
+    ...userApp.getLambdaDefinition(),
+    ...scalerUiApp.getLambdaDefinition(),
   },
 }
 
