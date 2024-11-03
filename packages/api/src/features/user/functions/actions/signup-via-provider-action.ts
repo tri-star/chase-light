@@ -1,6 +1,7 @@
 import {
-  createUserViaProviderSchema,
-  userSchema,
+  signupResultSchema,
+  signupViaProviderSchema,
+  type SignupResult,
 } from "@/features/user/domain/user"
 import { getTokenValidatorInstance } from "@/features/auth/services/token-validator"
 import { ActionDefinition } from "@/lib/hono/action-definition"
@@ -22,7 +23,7 @@ export class SignupVieProviderAction extends ActionDefinition<AppContext> {
         body: {
           content: {
             "application/json": {
-              schema: createUserViaProviderSchema,
+              schema: signupViaProviderSchema,
             },
           },
         },
@@ -32,7 +33,7 @@ export class SignupVieProviderAction extends ActionDefinition<AppContext> {
           description: "",
           content: {
             "application/json": {
-              schema: userSchema,
+              schema: signupResultSchema,
             },
           },
         },
@@ -72,7 +73,9 @@ export class SignupVieProviderAction extends ActionDefinition<AppContext> {
 
         const userId = uuidv7()
 
+        // TODO: 既存アカウントがある場合は更新してOKを返す
         // TODO: nicknameが既存アカウントと重複する場合は登録不可
+        // TODO: メールが未登録、未確認の場合も登録不可
 
         const prisma = getPrismaClientInstance()
         const createdUser = await prisma.user.create({
@@ -88,7 +91,14 @@ export class SignupVieProviderAction extends ActionDefinition<AppContext> {
           },
         })
 
-        return c.json(createdUser, 200)
+        return c.json(
+          {
+            user: createdUser,
+            success: true,
+            status: "created",
+          } as SignupResult,
+          200,
+        )
       } catch (error) {
         console.error(error)
         if (error instanceof TokenError) {

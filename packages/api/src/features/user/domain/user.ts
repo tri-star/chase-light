@@ -12,8 +12,21 @@ export const userSchema = z.object({
 })
 export type User = z.infer<typeof userSchema>
 
-export const createUserViaProviderSchema = z.object({
+export const signupViaProviderSchema = z.object({
   accessToken: z.string(),
   idToken: z.string(),
 })
-export type CreateUserViaProvider = z.infer<typeof createUserViaProviderSchema>
+export type SignupViaProvider = z.infer<typeof signupViaProviderSchema>
+
+export const signupResultSchema = z.object({
+  user: userSchema.optional(),
+  success: z.boolean(),
+  status: z.enum([
+    "created",
+    "updated",
+    "duplicate_account",
+    "no_verified_email",
+  ]),
+})
+
+export type SignupResult = z.infer<typeof signupResultSchema>
