@@ -1,4 +1,5 @@
 import { ChaseLightApp } from "@/app/chase-light-app"
+import { SignupStatusAction } from "@/features/user/functions/actions/signup-status-action"
 import { SignupVieProviderAction } from "@/features/user/functions/actions/signup-via-provider-action"
 import { handlerPath } from "@/lib/hono/handler-resolver"
 import { currentDirPath } from "@/lib/utils/path-utils"
@@ -31,7 +32,7 @@ userApp.defineLambdaDefinition({
     ],
   },
 })
-userApp.importActions([new SignupVieProviderAction()])
+userApp.importActions([new SignupVieProviderAction(), new SignupStatusAction()])
 
 export const handler: (
   event: LambdaEvent,

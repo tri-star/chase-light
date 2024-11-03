@@ -7,6 +7,9 @@
 */
 export const ROUTES = {
   USERS: {
+    SIGNUP_STATUS: {
+      DEFINITION: "/users/signup-status",
+    },
     SIGNUP_VIA_PROVIDER: {
       DEFINITION: "/users/signup-via-provider",
     },
