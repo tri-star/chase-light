@@ -4,6 +4,9 @@ on:
   push:
     paths:
       - 'packages/api/**'
+  pull_request:
+    paths:
+      - 'packages/api/**'
 
 jobs:
   lint:
