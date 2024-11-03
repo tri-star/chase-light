@@ -20,3 +20,7 @@ URL:
 
 - API Reference (Scaler)
   - http://localhost:3001/dev/docs/api
+
+## 手動デプロイ
+
+- [docs/commands.md](docs/commands.md) 参照
