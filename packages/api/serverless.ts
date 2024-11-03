@@ -9,6 +9,7 @@ const serverlessConfiguration: Serverless & { build: object } = {
   service: "chase-light-api",
   configValidationMode: "error",
   frameworkVersion: "4",
+  plugins: ["serverless-offline"],
   build: {
     esbuild: {
       bundle: true,
