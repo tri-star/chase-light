@@ -30,9 +30,9 @@ jobs:
             ~/.local/share/pnpm
             node_modules
             packages/api/node_modules
-          key: api-pnpm-${{ hashFiles('pnpm-lock.yaml') }}
+          key: api-ci-pnpm-${{ hashFiles('pnpm-lock.yaml') }}
           restore-keys: |
-            api-pnpm-
+            api-ci-pnpm-
 
       - name: Install dependencies
         run: |
