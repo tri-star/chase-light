@@ -4,12 +4,9 @@
   "description": "",
   "type": "module",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "vitest",
     "format": "biome format --write prisma src serverless.ts eslint.config.mjs",
     "local": "serverless offline --httpPort=3001"
-  },
-  "prisma": {
-    "seed": "pnpx tsx prisma/seed/seed.ts"
   },
   "keywords": [],
   "author": "",
@@ -17,8 +14,7 @@
   "devDependencies": {
     "@biomejs/biome": "1.9.3",
     "@eslint/js": "^9.12.0",
-    "@snaplet/copycat": "^5.1.0",
-    "@snaplet/seed": "0.98.0",
+    "@testcontainers/postgresql": "^10.13.2",
     "@types/aws-lambda": "^8.10.145",
     "@types/node": "^22.7.5",
     "@types/serverless": "^3.12.22",
@@ -36,7 +32,8 @@
     "tsconfig-paths": "^4.2.0",
     "tsx": "^4.19.1",
     "typescript": "^5.6.3",
-    "typescript-eslint": "^8.8.1"
+    "typescript-eslint": "^8.8.1",
+    "vitest": "^2.1.4"
   },
   "dependencies": {
     "@hono/zod-openapi": "^0.16.4",
@@ -49,8 +46,5 @@
     "jose": "^5.9.6",
     "uuid": "^11.0.2",
     "zod": "^3.23.8"
-  },
-  "@snaplet/seed": {
-    "config": "prisma/seed/seed.config.ts"
   }
 }
