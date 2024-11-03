@@ -28,6 +28,8 @@ jobs:
         with:
           path: |
             ~/.local/share/pnpm
+            node_modules
+            packages/api/node_modules
           key: api-pnpm-${{ hashFiles('pnpm-lock.yaml') }}
           restore-keys: |
             api-pnpm-
@@ -48,4 +50,6 @@ jobs:
         with:
           path: |
             ~/.local/share/pnpm
+            node_modules
+            packages/api/node_modules
           key: ${{ steps.pnpm-cache.outputs.cache-primary-key }}
