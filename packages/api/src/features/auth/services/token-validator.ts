@@ -1,33 +1,28 @@
+import {
+  TokenError,
+  type AccessTokenPayload,
+  type IdTokenPayload,
+  type TokenValidatorInterface,
+} from "@/features/auth/services/token-validator-interface"
 import * as jose from "jose"
 
-export interface TokenValidator {
-  parseAccessToken(token: string): Promise<AccessTokenPayload>
-  parseIdToken(token: string): Promise<IdTokenPayload>
+let tokenValidatorInstance: TokenValidatorInterface | undefined
+
+export function getTokenValidatorInstance(): TokenValidatorInterface {
+  if (tokenValidatorInstance) {
+    return tokenValidatorInstance
+  }
+  tokenValidatorInstance = new Auth0TokenValidator()
+  return tokenValidatorInstance
 }
 
-export function createTokenValidator(): TokenValidator {
-  return new Auth0TokenValidator()
+export function swapTokenValidatorForTest(
+  newInstance: TokenValidatorInterface,
+) {
+  tokenValidatorInstance = newInstance
 }
 
-type AccessTokenPayload = {
-  sub?: string
-  email?: string
-  email_verified?: boolean
-  aud?: string[]
-}
-
-type IdTokenPayload = {
-  sub?: string
-  email?: string
-  email_verified?: boolean
-  aud?: string[]
-  nickname?: string
-  name?: string
-  picture?: string
-  updated_at?: string
-}
-
-export class Auth0TokenValidator implements TokenValidator {
+export class Auth0TokenValidator implements TokenValidatorInterface {
   /**
    * @param token アクセストークン
    * @returns {AccessTokenPayload}
@@ -108,20 +103,5 @@ export class Auth0TokenValidator implements TokenValidator {
     } catch (error) {
       throw new TokenError("invalid_token", (error as Error).message)
     }
-  }
-}
-
-type TokenErrorType = "invalid_token"
-
-export class TokenError extends Error {
-  private static readonly CLASS = "TokenError"
-
-  public readonly type: TokenErrorType = "invalid_token" as const
-
-  public readonly message: string
-
-  constructor(type: TokenErrorType, message: string) {
-    super(`${TokenError.CLASS}: ${message}`)
-    this.message = message
   }
 }

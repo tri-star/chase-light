@@ -2,17 +2,15 @@ import {
   createUserViaProviderSchema,
   userSchema,
 } from "@/features/user/domain/user"
-import {
-  createTokenValidator,
-  TokenError,
-} from "@/features/auth/services/token-validator"
+import { getTokenValidatorInstance } from "@/features/auth/services/token-validator"
 import { ActionDefinition } from "@/lib/hono/action-definition"
 import { type AppContext } from "@/app/chase-light-app"
 import { ROUTES } from "@/app/route-consts"
 import { createRoute, z, type OpenAPIHono } from "@hono/zod-openapi"
-import { PrismaClient } from "@prisma/client"
 import { v7 as uuidv7 } from "uuid"
 import { ToDbDateTimeStrict } from "@/lib/utils/date-utils"
+import { TokenError } from "@/features/auth/services/token-validator-interface"
+import { getPrismaClientInstance } from "@/lib/prisma/app-prisma-client"
 
 export class SignupVieProviderAction extends ActionDefinition<AppContext> {
   buildOpenApiAppRoute(parentApp: OpenAPIHono<AppContext>): void {
@@ -66,7 +64,7 @@ export class SignupVieProviderAction extends ActionDefinition<AppContext> {
       const accessToken = json.accessToken
       const idToken = json.idToken
 
-      const tokenValidator = createTokenValidator()
+      const tokenValidator = getTokenValidatorInstance()
 
       try {
         await tokenValidator.parseAccessToken(accessToken)
@@ -76,7 +74,7 @@ export class SignupVieProviderAction extends ActionDefinition<AppContext> {
 
         // TODO: nicknameが既存アカウントと重複する場合は登録不可
 
-        const prisma = new PrismaClient()
+        const prisma = getPrismaClientInstance()
         const createdUser = await prisma.user.create({
           data: {
             id: userId,
