@@ -121,9 +121,7 @@
       "uniqueConstraints": [
         {
           "name": "_prisma_migrations_pkey",
-          "fields": [
-            "id"
-          ],
+          "fields": ["id"],
           "nullNotDistinct": false
         }
       ]
@@ -193,9 +191,7 @@
       "uniqueConstraints": [
         {
           "name": "feeds_pkey",
-          "fields": [
-            "id"
-          ],
+          "fields": ["id"],
           "nullNotDistinct": false
         }
       ]
@@ -295,12 +291,8 @@
           "isRequired": true,
           "kind": "object",
           "relationName": "notificationsTousers",
-          "relationFromFields": [
-            "user_id"
-          ],
-          "relationToFields": [
-            "id"
-          ],
+          "relationFromFields": ["user_id"],
+          "relationToFields": ["id"],
           "isList": false,
           "isId": false,
           "isGenerated": false,
@@ -311,9 +303,7 @@
       "uniqueConstraints": [
         {
           "name": "notifications_pkey",
-          "fields": [
-            "id"
-          ],
+          "fields": ["id"],
           "nullNotDistinct": false
         }
       ]
@@ -453,23 +443,17 @@
       "uniqueConstraints": [
         {
           "name": "users_pkey",
-          "fields": [
-            "id"
-          ],
+          "fields": ["id"],
           "nullNotDistinct": false
         },
         {
           "name": "users_email_key",
-          "fields": [
-            "email"
-          ],
+          "fields": ["email"],
           "nullNotDistinct": false
         },
         {
           "name": "users_login_id_key",
-          "fields": [
-            "login_id"
-          ],
+          "fields": ["login_id"],
           "nullNotDistinct": false
         }
       ]
