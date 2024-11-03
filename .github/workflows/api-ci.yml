@@ -22,7 +22,15 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '22.9.0'
-          cache: 'pnpm'
+
+      - uses: actions/cache/restore@v4
+        id: pnpm-cache
+        with:
+          path: |
+            ~/.local/share/pnpm
+          key: api-pnpm-${{ hashFiles('pnpm-lock.yaml') }}
+          restore-keys: |
+            api-pnpm-
 
       - name: Install dependencies
         run: |
@@ -34,3 +42,10 @@ jobs:
           cd packages/api
           pnpx prisma generate
           pnpm test
+
+      - uses: actions/cache/save@v4
+        if: github.ref_name == 'main'
+        with:
+          path: |
+            ~/.local/share/pnpm
+          key: ${{ steps.pnpm-cache.outputs.cache-primary-key }}

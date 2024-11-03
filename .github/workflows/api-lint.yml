@@ -24,6 +24,15 @@ jobs:
         with:
           node-version: '22'
 
+      - uses: actions/cache/restore@v4
+        id: pnpm-cache
+        with:
+          path: |
+            ~/.local/share/pnpm
+          key: api-pnpm-${{ hashFiles('pnpm-lock.yaml') }}
+          restore-keys: |
+            api-pnpm-
+
       - name: Install dependencies
         run: |
           cd packages/api
@@ -33,3 +42,10 @@ jobs:
         run: |
           cd packages/api
           pnpm lint
+
+      - uses: actions/cache/save@v4
+        if: github.ref_name == 'main'
+        with:
+          path: |
+            ~/.local/share/pnpm
+          key: ${{ steps.pnpm-cache.outputs.cache-primary-key }}
