@@ -5,7 +5,7 @@ export const toDbDateTime = (
   fallback: string | null = null,
 ): string | null => {
   if (!date) return fallback
-  return format(date, "yyyy-MM-dd'T'HH:mm:ss.SSSXX")
+  return format(date, "yyyy-MM-dd'T'HH:mm:ss.SSSXXX")
 }
 
 export function ToDbDateTimeStrict(date: Date | undefined | null): string {
@@ -17,5 +17,5 @@ export function ToDbDateTimeStrict(date: Date | undefined | null): string {
     throw new Error("Invalid date provided")
   }
 
-  return format(date, "yyyy-MM-dd'T'HH:mm:ss.SSSXX")
+  return format(date, "yyyy-MM-dd'T'HH:mm:ss.SSSXXX")
 }

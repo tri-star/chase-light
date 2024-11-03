@@ -61,7 +61,7 @@ honoApp.get(
   apiReference({
     pageTitle: `(${stage}) Chase Light API Reference`,
     spec: {
-      url: `openapi.json`,
+      url: `/${stage}/openapi.json`,
     },
   }),
 )
