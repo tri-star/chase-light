@@ -9,8 +9,8 @@ import { createMiddleware } from "hono/factory"
 export const authMiddleware = createMiddleware<AppContext>(async (c, next) => {
   console.debug("authMiddleware: start", c.req.path)
   const noAuthRoutes: string[] = [
-    "docs/api",
-    "openapi.json",
+    "/docs/api",
+    "/openapi.json",
     ROUTES.USERS.SIGNUP_VIA_PROVIDER.DEFINITION,
     //
   ]
