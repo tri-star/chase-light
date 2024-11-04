@@ -51,7 +51,7 @@ honoApp.doc("/openapi.json", {
     },
   ],
   info: {
-    version: "1.1.0",
+    version: "0.2.0",
     title: `Chase Light API (${stage})`,
   },
 })

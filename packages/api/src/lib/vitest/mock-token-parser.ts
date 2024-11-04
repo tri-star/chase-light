@@ -1,11 +1,11 @@
 import { vi } from "vitest"
 import type {
-  TokenValidatorInterface,
+  TokenParserInterface,
   AccessTokenPayload,
   IdTokenPayload,
-} from "@/features/auth/services/token-validator-interface"
+} from "@/features/auth/services/token-parser-interface"
 
-export function createTokenValidatorMock(): TokenValidatorInterface {
+export function createTokenParserMock(): TokenParserInterface {
   return {
     parseAccessToken: vi.fn(
       async (_token: string): Promise<AccessTokenPayload> => {
@@ -17,6 +17,9 @@ export function createTokenValidatorMock(): TokenValidatorInterface {
         }
       },
     ),
+    extractProviderId: vi.fn(async (_token: string): Promise<string> => {
+      return "mockSub"
+    }),
     parseIdToken: vi.fn(async (_token: string): Promise<IdTokenPayload> => {
       return {
         sub: "mockSub",

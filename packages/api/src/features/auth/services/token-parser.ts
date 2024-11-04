@@ -2,27 +2,25 @@ import {
   TokenError,
   type AccessTokenPayload,
   type IdTokenPayload,
-  type TokenValidatorInterface,
-} from "@/features/auth/services/token-validator-interface"
+  type TokenParserInterface,
+} from "@/features/auth/services/token-parser-interface"
 import * as jose from "jose"
 
-let tokenValidatorInstance: TokenValidatorInterface | undefined
+let tokenParserInstance: TokenParserInterface | undefined
 
-export function getTokenValidatorInstance(): TokenValidatorInterface {
-  if (tokenValidatorInstance) {
-    return tokenValidatorInstance
+export function getTokenParserInstance(): TokenParserInterface {
+  if (tokenParserInstance) {
+    return tokenParserInstance
   }
-  tokenValidatorInstance = new Auth0TokenValidator()
-  return tokenValidatorInstance
+  tokenParserInstance = new Auth0TokenParser()
+  return tokenParserInstance
 }
 
-export function swapTokenValidatorForTest(
-  newInstance: TokenValidatorInterface,
-) {
-  tokenValidatorInstance = newInstance
+export function swapTokenParserForTest(newInstance: TokenParserInterface) {
+  tokenParserInstance = newInstance
 }
 
-export class Auth0TokenValidator implements TokenValidatorInterface {
+export class Auth0TokenParser implements TokenParserInterface {
   /**
    * @param token アクセストークン
    * @returns {AccessTokenPayload}
@@ -60,6 +58,11 @@ export class Auth0TokenValidator implements TokenValidatorInterface {
     } catch (error) {
       throw new TokenError("invalid_token", (error as Error).message)
     }
+  }
+
+  async extractProviderId(token: string): Promise<string> {
+    const payload = await this.parseAccessToken(token)
+    return payload.sub || ""
   }
 
   /**

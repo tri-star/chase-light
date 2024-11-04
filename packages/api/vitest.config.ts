@@ -4,13 +4,13 @@ export default defineConfig({
   test: {
     watch: false,
     include: ["./src/**/*.test.ts"],
-    poolOptions: {
-      threads: {
-        singleThread: true,
-      },
-    },
+    globalSetup: ["./src/lib/vitest/global-setup-test-db.ts"],
     setupFiles: ["./src/lib/vitest/setup-test-db.ts"],
     hookTimeout: 100 * 1000,
+    sequence: {
+      hooks: "list",
+    },
+    maxConcurrency: 1,
   },
   resolve: {
     alias: {
