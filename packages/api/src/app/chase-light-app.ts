@@ -1,9 +1,11 @@
+import { authMiddleware } from "@/app/middlewares/auth-middleware"
+import type { User } from "@/features/user/domain/user"
 import { HonoOpenApiApp } from "@/lib/hono/hono-openapi-app"
 import { cors } from "hono/cors"
 
 export type AppContext = {
   Variables: {
-    user: unknown
+    user: undefined | User
   }
 }
 
@@ -28,5 +30,7 @@ export class ChaseLightApp extends HonoOpenApiApp<AppContext> {
         allowMethods: ["GET", "POST", "PUT", "DELETE"],
       }),
     )
+
+    this.app.use(authMiddleware)
   }
 }

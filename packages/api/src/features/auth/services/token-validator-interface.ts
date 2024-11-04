@@ -1,5 +1,6 @@
 export interface TokenValidatorInterface {
   parseAccessToken(token: string): Promise<AccessTokenPayload>
+  extractProviderId(token: string): Promise<string>
   parseIdToken(token: string): Promise<IdTokenPayload>
 }
 

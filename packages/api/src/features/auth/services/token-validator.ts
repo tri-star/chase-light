@@ -62,6 +62,11 @@ export class Auth0TokenValidator implements TokenValidatorInterface {
     }
   }
 
+  async extractProviderId(token: string): Promise<string> {
+    const payload = await this.parseAccessToken(token)
+    return payload.sub || ""
+  }
+
   /**
    * @param token アクセストークン
    * @returns {IdTokenPayload}
