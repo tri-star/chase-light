@@ -44,7 +44,7 @@ jobs:
       - name: Run tests
         run: |
           cd packages/api
-          pnpx prisma generate
+          npx prisma generate
           pnpm test
 
       - uses: actions/cache/save@v4

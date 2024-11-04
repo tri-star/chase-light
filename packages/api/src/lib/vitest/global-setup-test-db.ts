@@ -15,9 +15,6 @@ export async function setup({ provide }: GlobalSetupContext) {
   console.log("DB container started.", connectionUrl)
 
   execSync(
-    `DATABASE_URL=${connectionUrl} DIRECT_URL=${connectionUrl} pnpx prisma generate`,
-  )
-  execSync(
     `DATABASE_URL=${connectionUrl} DIRECT_URL=${connectionUrl} pnpx prisma migrate dev --skip-generate`,
   )
   console.log("Migration done.", connectionUrl)
