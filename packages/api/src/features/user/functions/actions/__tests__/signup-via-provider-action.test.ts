@@ -1,25 +1,30 @@
 import type { AppContext } from "@/app/chase-light-app"
+import { StubTokenParser } from "@/features/auth/services/stub-token-parser"
 import { swapTokenParserForTest } from "@/features/auth/services/token-parser"
 import type {
   SignupResult,
   SignupViaProvider,
+  User,
 } from "@/features/user/domain/user"
 import { userApp } from "@/features/user/functions"
-import { createTokenParserMock } from "@/lib/vitest/mock-token-parser"
 import type { OpenAPIHono } from "@hono/zod-openapi"
+import { UserFactory } from "prisma/seeds/user-factory"
 import { beforeEach, describe, expect, test } from "vitest"
 
 let app: OpenAPIHono<AppContext>
 
 beforeEach(() => {
   app = userApp.getApp()
-
-  const tokenParserMock = createTokenParserMock()
-  swapTokenParserForTest(tokenParserMock)
 })
 
 describe("SignupVieProviderAction", () => {
-  test("新規登録テスト", async () => {
+  test.sequential("新規登録テスト", async () => {
+    const stubTokenParser = new StubTokenParser()
+    const user = (await UserFactory.build()) as User
+
+    stubTokenParser.setAuthenticatedUser(user)
+    swapTokenParserForTest(stubTokenParser)
+
     const result = await app.request("/users/signup-via-provider", {
       method: "POST",
       headers: {

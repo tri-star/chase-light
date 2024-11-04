@@ -7,11 +7,12 @@ import { getPrismaClientInstance } from "@/lib/prisma/app-prisma-client"
 import { createMiddleware } from "hono/factory"
 
 export const authMiddleware = createMiddleware<AppContext>(async (c, next) => {
+  console.debug("authMiddleware: start", c.req.path)
   const noAuthRoutes: string[] = [
     ROUTES.USERS.SIGNUP_VIA_PROVIDER.DEFINITION,
     //
   ]
-  if (noAuthRoutes.includes(c.req.url)) {
+  if (noAuthRoutes.includes(c.req.path)) {
     await next()
     return
   }

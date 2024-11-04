@@ -1,4 +1,5 @@
 import { ChaseLightApp } from "@/app/chase-light-app"
+import { FetchSelfAction } from "@/features/user/functions/actions/fetch-user-action"
 import { SignupVieProviderAction } from "@/features/user/functions/actions/signup-via-provider-action"
 import { handlerPath } from "@/lib/hono/handler-resolver"
 import { currentDirPath } from "@/lib/utils/path-utils"
@@ -31,7 +32,11 @@ userApp.defineLambdaDefinition({
     ],
   },
 })
-userApp.importActions([new SignupVieProviderAction()])
+userApp.importActions([
+  new SignupVieProviderAction(),
+  new FetchSelfAction(),
+  //
+])
 
 export const handler: (
   event: LambdaEvent,

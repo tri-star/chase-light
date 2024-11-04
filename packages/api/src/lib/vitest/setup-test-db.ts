@@ -1,52 +1,36 @@
-import {
-  PostgreSqlContainer,
-  StartedPostgreSqlContainer,
-} from "@testcontainers/postgresql"
-import { execSync } from "child_process"
-import { afterAll, beforeAll, beforeEach } from "vitest"
-import { PrismaClient } from "@prisma/client"
+import { initialize } from "@/__generated__/fabbrica"
 import { swapPrismaClientForTest } from "@/lib/prisma/app-prisma-client"
+import { PrismaClient } from "@prisma/client"
+import { execSync } from "child_process"
+import { beforeEach, inject } from "vitest"
 
-let postgresContainer: StartedPostgreSqlContainer | undefined
-let connectionUrl: string | undefined
-
-beforeAll(async () => {
-  console.log("Start DB container.")
-  postgresContainer = await new PostgreSqlContainer().start()
-  connectionUrl = postgresContainer.getConnectionUri()
-  console.log("DB container started.", connectionUrl)
-
-  execSync(
-    `DATABASE_URL=${connectionUrl} DIRECT_URL=${connectionUrl} pnpx prisma generate`,
-  )
-  execSync(
-    `DATABASE_URL=${connectionUrl} DIRECT_URL=${connectionUrl} pnpx prisma migrate dev --skip-generate`,
-  )
-  console.log("Migration done.", connectionUrl)
-  execSync(
-    `DATABASE_URL=${connectionUrl} DIRECT_URL=${connectionUrl} pnpx prisma migrate reset --force`,
-  )
+beforeEach(() => {
+  const connectionUrl = inject("testDbConnectUrl")
 
   const prismaClientForTest = new PrismaClient({
+    log: [
+      {
+        emit: "event",
+        level: "query",
+      },
+    ],
     datasources: {
       db: {
         url: connectionUrl,
       },
     },
   })
+
+  prismaClientForTest.$on("query", (e) => {
+    console.log("Query: ", e)
+  })
+
   swapPrismaClientForTest(prismaClientForTest)
 
-  console.log("Database initialized.")
-})
+  initialize({ prisma: prismaClientForTest })
 
-beforeEach(() => {
   console.log("before each: Start DB reset.")
   execSync(
     `DATABASE_URL=${connectionUrl} DIRECT_URL=${connectionUrl} pnpx prisma migrate reset --force`,
   )
-})
-
-afterAll(async () => {
-  await postgresContainer?.stop()
-  console.log("DB container stopped.")
 })
