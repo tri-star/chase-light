@@ -21,7 +21,7 @@ beforeEach(() => {
     },
   })
 
-  prismaClientForTest.$on("query", (e) => {
+  prismaClientForTest.$on("query", (e: unknown) => {
     console.log("Query: ", e)
   })
 
