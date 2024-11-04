@@ -18,8 +18,8 @@ beforeEach(() => {
   swapTokenParserForTest(tokenParserMock)
 })
 
-describe("SignupVieProviderAction", () => {
-  test("新規登録テスト", async () => {
+describe("FetchUserAction", () => {
+  test("ログインしているユーザーの情報を取得出来ること", async () => {
     const result = await app.request("/users/signup-via-provider", {
       method: "POST",
       headers: {

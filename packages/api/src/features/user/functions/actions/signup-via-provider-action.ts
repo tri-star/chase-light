@@ -3,14 +3,14 @@ import {
   signupViaProviderSchema,
   type SignupResult,
 } from "@/features/user/domain/user"
-import { getTokenValidatorInstance } from "@/features/auth/services/token-validator"
+import { getTokenParserInstance } from "@/features/auth/services/token-parser"
 import { ActionDefinition } from "@/lib/hono/action-definition"
 import { type AppContext } from "@/app/chase-light-app"
 import { ROUTES } from "@/app/route-consts"
 import { createRoute, z, type OpenAPIHono } from "@hono/zod-openapi"
 import { v7 as uuidv7 } from "uuid"
 import { ToDbDateTimeStrict } from "@/lib/utils/date-utils"
-import { TokenError } from "@/features/auth/services/token-validator-interface"
+import { TokenError } from "@/features/auth/services/token-parser-interface"
 import { getPrismaClientInstance } from "@/lib/prisma/app-prisma-client"
 
 export class SignupVieProviderAction extends ActionDefinition<AppContext> {
@@ -65,11 +65,11 @@ export class SignupVieProviderAction extends ActionDefinition<AppContext> {
       const accessToken = json.accessToken
       const idToken = json.idToken
 
-      const tokenValidator = getTokenValidatorInstance()
+      const tokenParser = getTokenParserInstance()
 
       try {
-        await tokenValidator.parseAccessToken(accessToken)
-        const payload = await tokenValidator.parseIdToken(idToken)
+        await tokenParser.parseAccessToken(accessToken)
+        const payload = await tokenParser.parseIdToken(idToken)
 
         const userId = uuidv7()
 

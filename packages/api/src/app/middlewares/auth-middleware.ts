@@ -1,7 +1,7 @@
 import type { AppContext } from "@/app/chase-light-app"
 import { ROUTES } from "@/app/route-consts"
-import { getTokenValidatorInstance } from "@/features/auth/services/token-validator"
-import { TokenError } from "@/features/auth/services/token-validator-interface"
+import { getTokenParserInstance } from "@/features/auth/services/token-parser"
+import { TokenError } from "@/features/auth/services/token-parser-interface"
 import type { User } from "@/features/user/domain/user"
 import { getPrismaClientInstance } from "@/lib/prisma/app-prisma-client"
 import { createMiddleware } from "hono/factory"
@@ -20,8 +20,8 @@ export const authMiddleware = createMiddleware<AppContext>(async (c, next) => {
   const accessToken = authHeader.replace(/^Bearer /, "")
 
   try {
-    const tokenValidator = getTokenValidatorInstance()
-    const providerId = await tokenValidator.extractProviderId(accessToken)
+    const tokenParser = getTokenParserInstance()
+    const providerId = await tokenParser.extractProviderId(accessToken)
 
     const prismaClient = getPrismaClientInstance()
     const dbUser = await prismaClient.user.findFirst({
