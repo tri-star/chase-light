@@ -1,6 +1,7 @@
 import type { User } from "@prisma/client";
 import type { Notification } from "@prisma/client";
 import type { Feed } from "@prisma/client";
+import type { DataSource } from "@prisma/client";
 import type { Prisma } from "@prisma/client";
 import type { Resolver } from "@quramy/prisma-fabbrica/lib/internal";
 export { resetSequence, registerScalarFieldValueGenerator, resetScalarFieldValueGenerator } from "@quramy/prisma-fabbrica/lib/internal";
@@ -24,6 +25,7 @@ type UserFactoryDefineInput = {
     createdAt?: Date;
     updatedAt?: Date;
     notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput;
+    Feed?: Prisma.FeedCreateNestedManyWithoutUserInput;
 };
 type UserTransientFields = Record<string, unknown> & Partial<Record<keyof UserFactoryDefineInput, never>>;
 type UserFactoryTrait<TTransients extends Record<string, unknown>> = {
@@ -111,20 +113,31 @@ interface NotificationFactoryBuilder {
  * @returns factory {@link NotificationFactoryInterface}
  */
 export declare const defineNotificationFactory: NotificationFactoryBuilder;
+type FeeduserFactory = {
+    _factoryFor: "User";
+    build: () => PromiseLike<Prisma.UserCreateNestedOneWithoutFeedInput["create"]>;
+};
+type FeeddataSourceFactory = {
+    _factoryFor: "DataSource";
+    build: () => PromiseLike<Prisma.DataSourceCreateNestedOneWithoutFeedInput["create"]>;
+};
 type FeedFactoryDefineInput = {
     id?: string;
     name?: string;
+    cycle?: number;
     createdAt?: Date;
     updatedAt?: Date;
+    user: FeeduserFactory | Prisma.UserCreateNestedOneWithoutFeedInput;
+    dataSource: FeeddataSourceFactory | Prisma.DataSourceCreateNestedOneWithoutFeedInput;
 };
 type FeedTransientFields = Record<string, unknown> & Partial<Record<keyof FeedFactoryDefineInput, never>>;
 type FeedFactoryTrait<TTransients extends Record<string, unknown>> = {
     data?: Resolver<Partial<FeedFactoryDefineInput>, BuildDataOptions<TTransients>>;
 } & CallbackDefineOptions<Feed, Prisma.FeedCreateInput, TTransients>;
 type FeedFactoryDefineOptions<TTransients extends Record<string, unknown> = Record<string, unknown>> = {
-    defaultData?: Resolver<FeedFactoryDefineInput, BuildDataOptions<TTransients>>;
+    defaultData: Resolver<FeedFactoryDefineInput, BuildDataOptions<TTransients>>;
     traits?: {
-        [traitName: TraitName]: FeedFactoryTrait<TTransients>;
+        [traitName: string | symbol]: FeedFactoryTrait<TTransients>;
     };
 } & CallbackDefineOptions<Feed, Prisma.FeedCreateInput, TTransients>;
 type FeedTraitKeys<TOptions extends FeedFactoryDefineOptions<any>> = Exclude<keyof TOptions["traits"], number>;
@@ -144,8 +157,8 @@ export interface FeedFactoryInterface<TTransients extends Record<string, unknown
     use(name: TTraitName, ...names: readonly TTraitName[]): FeedFactoryInterfaceWithoutTraits<TTransients>;
 }
 interface FeedFactoryBuilder {
-    <TOptions extends FeedFactoryDefineOptions>(options?: TOptions): FeedFactoryInterface<{}, FeedTraitKeys<TOptions>>;
-    withTransientFields: <TTransients extends FeedTransientFields>(defaultTransientFieldValues: TTransients) => <TOptions extends FeedFactoryDefineOptions<TTransients>>(options?: TOptions) => FeedFactoryInterface<TTransients, FeedTraitKeys<TOptions>>;
+    <TOptions extends FeedFactoryDefineOptions>(options: TOptions): FeedFactoryInterface<{}, FeedTraitKeys<TOptions>>;
+    withTransientFields: <TTransients extends FeedTransientFields>(defaultTransientFieldValues: TTransients) => <TOptions extends FeedFactoryDefineOptions<TTransients>>(options: TOptions) => FeedFactoryInterface<TTransients, FeedTraitKeys<TOptions>>;
 }
 /**
  * Define factory for {@link Feed} model.
@@ -154,3 +167,48 @@ interface FeedFactoryBuilder {
  * @returns factory {@link FeedFactoryInterface}
  */
 export declare const defineFeedFactory: FeedFactoryBuilder;
+type DataSourceFactoryDefineInput = {
+    id?: string;
+    name?: string;
+    url?: string;
+    createdAt?: Date;
+    updatedAt?: Date;
+    Feed?: Prisma.FeedCreateNestedManyWithoutDataSourceInput;
+};
+type DataSourceTransientFields = Record<string, unknown> & Partial<Record<keyof DataSourceFactoryDefineInput, never>>;
+type DataSourceFactoryTrait<TTransients extends Record<string, unknown>> = {
+    data?: Resolver<Partial<DataSourceFactoryDefineInput>, BuildDataOptions<TTransients>>;
+} & CallbackDefineOptions<DataSource, Prisma.DataSourceCreateInput, TTransients>;
+type DataSourceFactoryDefineOptions<TTransients extends Record<string, unknown> = Record<string, unknown>> = {
+    defaultData?: Resolver<DataSourceFactoryDefineInput, BuildDataOptions<TTransients>>;
+    traits?: {
+        [traitName: TraitName]: DataSourceFactoryTrait<TTransients>;
+    };
+} & CallbackDefineOptions<DataSource, Prisma.DataSourceCreateInput, TTransients>;
+type DataSourceTraitKeys<TOptions extends DataSourceFactoryDefineOptions<any>> = Exclude<keyof TOptions["traits"], number>;
+export interface DataSourceFactoryInterfaceWithoutTraits<TTransients extends Record<string, unknown>> {
+    readonly _factoryFor: "DataSource";
+    build(inputData?: Partial<Prisma.DataSourceCreateInput & TTransients>): PromiseLike<Prisma.DataSourceCreateInput>;
+    buildCreateInput(inputData?: Partial<Prisma.DataSourceCreateInput & TTransients>): PromiseLike<Prisma.DataSourceCreateInput>;
+    buildList(list: readonly Partial<Prisma.DataSourceCreateInput & TTransients>[]): PromiseLike<Prisma.DataSourceCreateInput[]>;
+    buildList(count: number, item?: Partial<Prisma.DataSourceCreateInput & TTransients>): PromiseLike<Prisma.DataSourceCreateInput[]>;
+    pickForConnect(inputData: DataSource): Pick<DataSource, "id">;
+    create(inputData?: Partial<Prisma.DataSourceCreateInput & TTransients>): PromiseLike<DataSource>;
+    createList(list: readonly Partial<Prisma.DataSourceCreateInput & TTransients>[]): PromiseLike<DataSource[]>;
+    createList(count: number, item?: Partial<Prisma.DataSourceCreateInput & TTransients>): PromiseLike<DataSource[]>;
+    createForConnect(inputData?: Partial<Prisma.DataSourceCreateInput & TTransients>): PromiseLike<Pick<DataSource, "id">>;
+}
+export interface DataSourceFactoryInterface<TTransients extends Record<string, unknown> = Record<string, unknown>, TTraitName extends TraitName = TraitName> extends DataSourceFactoryInterfaceWithoutTraits<TTransients> {
+    use(name: TTraitName, ...names: readonly TTraitName[]): DataSourceFactoryInterfaceWithoutTraits<TTransients>;
+}
+interface DataSourceFactoryBuilder {
+    <TOptions extends DataSourceFactoryDefineOptions>(options?: TOptions): DataSourceFactoryInterface<{}, DataSourceTraitKeys<TOptions>>;
+    withTransientFields: <TTransients extends DataSourceTransientFields>(defaultTransientFieldValues: TTransients) => <TOptions extends DataSourceFactoryDefineOptions<TTransients>>(options?: TOptions) => DataSourceFactoryInterface<TTransients, DataSourceTraitKeys<TOptions>>;
+}
+/**
+ * Define factory for {@link DataSource} model.
+ *
+ * @param options
+ * @returns factory {@link DataSourceFactoryInterface}
+ */
+export declare const defineDataSourceFactory: DataSourceFactoryBuilder;
