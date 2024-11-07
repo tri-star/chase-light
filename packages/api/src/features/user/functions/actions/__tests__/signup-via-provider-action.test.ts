@@ -22,7 +22,7 @@ describe("SignupVieProviderAction", () => {
     const stubTokenParser = new StubTokenParser()
     const user = (await UserFactory.build()) as User
 
-    stubTokenParser.setAuthenticatedUser(user)
+    stubTokenParser.setUser(user)
     swapTokenParserForTest(stubTokenParser)
 
     const result = await app.request("/users/signup-via-provider", {
