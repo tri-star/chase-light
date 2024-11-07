@@ -29,6 +29,9 @@ importers:
       aws-xray-sdk-core:
         specifier: ^3.10.1
         version: 3.10.1
+      core:
+        specifier: workspace:*
+        version: link:../core
       date-fns:
         specifier: ^4.1.0
         version: 4.1.0
@@ -120,6 +123,9 @@ importers:
 
   packages/app:
     dependencies:
+      '@auth0/auth0-spa-js':
+        specifier: ^2.1.3
+        version: 2.1.3
       '@nuxt/eslint':
         specifier: ^0.6.0
         version: 0.6.0(eslint@9.13.0(jiti@2.3.3))(magicast@0.3.5)(rollup@4.24.0)(typescript@5.6.3)(vite@5.4.10(@types/node@22.7.8)(terser@5.36.0))(webpack-sources@3.2.3)
@@ -155,6 +161,40 @@ importers:
         specifier: ^4.24.0
         version: 4.24.0
 
+  packages/core:
+    dependencies:
+      '@hono/zod-openapi':
+        specifier: ^0.16.4
+        version: 0.16.4(hono@4.6.8)(zod@3.23.8)
+      uuid:
+        specifier: ^11.0.2
+        version: 11.0.2
+      zod:
+        specifier: ^3.23.8
+        version: 3.23.8
+    devDependencies:
+      '@eslint/js':
+        specifier: ^9.12.0
+        version: 9.13.0
+      eslint:
+        specifier: ^9.12.0
+        version: 9.13.0(jiti@2.3.3)
+      eslint-config-love:
+        specifier: ^87.0.0
+        version: 87.0.0(@typescript-eslint/parser@8.11.0(eslint@9.13.0(jiti@2.3.3))(typescript@5.6.3))(eslint@9.13.0(jiti@2.3.3))(typescript@5.6.3)
+      eslint-plugin-n:
+        specifier: ^17.11.1
+        version: 17.11.1(eslint@9.13.0(jiti@2.3.3))
+      eslint-plugin-promise:
+        specifier: ^7.1.0
+        version: 7.1.0(eslint@9.13.0(jiti@2.3.3))
+      typescript:
+        specifier: ^5.6.3
+        version: 5.6.3
+      typescript-eslint:
+        specifier: ^8.8.1
+        version: 8.11.0(eslint@9.13.0(jiti@2.3.3))(typescript@5.6.3)
+
 packages:
 
   '@adonisjs/hash@9.0.5':
@@ -187,6 +227,9 @@ packages:
     resolution: {integrity: sha512-Va+Fq1QzKkSgmiYINSp3cASFhMsbdRH/kmCk2feijhC+yNjGoC056CRqihrVFhR8MY8HOZHdlYm2Ns2lmszCiw==}
     peerDependencies:
       zod: ^3.20.2
+
+  '@auth0/auth0-spa-js@2.1.3':
+    resolution: {integrity: sha512-NMTBNuuG4g3rame1aCnNS5qFYIzsTUV5qTFPRfTyYFS1feS6jsCBR+eTq9YkxCp1yuoM2UIcjunPaoPl77U9xQ==}
 
   '@aws-crypto/crc32@5.2.0':
     resolution: {integrity: sha512-nLbCWqQNgUiwwtFsen1AdzAtvuLRsQS8rYgMuxCrdKf9kOssamGLuPwyTY9wyYblNr9+1XM8v6zoDTPPSIeANg==}
@@ -1665,7 +1708,7 @@ packages:
     resolution: {integrity: sha512-Pnsb6f32CD2W3uCaLZIzDmeFyQ2b8UWMFI7xtwUezpcGBDVDW6y9XgAWIlARiGAo6eNF5FK5aQTr0LFyNyqq5A==}
     engines: {node: '>=14.0.0'}
     peerDependencies:
-      rollup: npm:@rollup/wasm-node
+      rollup: ^1.20.0||^2.0.0||^3.0.0||^4.0.0
     peerDependenciesMeta:
       rollup:
         optional: true
@@ -5159,7 +5202,7 @@ packages:
     engines: {node: '>=14'}
     hasBin: true
     peerDependencies:
-      rollup: npm:@rollup/wasm-node
+      rollup: 2.x || 3.x || 4.x
     peerDependenciesMeta:
       rollup:
         optional: true
@@ -6251,6 +6294,8 @@ snapshots:
     dependencies:
       openapi3-ts: 4.4.0
       zod: 3.23.8
+
+  '@auth0/auth0-spa-js@2.1.3': {}
 
   '@aws-crypto/crc32@5.2.0':
     dependencies:
