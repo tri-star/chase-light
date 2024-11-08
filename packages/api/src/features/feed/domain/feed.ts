@@ -23,3 +23,20 @@ export const createFeedRequestSchema = z.object({
 })
 
 export type CreateFeedRequest = z.infer<typeof createFeedRequestSchema>
+
+export const feedSearchResultItemSchema = z.object({
+  id: z.string(),
+  name: z.string(),
+  cycle: makeUnionFromArray(CYCLE_VALUES),
+  dataSource: datasourceSchema,
+  createdAt: z.date(),
+  updatedAt: z.date(),
+})
+export type feedSearchResult = z.infer<typeof feedSearchResultSchema>
+
+export const feedSearchResultSchema = z.object({
+  result: z.array(feedSearchResultItemSchema),
+  total: z.number(),
+  page: z.number(),
+  pageSize: z.number(),
+})

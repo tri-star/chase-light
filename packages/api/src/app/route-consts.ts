@@ -18,5 +18,8 @@ export const ROUTES = {
     CREATE: {
       DEFINITION: "/feeds",
     },
+    LIST: {
+      DEFINITION: "/feeds",
+    },
   },
 } as const

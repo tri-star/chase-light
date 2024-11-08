@@ -1,4 +1,5 @@
 // Requiring @types/serverless in your project package.json
+import { feedApp } from "@/features/feed/functions"
 import { userApp } from "@/features/user/functions"
 import { scalerUiApp } from "@/functions/open-api"
 import type { Serverless } from "serverless/aws"
@@ -77,6 +78,7 @@ const serverlessConfiguration: Serverless & { build: object } = {
   },
   functions: {
     ...userApp.getLambdaDefinition(),
+    ...feedApp.getLambdaDefinition(),
     ...scalerUiApp.getLambdaDefinition(),
   },
 }
