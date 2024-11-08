@@ -13,7 +13,7 @@ import {
 export const feedApp: ChaseLightApp = new ChaseLightApp()
 
 feedApp.defineLambdaDefinition({
-  userHandler: {
+  feedHandler: {
     handler: `${handlerPath(currentDirPath(import.meta.url))}/index.handler`,
     timeout: 15,
     events: [
