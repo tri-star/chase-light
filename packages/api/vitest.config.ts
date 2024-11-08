@@ -10,6 +10,13 @@ export default defineConfig({
     sequence: {
       hooks: "list",
     },
+    pool: "threads",
+    poolOptions: {
+      threads: {
+        singleThread: true,
+        maxThreads: 1,
+      },
+    },
     maxConcurrency: 1,
   },
   resolve: {
