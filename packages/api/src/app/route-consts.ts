@@ -14,4 +14,9 @@ export const ROUTES = {
       DEFINITION: "/users/self",
     },
   },
+  FEEDS: {
+    CREATE: {
+      DEFINITION: "/feeds",
+    },
+  },
 } as const

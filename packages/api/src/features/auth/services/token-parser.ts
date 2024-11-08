@@ -17,6 +17,9 @@ export function getTokenParserInstance(): TokenParserInterface {
 }
 
 export function swapTokenParserForTest(newInstance: TokenParserInterface) {
+  if (process.env.NODE_ENV !== "test") {
+    throw new Error("swapTokenParserForTestはテスト環境でのみ使用できます")
+  }
   tokenParserInstance = newInstance
 }
 
