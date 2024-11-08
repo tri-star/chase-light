@@ -7,37 +7,37 @@ import {
 import type { User } from "@/features/user/domain/user"
 
 export class StubTokenParser implements TokenParserInterface {
-  private authenticatedUser: User | undefined
+  private user: User | undefined
 
-  setAuthenticatedUser(user: User | undefined) {
-    this.authenticatedUser = user
+  setUser(user: User | undefined) {
+    this.user = user
   }
 
   async extractProviderId(_token: string): Promise<string> {
-    return this.authenticatedUser?.providerId ?? ""
+    return this.user?.providerId ?? ""
   }
   async parseIdToken(_token: string): Promise<IdTokenPayload> {
-    if (this.authenticatedUser == null) {
+    if (this.user == null) {
       throw new TokenError("invalid_token", "invalid token")
     }
     return {
-      sub: this.authenticatedUser.providerId,
-      email: this.authenticatedUser.email,
-      email_verified: this.authenticatedUser.emailVerified,
-      name: this.authenticatedUser.displayName,
+      sub: this.user.providerId,
+      email: this.user.email,
+      email_verified: this.user.emailVerified,
+      name: this.user.displayName,
       picture: "",
       aud: [],
-      nickname: this.authenticatedUser.accountName,
+      nickname: this.user.accountName,
     }
   }
   async parseAccessToken(_token: string): Promise<AccessTokenPayload> {
-    if (this.authenticatedUser == null) {
+    if (this.user == null) {
       throw new TokenError("invalid_token", "invalid token")
     }
     return {
-      sub: this.authenticatedUser.providerId,
-      email: this.authenticatedUser.email,
-      email_verified: this.authenticatedUser.emailVerified,
+      sub: this.user.providerId,
+      email: this.user.email,
+      email_verified: this.user.emailVerified,
       aud: [],
     }
   }

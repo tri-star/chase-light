@@ -29,6 +29,9 @@ importers:
       aws-xray-sdk-core:
         specifier: ^3.10.1
         version: 3.10.1
+      core:
+        specifier: workspace:*
+        version: link:../core
       date-fns:
         specifier: ^4.1.0
         version: 4.1.0
@@ -154,6 +157,40 @@ importers:
       rollup:
         specifier: ^4.24.0
         version: 4.24.0
+
+  packages/core:
+    dependencies:
+      '@hono/zod-openapi':
+        specifier: ^0.16.4
+        version: 0.16.4(hono@4.6.8)(zod@3.23.8)
+      uuid:
+        specifier: ^11.0.2
+        version: 11.0.2
+      zod:
+        specifier: ^3.23.8
+        version: 3.23.8
+    devDependencies:
+      '@eslint/js':
+        specifier: ^9.12.0
+        version: 9.13.0
+      eslint:
+        specifier: ^9.12.0
+        version: 9.13.0(jiti@2.3.3)
+      eslint-config-love:
+        specifier: ^87.0.0
+        version: 87.0.0(@typescript-eslint/parser@8.11.0(eslint@9.13.0(jiti@2.3.3))(typescript@5.6.3))(eslint@9.13.0(jiti@2.3.3))(typescript@5.6.3)
+      eslint-plugin-n:
+        specifier: ^17.11.1
+        version: 17.11.1(eslint@9.13.0(jiti@2.3.3))
+      eslint-plugin-promise:
+        specifier: ^7.1.0
+        version: 7.1.0(eslint@9.13.0(jiti@2.3.3))
+      typescript:
+        specifier: ^5.6.3
+        version: 5.6.3
+      typescript-eslint:
+        specifier: ^8.8.1
+        version: 8.11.0(eslint@9.13.0(jiti@2.3.3))(typescript@5.6.3)
 
 packages:
 
@@ -1665,7 +1702,7 @@ packages:
     resolution: {integrity: sha512-Pnsb6f32CD2W3uCaLZIzDmeFyQ2b8UWMFI7xtwUezpcGBDVDW6y9XgAWIlARiGAo6eNF5FK5aQTr0LFyNyqq5A==}
     engines: {node: '>=14.0.0'}
     peerDependencies:
-      rollup: npm:@rollup/wasm-node
+      rollup: ^1.20.0||^2.0.0||^3.0.0||^4.0.0
     peerDependenciesMeta:
       rollup:
         optional: true
@@ -5159,7 +5196,7 @@ packages:
     engines: {node: '>=14'}
     hasBin: true
     peerDependencies:
-      rollup: npm:@rollup/wasm-node
+      rollup: 2.x || 3.x || 4.x
     peerDependenciesMeta:
       rollup:
         optional: true

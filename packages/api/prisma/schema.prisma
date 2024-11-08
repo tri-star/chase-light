@@ -34,6 +34,7 @@ model User {
   notifications Notification[]
   createdAt     DateTime       @default(now()) @map("created_at") @db.Timestamptz
   updatedAt     DateTime       @updatedAt @map("updated_at") @db.Timestamptz
+  Feed          Feed[]
 
   @@index([displayName])
   @@index([providerId])
@@ -53,10 +54,28 @@ model Notification {
 }
 
 model Feed {
-  id        String   @id @db.Uuid
-  name      String   @db.VarChar(100)
+  id           String     @id @db.Uuid
+  userId       String     @map("user_id") @db.Uuid
+  user         User       @relation(fields: [userId], references: [id])
+  name         String     @db.VarChar(100)
+  cycle        Int        @default(0)
+  dataSourceId String     @map("data_source_id") @db.Uuid
+  dataSource   DataSource @relation(fields: [dataSourceId], references: [id])
+
   createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz
   updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz
 
   @@map("feeds")
+}
+
+model DataSource {
+  id        String   @id @db.Uuid
+  name      String   @db.VarChar(100)
+  url       String   @db.Text
+  // type: 将来的に追加する
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz
+  Feed      Feed[]
+
+  @@map("data_sources")
 }

@@ -20,7 +20,7 @@ describe("FetchUserAction", () => {
       const stubTokenParser = new StubTokenParser()
       const user = await UserFactory.create()
 
-      stubTokenParser.setAuthenticatedUser(user)
+      stubTokenParser.setUser(user)
       swapTokenParserForTest(stubTokenParser)
 
       const result = await app.request("/users/self", {
