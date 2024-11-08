@@ -1,5 +1,6 @@
 import { ChaseLightApp } from "@/app/chase-light-app"
 import { CreateFeedAction } from "@/features/feed/functions/actions/create-feed-action"
+import { ListFeedAction } from "@/features/feed/functions/actions/list-feed-action"
 import { handlerPath } from "@/lib/hono/handler-resolver"
 import { currentDirPath } from "@/lib/utils/path-utils"
 import {
@@ -31,7 +32,11 @@ feedApp.defineLambdaDefinition({
     ],
   },
 })
-feedApp.importActions([new CreateFeedAction()])
+feedApp.importActions([
+  new CreateFeedAction(),
+  new ListFeedAction(),
+  //
+])
 
 export const handler: (
   event: LambdaEvent,

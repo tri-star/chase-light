@@ -1,9 +1,10 @@
 import type { AppContext } from "@/app/chase-light-app"
 import { StubTokenParser } from "@/features/auth/services/stub-token-parser"
 import { swapTokenParserForTest } from "@/features/auth/services/token-parser"
-import type { CreateFeedRequest, Feed } from "@/features/feed/domain/feed"
+import type { feedSearchResult } from "@/features/feed/domain/feed"
 import { feedApp } from "@/features/feed/functions"
 import type { OpenAPIHono } from "@hono/zod-openapi"
+import { FeedFactory } from "prisma/seeds/feed-factory"
 import { UserFactory } from "prisma/seeds/user-factory"
 import { beforeEach, describe, expect, test } from "vitest"
 
@@ -13,30 +14,30 @@ beforeEach(() => {
   app = feedApp.getApp()
 })
 
-describe("CreateFeedAction", () => {
-  test("フィードを作成できること", async () => {
+describe("ListFeedAction", () => {
+  test("フィード一覧を取得できること", async () => {
     const stubTokenParser = new StubTokenParser()
     const user = await UserFactory.create()
+    const feeds = await FeedFactory.createList(5, {
+      user: {
+        connect: {
+          id: user.id,
+        },
+      },
+    })
 
     stubTokenParser.setUser(user)
     swapTokenParserForTest(stubTokenParser)
 
-    const request: CreateFeedRequest = {
-      name: "test feed",
-      url: "https://example.com",
-      cycle: 1, // CYCLE_VALUE_MAP.DAILY
-    }
-
     const result = await app.request("/feeds", {
-      method: "POST",
+      method: "GET",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify(request),
     })
+    const resultJson = (await result.json()) as feedSearchResult
+    expect(resultJson.result[0].id).toBe(feeds[0].id)
+    expect(resultJson.result.length).toBe(5)
     expect(result.status).toBe(200)
-    expect(((await result.json()) as { feed: Feed }).feed.name).toBe(
-      request.name,
-    )
   })
 })
