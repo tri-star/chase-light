@@ -74,6 +74,9 @@ export class ListFeedAction extends ActionDefinition<AppContext> {
           include: {
             dataSource: true,
           },
+          orderBy: {
+            createdAt: "desc",
+          },
         })
 
         // TODO: ページング処理
