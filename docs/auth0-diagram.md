@@ -15,16 +15,18 @@ sequenceDiagram
     User->>Server: 7. 認可コードを含むリクエスト
     Server->>Auth0: 8. 認可コードを使用してトークンをリクエスト
     Auth0->>Server: 9. IDトークン、アクセストークン発行
-    Server->>Server: 10. トークンを暗号化してCookieに設定
+    Server->>Server: 10. トークンをセッションに紐
     Server->>Front: 11. Cookieを含むレスポンス
     Front->>User: 12. アプリ画面表示
     alt SPA上の操作
-        User->>Front: 13. ユーザーが操作を実行
-        Front->>Lambda: 14. Authorization: Bearerヘッダを含むリクエスト
-        Lambda->>Lambda: 15. トークンを検証、トークンからユーザーID等取得
-        Lambda->>Lambda: 16. トークンが有効な場合、処理を実行
-        Lambda->>Front: 17. レスポンス
-        Front->>User: 18. 処理結果表示
+        User->>Front: ユーザーが操作を実行
+        Front->>Server: API呼び出し
+        Server->>Lambda: Authorization: Bearerヘッダを含むリクエスト
+        Lambda->>Lambda: トークンを検証、トークンからユーザーID等取得
+        Lambda->>Lambda: トークンが有効な場合、処理を実行
+        Lambda->>Server: レスポンス
+        Server->>Front: レスポンス
+        Front->>User: 処理結果表示
     end
     alt ユーザーが物理的に画面遷移する場合
         User->>Server: 19: ユーザーがブラウザで画面遷移
