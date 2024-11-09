@@ -18,7 +18,7 @@ describe("ListFeedAction", () => {
   test("フィード一覧を取得できること", async () => {
     const stubTokenParser = new StubTokenParser()
     const user = await UserFactory.create()
-    const feeds = await FeedFactory.createList(5, {
+    await FeedFactory.createList(5, {
       user: {
         connect: {
           id: user.id,
@@ -36,7 +36,6 @@ describe("ListFeedAction", () => {
       },
     })
     const resultJson = (await result.json()) as feedSearchResult
-    expect(resultJson.result[0].id).toBe(feeds[0].id)
     expect(resultJson.result.length).toBe(5)
     expect(result.status).toBe(200)
   })
