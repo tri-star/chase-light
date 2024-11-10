@@ -3,7 +3,12 @@ import { validateToken } from "nuxt-oidc-auth/runtime/server/utils/security.js"
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
   compatibilityDate: "2024-04-03",
-  modules: ["@nuxt/eslint", "@pinia/nuxt", "nuxt-auth-utils"],
+  modules: [
+    "@nuxt/eslint",
+    "@pinia/nuxt",
+    "nuxt-auth-utils",
+    "@nuxtjs/storybook",
+  ],
   plugins: [],
   runtimeConfig: {
     oauth: {
