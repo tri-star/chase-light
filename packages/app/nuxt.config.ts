@@ -28,4 +28,14 @@ export default defineNuxtConfig({
       },
     },
   },
+  // 現時点では以下のワークアラウンドが必要
+  // https://github.com/nuxt-modules/storybook/issues/776#issuecomment-2434672219
+  vite: {
+    optimizeDeps: {
+      include: [
+        "eslint-plugin-regexp > jsdoc-type-pratt-parser",
+        "storybook > @storybook/core > jsdoc-type-pratt-parser",
+      ],
+    },
+  },
 })
