@@ -12,6 +12,7 @@
   "dependencies": {
     "@nuxt/eslint": "^0.6.0",
     "@nuxtjs/storybook": "^8.3.2",
+    "@nuxtjs/tailwindcss": "^6.12.2",
     "@pinia/nuxt": "^0.5.5",
     "@storybook/addon-essentials": "^8.4.2",
     "@storybook/addon-interactions": "^8.4.2",
@@ -20,6 +21,7 @@
     "nuxt-auth-utils": "^0.5.0",
     "nuxt-oidc-auth": "^0.18.0",
     "pinia": "^2.2.4",
+    "tailwindcss": "^3.4.14",
     "vue": "latest",
     "vue-router": "latest"
   },

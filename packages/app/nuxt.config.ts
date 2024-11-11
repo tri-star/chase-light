@@ -8,6 +8,7 @@ export default defineNuxtConfig({
     "@pinia/nuxt",
     "nuxt-auth-utils",
     "@nuxtjs/storybook",
+    "@nuxtjs/tailwindcss",
   ],
   plugins: [],
   runtimeConfig: {
