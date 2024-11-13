@@ -9,8 +9,19 @@ export default defineNuxtConfig({
     "nuxt-auth-utils",
     "@nuxtjs/storybook",
     "@nuxtjs/tailwindcss",
+    "@nuxt/icon",
   ],
   plugins: [],
+  app: {
+    head: {
+      link: [
+        {
+          rel: "stylesheet",
+          href: "https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700&display=swap",
+        },
+      ],
+    },
+  },
   runtimeConfig: {
     oauth: {
       auth0: {

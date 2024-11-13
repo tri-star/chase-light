@@ -1,7 +1,10 @@
 <script setup lang="ts">
+import { SIDE_MENU_ITEM_MAP } from '~/components/common/side-menu/side-menu'
+
 const { loggedIn, clear } = useUserSession()
 definePageMeta({
   allowGuest: true,
+  menuId: SIDE_MENU_ITEM_MAP.dashboard.id,
 })
 </script>
 
