@@ -1,8 +1,4 @@
 export default defineNuxtRouteMiddleware((from, to) => {
-  if (!import.meta.server) {
-    return
-  }
-
   if (to.meta.allowGuest) return
 
   const { loggedIn } = useUserSession()
