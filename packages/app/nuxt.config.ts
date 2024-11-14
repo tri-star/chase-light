@@ -11,6 +11,9 @@ export default defineNuxtConfig({
     "@nuxtjs/tailwindcss",
     "@nuxt/icon",
   ],
+  components: {
+    dirs: [],
+  },
   plugins: [],
   app: {
     head: {
