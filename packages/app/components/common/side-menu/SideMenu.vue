@@ -18,7 +18,7 @@ function isActive(sideMenuId: SideMenuItemId) {
     <div class="flex">
       <img src="~/assets/logo-dark-02.svg" class="h-14" />
     </div>
-    <ul class="my-5">
+    <ul class="flex flex-col gap-2 my-5">
       <template v-for="menu in sideMenuItems" :key="menu.id">
         <SideMenuItem
           :icon="menu.icon"
