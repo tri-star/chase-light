@@ -44,10 +44,16 @@ export default (<Partial<Config>>{
       fontFamily: {
         sans: ["Noto Sans JP", "sans-serif"],
         label: ["Noto Sans JP", "sans-serif"],
+        heading: ["Noto Sans JP", "sans-serif"],
       },
       fontSize: {
         "size-m": "16px",
         "size-l": "16px",
+        "size-h1": "36px",
+        "size-h2": "32px",
+        "size-h3": "28px",
+        "size-h4": "24px",
+        "size-h5": "20px",
       },
     },
   },

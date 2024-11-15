@@ -1,23 +1,23 @@
 <script setup lang="ts">
 import { SIDE_MENU_ITEM_MAP } from '~/components/common/side-menu/side-menu'
+import LogCard from '~/components/feed/LogCard.vue'
 
-const { loggedIn, clear } = useUserSession()
 definePageMeta({
-  allowGuest: true,
+  allowGuest: false,
   menuId: SIDE_MENU_ITEM_MAP.dashboard.id,
 })
+
+const { data: feedLogs } = useFetch('/api/feeds/logs')
 </script>
 
 <template>
-  <div>DASHBOARD</div>
-  <div>loggedIn: {{ loggedIn }}</div>
-  <div v-if="!loggedIn">
-    <a href="/auth/auth0">Login with GitHub</a>
-  </div>
-  <div v-else>
-    <div>
-      <a href="/feeds/new">Add new feed</a>
-    </div>
-    <button @click="clear">Logout</button>
+  <h1>新着情報</h1>
+
+  <div class="flex flex-col items-center gap-4">
+    <LogCard
+      v-for="feedLog in feedLogs?.feedLogs ?? []"
+      :feed-log="feedLog"
+      :key="feedLog.id"
+    />
   </div>
 </template>

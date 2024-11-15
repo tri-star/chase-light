@@ -8,7 +8,13 @@ import SideMenu from '~/components/common/side-menu/SideMenu.vue'
     <SideMenu />
     <div class="flex flex-col w-full">
       <AppHeader />
-      <main class="flex h-full p-4"><slot /></main>
+      <main class="flex h-full p-4 justify-center">
+        <div
+          class="flex flex-col lg:w-[800px] md:w-[600px] bg-default rounded-2xl p-4"
+        >
+          <slot />
+        </div>
+      </main>
     </div>
   </div>
 </template>

@@ -5,3 +5,23 @@
 body {
   @apply font-label text-size-m;
 }
+
+h1 {
+  @apply block font-heading text-size-h1 font-bold;
+}
+
+h2 {
+  @apply block font-heading text-size-h2 font-bold;
+}
+
+h3 {
+  @apply block font-heading text-size-h3 font-bold;
+}
+
+h4 {
+  @apply block font-heading text-size-h4 font-bold;
+}
+
+h5 {
+  @apply block font-heading text-size-h5 font-bold;
+}
