@@ -147,6 +147,9 @@ importers:
       '@storybook/addon-links':
         specifier: ^8.4.2
         version: 8.4.2(react@18.3.1)(storybook@8.4.2(prettier@3.3.3))
+      core:
+        specifier: workspace:*
+        version: link:../core
       nuxt:
         specifier: ^3.13.2
         version: 3.13.2(@biomejs/biome@1.9.3)(@parcel/watcher@2.4.1)(@types/node@22.7.8)(eslint@9.13.0(jiti@2.4.0))(ioredis@5.4.1)(magicast@0.3.5)(optionator@0.9.4)(rollup@4.24.0)(terser@5.36.0)(typescript@5.6.3)(vite@5.4.10(@types/node@22.7.8)(terser@5.36.0))(webpack-sources@3.2.3)(xml2js@0.6.2)
@@ -174,6 +177,9 @@ importers:
       vue-router:
         specifier: latest
         version: 4.4.5(vue@3.5.12(typescript@5.6.3))
+      zod:
+        specifier: ^3.23.8
+        version: 3.23.8
     devDependencies:
       '@eslint/eslintrc':
         specifier: ^3.1.0
@@ -5970,7 +5976,7 @@ packages:
     engines: {node: '>=14'}
     hasBin: true
     peerDependencies:
-      rollup: npm:@rollup/wasm-node
+      rollup: 2.x || 3.x || 4.x
     peerDependenciesMeta:
       rollup:
         optional: true
