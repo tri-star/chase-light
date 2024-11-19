@@ -31,6 +31,10 @@ const modelFieldDefinitions = [{
                 name: "dataSource",
                 type: "DataSource",
                 relationName: "DataSourceToFeed"
+            }, {
+                name: "feedLogs",
+                type: "FeedLog",
+                relationName: "FeedToFeedLog"
             }]
     }, {
         name: "DataSource",
@@ -38,6 +42,13 @@ const modelFieldDefinitions = [{
                 name: "Feed",
                 type: "Feed",
                 relationName: "DataSourceToFeed"
+            }]
+    }, {
+        name: "FeedLog",
+        fields: [{
+                name: "feed",
+                type: "Feed",
+                relationName: "FeedToFeedLog"
             }]
     }];
 function autoGenerateUserScalarsOrEnums({ seq }) {
@@ -412,3 +423,100 @@ export const defineDataSourceFactory = ((options) => {
     return defineDataSourceFactoryInternal(options ?? {}, {});
 });
 defineDataSourceFactory.withTransientFields = defaultTransientFieldValues => options => defineDataSourceFactoryInternal(options ?? {}, defaultTransientFieldValues);
+function isFeedLogfeedFactory(x) {
+    return x?._factoryFor === "Feed";
+}
+function autoGenerateFeedLogScalarsOrEnums({ seq }) {
+    return {
+        id: getScalarFieldValueGenerator().String({ modelName: "FeedLog", fieldName: "id", isId: true, isUnique: false, seq }),
+        date: getScalarFieldValueGenerator().DateTime({ modelName: "FeedLog", fieldName: "date", isId: false, isUnique: false, seq }),
+        title: getScalarFieldValueGenerator().String({ modelName: "FeedLog", fieldName: "title", isId: false, isUnique: false, seq }),
+        summary: getScalarFieldValueGenerator().String({ modelName: "FeedLog", fieldName: "summary", isId: false, isUnique: false, seq }),
+        url: getScalarFieldValueGenerator().String({ modelName: "FeedLog", fieldName: "url", isId: false, isUnique: false, seq })
+    };
+}
+function defineFeedLogFactoryInternal({ defaultData: defaultDataResolver, onAfterBuild, onBeforeCreate, onAfterCreate, traits: traitsDefs = {} }, defaultTransientFieldValues) {
+    const getFactoryWithTraits = (traitKeys = []) => {
+        const seqKey = {};
+        const getSeq = () => getSequenceCounter(seqKey);
+        const screen = createScreener("FeedLog", modelFieldDefinitions);
+        const handleAfterBuild = createCallbackChain([
+            onAfterBuild,
+            ...traitKeys.map(traitKey => traitsDefs[traitKey]?.onAfterBuild),
+        ]);
+        const handleBeforeCreate = createCallbackChain([
+            ...traitKeys.slice().reverse().map(traitKey => traitsDefs[traitKey]?.onBeforeCreate),
+            onBeforeCreate,
+        ]);
+        const handleAfterCreate = createCallbackChain([
+            onAfterCreate,
+            ...traitKeys.map(traitKey => traitsDefs[traitKey]?.onAfterCreate),
+        ]);
+        const build = async (inputData = {}) => {
+            const seq = getSeq();
+            const requiredScalarData = autoGenerateFeedLogScalarsOrEnums({ seq });
+            const resolveValue = normalizeResolver(defaultDataResolver);
+            const [transientFields, filteredInputData] = destructure(defaultTransientFieldValues, inputData);
+            const resolverInput = { seq, ...transientFields };
+            const defaultData = await traitKeys.reduce(async (queue, traitKey) => {
+                const acc = await queue;
+                const resolveTraitValue = normalizeResolver(traitsDefs[traitKey]?.data ?? {});
+                const traitData = await resolveTraitValue(resolverInput);
+                return {
+                    ...acc,
+                    ...traitData,
+                };
+            }, resolveValue(resolverInput));
+            const defaultAssociations = {
+                feed: isFeedLogfeedFactory(defaultData.feed) ? {
+                    create: await defaultData.feed.build()
+                } : defaultData.feed
+            };
+            const data = { ...requiredScalarData, ...defaultData, ...defaultAssociations, ...filteredInputData };
+            await handleAfterBuild(data, transientFields);
+            return data;
+        };
+        const buildList = (...args) => Promise.all(normalizeList(...args).map(data => build(data)));
+        const pickForConnect = (inputData) => ({
+            id: inputData.id
+        });
+        const create = async (inputData = {}) => {
+            const [transientFields] = destructure(defaultTransientFieldValues, inputData);
+            const data = await build(inputData).then(screen);
+            await handleBeforeCreate(data, transientFields);
+            const createdData = await getClient().feedLog.create({ data });
+            await handleAfterCreate(createdData, transientFields);
+            return createdData;
+        };
+        const createList = (...args) => Promise.all(normalizeList(...args).map(data => create(data)));
+        const createForConnect = (inputData = {}) => create(inputData).then(pickForConnect);
+        return {
+            _factoryFor: "FeedLog",
+            build,
+            buildList,
+            buildCreateInput: build,
+            pickForConnect,
+            create,
+            createList,
+            createForConnect,
+        };
+    };
+    const factory = getFactoryWithTraits();
+    const useTraits = (name, ...names) => {
+        return getFactoryWithTraits([name, ...names]);
+    };
+    return {
+        ...factory,
+        use: useTraits,
+    };
+}
+/**
+ * Define factory for {@link FeedLog} model.
+ *
+ * @param options
+ * @returns factory {@link FeedLogFactoryInterface}
+ */
+export const defineFeedLogFactory = ((options) => {
+    return defineFeedLogFactoryInternal(options, {});
+});
+defineFeedLogFactory.withTransientFields = defaultTransientFieldValues => options => defineFeedLogFactoryInternal(options, defaultTransientFieldValues);
