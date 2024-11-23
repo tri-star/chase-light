@@ -1,10 +1,12 @@
 declare module "nuxt/schema" {
   interface RuntimeConfig {}
   interface PublicRuntimeConfig {
+    apiHost: string
     auth0: {
       domain: string
       clientId: string
       redirectUrl: string
+      audience: string
     }
   }
 }

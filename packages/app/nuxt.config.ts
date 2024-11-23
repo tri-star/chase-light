@@ -26,6 +26,7 @@ export default defineNuxtConfig({
     },
   },
   runtimeConfig: {
+    apiHost: process.env.NUXT_API_HOST,
     oauth: {
       auth0: {
         domain: process.env.NUXT_OAUTH_AUTH0_DOMAIN,
@@ -36,10 +37,12 @@ export default defineNuxtConfig({
       },
     },
     public: {
+      apiHost: process.env.NUXT_PUBLIC_API_HOST,
       auth0: {
         domain: process.env.NUXT_PUBLIC_OAUTH_AUTH0_DOMAIN,
         clientId: process.env.NUXT_PUBLIC_OAUTH_AUTH0_CLIENT_ID,
         redirectUrl: process.env.NUXT_PUBLIC_OAUTH_AUTH0_REDIRECT_URL,
+        audience: process.env.NUXT_PUBLIC_OAUTH_AUTH0_AUDIENCE,
       },
     },
   },
