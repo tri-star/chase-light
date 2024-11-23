@@ -1,11 +1,11 @@
-import { makeApi, Zodios, type ZodiosOptions } from "@zodios/core"
-import { z } from "zod"
+import { makeApi, Zodios, type ZodiosOptions } from "@zodios/core";
+import { z } from "zod";
 
 const postUserssignupViaProvider_Body = z
   .object({ accessToken: z.string(), idToken: z.string() })
   .strict()
   .passthrough()
-  .readonly()
+  .readonly();
 const postFeeds_Body = z
   .object({
     name: z.string(),
@@ -14,14 +14,89 @@ const postFeeds_Body = z
   })
   .strict()
   .passthrough()
-  .readonly()
+  .readonly();
 
 export const schemas = {
   postUserssignupViaProvider_Body,
   postFeeds_Body,
-}
+};
 
 const endpoints = makeApi([
+  {
+    method: "get",
+    path: "/feed-logs",
+    alias: "getFeedLogs",
+    requestFormat: "json",
+    response: z
+      .object({
+        result: z
+          .array(
+            z
+              .object({
+                id: z.string(),
+                feed: z
+                  .object({
+                    id: z.string(),
+                    name: z.string(),
+                    cycle: z.union([z.literal(1), z.literal(2)]),
+                    dataSource: z
+                      .object({
+                        id: z.string(),
+                        name: z.string(),
+                        url: z.string(),
+                        createdAt: z.string(),
+                        updatedAt: z.string(),
+                      })
+                      .strict()
+                      .passthrough()
+                      .readonly(),
+                    createdAt: z.string(),
+                    updatedAt: z.string(),
+                  })
+                  .strict()
+                  .passthrough()
+                  .readonly(),
+                date: z.union([z.string(), z.string()]),
+                title: z.string(),
+                summary: z.string(),
+                body: z.string().optional(),
+                url: z.string(),
+                createdAt: z.union([z.string(), z.string()]),
+                updatedAt: z.union([z.string(), z.string()]),
+              })
+              .strict()
+              .passthrough()
+              .readonly()
+          )
+          .readonly(),
+        total: z.number(),
+        page: z.number(),
+        pageSize: z.number(),
+      })
+      .strict()
+      .passthrough()
+      .readonly(),
+    errors: [
+      {
+        status: 401,
+        description: `認証エラー`,
+        schema: z
+          .object({ error: z.string() })
+          .strict()
+          .passthrough()
+          .readonly(),
+      },
+      {
+        status: 500,
+        description: `予期しないエラー`,
+        schema: z
+          .object({ error: z.string() })
+          .strict()
+          .passthrough()
+          .readonly(),
+      },
+    ],
+  },
   {
     method: "post",
     path: "/feeds",
@@ -136,7 +211,7 @@ const endpoints = makeApi([
               })
               .strict()
               .passthrough()
-              .readonly(),
+              .readonly()
           )
           .readonly(),
         total: z.number(),
@@ -270,10 +345,10 @@ const endpoints = makeApi([
       },
     ],
   },
-])
+]);
 
-export const api = new Zodios(endpoints)
+export const api = new Zodios(endpoints);
 
 export function createApiClient(baseUrl: string, options?: ZodiosOptions) {
-  return new Zodios(baseUrl, endpoints, options)
+  return new Zodios(baseUrl, endpoints, options);
 }

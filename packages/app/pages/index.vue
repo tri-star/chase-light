@@ -15,7 +15,7 @@ const { data: feedLogs } = useFetch('/api/feeds/logs')
 
   <div class="flex flex-col items-center gap-4">
     <LogCard
-      v-for="feedLog in feedLogs?.feedLogs ?? []"
+      v-for="feedLog in feedLogs?.result ?? []"
       :feed-log="feedLog"
       :key="feedLog.id"
     />
