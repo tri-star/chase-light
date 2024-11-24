@@ -3,19 +3,29 @@ import A3Button from "~/components/common/A3Button.vue"
 import { SIDE_MENU_ITEM_MAP } from "~/components/common/side-menu/side-menu"
 import LogCard from "~/components/feed/LogCard.vue"
 
+const router = useRouter()
+
 definePageMeta({
   allowGuest: false,
   menuId: SIDE_MENU_ITEM_MAP.dashboard.id,
 })
 
 const { data: feedLogs } = useFetch("/api/feeds/logs")
+
+function handleAddFeedClick() {
+  router.push({ path: "/feeds/new" })
+}
 </script>
 
 <template>
   <div class="flex flex-col gap-6">
     <div class="flex items-center">
       <h1 class="flex-1">新着情報</h1>
-      <A3Button label="フィード登録" />
+      <A3Button
+        label="フィード登録"
+        type="primary"
+        @click="handleAddFeedClick"
+      />
     </div>
 
     <div class="flex flex-col items-center gap-4">

@@ -5,10 +5,12 @@ import A3Spinner from "./A3Spinner.vue"
 withDefaults(
   defineProps<{
     label: string
+    type?: "primary" | "default"
     loading?: false
     disabled?: boolean
   }>(),
   {
+    type: "default",
     loading: false,
     disabled: false,
   }
@@ -36,6 +38,7 @@ const buttonClasses = tv({
   ],
   variants: {
     type: {
+      default: [],
       primary: ["bg-primary", "hover:bg-primary-hover", "text-primary"],
     },
     loading: {
@@ -63,7 +66,7 @@ const buttonClasses = tv({
 </script>
 
 <template>
-  <button :class="buttonClasses({ type: 'primary' })">
+  <button :class="buttonClasses({ type, loading, disabled })">
     <A3Spinner v-if="loading" />
     <span class="font-label text-size-m">{{ label }}</span>
   </button>
