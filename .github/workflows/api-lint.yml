@@ -5,10 +5,10 @@ on:
     branches:
       - main
     paths:
-      - 'packages/api/**'
+      - "packages/api/**"
   pull_request:
     paths:
-      - 'packages/api/**'
+      - "packages/api/**"
   workflow_dispatch:
 
 jobs:
@@ -24,7 +24,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '22'
+          node-version: "22"
 
       - uses: actions/cache/restore@v4
         id: pnpm-cache
@@ -45,6 +45,7 @@ jobs:
       - name: Run linter
         run: |
           cd packages/api
+          npx prisma generate
           pnpm lint
 
       - uses: actions/cache/save@v4
