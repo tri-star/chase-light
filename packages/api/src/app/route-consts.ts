@@ -21,5 +21,8 @@ export const ROUTES = {
     LIST: {
       DEFINITION: "/feeds",
     },
+    LIST_ALL_LOGS: {
+      DEFINITION: "/feed-logs",
+    },
   },
 } as const

@@ -61,6 +61,7 @@ model Feed {
   cycle        Int        @default(0)
   dataSourceId String     @map("data_source_id") @db.Uuid
   dataSource   DataSource @relation(fields: [dataSourceId], references: [id])
+  feedLogs     FeedLog[]
 
   createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz
   updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz
@@ -78,4 +79,23 @@ model DataSource {
   Feed      Feed[]
 
   @@map("data_sources")
+}
+
+model FeedLog {
+  id        String   @id @db.Uuid
+  feedId    String   @map("feed_id") @db.Uuid
+  feed      Feed     @relation(fields: [feedId], references: [id])
+  date      DateTime @map("date") @db.Timestamptz
+  title     String   @db.VarChar(255)
+  summary   String   @db.Text
+  body      String?  @db.Text
+  url       String   @db.Text
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz
+
+  @@index([feedId])
+  @@index([date])
+  @@index([createdAt])
+  @@index([updatedAt])
+  @@map("feed_logs")
 }

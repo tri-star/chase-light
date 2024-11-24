@@ -2,6 +2,7 @@ import type { User } from "@prisma/client";
 import type { Notification } from "@prisma/client";
 import type { Feed } from "@prisma/client";
 import type { DataSource } from "@prisma/client";
+import type { FeedLog } from "@prisma/client";
 import type { Prisma } from "@prisma/client";
 import type { Resolver } from "@quramy/prisma-fabbrica/lib/internal";
 export { resetSequence, registerScalarFieldValueGenerator, resetScalarFieldValueGenerator } from "@quramy/prisma-fabbrica/lib/internal";
@@ -129,6 +130,7 @@ type FeedFactoryDefineInput = {
     updatedAt?: Date;
     user: FeeduserFactory | Prisma.UserCreateNestedOneWithoutFeedInput;
     dataSource: FeeddataSourceFactory | Prisma.DataSourceCreateNestedOneWithoutFeedInput;
+    feedLogs?: Prisma.FeedLogCreateNestedManyWithoutFeedInput;
 };
 type FeedTransientFields = Record<string, unknown> & Partial<Record<keyof FeedFactoryDefineInput, never>>;
 type FeedFactoryTrait<TTransients extends Record<string, unknown>> = {
@@ -212,3 +214,55 @@ interface DataSourceFactoryBuilder {
  * @returns factory {@link DataSourceFactoryInterface}
  */
 export declare const defineDataSourceFactory: DataSourceFactoryBuilder;
+type FeedLogfeedFactory = {
+    _factoryFor: "Feed";
+    build: () => PromiseLike<Prisma.FeedCreateNestedOneWithoutFeedLogsInput["create"]>;
+};
+type FeedLogFactoryDefineInput = {
+    id?: string;
+    date?: Date;
+    title?: string;
+    summary?: string;
+    body?: string | null;
+    url?: string;
+    createdAt?: Date;
+    updatedAt?: Date;
+    feed: FeedLogfeedFactory | Prisma.FeedCreateNestedOneWithoutFeedLogsInput;
+};
+type FeedLogTransientFields = Record<string, unknown> & Partial<Record<keyof FeedLogFactoryDefineInput, never>>;
+type FeedLogFactoryTrait<TTransients extends Record<string, unknown>> = {
+    data?: Resolver<Partial<FeedLogFactoryDefineInput>, BuildDataOptions<TTransients>>;
+} & CallbackDefineOptions<FeedLog, Prisma.FeedLogCreateInput, TTransients>;
+type FeedLogFactoryDefineOptions<TTransients extends Record<string, unknown> = Record<string, unknown>> = {
+    defaultData: Resolver<FeedLogFactoryDefineInput, BuildDataOptions<TTransients>>;
+    traits?: {
+        [traitName: string | symbol]: FeedLogFactoryTrait<TTransients>;
+    };
+} & CallbackDefineOptions<FeedLog, Prisma.FeedLogCreateInput, TTransients>;
+type FeedLogTraitKeys<TOptions extends FeedLogFactoryDefineOptions<any>> = Exclude<keyof TOptions["traits"], number>;
+export interface FeedLogFactoryInterfaceWithoutTraits<TTransients extends Record<string, unknown>> {
+    readonly _factoryFor: "FeedLog";
+    build(inputData?: Partial<Prisma.FeedLogCreateInput & TTransients>): PromiseLike<Prisma.FeedLogCreateInput>;
+    buildCreateInput(inputData?: Partial<Prisma.FeedLogCreateInput & TTransients>): PromiseLike<Prisma.FeedLogCreateInput>;
+    buildList(list: readonly Partial<Prisma.FeedLogCreateInput & TTransients>[]): PromiseLike<Prisma.FeedLogCreateInput[]>;
+    buildList(count: number, item?: Partial<Prisma.FeedLogCreateInput & TTransients>): PromiseLike<Prisma.FeedLogCreateInput[]>;
+    pickForConnect(inputData: FeedLog): Pick<FeedLog, "id">;
+    create(inputData?: Partial<Prisma.FeedLogCreateInput & TTransients>): PromiseLike<FeedLog>;
+    createList(list: readonly Partial<Prisma.FeedLogCreateInput & TTransients>[]): PromiseLike<FeedLog[]>;
+    createList(count: number, item?: Partial<Prisma.FeedLogCreateInput & TTransients>): PromiseLike<FeedLog[]>;
+    createForConnect(inputData?: Partial<Prisma.FeedLogCreateInput & TTransients>): PromiseLike<Pick<FeedLog, "id">>;
+}
+export interface FeedLogFactoryInterface<TTransients extends Record<string, unknown> = Record<string, unknown>, TTraitName extends TraitName = TraitName> extends FeedLogFactoryInterfaceWithoutTraits<TTransients> {
+    use(name: TTraitName, ...names: readonly TTraitName[]): FeedLogFactoryInterfaceWithoutTraits<TTransients>;
+}
+interface FeedLogFactoryBuilder {
+    <TOptions extends FeedLogFactoryDefineOptions>(options: TOptions): FeedLogFactoryInterface<{}, FeedLogTraitKeys<TOptions>>;
+    withTransientFields: <TTransients extends FeedLogTransientFields>(defaultTransientFieldValues: TTransients) => <TOptions extends FeedLogFactoryDefineOptions<TTransients>>(options: TOptions) => FeedLogFactoryInterface<TTransients, FeedLogTraitKeys<TOptions>>;
+}
+/**
+ * Define factory for {@link FeedLog} model.
+ *
+ * @param options
+ * @returns factory {@link FeedLogFactoryInterface}
+ */
+export declare const defineFeedLogFactory: FeedLogFactoryBuilder;
