@@ -17,8 +17,9 @@ const menuClasses = tv({
     'rounded-md',
     'flex',
     'py-2',
-    'px-4',
+    'px-2',
     'gap-4',
+    'overflow-hidden',
     'group',
   ],
   variants: {
@@ -30,7 +31,7 @@ const menuClasses = tv({
 })
 
 const menuTextClasses = tv({
-  base: ['text-side-menu-text', 'text-size-l', 'font-bold'],
+  base: ['text-side-menu-text', 'text-size-l', 'font-bold', 'flex-shrink-0'],
   variants: {
     active: {
       true: ['text-side-menu-text-active'],
