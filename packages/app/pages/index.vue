@@ -1,14 +1,14 @@
 <script setup lang="ts">
-import A3Button from '~/components/common/A3Button.vue';
-import { SIDE_MENU_ITEM_MAP } from '~/components/common/side-menu/side-menu'
-import LogCard from '~/components/feed/LogCard.vue'
+import A3Button from "~/components/common/A3Button.vue"
+import { SIDE_MENU_ITEM_MAP } from "~/components/common/side-menu/side-menu"
+import LogCard from "~/components/feed/LogCard.vue"
 
 definePageMeta({
   allowGuest: false,
   menuId: SIDE_MENU_ITEM_MAP.dashboard.id,
 })
 
-const { data: feedLogs } = useFetch('/api/feeds/logs')
+const { data: feedLogs } = useFetch("/api/feeds/logs")
 </script>
 
 <template>

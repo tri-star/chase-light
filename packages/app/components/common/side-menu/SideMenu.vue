@@ -1,10 +1,10 @@
 <script setup lang="ts">
-import { tv } from 'tailwind-variants'
-import SideMenuItem from '~/components/common/side-menu/SideMenuItem.vue'
+import { tv } from "tailwind-variants"
+import SideMenuItem from "~/components/common/side-menu/SideMenuItem.vue"
 import {
   sideMenuItems,
   type SideMenuItemId,
-} from '~/components/common/side-menu/side-menu'
+} from "~/components/common/side-menu/side-menu"
 
 const route = useRoute()
 
@@ -12,30 +12,30 @@ const isExpanded = ref(true)
 
 const sideMenuClasses = tv({
   base: [
-    'group',
-    'bg-side-menu',
-    'sticky',
-    'top-0',
-    'z-50',
-    'h-screen',
-    'p-2',
-    'tramsition-all',
-    'duration-300',
+    "group",
+    "bg-side-menu",
+    "sticky",
+    "top-0",
+    "z-50",
+    "h-screen",
+    "p-2",
+    "tramsition-all",
+    "duration-300",
   ],
   variants: {
     expanded: {
-      true: ['w-72'],
-      false: ['w-[72px]'],
+      true: ["w-72"],
+      false: ["w-[72px]"],
     },
   },
 })
 
 const logoClasses = tv({
-  base: ['h-14', 'tramsition-left', 'duration-300'],
+  base: ["h-14", "tramsition-left", "duration-300"],
   variants: {
     expanded: {
-      true: ['left-0'],
-      false: ['absolute', 'left-[-200px]'],
+      true: ["left-0"],
+      false: ["absolute", "left-[-200px]"],
     },
   },
 })

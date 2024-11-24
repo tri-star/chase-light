@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import AppHeader from '~/components/common/header/AppHeader.vue'
-import SideMenu from '~/components/common/side-menu/SideMenu.vue'
+import AppHeader from "~/components/common/header/AppHeader.vue"
+import SideMenu from "~/components/common/side-menu/SideMenu.vue"
 </script>
 
 <template>
