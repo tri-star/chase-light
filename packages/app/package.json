@@ -8,7 +8,10 @@
     "generate": "nuxt generate",
     "preview": "nuxt preview",
     "build-api-client": "openapi-zod-client http://localhost:3000/dev/openapi.json -o ./lib/api/client.generated.ts --all-readonly --strict-objects",
-    "postinstall": "nuxt prepare"
+    "postinstall": "nuxt prepare",
+    "format:biome": "biome format --write *.ts *.js *.mjs **/*.ts **/*.js **/*.mjs",
+    "format:prettier": "prettier --write '**/*.vue'",
+    "format": "npm-run-all2 format:biome format:prettier"
   },
   "dependencies": {
     "@nuxt/eslint": "^0.6.0",
