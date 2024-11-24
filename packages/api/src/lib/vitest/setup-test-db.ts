@@ -1,10 +1,9 @@
 import { initialize } from "@/__generated__/fabbrica"
 import { swapPrismaClientForTest } from "@/lib/prisma/app-prisma-client"
 import { PrismaClient } from "@prisma/client"
-import { execSync } from "child_process"
 import { beforeEach, inject } from "vitest"
 
-beforeEach(() => {
+beforeEach(async () => {
   const connectionUrl = inject("testDbConnectUrl")
 
   const prismaClientForTest = new PrismaClient({
@@ -30,7 +29,23 @@ beforeEach(() => {
   initialize({ prisma: prismaClientForTest })
 
   console.log("before each: Start DB reset.")
-  execSync(
-    `DATABASE_URL=${connectionUrl} DIRECT_URL=${connectionUrl} pnpx prisma migrate reset --force`,
-  )
+
+  // https://www.prisma.io/docs/orm/prisma-client/queries/crud#deleting-all-data-with-raw-sql--truncate
+  const tablenames = await prismaClientForTest.$queryRaw<
+    Array<{ tablename: string }>
+  >`SELECT tablename FROM pg_tables WHERE schemaname='public'`
+
+  const tables = tablenames
+    .map(({ tablename }) => tablename)
+    .filter((name) => name !== "_prisma_migrations")
+    .map((name) => `"public"."${name}"`)
+    .join(", ")
+
+  try {
+    await prismaClientForTest.$executeRawUnsafe(
+      `TRUNCATE TABLE ${tables} CASCADE;`,
+    )
+  } catch (error) {
+    console.log({ error })
+  }
 })
