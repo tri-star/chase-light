@@ -19,8 +19,8 @@ withDefaults(
 const buttonClasses = tv({
   base: [
     "flex",
-    "bg-default",
-    "hover:bg-default-hover",
+    "bg-default-button",
+    "hover:bg-default-button-hover",
     "text-default",
     "rounded",
     "px-4",
