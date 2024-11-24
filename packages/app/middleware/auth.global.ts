@@ -18,6 +18,6 @@ export default defineNuxtRouteMiddleware((from, to) => {
       "openid profile email offline_access",
     )
     authorizeUrl.searchParams.append("audience", config.public.auth0.audience)
-    return navigateTo(authorizeUrl, { external: true })
+    return navigateTo(authorizeUrl.toString(), { external: true })
   }
 })
