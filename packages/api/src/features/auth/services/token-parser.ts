@@ -38,10 +38,10 @@ export class Auth0TokenParser implements TokenParserInterface {
       const { payload }: { payload: AccessTokenPayload } = await jose.jwtVerify(
         token,
         JWKS,
-        // TODO: バリデーションする内容の指定
-        // {
-        //   audience: process.env.API_URL,
-        // },
+        {
+          issuer: `https://${process.env.AUTH0_DOMAIN}/`,
+          audience: process.env.AUTH0_AUDIENCE,
+        },
       )
 
       /*
