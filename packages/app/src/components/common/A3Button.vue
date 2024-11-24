@@ -1,9 +1,18 @@
 <script setup lang="ts">
 import { tv } from "tailwind-variants"
+import A3Spinner from "./A3Spinner.vue"
 
-defineProps<{
-  label: string
-}>()
+withDefaults(
+  defineProps<{
+    label: string
+    loading?: false
+    disabled?: boolean
+  }>(),
+  {
+    loading: false,
+    disabled: false,
+  }
+)
 
 const buttonClasses = tv({
   base: [
@@ -14,7 +23,7 @@ const buttonClasses = tv({
     "rounded",
     "px-4",
     "py-3",
-    "gap-1",
+    "gap-2",
     "justify-center",
     "items-center",
     "shadow-lg",
@@ -28,6 +37,16 @@ const buttonClasses = tv({
   variants: {
     type: {
       primary: ["bg-primary", "hover:bg-primary-hover", "text-primary"],
+    },
+    loading: {
+      true: [
+        "bg-disabled",
+        "hover:bg-disabled",
+        "text-disabled",
+        "translate-y-0",
+        "shadow-none",
+        "cursor-wait",
+      ],
     },
     disabled: {
       true: [
@@ -45,6 +64,7 @@ const buttonClasses = tv({
 
 <template>
   <button :class="buttonClasses({ type: 'primary' })">
+    <A3Spinner v-if="loading" />
     <span class="font-label text-size-m">{{ label }}</span>
   </button>
 </template>
