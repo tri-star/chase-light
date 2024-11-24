@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { tv } from 'tailwind-variants';
+import { tv } from 'tailwind-variants'
 
 defineProps<{
   label: string
@@ -27,32 +27,26 @@ const buttonClasses = tv({
   ],
   variants: {
     type: {
-      primary: [
-        'bg-primary',
-        'hover:bg-primary-hover',
-        'text-primary',
-      ],
+      primary: ['bg-primary', 'hover:bg-primary-hover', 'text-primary'],
     },
     disabled: {
-        true: [
-          'bg-disabled',
-          'hover:bg-disabled',
-          'text-disabled',
-          'translate-y-0',
-          'shadow-none',
-          'cursor-not-allowed',
-        ]
-      }
-  }
+      true: [
+        'bg-disabled',
+        'hover:bg-disabled',
+        'text-disabled',
+        'translate-y-0',
+        'shadow-none',
+        'cursor-not-allowed',
+      ],
+    },
+  },
 })
-
 </script>
 
 <template>
-  <button :class="buttonClasses({type: 'primary'})">
+  <button :class="buttonClasses({ type: 'primary' })">
     <span class="font-label text-size-m">{{ label }}</span>
   </button>
 </template>
 
-<style scoped>
-</style>
+<style scoped></style>
