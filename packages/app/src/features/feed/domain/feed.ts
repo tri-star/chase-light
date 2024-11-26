@@ -14,3 +14,10 @@ export const feedSchema = z.object({
   updatedAt: z.date().or(z.string()),
 })
 export type Feed = z.infer<typeof feedSchema>
+
+export const createFeedFormSchema = z.object({
+  name: z.string().min(1),
+  url: z.string().url().min(1),
+  cycle: makeUnionFromArray(CYCLE_VALUES),
+})
+export type CreateFeedForm = z.infer<typeof createFeedFormSchema>

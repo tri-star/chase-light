@@ -14,8 +14,6 @@ withDefaults(
   }
 )
 
-const value = defineModel()
-
 const inputClasses = tv({
   base: [
     "flex",
@@ -46,7 +44,6 @@ const inputClasses = tv({
   <input
     type="text"
     :class="inputClasses({ error, disabled })"
-    v-model="value"
     :placeholder="placeHolder"
   />
 </template>

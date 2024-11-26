@@ -1,5 +1,4 @@
-<script setup lang="ts" generic="T">
-const value = defineModel<T | T[]>()
+<script setup lang="ts">
 const elementId = useId()
 
 withDefaults(
@@ -18,8 +17,8 @@ withDefaults(
     :id="elementId"
     type="radio"
     :name="name"
-    v-model="value"
     class="radio"
+    v-bind="$attrs"
   />
   <label class="inline-block" :for="elementId"
     ><span v-if="label">{{ label }}</span></label
