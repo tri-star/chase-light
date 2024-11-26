@@ -13,7 +13,7 @@ export default defineNuxtConfig({
   components: {
     dirs: [],
   },
-  plugins: [],
+  plugins: ["~/plugins/zod"],
   app: {
     head: {
       link: [
