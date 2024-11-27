@@ -9,6 +9,11 @@
     "preview": "nuxt preview",
     "build-api-client": "openapi-zod-client http://localhost:3000/dev/openapi.json -o ./lib/api/client.generated.ts --all-readonly --strict-objects",
     "postinstall": "nuxt prepare",
+    "lint:eslint": "eslint .",
+    "lint:tsc": "tsc --noEmit",
+    "lint:prettier": "prettier --check '**/*.vue'",
+    "lint:biome": "biome check --organize-imports-enabled=false *.ts *.js *.mjs **/*.ts **/*.js **/*.mjs",
+    "lint": "npm-run-all2 lint:eslint lint:tsc lint:biome",
     "format:biome": "biome format --write *.ts *.js *.mjs **/*.ts **/*.js **/*.mjs",
     "format:prettier": "prettier --write '**/*.vue'",
     "format": "npm-run-all2 format:biome format:prettier"
