@@ -1,7 +1,9 @@
 <script setup lang="ts">
-import { useForm } from "@tanstack/vue-form"
+import { useForm, type Validator } from "@tanstack/vue-form"
 import { zodValidator } from "@tanstack/zod-form-adapter"
 import { CYCLE_VALUE_MAP, cycles } from "core/features/feed/feed"
+import { routerKey } from "vue-router"
+import type { ZodType } from "zod"
 import A3Button from "~/components/common/A3Button.vue"
 import A3RadioButton from "~/components/common/A3RadioButton.vue"
 import A3TextField from "~/components/common/A3TextField.vue"
@@ -16,19 +18,35 @@ definePageMeta({
   menuId: SIDE_MENU_ITEM_MAP.feeds.id,
 })
 
-const form = useForm({
+const toastStore = useToastStore()
+const router = useRouter()
+const form = useForm<CreateFeedForm, Validator<unknown, ZodType>>({
   defaultValues: {
     name: "",
     url: "",
     cycle: CYCLE_VALUE_MAP.DAILY,
-  } satisfies CreateFeedForm,
+  },
   validatorAdapter: zodValidator(),
+  onSubmit: async () => {
+    toastStore.createToast({
+      type: "success",
+      message: "フィードを登録しました",
+    })
+  },
 })
 
 const canAutoFillFromUrl = computed(() => {
   const urlField = form.useStore((state) => state.values.url)
   return urlField.value.length > 0
 })
+
+function handleSaveClick() {
+  form.handleSubmit()
+}
+
+function handleCancelClick() {
+  router.back()
+}
 </script>
 
 <template>
@@ -57,7 +75,6 @@ const canAutoFillFromUrl = computed(() => {
               <div class="flex gap-2 items-center">
                 <A3TextField
                   class="flex-1"
-                  :id="field.name"
                   :name="field.name"
                   :value="field.state.value"
                   :error="field.state.meta.errors.length > 0"
@@ -95,7 +112,6 @@ const canAutoFillFromUrl = computed(() => {
           <template v-slot="{ field }">
             <A3TextField
               class="flex-1"
-              :id="field.name"
               :name="field.name"
               :value="field.state.value"
               :error="field.state.meta.errors.length > 0"
@@ -136,16 +152,23 @@ const canAutoFillFromUrl = computed(() => {
       </div>
       <div class="flex gap-4 justify-center">
         <form.Subscribe>
-          <template v-slot="{ canSubmit }">
+          <template v-slot="{ canSubmit, isSubmitting }">
             <A3Button
               label="登録"
               type="primary"
               class="w-40"
+              :loading="isSubmitting"
               :disabled="!canSubmit"
+              @click="handleSaveClick"
             />
           </template>
         </form.Subscribe>
-        <A3Button label="キャンセル" type="default" class="w-40" />
+        <A3Button
+          label="キャンセル"
+          type="default"
+          class="w-40"
+          @click="handleCancelClick"
+        />
       </div>
     </form>
   </div>
