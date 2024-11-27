@@ -1,5 +1,4 @@
 import { createSsrApiClient } from "~/lib/api/client"
-import { FeedLog } from "~/features/feed/domain/feed-log"
 import { schemas } from "~/lib/api/client.generated"
 
 export default defineEventHandler(async (event) => {

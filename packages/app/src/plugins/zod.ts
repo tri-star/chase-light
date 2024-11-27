@@ -1,6 +1,6 @@
 import { z } from "zod"
 
-export default defineNuxtPlugin((nuxtApp) => {
+export default defineNuxtPlugin(() => {
   const customErrorMap: z.ZodErrorMap = (issue, ctx) => {
     if (issue.code === z.ZodIssueCode.too_small) {
       if (issue.minimum === 1) {

@@ -22,4 +22,4 @@ export const SIDE_MENU_ITEM_MAP: {
 } = sideMenuItems.reduce((result, item) => {
   result[item.id] = item
   return result
-}, {} as any)
+}, {} as any) // eslint-disable-line @typescript-eslint/no-explicit-any

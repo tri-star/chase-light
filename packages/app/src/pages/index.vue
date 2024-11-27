@@ -31,8 +31,8 @@ function handleAddFeedClick() {
     <div class="flex flex-col items-center gap-4">
       <LogCard
         v-for="feedLog in feedLogs?.result ?? []"
-        :feed-log="feedLog"
         :key="feedLog.id"
+        :feed-log="feedLog"
       />
     </div>
   </div>

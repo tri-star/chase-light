@@ -2,7 +2,7 @@
 import { useForm, type Validator } from "@tanstack/vue-form"
 import { zodValidator } from "@tanstack/zod-form-adapter"
 import { CYCLE_VALUE_MAP, cycles } from "core/features/feed/feed"
-import type { z, ZodType } from "zod"
+import type { ZodType } from "zod"
 import A3Button from "~/components/common/A3Button.vue"
 import A3RadioButton from "~/components/common/A3RadioButton.vue"
 import A3TextField from "~/components/common/A3TextField.vue"
@@ -75,7 +75,7 @@ function handleCancelClick() {
             onChange: createFeedFormSchema.shape.name,
           }"
         >
-          <template v-slot="{ field }">
+          <template #default="{ field }">
             <div class="flex flex-col gap-1">
               <div class="flex gap-2 items-center">
                 <A3TextField
@@ -114,7 +114,7 @@ function handleCancelClick() {
             onChange: createFeedFormSchema.shape.url,
           }"
         >
-          <template v-slot="{ field }">
+          <template #default="{ field }">
             <A3TextField
               class="flex-1"
               :name="field.name"
@@ -141,7 +141,7 @@ function handleCancelClick() {
         <label class="text-size-h5 font-heading font-bold">通知サイクル</label>
         <div class="flex flex-col gap-2">
           <form.Field name="cycle">
-            <template v-slot="{ field }">
+            <template #default="{ field }">
               <A3RadioButton
                 v-for="cycle in cycles"
                 :key="cycle.key"
@@ -157,7 +157,7 @@ function handleCancelClick() {
       </div>
       <div class="flex gap-4 justify-center">
         <form.Subscribe>
-          <template v-slot="{ canSubmit, isSubmitting }">
+          <template #default="{ canSubmit, isSubmitting }">
             <A3Button
               label="登録"
               type="primary"
