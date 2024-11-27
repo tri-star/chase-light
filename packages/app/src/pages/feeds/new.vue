@@ -2,8 +2,7 @@
 import { useForm, type Validator } from "@tanstack/vue-form"
 import { zodValidator } from "@tanstack/zod-form-adapter"
 import { CYCLE_VALUE_MAP, cycles } from "core/features/feed/feed"
-import { routerKey } from "vue-router"
-import type { ZodType } from "zod"
+import type { z, ZodType } from "zod"
 import A3Button from "~/components/common/A3Button.vue"
 import A3RadioButton from "~/components/common/A3RadioButton.vue"
 import A3TextField from "~/components/common/A3TextField.vue"
@@ -12,6 +11,7 @@ import {
   createFeedFormSchema,
   type CreateFeedForm,
 } from "~/features/feed/domain/feed"
+import { schemas } from "~/lib/api/client.generated"
 
 definePageMeta({
   allowGuest: false,
@@ -28,6 +28,11 @@ const form = useForm<CreateFeedForm, Validator<unknown, ZodType>>({
   },
   validatorAdapter: zodValidator(),
   onSubmit: async () => {
+    await useFetch("/api/feeds", {
+      method: "POST",
+      body: schemas.postFeeds_Body.parse(form.state.values),
+    })
+
     toastStore.createToast({
       type: "success",
       message: "フィードを登録しました",
