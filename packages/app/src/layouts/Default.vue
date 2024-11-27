@@ -1,6 +1,10 @@
 <script setup lang="ts">
+import A3Toast from "~/components/common/A3Toast.vue"
 import AppHeader from "~/components/common/header/AppHeader.vue"
 import SideMenu from "~/components/common/side-menu/SideMenu.vue"
+
+const toastStore = useToastStore()
+const { toasts } = storeToRefs(toastStore)
 </script>
 
 <template>
@@ -13,6 +17,18 @@ import SideMenu from "~/components/common/side-menu/SideMenu.vue"
           class="flex flex-col lg:w-[800px] md:w-[600px] bg-default rounded-2xl p-4"
         >
           <slot />
+          <div>
+            <A3Toast
+              v-for="toast in toasts"
+              :id="toast.id"
+              :key="toast.id"
+              :type="toast.type"
+              :duration="toast.durationMs"
+              :message="toast.message"
+              :bottom-y="toast.bottomY"
+              @destroy="toastStore.handleDestroyToast"
+            />
+          </div>
         </div>
       </main>
     </div>

@@ -19,6 +19,7 @@ export default (<Partial<Config>>{
         "side-menu": colors.cyan[950],
         "side-menu-hover": "rgba(255, 255, 255, 0.2)",
         "side-menu-active": "rgba(255, 255, 255, 0.35)",
+        success: colors.lime[200],
       },
       textColor: {
         primary: colors.slate[50],
@@ -30,6 +31,7 @@ export default (<Partial<Config>>{
         "side-menu-text": colors.slate[300],
         "side-menu-text-hover": colors.slate[400],
         "side-menu-text-active": colors.slate[200],
+        success: colors.lime[700],
       },
       borderColor: {
         primary: colors.cyan[500],
@@ -40,6 +42,7 @@ export default (<Partial<Config>>{
         "default-input": colors.slate[400],
         disabled: colors.slate[300],
         alert: colors.red[800],
+        success: colors.lime[400],
       },
       fontFamily: {
         sans: ["Noto Sans JP", "sans-serif"],

@@ -6,7 +6,7 @@ withDefaults(
   defineProps<{
     label: string
     type?: "primary" | "default"
-    loading?: false
+    loading?: boolean
     disabled?: boolean
   }>(),
   {
