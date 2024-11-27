@@ -1,0 +1,57 @@
+name: APP Lint
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "packages/app/**"
+  pull_request:
+    paths:
+      - "packages/app/**"
+  workflow_dispatch:
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - uses: actions/cache/restore@v4
+        id: pnpm-cache
+        with:
+          path: |
+            ~/.local/share/pnpm
+            node_modules
+            packages/app/node_modules
+          key: app-lint-pnpm-${{ hashFiles('pnpm-lock.yaml') }}
+          restore-keys: |
+            app-lint-pnpm-
+
+      - name: Install dependencies
+        run: |
+          cd packages/app
+          pnpm install --frozen-lockfile
+
+      - name: Run linter
+        run: |
+          cd packages/app
+          pnpm lint
+
+      - uses: actions/cache/save@v4
+        if: github.ref_name == 'main'
+        with:
+          path: |
+            ~/.local/share/pnpm
+            node_modules
+            packages/app/node_modules
+          key: ${{ steps.pnpm-cache.outputs.cache-primary-key }}
