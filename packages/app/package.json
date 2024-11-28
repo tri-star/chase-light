@@ -51,6 +51,7 @@
     "npm-run-all2": "^6.2.3",
     "openapi-zod-client": "^1.18.2",
     "prettier": "^3.3.3",
+    "prettier-plugin-tailwindcss": "^0.6.9",
     "rollup": "^4.24.0"
   },
   "overrides": {
