@@ -7,7 +7,7 @@ defineProps<{
 </script>
 
 <template>
-  <div class="flex flex-col p-4 gap-4 rounded-2xl bg-default-input">
+  <div class="bg-default-input flex flex-col gap-4 rounded-2xl p-4">
     <div class="flex">
       <Icon name="mdi:github" mode="svg" size="80" />
       <div class="flex flex-col gap-2">

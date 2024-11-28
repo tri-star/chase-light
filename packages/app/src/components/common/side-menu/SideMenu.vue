@@ -52,7 +52,7 @@ function isActive(sideMenuId: SideMenuItemId) {
 
 <template>
   <aside :class="sideMenuClasses({ expanded: isExpanded })">
-    <div class="flex relative">
+    <div class="relative flex">
       <img
         src="~/assets/logo-dark-02.svg"
         :class="logoClasses({ expanded: isExpanded })"
@@ -62,7 +62,7 @@ function isActive(sideMenuId: SideMenuItemId) {
         <Icon name="mdi:menu" size="40" class="text-side-menu-text" />
       </button>
     </div>
-    <ul class="flex flex-col gap-2 my-5">
+    <ul class="my-5 flex flex-col gap-2">
       <template v-for="menu in sideMenuItems" :key="menu.id">
         <SideMenuItem
           :icon="menu.icon"

@@ -77,7 +77,7 @@ function handleCancelClick() {
         >
           <template #default="{ field }">
             <div class="flex flex-col gap-1">
-              <div class="flex gap-2 items-center">
+              <div class="flex items-center gap-2">
                 <A3TextField
                   class="flex-1"
                   :name="field.name"
@@ -155,7 +155,7 @@ function handleCancelClick() {
           </form.Field>
         </div>
       </div>
-      <div class="flex gap-4 justify-center">
+      <div class="flex justify-center gap-4">
         <form.Subscribe>
           <template #default="{ canSubmit, isSubmitting }">
             <A3Button

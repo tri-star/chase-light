@@ -4,7 +4,7 @@ import AppHeaderIcon from "./AppHeaderIcon.vue"
 
 <template>
   <header
-    class="header flex bg-header h-16 p-2 gap-4 backdrop-blur-md sticky top-0 z-50 shadow-md"
+    class="header bg-header sticky top-0 z-50 flex h-16 gap-4 p-2 shadow-md backdrop-blur-md"
   >
     <div class="flex flex-1"></div>
     <div class="flex"><AppHeaderIcon icon="mdi:account" /></div>

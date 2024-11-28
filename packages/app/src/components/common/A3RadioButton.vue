@@ -56,7 +56,7 @@ label::after {
 }
 
 label::before {
-  @apply bg-default-input border border-default-input;
+  @apply bg-default-input border-default-input border;
   border-radius: 50%;
   width: 20px;
   height: 20px;

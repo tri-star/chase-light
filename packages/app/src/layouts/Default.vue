@@ -8,13 +8,13 @@ const { toasts } = storeToRefs(toastStore)
 </script>
 
 <template>
-  <div class="flex root min-h-screen h-full">
+  <div class="root flex h-full min-h-screen">
     <SideMenu />
-    <div class="flex flex-col w-full">
+    <div class="flex w-full flex-col">
       <AppHeader />
-      <main class="flex h-full p-4 justify-center">
+      <main class="flex h-full justify-center p-4">
         <div
-          class="flex flex-col lg:w-[800px] md:w-[600px] bg-default rounded-2xl p-4"
+          class="bg-default flex flex-col rounded-2xl p-4 md:w-[600px] lg:w-[800px]"
         >
           <slot />
           <div>
