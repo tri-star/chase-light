@@ -10,7 +10,7 @@
     "build-api-client": "openapi-zod-client http://localhost:3000/dev/openapi.json -o ./lib/api/client.generated.ts --all-readonly --strict-objects",
     "postinstall": "nuxt prepare",
     "lint:eslint": "eslint .",
-    "lint:tsc": "tsc --noEmit",
+    "lint:tsc": "vue-tsc --noEmit",
     "lint:prettier": "prettier --check '**/*.vue'",
     "lint:biome": "biome check --organize-imports-enabled=false *.ts *.js *.mjs **/*.ts **/*.js **/*.mjs",
     "lint": "npm-run-all2 lint:eslint lint:tsc lint:biome",
@@ -27,6 +27,7 @@
     "@storybook/addon-essentials": "^8.4.2",
     "@storybook/addon-interactions": "^8.4.2",
     "@storybook/addon-links": "^8.4.2",
+    "@storybook/vue3": "^8.4.5",
     "@tanstack/vue-form": "^0.36.2",
     "@tanstack/zod-form-adapter": "^0.36.2",
     "@zodios/core": "^10.9.6",
@@ -52,7 +53,8 @@
     "openapi-zod-client": "^1.18.2",
     "prettier": "^3.3.3",
     "prettier-plugin-tailwindcss": "^0.6.9",
-    "rollup": "^4.24.0"
+    "rollup": "^4.24.0",
+    "vue-tsc": "^2.1.10"
   },
   "overrides": {
     "vue": "latest"
