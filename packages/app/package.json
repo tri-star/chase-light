@@ -12,7 +12,7 @@
     "lint:eslint": "eslint .",
     "lint:tsc": "vue-tsc --noEmit",
     "lint:prettier": "prettier --check '**/*.vue'",
-    "lint:biome": "biome check --organize-imports-enabled=false *.ts *.js *.mjs **/*.ts **/*.js **/*.mjs",
+    "lint:biome": "biome check --config-path=../../biome.json .",
     "lint": "npm-run-all2 lint:eslint lint:tsc lint:biome",
     "format:biome": "biome format --write *.ts *.js *.mjs **/*.ts **/*.js **/*.mjs",
     "format:prettier": "prettier --write '**/*.vue'",

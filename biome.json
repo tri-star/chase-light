@@ -7,7 +7,13 @@
   },
   "files": {
     "ignoreUnknown": false,
-    "ignore": ["__generated__/**"]
+    "ignore": [
+      "__generated__/**",
+      "**/node_modules/**",
+      ".nuxt",
+      "**/client.generated.ts",
+      "**/*.vue"
+    ]
   },
   "formatter": {
     "enabled": true,
@@ -24,5 +30,8 @@
       "quoteStyle": "double",
       "semicolons": "asNeeded"
     }
+  },
+  "organizeImports": {
+    "enabled": false
   }
 }
