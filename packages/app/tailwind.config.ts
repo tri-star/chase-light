@@ -11,6 +11,7 @@ export default (<Partial<Config>>{
         "default-button": colors.slate[200],
         "default-button-hover": colors.slate[100],
         "default-input": colors.white,
+        "default-input-hover": colors.cyan[50],
         disabled: colors.slate[300],
         alert: colors.red[100],
         header: "rgba(255, 255, 255, 0.7)",
@@ -20,6 +21,8 @@ export default (<Partial<Config>>{
         "side-menu-hover": "rgba(255, 255, 255, 0.2)",
         "side-menu-active": "rgba(255, 255, 255, 0.35)",
         success: colors.lime[200],
+        "menu-item": "hsl(0deg, 0%, 100%, 70%)",
+        "menu-item-hover": "hsl(183deg 100% 96% / 70%)",
       },
       textColor: {
         primary: colors.slate[50],
