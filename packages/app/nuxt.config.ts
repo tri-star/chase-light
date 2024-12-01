@@ -60,4 +60,8 @@ export default defineNuxtConfig({
       ],
     },
   },
+  icon: {
+    // FIXME: 出来ればStorybook経由の時だけこの形にしたい
+    localApiEndpoint: "https://api.iconify.design",
+  },
 })
