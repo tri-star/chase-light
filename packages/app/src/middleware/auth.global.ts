@@ -1,6 +1,11 @@
 export default defineNuxtRouteMiddleware((from, to) => {
   if (to.meta.allowGuest) return
 
+  // Storybookのiframe.htmlは認証不要
+  if (from.fullPath.match(/\/iframe.html.*/)) {
+    return
+  }
+
   const { loggedIn } = useUserSession()
   const config = useRuntimeConfig()
   if (!loggedIn.value) {
