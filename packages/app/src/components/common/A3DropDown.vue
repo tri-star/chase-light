@@ -5,12 +5,16 @@ import A3PopupMenuList from "~/components/common/A3PopupMenuList.vue"
 
 const props = withDefaults(
   defineProps<{
+    value: string | undefined | null
     placeholder?: string
+    icon?: string
     menus: A3MenuItemData[]
     disabled?: boolean
   }>(),
   {
+    value: undefined,
     placeholder: undefined,
+    icon: undefined,
     disabled: false,
   }
 )
@@ -28,6 +32,10 @@ const classes = tv({
   },
 })
 
+const innerValue = ref<string | undefined | null>(props.value)
+const labelText = computed(() => {
+  return props.menus.find((menu) => menu.value === innerValue.value)?.label
+})
 const expanded = ref(false)
 
 const arrowClasses = computed(() => {
@@ -44,6 +52,15 @@ function handleToggleExpanded() {
   }
   expanded.value = !expanded.value
 }
+
+function handleMenuClick(value: string) {
+  innerValue.value = value
+  expanded.value = false
+}
+
+function handleCancel() {
+  expanded.value = false
+}
 </script>
 
 <template>
@@ -53,12 +70,23 @@ function handleToggleExpanded() {
       :aria-disabled="disabled"
       @click="handleToggleExpanded"
     >
-      <p v-if="placeholder" class="text-disabled flex-1">{{ placeholder }}</p>
-      <p v-else class="text-default flex-1">text</p>
+      <Icon v-if="icon" size="24" :name="icon" class="text-default" />
+      <!-- TODO: プレースホルダ用の色定義 -->
+      <p v-if="labelText == null" class="text-disabled flex-1">
+        {{ placeholder }}
+      </p>
+      <p v-else class="text-default flex-1">{{ labelText }}</p>
       <Icon name="material-symbols:keyboard-arrow-down" :class="arrowClasses" />
     </div>
     <div class="relative">
-      <A3PopupMenuList :open="expanded" :items="props.menus" />
+      <Transition name="fade">
+        <A3PopupMenuList
+          v-if="expanded"
+          :items="props.menus"
+          @click="handleMenuClick"
+          @cancel="handleCancel"
+        />
+      </Transition>
     </div>
   </div>
 </template>

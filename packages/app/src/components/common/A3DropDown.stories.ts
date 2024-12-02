@@ -13,9 +13,12 @@ const meta = {
 export default meta
 type Story = StoryObj<typeof meta>
 
-export const A3DropDownStory: Story = {
-  name: "デフォルト",
+export const A3DropDownPlaygroundStory: Story = {
+  name: "Playground",
   args: {
+    placeholder: "選択してください",
+    icon: "material-symbols:filter-alt",
+    value: undefined,
     menus: [
       {
         value: "1",
