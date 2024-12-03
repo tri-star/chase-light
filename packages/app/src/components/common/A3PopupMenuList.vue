@@ -47,7 +47,7 @@ function handleMenuClick(payload: string) {
   <div
     ref="menuList"
     tabindex="0"
-    class="bg-menu-item flex cursor-pointer flex-col gap-2 rounded-md p-1 backdrop-blur-md"
+    class="bg-menu-item absolute flex cursor-pointer flex-col gap-2 rounded-md p-1 backdrop-blur-md"
     @keyup.esc="emit('cancel')"
   >
     <A3MenuItem

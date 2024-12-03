@@ -12,7 +12,7 @@ const emit = defineEmits<{
 
 <template>
   <div
-    class="bg-menu-item hover:bg-menu-item-hover flex min-h-9 shrink-0 items-center gap-1 rounded p-2"
+    class="hover:bg-menu-item-hover flex min-h-9 shrink-0 items-center gap-1 rounded p-2"
     @click="() => emit('click', menu.value)"
   >
     <p class="text-default">{{ menu.label }}</p>
