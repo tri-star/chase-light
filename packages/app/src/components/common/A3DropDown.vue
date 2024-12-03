@@ -83,6 +83,7 @@ function handleCancel() {
         <A3PopupMenuList
           v-if="expanded"
           :items="props.menus"
+          :selected-value="innerValue"
           :stretch="true"
           @click="handleMenuClick"
           @cancel="handleCancel"
