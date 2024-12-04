@@ -13,22 +13,18 @@ const { toasts } = storeToRefs(toastStore)
     <div class="flex w-full flex-col">
       <AppHeader />
       <main class="flex h-full justify-center p-4">
-        <div
-          class="bg-default flex flex-col rounded-2xl p-4 md:w-[600px] lg:w-[800px]"
-        >
-          <slot />
-          <div>
-            <A3Toast
-              v-for="toast in toasts"
-              :id="toast.id"
-              :key="toast.id"
-              :type="toast.type"
-              :duration="toast.durationMs"
-              :message="toast.message"
-              :bottom-y="toast.bottomY"
-              @destroy="toastStore.handleDestroyToast"
-            />
-          </div>
+        <slot />
+        <div>
+          <A3Toast
+            v-for="toast in toasts"
+            :id="toast.id"
+            :key="toast.id"
+            :type="toast.type"
+            :duration="toast.durationMs"
+            :message="toast.message"
+            :bottom-y="toast.bottomY"
+            @destroy="toastStore.handleDestroyToast"
+          />
         </div>
       </main>
     </div>
