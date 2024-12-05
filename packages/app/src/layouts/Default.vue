@@ -13,6 +13,7 @@ const { toasts } = storeToRefs(toastStore)
     <div class="flex w-full flex-col">
       <AppHeader />
       <main class="flex h-full justify-center p-4">
+        <NuxtLoadingIndicator />
         <slot />
         <div>
           <A3Toast
