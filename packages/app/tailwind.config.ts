@@ -2,6 +2,9 @@ import type { Config } from "tailwindcss"
 import colors from "tailwindcss/colors"
 
 export default (<Partial<Config>>{
+  content: [
+    "./src/**/*.vue", // コンポーネントのパスを指定
+  ],
   theme: {
     extend: {
       backgroundColor: {
@@ -46,6 +49,7 @@ export default (<Partial<Config>>{
         disabled: colors.slate[300],
         alert: colors.red[800],
         success: colors.lime[400],
+        list: colors.slate[300],
       },
       fontFamily: {
         sans: ["Noto Sans JP", "sans-serif"],
