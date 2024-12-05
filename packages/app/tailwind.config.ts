@@ -24,8 +24,8 @@ export default (<Partial<Config>>{
         "side-menu-hover": "rgba(255, 255, 255, 0.2)",
         "side-menu-active": "rgba(255, 255, 255, 0.35)",
         success: colors.lime[200],
-        "menu-item": "hsl(0deg, 0%, 100%, 70%)",
-        "menu-item-hover": "hsl(183deg 100% 96% / 70%)",
+        "menu-item": "hsl(0deg, 0%, 100%, 60%)",
+        "menu-item-hover": "hsl(189deg 94% 43% / 10%)",
       },
       textColor: {
         primary: colors.slate[50],
@@ -49,6 +49,7 @@ export default (<Partial<Config>>{
         disabled: colors.slate[300],
         alert: colors.red[800],
         success: colors.lime[400],
+        menu: "hsl(0deg, 0%, 80%, 60%)",
         list: colors.slate[300],
       },
       fontFamily: {
