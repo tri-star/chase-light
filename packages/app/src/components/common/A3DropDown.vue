@@ -3,6 +3,10 @@ import { tv } from "tailwind-variants"
 import type { A3MenuItemData } from "./a3-menu-item"
 import A3PopupMenuList from "~/components/common/A3PopupMenuList.vue"
 
+const emit = defineEmits<{
+  change: [value: string]
+}>()
+
 const props = withDefaults(
   defineProps<{
     value: string | undefined | null
@@ -56,6 +60,7 @@ function handleToggleExpanded() {
 function handleMenuClick(value: string) {
   innerValue.value = value
   expanded.value = false
+  emit("change", value)
 }
 
 function handleCancel() {

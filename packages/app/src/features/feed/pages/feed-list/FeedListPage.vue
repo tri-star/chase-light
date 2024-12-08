@@ -5,6 +5,9 @@ import A3DropDown from "~/components/common/A3DropDown.vue"
 import A3TextField from "~/components/common/A3TextField.vue"
 import FeedListTable from "./parts/FeedListTable.vue"
 import type { ApiQueryParametersByPath } from "~/lib/api/client"
+import { makeEnumFromArray } from "core/utils/zod-utils"
+import { SORT_ITEMS_VALUES } from "core/features/feed/feed"
+import { SORT_DIRECTION_VALUES } from "core/constants"
 
 const router = useRouter()
 
@@ -28,7 +31,7 @@ const filterMenuList: A3MenuItemData[] = [
 ]
 
 const keyword = ref("")
-// const sort = ref("")
+const sort = ref("createdAt:asc")
 
 const searchQuery = ref<ApiQueryParametersByPath<"get", "/feeds">>({})
 
@@ -45,10 +48,17 @@ function handleAddFeedClick() {
   router.push({ path: "/feeds/new" })
 }
 
+function handlesortChange(value: string) {
+  sort.value = value
+  handleReloadList()
+}
+
 async function handleReloadList() {
+  const [sortItem, direction] = sort.value.split(":")
   searchQuery.value = {
     keyword: keyword.value === "" ? undefined : keyword.value,
-    // sort: sort.value,
+    sort: makeEnumFromArray(SORT_ITEMS_VALUES).parse(sortItem),
+    sortDirection: makeEnumFromArray(SORT_DIRECTION_VALUES).parse(direction),
   }
 }
 </script>
@@ -77,7 +87,8 @@ async function handleReloadList() {
           icon="material-symbols:filter-alt"
           :menus="filterMenuList"
           placeholder="ソート条件"
-          :value="undefined"
+          :value="sort"
+          @change="handlesortChange"
         />
       </div>
       <div class="flex flex-col items-center gap-4" :class="loadingClass">
