@@ -7,21 +7,31 @@ body {
 }
 
 h1 {
-  @apply block font-heading text-size-h1 font-bold;
+  @apply font-heading text-size-h1 block font-bold;
 }
 
 h2 {
-  @apply block font-heading text-size-h2 font-bold;
+  @apply font-heading text-size-h2 block font-bold;
 }
 
 h3 {
-  @apply block font-heading text-size-h3 font-bold;
+  @apply font-heading text-size-h3 block font-bold;
 }
 
 h4 {
-  @apply block font-heading text-size-h4 font-bold;
+  @apply font-heading text-size-h4 block font-bold;
 }
 
 h5 {
-  @apply block font-heading text-size-h5 font-bold;
+  @apply font-heading text-size-h5 block font-bold;
+}
+
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.3s ease;
+}
+
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
 }

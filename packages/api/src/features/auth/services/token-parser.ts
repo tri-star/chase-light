@@ -56,7 +56,6 @@ export class Auth0TokenParser implements TokenParserInterface {
   "azp": "7G7M..."
 */
 
-      console.log("token payload", payload)
       return payload
     } catch (error) {
       throw new TokenError("invalid_token", (error as Error).message)
@@ -104,7 +103,6 @@ export class Auth0TokenParser implements TokenParserInterface {
   "sid": "jSNu..."
 */
 
-      console.log("token payload", payload)
       return payload
     } catch (error) {
       throw new TokenError("invalid_token", (error as Error).message)

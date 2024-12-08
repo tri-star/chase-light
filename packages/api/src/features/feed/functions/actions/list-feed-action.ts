@@ -2,7 +2,10 @@ import { ActionDefinition } from "@/lib/hono/action-definition"
 import { type AppContext } from "@/app/chase-light-app"
 import { ROUTES } from "@/app/route-consts"
 import { createRoute, z, type OpenAPIHono } from "@hono/zod-openapi"
-import { feedSearchResultSchema } from "@/features/feed/domain/feed"
+import {
+  feedSearchRequestSchema,
+  feedSearchResultSchema,
+} from "@/features/feed/domain/feed"
 import { getPrismaClientInstance } from "@/lib/prisma/app-prisma-client"
 
 export class ListFeedAction extends ActionDefinition<AppContext> {
@@ -16,6 +19,9 @@ export class ListFeedAction extends ActionDefinition<AppContext> {
           AppBearer: [],
         },
       ],
+      request: {
+        query: feedSearchRequestSchema,
+      },
       responses: {
         200: {
           description: "処理成功",
@@ -65,18 +71,24 @@ export class ListFeedAction extends ActionDefinition<AppContext> {
           return c.json({ error: "Unauthorized" }, 401)
         }
 
+        const query = c.req.valid("query")
+
         const prisma = getPrismaClientInstance()
+        const orderBy = buildOrderQuery(query)
 
         const feedList = await prisma.feed.findMany({
           where: {
             userId: user.id,
+            ...(query.keyword && {
+              name: {
+                contains: query.keyword,
+              },
+            }),
           },
           include: {
             dataSource: true,
           },
-          orderBy: {
-            createdAt: "desc",
-          },
+          orderBy,
         })
 
         // TODO: ページング処理
@@ -95,4 +107,18 @@ export class ListFeedAction extends ActionDefinition<AppContext> {
       }
     })
   }
+}
+
+function buildOrderQuery(query: unknown) {
+  const queryObj = feedSearchRequestSchema.parse(query)
+
+  const orderBy: {
+    [k in Exclude<(typeof queryObj)["sort"], undefined>]?: "asc" | "desc"
+  } = {}
+
+  if (queryObj.sort) {
+    orderBy[queryObj.sort] = queryObj.sortDirection || "asc"
+  }
+
+  return orderBy
 }
