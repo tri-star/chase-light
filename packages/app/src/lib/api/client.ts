@@ -1,5 +1,10 @@
 import { createApiClient } from "~/lib/api/client.generated"
 import type { H3Event } from "h3"
+import type {
+  Method,
+  ZodiosPathsByMethod,
+  ZodiosQueryParamsByPath,
+} from "@zodios/core"
 
 export async function createSsrApiClient(event: H3Event) {
   const config = useRuntimeConfig()
@@ -19,3 +24,8 @@ export async function createSsrApiClient(event: H3Event) {
   })
   return client
 }
+
+export type ApiQueryParametersByPath<
+  M extends Method,
+  P extends ZodiosPathsByMethod<ReturnType<typeof createApiClient>["api"], M>,
+> = ZodiosQueryParamsByPath<ReturnType<typeof createApiClient>["api"], M, P>

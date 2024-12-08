@@ -4,24 +4,52 @@ import A3Button from "~/components/common/A3Button.vue"
 import A3DropDown from "~/components/common/A3DropDown.vue"
 import A3TextField from "~/components/common/A3TextField.vue"
 import FeedListTable from "./parts/FeedListTable.vue"
+import type { ApiQueryParametersByPath } from "~/lib/api/client"
 
 const router = useRouter()
 
-const { data: feeds } = useFetch("/api/feeds")
-
 const filterMenuList: A3MenuItemData[] = [
   {
-    label: "フィード名",
-    value: "name",
+    label: "更新日：降順",
+    value: "updatedAt:desc",
   },
   {
-    label: "登録日時",
-    value: "createdAt",
+    label: "更新日：昇順",
+    value: "updatedAt:asc",
+  },
+  {
+    label: "登録日：降順",
+    value: "createdAt:desc",
+  },
+  {
+    label: "登録日：昇順",
+    value: "createdAt:asc",
   },
 ]
 
+const keyword = ref("")
+// const sort = ref("")
+
+const searchQuery = ref<ApiQueryParametersByPath<"get", "/feeds">>({})
+
+const { data: feeds, status } = useFetch("/api/feeds", {
+  query: searchQuery,
+})
+
+const isListLoading = computed(() => status.value === "pending")
+const loadingClass = computed(() =>
+  isListLoading.value ? "animate-pulse" : ""
+)
+
 function handleAddFeedClick() {
   router.push({ path: "/feeds/new" })
+}
+
+async function handleReloadList() {
+  searchQuery.value = {
+    keyword: keyword.value === "" ? undefined : keyword.value,
+    // sort: sort.value,
+  }
 }
 </script>
 
@@ -39,7 +67,12 @@ function handleAddFeedClick() {
         />
       </div>
       <div class="flex items-center gap-4">
-        <A3TextField class="w-full" />
+        <A3TextField
+          class="w-full"
+          :value="keyword"
+          @input="(e) => (keyword = e.target.value)"
+          @keyup.enter="handleReloadList"
+        />
         <A3DropDown
           icon="material-symbols:filter-alt"
           :menus="filterMenuList"
@@ -47,7 +80,7 @@ function handleAddFeedClick() {
           :value="undefined"
         />
       </div>
-      <div class="flex flex-col items-center gap-4">
+      <div class="flex flex-col items-center gap-4" :class="loadingClass">
         <FeedListTable v-if="feeds?.result" :feeds="feeds?.result" />
       </div>
     </div>
