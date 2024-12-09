@@ -1,4 +1,4 @@
-export function useClickOutSide(
+export function useClickOutside(
   targetRef: Ref<HTMLElement | null>,
   callback: () => void,
 ) {
