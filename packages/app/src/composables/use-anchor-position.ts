@@ -37,7 +37,7 @@ export function useAnchorPosition() {
     return resultRect
   }
 
-  function getWIndowBoundingRect() {
+  function getWindowBoundingRect() {
     const topSideStickies = document.querySelectorAll("[data-sticky-top]")
     const topMargin = Array.from(topSideStickies.values()).reduce<number>(
       (sum, element) => {
