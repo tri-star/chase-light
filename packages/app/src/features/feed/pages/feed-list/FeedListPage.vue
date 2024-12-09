@@ -7,6 +7,11 @@ import FeedListTable from "./parts/FeedListTable.vue"
 import type { ApiQueryParametersByAlias } from "~/lib/api/client"
 import { feedSearchFormSchema } from "../../domain/feed"
 
+const props = defineProps<{
+  keyword?: string
+  sort?: string
+}>()
+
 const router = useRouter()
 
 const filterMenuList: A3MenuItemData[] = [
@@ -28,10 +33,19 @@ const filterMenuList: A3MenuItemData[] = [
   },
 ]
 
-const keyword = ref("")
-const sort = ref("createdAt:asc")
+const searchQuery = computed<ApiQueryParametersByAlias<"getFeeds">>(() => {
+  const [sortItem, direction] = searchForm.value.sort.split(":")
+  return feedSearchFormSchema.parse({
+    keyword: props.keyword ? props.keyword : undefined,
+    sort: sortItem,
+    sortDirection: direction,
+  })
+})
 
-const searchQuery = ref<ApiQueryParametersByAlias<"getFeeds">>({})
+const searchForm = ref({
+  keyword: props.keyword,
+  sort: props.sort ? props.sort : "updatedAt:desc",
+})
 
 const { data: feeds, status } = useFetch("/api/feeds", {
   query: searchQuery,
@@ -47,19 +61,12 @@ function handleAddFeedClick() {
 }
 
 function handlesortChange(value: string) {
-  sort.value = value
+  searchForm.value.sort = value
   handleReloadList()
 }
 
 async function handleReloadList() {
-  const [sortItem, direction] = sort.value.split(":")
-  searchQuery.value = feedSearchFormSchema.parse({
-    keyword: keyword.value,
-    sortItem: sortItem,
-    direction: direction,
-  })
-
-  router.push({ query: searchQuery.value })
+  router.push({ query: searchForm.value })
 }
 </script>
 
@@ -80,14 +87,14 @@ async function handleReloadList() {
         <A3TextField
           class="w-full"
           :value="keyword"
-          @input="(e) => (keyword = e.target.value)"
+          @input="(e) => (searchForm.keyword = e.target.value)"
           @keyup.enter="handleReloadList"
         />
         <A3DropDown
           icon="material-symbols:filter-alt"
           :menus="filterMenuList"
           placeholder="ソート条件"
-          :value="sort"
+          :value="searchForm.sort"
           @change="handlesortChange"
         />
       </div>
