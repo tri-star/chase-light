@@ -1,11 +1,11 @@
-import { makeApi, Zodios, type ZodiosOptions } from "@zodios/core"
-import { z } from "zod"
+import { makeApi, Zodios, type ZodiosOptions } from "@zodios/core";
+import { z } from "zod";
 
 const postUserssignupViaProvider_Body = z
   .object({ accessToken: z.string(), idToken: z.string() })
   .strict()
   .passthrough()
-  .readonly()
+  .readonly();
 const postFeeds_Body = z
   .object({
     name: z.string(),
@@ -14,12 +14,12 @@ const postFeeds_Body = z
   })
   .strict()
   .passthrough()
-  .readonly()
+  .readonly();
 
 export const schemas = {
   postUserssignupViaProvider_Body,
   postFeeds_Body,
-}
+};
 
 const endpoints = makeApi([
   {
@@ -186,6 +186,23 @@ const endpoints = makeApi([
     path: "/feeds",
     alias: "getFeeds",
     requestFormat: "json",
+    parameters: [
+      {
+        name: "keyword",
+        type: "Query",
+        schema: z.string().optional(),
+      },
+      {
+        name: "sort",
+        type: "Query",
+        schema: z.enum(["createdAt", "updatedAt"]).optional(),
+      },
+      {
+        name: "sortDirection",
+        type: "Query",
+        schema: z.enum(["asc", "desc"]).optional(),
+      },
+    ],
     response: z
       .object({
         result: z
@@ -345,10 +362,10 @@ const endpoints = makeApi([
       },
     ],
   },
-])
+]);
 
-export const api = new Zodios(endpoints)
+export const api = new Zodios(endpoints);
 
 export function createApiClient(baseUrl: string, options?: ZodiosOptions) {
-  return new Zodios(baseUrl, endpoints, options)
+  return new Zodios(baseUrl, endpoints, options);
 }

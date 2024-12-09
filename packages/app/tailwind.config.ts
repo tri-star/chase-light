@@ -2,6 +2,9 @@ import type { Config } from "tailwindcss"
 import colors from "tailwindcss/colors"
 
 export default (<Partial<Config>>{
+  content: [
+    "./src/**/*.vue", // コンポーネントのパスを指定
+  ],
   theme: {
     extend: {
       backgroundColor: {
@@ -11,6 +14,7 @@ export default (<Partial<Config>>{
         "default-button": colors.slate[200],
         "default-button-hover": colors.slate[100],
         "default-input": colors.white,
+        "default-input-hover": colors.cyan[50],
         disabled: colors.slate[300],
         alert: colors.red[100],
         header: "rgba(255, 255, 255, 0.7)",
@@ -20,6 +24,10 @@ export default (<Partial<Config>>{
         "side-menu-hover": "rgba(255, 255, 255, 0.2)",
         "side-menu-active": "rgba(255, 255, 255, 0.35)",
         success: colors.lime[200],
+        "menu-item": "hsl(0deg, 0%, 100%, 60%)",
+        "menu-item-hover": "hsl(189deg 94% 43% / 10%)",
+        list: colors.white,
+        muted: colors.slate[300],
       },
       textColor: {
         primary: colors.slate[50],
@@ -32,6 +40,7 @@ export default (<Partial<Config>>{
         "side-menu-text-hover": colors.slate[400],
         "side-menu-text-active": colors.slate[200],
         success: colors.lime[700],
+        muted: colors.slate[500],
       },
       borderColor: {
         primary: colors.cyan[500],
@@ -43,6 +52,8 @@ export default (<Partial<Config>>{
         disabled: colors.slate[300],
         alert: colors.red[800],
         success: colors.lime[400],
+        menu: "hsl(0deg, 0%, 80%, 60%)",
+        list: colors.slate[300],
       },
       fontFamily: {
         sans: ["Noto Sans JP", "sans-serif"],
