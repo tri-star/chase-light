@@ -6,6 +6,7 @@ import A3TextField from "~/components/common/A3TextField.vue"
 import FeedListTable from "./parts/FeedListTable.vue"
 import type { ApiQueryParametersByAlias } from "~/lib/api/client"
 import { feedSearchFormSchema } from "../../domain/feed"
+import FeedListEmpty from "./parts/FeedListEmpty.vue"
 
 const props = defineProps<{
   keyword?: string
@@ -98,8 +99,15 @@ async function handleReloadList() {
           @change="handlesortChange"
         />
       </div>
-      <div class="flex flex-col items-center gap-4" :class="loadingClass">
+      <div
+        v-if="(feeds?.result.length ?? 0) > 0"
+        class="flex flex-col items-center gap-4"
+        :class="loadingClass"
+      >
         <FeedListTable v-if="feeds?.result" :feeds="feeds?.result" />
+      </div>
+      <div v-else class="flex justify-center">
+        <FeedListEmpty />
       </div>
     </div>
   </div>

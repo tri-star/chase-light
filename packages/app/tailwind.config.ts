@@ -26,6 +26,8 @@ export default (<Partial<Config>>{
         success: colors.lime[200],
         "menu-item": "hsl(0deg, 0%, 100%, 60%)",
         "menu-item-hover": "hsl(189deg 94% 43% / 10%)",
+        list: colors.white,
+        muted: colors.slate[300],
       },
       textColor: {
         primary: colors.slate[50],
@@ -38,6 +40,7 @@ export default (<Partial<Config>>{
         "side-menu-text-hover": colors.slate[400],
         "side-menu-text-active": colors.slate[200],
         success: colors.lime[700],
+        muted: colors.slate[500],
       },
       borderColor: {
         primary: colors.cyan[500],
