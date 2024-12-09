@@ -3,6 +3,7 @@ import type { H3Event } from "h3"
 import type {
   Method,
   ZodiosPathsByMethod,
+  ZodiosQueryParamsByAlias,
   ZodiosQueryParamsByPath,
 } from "@zodios/core"
 
@@ -29,3 +30,6 @@ export type ApiQueryParametersByPath<
   M extends Method,
   P extends ZodiosPathsByMethod<ReturnType<typeof createApiClient>["api"], M>,
 > = ZodiosQueryParamsByPath<ReturnType<typeof createApiClient>["api"], M, P>
+
+export type ApiQueryParametersByAlias<A extends string> =
+  ZodiosQueryParamsByAlias<ReturnType<typeof createApiClient>["api"], A>

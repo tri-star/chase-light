@@ -4,10 +4,8 @@ import A3Button from "~/components/common/A3Button.vue"
 import A3DropDown from "~/components/common/A3DropDown.vue"
 import A3TextField from "~/components/common/A3TextField.vue"
 import FeedListTable from "./parts/FeedListTable.vue"
-import type { ApiQueryParametersByPath } from "~/lib/api/client"
-import { makeEnumFromArray } from "core/utils/zod-utils"
-import { SORT_ITEMS_VALUES } from "core/features/feed/feed"
-import { SORT_DIRECTION_VALUES } from "core/constants"
+import type { ApiQueryParametersByAlias } from "~/lib/api/client"
+import { feedSearchFormSchema } from "../../domain/feed"
 
 const router = useRouter()
 
@@ -33,7 +31,7 @@ const filterMenuList: A3MenuItemData[] = [
 const keyword = ref("")
 const sort = ref("createdAt:asc")
 
-const searchQuery = ref<ApiQueryParametersByPath<"get", "/feeds">>({})
+const searchQuery = ref<ApiQueryParametersByAlias<"getFeeds">>({})
 
 const { data: feeds, status } = useFetch("/api/feeds", {
   query: searchQuery,
@@ -55,11 +53,13 @@ function handlesortChange(value: string) {
 
 async function handleReloadList() {
   const [sortItem, direction] = sort.value.split(":")
-  searchQuery.value = {
-    keyword: keyword.value === "" ? undefined : keyword.value,
-    sort: makeEnumFromArray(SORT_ITEMS_VALUES).parse(sortItem),
-    sortDirection: makeEnumFromArray(SORT_DIRECTION_VALUES).parse(direction),
-  }
+  searchQuery.value = feedSearchFormSchema.parse({
+    keyword: keyword.value,
+    sortItem: sortItem,
+    direction: direction,
+  })
+
+  router.push({ query: searchQuery.value })
 }
 </script>
 
