@@ -10,7 +10,7 @@ defineProps<{
 <template>
   <table class="w-full">
     <thead>
-      <tr class="border-menu border-b">
+      <tr class="border-menu bg-list border-b">
         <th class="w-10"></th>
         <th class="p-3 text-left">名前</th>
         <th class="w-36 p-3">最新ログ日付</th>

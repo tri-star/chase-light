@@ -8,7 +8,7 @@ defineProps<{
 </script>
 
 <template>
-  <tr class="border-list border-b">
+  <tr class="border-list bg-list border-b">
     <td><Icon name="mdi:github" size="40" /></td>
     <td class="p-3 text-left">
       <p class="text-size-h5 text-default font-bold">{{ feed.name }}</p>
