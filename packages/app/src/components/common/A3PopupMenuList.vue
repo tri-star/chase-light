@@ -24,7 +24,7 @@ const keyboardSelectedIndex = ref<number | undefined>(
   props.items.findIndex((item) => item.value == props.selectedValue)
 )
 
-useClickOutSide(menuList, () => {
+useClickOutside(menuList, () => {
   emit("cancel")
 })
 

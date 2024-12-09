@@ -1,6 +1,6 @@
 export function useAnchorPosition() {
   function adjustPositionToBounds(targetElement: Ref<HTMLElement>) {
-    const boundingRect = getWIndowBoundingRect()
+    const boundingRect = getWindowBoundingRect()
 
     const targetRect = targetElement.value?.getBoundingClientRect()
     if (targetElement === undefined) {
