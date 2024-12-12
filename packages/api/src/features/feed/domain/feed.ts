@@ -47,3 +47,21 @@ export const feedSearchResultSchema = z.object({
   page: z.number(),
   pageSize: z.number(),
 })
+
+/**
+ * フィードのURLからデータソースのURLを抽出する
+ * @param url
+ */
+export function extractDataSourceUrl(url: string) {
+  //現時点ではGitHubを前提にパースする
+  const urlObject = new URL(url)
+
+  const hostName = urlObject.hostname
+  const pathName = urlObject.pathname
+
+  const ownerName = pathName.split("/")[1] ?? undefined
+  const repoName = pathName.split("/")[2] ?? undefined
+
+  const dataSourceUrl = `https://${hostName}${ownerName}/${repoName}`
+  return dataSourceUrl
+}

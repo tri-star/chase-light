@@ -4,7 +4,9 @@ import { ROUTES } from "@/app/route-consts"
 import { createRoute, z, type OpenAPIHono } from "@hono/zod-openapi"
 import {
   createFeedRequestSchema,
+  extractDataSourceUrl,
   feedSchema,
+  type CreateFeedRequest,
 } from "@/features/feed/domain/feed"
 import { v7 as uuidv7 } from "uuid"
 import { getPrismaClientInstance } from "@/lib/prisma/app-prisma-client"
@@ -82,13 +84,12 @@ export class CreateFeedAction extends ActionDefinition<AppContext> {
         }
         const input = c.req.valid("json")
 
-        const datasourceId = uuidv7()
         const startTime = new Date()
 
-        // TODO: トランザクションが必要
-        // TODO: 正規化したURLで重複チェック
-
         const prisma = getPrismaClientInstance()
+
+        // TODO: トランザクションが必要
+        const datasource = await findOrCreateDataSourceFromFeed(input)
 
         const feedId = uuidv7()
         const createdFeed = await prisma.feed.create({
@@ -97,12 +98,8 @@ export class CreateFeedAction extends ActionDefinition<AppContext> {
             name: input.name,
             cycle: input.cycle,
             dataSource: {
-              create: {
-                id: datasourceId,
-                name: input.name,
-                url: input.url,
-                createdAt: startTime,
-                updatedAt: startTime,
+              connect: {
+                id: datasource.id,
               },
             },
             user: {
@@ -134,4 +131,41 @@ export class CreateFeedAction extends ActionDefinition<AppContext> {
       }
     })
   }
+}
+
+async function findOrCreateDataSourceFromFeed(feedData: CreateFeedRequest) {
+  let dataSource = await findDataSourceByUrl(feedData.url)
+
+  if (dataSource == null) {
+    dataSource = await createDataSource(feedData)
+  }
+
+  return dataSource
+}
+
+async function createDataSource(feedData: CreateFeedRequest) {
+  const prisma = getPrismaClientInstance()
+  const startTime = new Date()
+
+  const id = uuidv7()
+  return prisma.dataSource.create({
+    data: {
+      id,
+      name: feedData.name,
+      url: feedData.url,
+      createdAt: startTime,
+      updatedAt: startTime,
+    },
+  })
+}
+
+async function findDataSourceByUrl(url: string) {
+  const prisma = getPrismaClientInstance()
+  const datasourceUrl = extractDataSourceUrl(url)
+
+  return await prisma.dataSource.findFirst({
+    where: {
+      url: datasourceUrl,
+    },
+  })
 }
