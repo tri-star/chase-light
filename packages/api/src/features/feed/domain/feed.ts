@@ -2,7 +2,12 @@ import { datasourceSchema } from "@/features/feed/domain/data-source"
 import { userSchema } from "@/features/user/domain/user"
 import { makeEnumFromArray, makeUnionFromArray } from "@/lib/utils/zod-utils"
 import { z } from "@hono/zod-openapi"
-import { CYCLE_VALUES, SORT_ITEMS_VALUES } from "core/features/feed/feed"
+import {
+  CYCLE_VALUES,
+  MAX_FEED_NAME_LENGTH,
+  MAX_FEED_URL_LENGTH,
+  SORT_ITEMS_VALUES,
+} from "core/features/feed/feed"
 import { SORT_DIRECTION_VALUES } from "core/constants"
 
 export const feedSchema = z.object({
@@ -18,8 +23,8 @@ export const feedSchema = z.object({
 export type Feed = z.infer<typeof feedSchema>
 
 export const createFeedRequestSchema = z.object({
-  name: z.string(),
-  url: z.string(),
+  name: z.string().max(MAX_FEED_NAME_LENGTH),
+  url: z.string().max(MAX_FEED_URL_LENGTH),
   cycle: makeUnionFromArray(CYCLE_VALUES),
 })
 
