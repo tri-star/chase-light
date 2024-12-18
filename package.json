@@ -5,13 +5,17 @@
   "type": "module",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "dev": "concurrently -n api,app -c green,blue \"pnpm dev:api\" \"pnpm dev:app\"",
+    "dev:api": "cd packages/api && docker compose up -d && pnpm dev",
+    "dev:app": "cd packages/app && pnpm dev"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "devDependencies": {
-    "@biomejs/biome": "1.9.3"
+    "@biomejs/biome": "1.9.3",
+    "concurrently": "^9.1.0",
+    "npm-run-all2": "^6.2.3"
   },
   "packageManager": "pnpm@9.4.0+sha1.9217c800d4ab947a7aee520242a7b70d64fc7638"
 }

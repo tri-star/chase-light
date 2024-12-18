@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { tv } from "tailwind-variants"
 
-withDefaults(
+const props = withDefaults(
   defineProps<{
     error?: boolean
     disabled?: boolean
@@ -14,38 +14,70 @@ withDefaults(
   }
 )
 
-const inputClasses = tv({
-  base: [
-    "flex",
-    "px-3",
-    "py-3",
-    "gap-4",
-    "rounded-md",
-    "border",
-    "bg-default-input",
-    "border-default-input",
-    "font-label",
-    "text-size-m",
-    "transition-all",
-    "duration-300",
-  ],
+const classes = tv({
+  slots: {
+    frame: [
+      "relative",
+      "flex",
+      "gap-4",
+      "rounded-md",
+      "border",
+      "bg-default-input",
+      "border-default-input",
+      "transition-all",
+      "duration-300",
+    ],
+    input: [
+      "flex",
+      "flex-1",
+      "font-label",
+      "text-size-m",
+      "px-3",
+      "py-3",
+      "rounded-md",
+      "bg-transparent",
+    ],
+    icon: ["absolute", "right-3", "top-3"],
+  },
   variants: {
     error: {
-      true: ["border-alert", "bg-alert", "text-alert"],
+      true: {
+        frame: ["border-alert", "bg-alert"],
+        input: ["text-alert"],
+      },
     },
     disabled: {
-      true: ["border-disabled", "bg-disabled", "text-disabled"],
+      true: {
+        frame: ["border-disabled", "bg-disabled"],
+        input: ["text-disabled"],
+      },
     },
   },
+})
+
+const {
+  frame: frameClasses,
+  input: inputClasses,
+  icon: iconClasses,
+} = classes({
+  error: props.error,
+  disabled: props.disabled,
 })
 </script>
 
 <template>
-  <input
-    type="text"
-    :class="inputClasses({ error, disabled })"
-    :placeholder="placeHolder"
-  />
+  <div :class="frameClasses({ error, disabled })">
+    <input
+      type="text"
+      :class="inputClasses({ error, disabled })"
+      :placeholder="placeHolder"
+      :disabled="disabled"
+      v-bind="$attrs"
+    />
+    <div :class="iconClasses()">
+      <slot name="tail-icon" :error="error" :disabled="disabled" />
+    </div>
+  </div>
 </template>
 
 <style scoped></style>

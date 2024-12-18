@@ -2,7 +2,12 @@ import { datasourceSchema } from "@/features/feed/domain/data-source"
 import { userSchema } from "@/features/user/domain/user"
 import { makeEnumFromArray, makeUnionFromArray } from "@/lib/utils/zod-utils"
 import { z } from "@hono/zod-openapi"
-import { CYCLE_VALUES, SORT_ITEMS_VALUES } from "core/features/feed/feed"
+import {
+  CYCLE_VALUES,
+  MAX_FEED_NAME_LENGTH,
+  MAX_FEED_URL_LENGTH,
+  SORT_ITEMS_VALUES,
+} from "core/features/feed/feed"
 import { SORT_DIRECTION_VALUES } from "core/constants"
 
 export const feedSchema = z.object({
@@ -18,8 +23,8 @@ export const feedSchema = z.object({
 export type Feed = z.infer<typeof feedSchema>
 
 export const createFeedRequestSchema = z.object({
-  name: z.string(),
-  url: z.string(),
+  name: z.string().max(MAX_FEED_NAME_LENGTH),
+  url: z.string().max(MAX_FEED_URL_LENGTH),
   cycle: makeUnionFromArray(CYCLE_VALUES),
 })
 
@@ -47,3 +52,21 @@ export const feedSearchResultSchema = z.object({
   page: z.number(),
   pageSize: z.number(),
 })
+
+/**
+ * フィードのURLからデータソースのURLを抽出する
+ * @param url
+ */
+export function extractDataSourceUrl(url: string) {
+  //現時点ではGitHubを前提にパースする
+  const urlObject = new URL(url)
+
+  const hostName = urlObject.hostname
+  const pathName = urlObject.pathname
+
+  const ownerName = pathName.split("/")[1] ?? undefined
+  const repoName = pathName.split("/")[2] ?? undefined
+
+  const dataSourceUrl = `https://${hostName}${ownerName}/${repoName}`
+  return dataSourceUrl
+}
