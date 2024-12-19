@@ -1,13 +1,34 @@
-<script setup lang="ts"></script>
+<script setup lang="ts">
+type ColorVariant = "white" | "gray"
+
+const props = withDefaults(
+  defineProps<{
+    color?: ColorVariant
+    sizeClass?: string
+  }>(),
+  {
+    color: "white",
+    sizeClass: "w-5 h-5",
+  }
+)
+
+const colorClass = computed(() => {
+  switch (props.color) {
+    case "gray":
+      return "before:border-gray-300"
+    case "white":
+    default:
+      return "before:border-white"
+  }
+})
+</script>
 
 <template>
-  <span class="loader"></span>
+  <span class="loader" :class="[colorClass, sizeClass]"></span>
 </template>
 
 <style scoped>
 .loader {
-  width: 20px;
-  height: 20px;
   border-radius: 50%;
   position: relative;
   animation: rotate 1s linear infinite;
@@ -18,7 +39,8 @@
   position: absolute;
   inset: 0px;
   border-radius: 50%;
-  border: 3px solid #fff;
+  border-width: 3px;
+  border-style: solid;
   animation: prixClipFix 2s linear infinite;
 }
 

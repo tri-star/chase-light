@@ -24,6 +24,7 @@ export const A3TextFieldPlaygroundStory: Story = {
     placeHolder: "入力してください",
     disabled: false,
     error: false,
+    loading: false,
   },
   render: (args) => ({
     components: { A3TextField },
@@ -41,6 +42,7 @@ export const A3TextFieldTailIconStory: Story = {
     disabled: false,
     error: false,
     icon: "material-symbols:close",
+    loading: false,
   },
   parameters: {
     docs: {

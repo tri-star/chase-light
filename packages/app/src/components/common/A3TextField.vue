@@ -1,16 +1,19 @@
 <script setup lang="ts">
 import { tv } from "tailwind-variants"
+import A3Spinner from "./A3Spinner.vue"
 
 const props = withDefaults(
   defineProps<{
     error?: boolean
     disabled?: boolean
     placeHolder?: string
+    loading?: boolean
   }>(),
   {
     error: false,
     disabled: false,
     placeHolder: "",
+    loading: false,
   }
 )
 
@@ -76,6 +79,9 @@ const {
     />
     <div :class="iconClasses()">
       <slot name="tail-icon" :error="error" :disabled="disabled" />
+    </div>
+    <div class="mx-3 flex w-7 items-center">
+      <A3Spinner v-if="loading" color="gray" />
     </div>
   </div>
 </template>
