@@ -22,25 +22,28 @@ const classes = tv({
     frame: [
       "relative",
       "flex",
-      "gap-4",
+      "px-3",
+      "py-3",
+      "gap-1",
       "rounded-md",
       "border",
       "bg-default-input",
       "border-default-input",
       "transition-all",
       "duration-300",
+      "focus-within:outline-1",
+      "focus-within:outline-double",
     ],
     input: [
       "flex",
       "flex-1",
       "font-label",
       "text-size-m",
-      "px-3",
-      "py-3",
       "rounded-md",
       "bg-transparent",
+      "outline-none",
     ],
-    icon: ["absolute", "right-3", "top-3"],
+    icon: ["flex", "items-center"],
   },
   variants: {
     error: {
@@ -77,11 +80,11 @@ const {
       :disabled="disabled"
       v-bind="$attrs"
     />
+    <div v-if="loading" class="flex w-7 items-center">
+      <A3Spinner color="gray" />
+    </div>
     <div :class="iconClasses()">
       <slot name="tail-icon" :error="error" :disabled="disabled" />
-    </div>
-    <div class="mx-3 flex w-7 items-center">
-      <A3Spinner v-if="loading" color="gray" />
     </div>
   </div>
 </template>
