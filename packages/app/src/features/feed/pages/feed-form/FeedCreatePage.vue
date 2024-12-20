@@ -2,7 +2,7 @@
 import { useForm, type Validator } from "@tanstack/vue-form"
 import { zodValidator } from "@tanstack/zod-form-adapter"
 import { CYCLE_VALUE_MAP, cycles } from "core/features/feed/feed"
-import type { ZodType } from "zod"
+import { type ZodType } from "zod"
 import A3Button from "~/components/common/A3Button.vue"
 import A3RadioButton from "~/components/common/A3RadioButton.vue"
 import A3TextField from "~/components/common/A3TextField.vue"
@@ -11,6 +11,8 @@ import {
   type CreateFeedForm,
 } from "~/features/feed/domain/feed"
 import { schemas } from "~/lib/api/client.generated"
+import { useFeedUrlValidation } from "./use-feed-url-validation"
+import A3TextFieldIcon from "~/components/common/A3TextFieldIcon.vue"
 
 const toastStore = useToastStore()
 const router = useRouter()
@@ -33,6 +35,13 @@ const form = useForm<CreateFeedForm, Validator<unknown, ZodType>>({
     })
   },
 })
+
+const {
+  validateFeedUrl,
+  isLoading: isFeedUrlValidationPenging,
+  isValidated: isFeedUrlValidated,
+  validationState: feedUrlValidationState,
+} = useFeedUrlValidation()
 
 const canAutoFillFromUrl = computed(() => {
   const urlField = form.useStore((state) => state.values.url)
@@ -109,6 +118,8 @@ function handleCancelClick() {
             name="url"
             :validators="{
               onChange: createFeedFormSchema.shape.url,
+              onChangeAsyncDebounceMs: 300,
+              onChangeAsync: async (v) => validateFeedUrl(v.value),
             }"
           >
             <template #default="{ field }">
@@ -117,11 +128,24 @@ function handleCancelClick() {
                 :name="field.name"
                 :value="field.state.value"
                 :error="field.state.meta.errors.length > 0"
+                :loading="isFeedUrlValidationPenging"
                 @input="
                   (e: Event) =>
                     field.handleChange((e.target as HTMLInputElement).value)
                 "
-              />
+              >
+                <template #tail-icon="buttonProps">
+                  <A3TextFieldIcon
+                    v-if="isFeedUrlValidated"
+                    v-bind="buttonProps"
+                    :name="
+                      feedUrlValidationState === 'valid'
+                        ? 'mdi:check'
+                        : 'mdi:close'
+                    "
+                  />
+                </template>
+              </A3TextField>
               <ul v-if="field.state.meta.errors.length">
                 <li
                   v-for="(error, index) in field.state.meta.errors"
