@@ -15,9 +15,11 @@ import { getPrismaClientInstance } from "@/lib/prisma/app-prisma-client"
 export class ValidateFeedUrlAction extends ActionDefinition<AppContext> {
   buildOpenApiAppRoute(parentApp: OpenAPIHono<AppContext>): void {
     const route = createRoute({
+      summary: "フィードURLバリデーション",
       tags: ["feeds"],
       method: "get",
       path: ROUTES.FEEDS.VALIDATE_FEED_URL.DEFINITION,
+      description: "フィードURLの洋服チェック、形式チェック",
       security: [
         {
           AppBearer: [],
