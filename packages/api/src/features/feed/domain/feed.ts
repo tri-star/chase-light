@@ -107,6 +107,6 @@ export function extractDataSourceUrl(url: string) {
     throw new Error(`URLの形式が無効です: ${url}`)
   }
 
-  const dataSourceUrl = `https://${hostName}${ownerName}/${repoName}`
+  const dataSourceUrl = `https://${hostName}/${ownerName}/${repoName}`
   return dataSourceUrl
 }
