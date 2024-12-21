@@ -7,7 +7,7 @@ describe("isSupportedDataSource", () => {
     expect(isSupportedDataSource(url)).toBe(true)
   })
 
-  test("スキームがhttpの場合エラーとなること", () => {
+  test("スキームがhttpの場合falseを返すこと", () => {
     const url = "http://github.com/owner/repo"
     expect(isSupportedDataSource(url)).toBe(false)
   })

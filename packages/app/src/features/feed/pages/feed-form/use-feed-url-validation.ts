@@ -8,6 +8,7 @@ export function useFeedUrlValidation() {
     if (validationState.value === "pending") {
       return true
     }
+    return false
   })
 
   const isValidated = computed(() => {
