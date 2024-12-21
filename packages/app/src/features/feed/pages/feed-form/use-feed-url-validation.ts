@@ -1,4 +1,5 @@
 import type { ValidationError } from "@tanstack/vue-form"
+import { getH3ErrorData } from "~/lib/utils/h3-utils"
 
 type ValidationState = "valid" | "invalid" | "pending" | "initial"
 
@@ -20,16 +21,25 @@ export function useFeedUrlValidation() {
 
   async function validateFeedUrl(url: string): Promise<ValidationError> {
     validationState.value = "pending"
-    await new Promise((resolve) => setTimeout(resolve, 1000))
-    // TODO: API呼び出ししてエラーコードで判別
-    if (!url.match(/github.com/)) {
-      validationState.value = "invalid"
-      return "現在はGitHubのURLのみ対応しています"
+
+    const { error } = await useFetch("/api/feeds/validate-url", {
+      query: {
+        url,
+      },
+    })
+
+    const errorData = getH3ErrorData<{ code: string }>(error.value)
+    const errorCode = errorData?.code
+    if (errorCode) {
+      if (errorCode === "duplicated") {
+        validationState.value = "invalid"
+        return "このURLはすでに登録されています"
+      } else if (errorCode === "not-supported") {
+        validationState.value = "invalid"
+        return "サポートされていないURLです。現在はGitHubのみ対応しています。"
+      }
     }
-    if (url !== "https://github.com/ok") {
-      validationState.value = "invalid"
-      return "対応していないリポジトリです"
-    }
+
     validationState.value = "valid"
     return undefined
   }
