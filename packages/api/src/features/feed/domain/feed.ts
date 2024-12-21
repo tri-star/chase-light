@@ -53,9 +53,15 @@ export const feedSearchResultSchema = z.object({
   pageSize: z.number(),
 })
 
-export const validateFeedUrlRequestSchema = z.object({
-  url: z.string(),
-})
+export const validateFeedUrlRequestSchema = z
+  .object({
+    url: z.string(),
+  })
+  .openapi({
+    example: {
+      url: "https://github.com/some/repo",
+    },
+  })
 
 export const FEED_VALIDATE_ERROR_DUPLICATE = "duplicated"
 export const FEED_VALIDATE_ERROR_NOT_SUPPORTED = "not-supported"
