@@ -6,6 +6,7 @@ import {
   FEED_VALIDATE_ERROR_DUPLICATE,
   FEED_VALIDATE_ERROR_NOT_SUPPORTED,
   isSupportedDataSource,
+  tryExtractDataSourceUrl,
   validateFeedUrlRequestSchema,
   validateFeedUrlResponseSchema,
   type ValidateFeedUrlResponse,
@@ -109,10 +110,26 @@ export class ValidateFeedUrlAction extends ActionDefinition<AppContext> {
 
         const prisma = getPrismaClientInstance()
 
+        const dataSourceUrl = tryExtractDataSourceUrl(url)
+        if (!dataSourceUrl) {
+          return c.json(
+            validateFeedUrlResponseSchema.parse({
+              success: false,
+              code: FEED_VALIDATE_ERROR_NOT_SUPPORTED,
+            }),
+            400,
+          )
+        }
+
         const feedList = await prisma.feed.findMany({
           where: {
             userId: user.id,
-            url: query.url,
+            dataSource: {
+              url: dataSourceUrl,
+            },
+          },
+          include: {
+            dataSource: true,
           },
         })
 

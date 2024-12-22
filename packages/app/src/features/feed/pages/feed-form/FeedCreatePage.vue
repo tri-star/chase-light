@@ -129,6 +129,7 @@ function handleCancelClick() {
                 :value="field.state.value"
                 :error="field.state.meta.errors.length > 0"
                 :loading="isFeedUrlValidationPenging"
+                placeholder="https://github.com/owner/repo"
                 @input="
                   (e: Event) =>
                     field.handleChange((e.target as HTMLInputElement).value)

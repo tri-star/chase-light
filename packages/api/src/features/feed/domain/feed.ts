@@ -89,6 +89,22 @@ export function isSupportedDataSource(url: string) {
     if (hostName !== "github.com") {
       return false
     }
+
+    const pathName = urlObject.pathname
+    const ownerName = pathName.split("/")[1] ?? undefined
+    const repoName = pathName.split("/")[2] ?? undefined
+
+    if (ownerName == null || repoName == null) {
+      return false
+    }
+
+    if (
+      decodeURIComponent(ownerName).trim() === "" ||
+      decodeURIComponent(repoName).trim() == ""
+    ) {
+      return false
+    }
+    console.log(`owner:${ownerName}, repo:${repoName}`)
   } catch (e: unknown) {
     console.debug(`isSupportedDataSource: ${e}`)
     return false
@@ -115,6 +131,22 @@ export function extractDataSourceUrl(url: string) {
     throw new Error(`URLの形式が無効です: ${url}`)
   }
 
+  if (
+    decodeURIComponent(ownerName).trim() === "" ||
+    decodeURIComponent(repoName).trim() == ""
+  ) {
+    throw new Error(`URLの形式が無効です: ${url}`)
+  }
+
   const dataSourceUrl = `https://${hostName}/${ownerName}/${repoName}`
   return dataSourceUrl
+}
+
+export function tryExtractDataSourceUrl(url: string) {
+  try {
+    return extractDataSourceUrl(url)
+  } catch (e: unknown) {
+    console.debug(`tryExtractDataSourceUrl: ${e}`)
+    return undefined
+  }
 }
