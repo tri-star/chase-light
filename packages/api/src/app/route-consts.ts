@@ -24,5 +24,8 @@ export const ROUTES = {
     LIST_ALL_LOGS: {
       DEFINITION: "/feed-logs",
     },
+    VALIDATE_FEED_URL: {
+      DEFINITION: "/feeds/validate-url",
+    },
   },
 } as const

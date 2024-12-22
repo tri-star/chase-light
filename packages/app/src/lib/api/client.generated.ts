@@ -8,8 +8,8 @@ const postUserssignupViaProvider_Body = z
   .readonly();
 const postFeeds_Body = z
   .object({
-    name: z.string(),
-    url: z.string(),
+    name: z.string().max(50),
+    url: z.string().max(255),
     cycle: z.union([z.literal(1), z.literal(2)]),
   })
   .strict()
@@ -38,6 +38,7 @@ const endpoints = makeApi([
                   .object({
                     id: z.string(),
                     name: z.string(),
+                    url: z.string(),
                     cycle: z.union([z.literal(1), z.literal(2)]),
                     dataSource: z
                       .object({
@@ -115,6 +116,7 @@ const endpoints = makeApi([
           .object({
             id: z.string(),
             name: z.string(),
+            url: z.string(),
             cycle: z.union([z.literal(1), z.literal(2)]),
             dataSource: z
               .object({
@@ -211,6 +213,7 @@ const endpoints = makeApi([
               .object({
                 id: z.string(),
                 name: z.string(),
+                url: z.string(),
                 cycle: z.union([z.literal(1), z.literal(2)]),
                 dataSource: z
                   .object({
@@ -244,6 +247,72 @@ const endpoints = makeApi([
         description: `認証エラー`,
         schema: z
           .object({ error: z.string() })
+          .strict()
+          .passthrough()
+          .readonly(),
+      },
+      {
+        status: 500,
+        description: `予期しないエラー`,
+        schema: z
+          .object({ error: z.string() })
+          .strict()
+          .passthrough()
+          .readonly(),
+      },
+    ],
+  },
+  {
+    method: "get",
+    path: "/feeds/validate-url",
+    alias: "getFeedsvalidateUrl",
+    description: `フィードURLの洋服チェック、形式チェック`,
+    requestFormat: "json",
+    parameters: [
+      {
+        name: "url",
+        type: "Query",
+        schema: z.string(),
+      },
+    ],
+    response: z
+      .object({
+        success: z.boolean(),
+        code: z.enum(["duplicated", "not-supported"]).optional(),
+      })
+      .strict()
+      .passthrough()
+      .readonly(),
+    errors: [
+      {
+        status: 400,
+        description: `バリデーションエラー(URLの形式違反など)`,
+        schema: z
+          .object({
+            success: z.boolean(),
+            code: z.enum(["duplicated", "not-supported"]).optional(),
+          })
+          .strict()
+          .passthrough()
+          .readonly(),
+      },
+      {
+        status: 401,
+        description: `認証エラー`,
+        schema: z
+          .object({ error: z.string() })
+          .strict()
+          .passthrough()
+          .readonly(),
+      },
+      {
+        status: 409,
+        description: `重複エラー`,
+        schema: z
+          .object({
+            success: z.boolean(),
+            code: z.enum(["duplicated", "not-supported"]).optional(),
+          })
           .strict()
           .passthrough()
           .readonly(),

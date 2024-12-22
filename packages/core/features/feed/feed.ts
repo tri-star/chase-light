@@ -1,4 +1,10 @@
 /**
+ * 最大値
+ */
+export const MAX_FEED_NAME_LENGTH = 50
+export const MAX_FEED_URL_LENGTH = 255
+
+/**
  * 更新サイクル
  */
 export const cycles = [

@@ -10,6 +10,7 @@ export const FeedFactory = defineFeedFactory({
     id: uuidv7(),
     cycle: faker.helpers.arrayElement(CYCLE_VALUES),
     dataSource: DataSourceFactory,
+    url: faker.internet.url(),
     name: faker.book.title(),
     user: UserFactory,
     createdAt: faker.date.recent(),

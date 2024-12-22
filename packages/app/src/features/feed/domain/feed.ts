@@ -10,6 +10,7 @@ export const feedSchema = z.object({
   name: z.string(),
   cycle: makeUnionFromArray(CYCLE_VALUES),
   dataSource: datasourceSchema,
+  url: z.string(),
   // user: userSchema,
   createdAt: z.date().or(z.string()),
   updatedAt: z.date().or(z.string()),

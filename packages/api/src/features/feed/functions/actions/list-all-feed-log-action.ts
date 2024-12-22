@@ -97,6 +97,7 @@ export class ListUserFeedLogAction extends ActionDefinition<AppContext> {
             feed: {
               id: "1234567890",
               name: "github/copilot",
+              url: "https://github.com/copilot",
               cycle: 1,
               createdAt: new Date(),
               updatedAt: new Date(),
@@ -120,7 +121,8 @@ export class ListUserFeedLogAction extends ActionDefinition<AppContext> {
             updatedAt: new Date(),
             feed: {
               id: "1234567890",
-              name: "github/copilot",
+              name: "github/copilot2",
+              url: "https://github.com/copilot2",
               cycle: 1,
               createdAt: new Date(),
               updatedAt: new Date(),
@@ -144,7 +146,8 @@ export class ListUserFeedLogAction extends ActionDefinition<AppContext> {
             updatedAt: new Date(),
             feed: {
               id: "1234567890",
-              name: "github/copilot",
+              name: "github/copilot3",
+              url: "https://github.com/copilot3",
               cycle: 1,
               createdAt: new Date(),
               updatedAt: new Date(),

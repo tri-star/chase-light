@@ -23,7 +23,7 @@ describe("CreateFeedAction", () => {
 
     const request: CreateFeedRequest = {
       name: "test feed",
-      url: "https://example.com",
+      url: "https://github.com/abc/def",
       cycle: 1, // CYCLE_VALUE_MAP.DAILY
     }
 

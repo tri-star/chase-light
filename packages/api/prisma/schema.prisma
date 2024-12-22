@@ -58,6 +58,7 @@ model Feed {
   userId       String     @map("user_id") @db.Uuid
   user         User       @relation(fields: [userId], references: [id])
   name         String     @db.VarChar(100)
+  url          String     @default("") @db.Text
   cycle        Int        @default(0)
   dataSourceId String     @map("data_source_id") @db.Uuid
   dataSource   DataSource @relation(fields: [dataSourceId], references: [id])
