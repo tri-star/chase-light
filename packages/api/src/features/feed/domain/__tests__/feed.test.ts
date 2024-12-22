@@ -30,12 +30,12 @@ describe("isSupportedDataSource", () => {
     },
     {
       description: "リポジトリ名が空文字の場合エラーになること",
-      url: "https://github.com//repo",
+      url: "https://github.com/owner/",
       expected: false,
     },
     {
       description: "リポジトリ名がスペースの場合エラーになること",
-      url: "https://github.com/ /repo",
+      url: "https://github.com/owner/ ",
       expected: false,
     },
     {
