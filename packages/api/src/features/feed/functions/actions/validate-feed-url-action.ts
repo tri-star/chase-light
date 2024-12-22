@@ -20,7 +20,7 @@ export class ValidateFeedUrlAction extends ActionDefinition<AppContext> {
       tags: ["feeds"],
       method: "get",
       path: ROUTES.FEEDS.VALIDATE_FEED_URL.DEFINITION,
-      description: "フィードURLの洋服チェック、形式チェック",
+      description: "フィードURLの重複チェック、形式チェック",
       security: [
         {
           AppBearer: [],
