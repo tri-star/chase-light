@@ -125,6 +125,7 @@ type FeeddataSourceFactory = {
 type FeedFactoryDefineInput = {
     id?: string;
     name?: string;
+    url?: string;
     cycle?: number;
     createdAt?: Date;
     updatedAt?: Date;

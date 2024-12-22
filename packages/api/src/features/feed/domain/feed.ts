@@ -13,6 +13,7 @@ import { SORT_DIRECTION_VALUES } from "core/constants"
 export const feedSchema = z.object({
   id: z.string(),
   name: z.string(),
+  url: z.string(),
   cycle: makeUnionFromArray(CYCLE_VALUES),
   dataSource: datasourceSchema,
   user: userSchema,
@@ -39,6 +40,7 @@ export const feedSearchRequestSchema = z.object({
 export const feedSearchResultItemSchema = z.object({
   id: z.string(),
   name: z.string(),
+  url: z.string(),
   cycle: makeUnionFromArray(CYCLE_VALUES),
   dataSource: datasourceSchema,
   createdAt: z.date(),

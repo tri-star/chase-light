@@ -96,6 +96,7 @@ export class CreateFeedAction extends ActionDefinition<AppContext> {
           data: {
             id: feedId,
             name: input.name,
+            url: input.url,
             cycle: input.cycle,
             dataSource: {
               connect: {

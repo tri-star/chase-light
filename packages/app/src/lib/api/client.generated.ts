@@ -38,6 +38,7 @@ const endpoints = makeApi([
                   .object({
                     id: z.string(),
                     name: z.string(),
+                    url: z.string(),
                     cycle: z.union([z.literal(1), z.literal(2)]),
                     dataSource: z
                       .object({
@@ -115,6 +116,7 @@ const endpoints = makeApi([
           .object({
             id: z.string(),
             name: z.string(),
+            url: z.string(),
             cycle: z.union([z.literal(1), z.literal(2)]),
             dataSource: z
               .object({
@@ -211,6 +213,7 @@ const endpoints = makeApi([
               .object({
                 id: z.string(),
                 name: z.string(),
+                url: z.string(),
                 cycle: z.union([z.literal(1), z.literal(2)]),
                 dataSource: z
                   .object({

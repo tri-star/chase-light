@@ -112,14 +112,7 @@ export class ValidateFeedUrlAction extends ActionDefinition<AppContext> {
         const feedList = await prisma.feed.findMany({
           where: {
             userId: user.id,
-            dataSource: {
-              url: {
-                startsWith: query.url,
-              },
-            },
-          },
-          include: {
-            dataSource: true,
+            url: query.url,
           },
         })
 
