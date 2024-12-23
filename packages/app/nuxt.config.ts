@@ -7,6 +7,7 @@ export default defineNuxtConfig({
     "nuxt-auth-utils",
     "@nuxtjs/storybook",
     "@nuxtjs/tailwindcss",
+    "@nuxt/test-utils/module",
     "@nuxt/icon",
   ],
   srcDir: "src",

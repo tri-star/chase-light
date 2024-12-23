@@ -16,7 +16,8 @@
     "lint": "npm-run-all2 lint:eslint lint:tsc lint:biome",
     "format:biome": "biome format --write *.ts *.js *.mjs **/*.ts **/*.js **/*.mjs",
     "format:prettier": "prettier --write '**/*.vue'",
-    "format": "npm-run-all2 format:biome format:prettier"
+    "format": "npm-run-all2 format:biome format:prettier",
+    "test": "vitest"
   },
   "dependencies": {
     "@nuxt/eslint": "^0.6.0",
@@ -47,15 +48,21 @@
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3.1.0",
+    "@nuxt/test-utils": "^3.15.1",
     "@types/auth0-js": "^9.21.6",
     "@types/eslint__eslintrc": "^2.1.2",
+    "@vitejs/plugin-vue": "^5.2.1",
     "@vue/eslint-config-typescript": "^13.0.0",
+    "@vue/test-utils": "^2.4.6",
+    "config": "link:@nuxt/test-utils/config",
     "h3": "^1.13.0",
+    "happy-dom": "^15.11.7",
     "npm-run-all2": "^6.2.3",
     "openapi-zod-client": "^1.18.2",
     "prettier": "^3.3.3",
     "prettier-plugin-tailwindcss": "^0.6.9",
     "rollup": "^4.24.0",
+    "vitest": "^2.1.4",
     "vue-tsc": "^2.1.10"
   },
   "overrides": {

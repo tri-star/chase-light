@@ -22,7 +22,7 @@ export function useFeedUrlValidation() {
   async function validateFeedUrl(url: string): Promise<ValidationError> {
     validationState.value = "pending"
 
-    const { error } = await useFetch("/api/feeds/validate-url", {
+    const { error } = await useA3Fetch("/api/feeds/validate-url", {
       query: {
         url,
       },

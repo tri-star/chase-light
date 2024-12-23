@@ -6,12 +6,12 @@ import type {
   ZodiosQueryParamsByAlias,
   ZodiosQueryParamsByPath,
 } from "@zodios/core"
+import { getActiveAccessToken } from "~/lib/api/api-auth"
 
 export async function createSsrApiClient(event: H3Event) {
   const config = useRuntimeConfig()
 
-  const session = await getUserSession(event)
-  const token = session.secure?.accessToken
+  const token = await getActiveAccessToken(event)
 
   const headers: Record<string, string> = {
     "Content-Type": "application/json",
