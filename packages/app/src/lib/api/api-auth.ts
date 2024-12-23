@@ -72,7 +72,7 @@ async function requestNewAccessToken(event: H3Event) {
 
     session.secure.accessToken = response.access_token
     session.secure.refreshToken = response.refresh_token
-    console.log("new token", session.secure.accessToken)
+    console.debug("new token", session.secure.accessToken)
     return session.secure.accessToken
   } catch (e) {
     console.error(`トークンの再発行に失敗: ${e}`)
