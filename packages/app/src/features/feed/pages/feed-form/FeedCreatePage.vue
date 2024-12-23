@@ -24,7 +24,7 @@ const form = useForm<CreateFeedForm, Validator<unknown, ZodType>>({
   },
   validatorAdapter: zodValidator(),
   onSubmit: async () => {
-    await useFetch("/api/feeds", {
+    await useA3Fetch("/api/feeds", {
       method: "POST",
       body: schemas.postFeeds_Body.parse(form.state.values),
     })

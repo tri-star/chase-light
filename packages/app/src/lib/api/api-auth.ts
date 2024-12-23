@@ -1,5 +1,4 @@
 import type { H3Event } from "h3"
-import { UnauthorizedException } from "~/lib/api/unauthorized-exception"
 
 /**
  * 有効期限が一定時間以上のアクセストークンを返す。
@@ -17,7 +16,7 @@ export async function getActiveAccessToken(event: H3Event) {
     token = await requestNewAccessToken(event)
   }
 
-  const expirationSeconds = getExpirationSecondsFromToken(token) ?? 0
+  const expirationSeconds = getExpirationSecondsFromToken(token ?? "") ?? 0
   console.log(`new token expirationSeconds: ${expirationSeconds}`)
   if (expirationSeconds < 60) {
     token = await requestNewAccessToken(event)
@@ -27,7 +26,7 @@ export async function getActiveAccessToken(event: H3Event) {
     console.debug(
       `アクセストークンの更新に失敗しました: ${session.secure?.accessToken}`,
     )
-    throw new UnauthorizedException("アクセストークンの更新に失敗しました")
+    return undefined
   }
 
   return token
@@ -39,7 +38,7 @@ async function requestNewAccessToken(event: H3Event) {
 
   const session = await getUserSession(event)
   if (!session.secure?.refreshToken) {
-    throw new UnauthorizedException("リフレッシュトークンがありません")
+    return undefined
   }
 
   try {
@@ -77,7 +76,7 @@ async function requestNewAccessToken(event: H3Event) {
     return session.secure.accessToken
   } catch (e) {
     console.error(`トークンの再発行に失敗: ${e}`)
-    throw new UnauthorizedException("トークンの再発行に失敗")
+    return undefined
   }
 }
 

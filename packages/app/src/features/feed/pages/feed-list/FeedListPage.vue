@@ -48,7 +48,7 @@ const searchForm = ref({
   sort: props.sort ? props.sort : "updatedAt:desc",
 })
 
-const { data: feeds, status } = useFetch("/api/feeds", {
+const { data: feeds, status } = useA3Fetch("/api/feeds", {
   query: searchQuery,
 })
 
