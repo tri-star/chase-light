@@ -37,6 +37,9 @@ export function useFeedUrlValidation() {
       } else if (errorCode === "not-supported") {
         validationState.value = "invalid"
         return "URLは 'https://gitHub.com/owner/repo' 形式で入力してください"
+      } else {
+        validationState.value = "invalid"
+        return "不明なエラーが発生しました"
       }
     }
 
