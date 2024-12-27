@@ -1,28 +1,43 @@
-<script setup lang="ts">
+<script setup lang="ts" generic="T">
 const elementId = useId()
 
-withDefaults(
+const props = withDefaults(
   defineProps<{
     name: string
     label?: string
+    value: T
+    selectedValue?: T | undefined
   }>(),
   {
     label: undefined,
+    selectedValue: undefined,
   }
 )
+
+const isChecked = computed(() => props.selectedValue === props.value)
 </script>
 
 <template>
-  <input
-    :id="elementId"
-    type="radio"
-    :name="name"
-    class="radio"
-    v-bind="$attrs"
-  />
-  <label class="inline-block" :for="elementId"
-    ><span v-if="label">{{ label }}</span></label
-  >
+  <div>
+    <input
+      :id="elementId"
+      type="radio"
+      :name="name"
+      :class="{
+        radio: true,
+        peer: isChecked,
+      }"
+      :value="value"
+      :checked="isChecked"
+      v-bind="$attrs"
+      tabindex="0"
+    />
+    <label
+      class="inline-block peer-focus:outline-double peer-focus:outline-2"
+      :for="elementId"
+      ><span v-if="label">{{ label }}</span></label
+    >
+  </div>
 </template>
 
 <style scoped>
