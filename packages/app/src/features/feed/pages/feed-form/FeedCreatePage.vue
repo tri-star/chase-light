@@ -163,7 +163,7 @@ function handleCancelClick() {
           <label class="text-size-h5 font-heading font-bold"
             >通知サイクル</label
           >
-          <div class="flex flex-col gap-2">
+          <div class="flex flex-col items-start gap-2">
             <form.Field name="cycle">
               <template #default="{ field }">
                 <A3RadioButton
@@ -172,7 +172,7 @@ function handleCancelClick() {
                   :name="field.name"
                   :label="cycle.name"
                   :value="cycle.value"
-                  :checked="field.state.value == cycle.value"
+                  :selected-value="field.state.value"
                   @change="() => field.handleChange(cycle.value as any)"
                 />
               </template>
