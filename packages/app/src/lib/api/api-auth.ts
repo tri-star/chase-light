@@ -11,11 +11,17 @@ import type { H3Event } from "h3"
 export async function getActiveAccessToken(event: H3Event) {
   const session = await getUserSession(event)
   let token = session.secure?.accessToken
+  console.log(`1: ${JSON.stringify(session.user)}`)
 
   if (!token) {
+    //   console.log(`2`)
     token = await requestNewAccessToken(event)
   }
 
+  console.log(
+    `3: current token: ${token}\n`,
+    `session token: ${session.secure?.accessToken}`,
+  )
   const expirationSeconds = getExpirationSecondsFromToken(token ?? "") ?? 0
   console.log(`new token expirationSeconds: ${expirationSeconds}`)
   if (expirationSeconds < 60) {
@@ -23,7 +29,7 @@ export async function getActiveAccessToken(event: H3Event) {
   }
 
   if (!token) {
-    console.debug(
+    console.log(
       `アクセストークンの更新に失敗しました: ${session.secure?.accessToken}`,
     )
     return undefined
@@ -38,6 +44,7 @@ async function requestNewAccessToken(event: H3Event) {
 
   const session = await getUserSession(event)
   if (!session.secure?.refreshToken) {
+    console.log(`3: ${session.secure}`)
     return undefined
   }
 
@@ -62,7 +69,7 @@ async function requestNewAccessToken(event: H3Event) {
       }),
     })
 
-    setUserSession(event, {
+    await setUserSession(event, {
       secure: {
         accessToken: response.access_token,
         idToken: response.id_token,
@@ -70,11 +77,10 @@ async function requestNewAccessToken(event: H3Event) {
       },
     })
 
-    session.secure.accessToken = response.access_token
-    session.secure.refreshToken = response.refresh_token
-    console.debug("new token", session.secure.accessToken)
-    return session.secure.accessToken
+    console.log("new token", response.access_token)
+    return response.access_token
   } catch (e) {
+    clearUserSession(event)
     console.error(`トークンの再発行に失敗: ${e}`)
     return undefined
   }
@@ -95,7 +101,7 @@ export function getExpirationSecondsFromToken(token: string) {
 
     return decodedPayload.exp - now
   } catch (e) {
-    console.debug(`トークンから有効期限を取得に失敗: ${token}`)
+    console.log(`トークンから有効期限を取得に失敗: ${token}`)
     return undefined
   }
 }

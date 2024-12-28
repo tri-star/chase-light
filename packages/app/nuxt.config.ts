@@ -14,7 +14,7 @@ export default defineNuxtConfig({
   components: {
     dirs: [],
   },
-  plugins: ["~/plugins/zod"],
+  plugins: ["~/plugins/zod", "~/plugins/a3-fetch"],
   app: {
     head: {
       link: [
@@ -60,6 +60,14 @@ export default defineNuxtConfig({
         "storybook > @storybook/core > jsdoc-type-pratt-parser",
       ],
     },
+  },
+  optimization: {
+    keyedComposables: [
+      {
+        name: "useA3Fetch",
+        argumentLength: 3,
+      },
+    ],
   },
   icon: {
     // FIXME: 出来ればStorybook経由の時だけこの形にしたい

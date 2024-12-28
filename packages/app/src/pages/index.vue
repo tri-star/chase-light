@@ -10,7 +10,7 @@ definePageMeta({
   menuId: SIDE_MENU_ITEM_MAP.dashboard.id,
 })
 
-const { data: feedLogs } = useFetch("/api/feeds/logs")
+const { data: feedLogs } = useA3Fetch("/api/feeds/logs")
 
 function handleAddFeedClick() {
   router.push({ path: "/feeds/new" })
