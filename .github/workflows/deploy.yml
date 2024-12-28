@@ -1,0 +1,51 @@
+name: Deploy(dev)
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: "Select environment"
+        required: true
+        type: choice
+        options:
+          - dev
+          - prod
+
+concurrency: ${{ github.workflow }}
+
+jobs:
+  api-deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    environment: ${{ github.event.inputs.environment }}
+    env:
+      ROLE_ARN: arn:aws:iam::${{ secrets.AWS_ID }}:role/${{ secrets.ROLE_NAME }}
+      SESSION_NAME: gh-oidc-${{ vars.PROJECT_NAME }}-${{ github.run_id }}-${{ github.run_attempt }}
+      STAGE: ${{ github.event.inputs.environment }}
+      AWS_REGION: ${{ vars.AWS_REGION }}
+      AWS_ACCOUNT: ${{ secrets.AWS_ID }}
+      SERVERLESS_ACCESS_KEY: ${{ secrets.SERVERLESS_ACCESS_KEY }}
+
+    permissions:
+      id-token: write
+      contents: read
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ env.ROLE_ARN }}
+          role-session-name: ${{ env.SESSION_NAME }}
+          aws-region: ${{ vars.AWS_REGION }}
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22.9
+          cache: "npm"
+      - name: install js package
+        run: |
+          cd packages/api
+          pnpm install --frozen-lockfile
+      - name: deploy
+        run: |
+          cd packages/api
+          npx serverless deploy --stage ${{ env.STAGE }} --verbose
