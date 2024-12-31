@@ -55,6 +55,7 @@ jobs:
           pnpm build
           npx serverless deploy --stage ${{ env.STAGE }} --verbose
         env:
+          NITRO_PRESET: "aws-lambda"
           SERVERLESS_ACCESS_KEY: ${{ secrets.SERVERLESS_ACCESS_KEY }}
           NUXT_SESSION_PASSWORD: ${{ secrets.NUXT_SESSION_PASSWORD }}
           NUXT_API_HOST: ${{ secrets.API_URL }}
