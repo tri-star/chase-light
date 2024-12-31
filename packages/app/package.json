@@ -40,6 +40,7 @@
     "nuxt-oidc-auth": "^0.18.0",
     "ofetch": "^1.4.1",
     "pinia": "^2.2.4",
+    "serverless-s3-sync": "^3.4.0",
     "tailwind-merge": "^2.5.4",
     "tailwind-variants": "^0.3.0",
     "tailwindcss": "^3.4.14",
