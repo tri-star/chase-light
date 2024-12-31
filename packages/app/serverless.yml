@@ -8,7 +8,7 @@ provider:
 
 functions:
   app:
-    handler: .nuxt/build/.output/server/index.handler
+    handler: .output/server/index.handler
     url: true
     events:
       - http:
@@ -21,7 +21,7 @@ plugins:
 custom:
   s3Sync:
     - bucketName: chase-light-app-${sls:stage}
-      localDir: .nuxt/build/.output/public
+      localDir: .output/public
 
 resources:
   Resources:

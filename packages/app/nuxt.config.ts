@@ -49,11 +49,11 @@ export default defineNuxtConfig({
   // 現時点では以下のワークアラウンドが必要
   // https://github.com/nuxt-modules/storybook/issues/776#issuecomment-2434672219
   vite: {
-    resolve: {
-      alias: {
-        vue: "vue/dist/vue.esm-bundler.js",
-      },
-    },
+    // resolve: {
+    //   alias: {
+    //     vue: "vue/dist/vue.esm-bundler.js",
+    //   },
+    // },
     optimizeDeps: {
       include: [
         "eslint-plugin-regexp > jsdoc-type-pratt-parser",
