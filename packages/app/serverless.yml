@@ -1,0 +1,105 @@
+service: chase-light-app
+frameworkVersion: "4"
+
+provider:
+  name: aws
+  runtime: nodejs22.x
+  region: ap-northeast-1
+
+functions:
+  app:
+    handler: .output/server/index.handler
+    url: true
+    events:
+      - http:
+          path: /{proxy+}
+          method: any
+
+plugins:
+- serverless-s3-sync
+
+custom:
+  s3Sync:
+    - bucketName: chase-light-app-${sls:stage}
+      localDir: .output/public
+
+resources:
+  Resources:
+    AssetsBucket:
+      Type: AWS::S3::Bucket
+      Properties:
+        BucketName: chase-light-app-${sls:stage}
+        Tags:
+          - Key: infra
+            Value: chase-light
+          - Key: stage
+            Value: ${sls:stage}
+        CorsConfiguration:
+          CorsRules:
+            - AllowedOrigins:
+                - '*'
+              AllowedHeaders: ['*']
+              AllowedMethods: ['GET', 'HEAD']
+              MaxAge: 3000
+    AssetsBucketPolicy:
+      Type: AWS::S3::BucketPolicy
+      Properties:
+        Bucket: !Ref AssetsBucket
+        PolicyDocument:
+          Statement:
+            - Effect: Allow
+              Principal:
+                CanonicalUser: !GetAtt CloudFrontOAI.S3CanonicalUserId
+              Action: 's3:GetObject'
+              Resource: !Sub '${AssetsBucket.Arn}/*'
+    CloudFrontOAI:
+      Type: AWS::CloudFront::CloudFrontOriginAccessIdentity
+      Properties:
+        CloudFrontOriginAccessIdentityConfig:
+          Comment: '(${sls:stage})Access Identity for S3 bucket'
+    SimpleCORSResponseHeadersPolicy:
+      Type: AWS::CloudFront::ResponseHeadersPolicy
+      Properties:
+        ResponseHeadersPolicyConfig:
+          Name: 'SimpleCORSResponseHeaders${sls:stage}Policy'
+          Comment: 'A simple CORS policy'
+          CorsConfig:
+            AccessControlAllowCredentials: false
+            AccessControlAllowOrigins:
+              Items:
+                - '*'
+            AccessControlAllowHeaders:
+              Items:
+                - '*'
+            AccessControlAllowMethods:
+              Items:
+                - GET
+                - HEAD
+            AccessControlMaxAgeSec: 3000
+            OriginOverride: true
+    CloudFrontDistribution:
+      Type: AWS::CloudFront::Distribution
+      Properties:
+        DistributionConfig:
+          Enabled: true
+          Origins:
+            - DomainName:
+                Fn::Sub: '${AssetsBucket}.s3.amazonaws.com'
+              Id: S3Origin
+              S3OriginConfig:
+                OriginAccessIdentity:
+                  Fn::Sub: 'origin-access-identity/cloudfront/${CloudFrontOAI}'
+          DefaultCacheBehavior:
+            TargetOriginId: S3Origin
+            ViewerProtocolPolicy: redirect-to-https
+            AllowedMethods: ['GET', 'HEAD', 'OPTIONS']
+            ForwardedValues:
+              QueryString: true
+              Cookies:
+                Forward: none
+              Headers:
+                - Origin
+                - Access-Control-Request-Headers
+                - Access-Control-Request-Method
+            ResponseHeadersPolicyId: !Ref SimpleCORSResponseHeadersPolicy
+          DefaultRootObject: index.html
