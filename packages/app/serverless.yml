@@ -8,6 +8,8 @@ provider:
   tracing:
     apiGateway: true
     lambda: true
+  logs:
+    restApi: true
 
 functions:
   app:
