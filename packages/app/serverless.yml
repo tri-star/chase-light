@@ -5,6 +5,9 @@ provider:
   name: aws
   runtime: nodejs22.x
   region: ap-northeast-1
+  tracing:
+    apiGateway: true
+    lambda: true
 
 functions:
   app:
@@ -16,7 +19,7 @@ functions:
           method: any
 
 plugins:
-- serverless-s3-sync
+  - serverless-s3-sync
 
 custom:
   s3Sync:
@@ -37,9 +40,9 @@ resources:
         CorsConfiguration:
           CorsRules:
             - AllowedOrigins:
-                - '*'
-              AllowedHeaders: ['*']
-              AllowedMethods: ['GET', 'HEAD']
+                - "*"
+              AllowedHeaders: ["*"]
+              AllowedMethods: ["GET", "HEAD"]
               MaxAge: 3000
     AssetsBucketPolicy:
       Type: AWS::S3::BucketPolicy
@@ -50,27 +53,27 @@ resources:
             - Effect: Allow
               Principal:
                 CanonicalUser: !GetAtt CloudFrontOAI.S3CanonicalUserId
-              Action: 's3:GetObject'
-              Resource: !Sub '${AssetsBucket.Arn}/*'
+              Action: "s3:GetObject"
+              Resource: !Sub "${AssetsBucket.Arn}/*"
     CloudFrontOAI:
       Type: AWS::CloudFront::CloudFrontOriginAccessIdentity
       Properties:
         CloudFrontOriginAccessIdentityConfig:
-          Comment: '(${sls:stage})Access Identity for S3 bucket'
+          Comment: "(${sls:stage})Access Identity for S3 bucket"
     SimpleCORSResponseHeadersPolicy:
       Type: AWS::CloudFront::ResponseHeadersPolicy
       Properties:
         ResponseHeadersPolicyConfig:
-          Name: 'SimpleCORSResponseHeaders${sls:stage}Policy'
-          Comment: 'A simple CORS policy'
+          Name: "SimpleCORSResponseHeaders${sls:stage}Policy"
+          Comment: "A simple CORS policy"
           CorsConfig:
             AccessControlAllowCredentials: false
             AccessControlAllowOrigins:
               Items:
-                - '*'
+                - "*"
             AccessControlAllowHeaders:
               Items:
-                - '*'
+                - "*"
             AccessControlAllowMethods:
               Items:
                 - GET
@@ -84,15 +87,15 @@ resources:
           Enabled: true
           Origins:
             - DomainName:
-                Fn::Sub: '${AssetsBucket}.s3.amazonaws.com'
+                Fn::Sub: "${AssetsBucket}.s3.amazonaws.com"
               Id: S3Origin
               S3OriginConfig:
                 OriginAccessIdentity:
-                  Fn::Sub: 'origin-access-identity/cloudfront/${CloudFrontOAI}'
+                  Fn::Sub: "origin-access-identity/cloudfront/${CloudFrontOAI}"
           DefaultCacheBehavior:
             TargetOriginId: S3Origin
             ViewerProtocolPolicy: redirect-to-https
-            AllowedMethods: ['GET', 'HEAD', 'OPTIONS']
+            AllowedMethods: ["GET", "HEAD", "OPTIONS"]
             ForwardedValues:
               QueryString: true
               Cookies:
