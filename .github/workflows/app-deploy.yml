@@ -71,3 +71,5 @@ jobs:
           NUXT_PUBLIC_OAUTH_AUTH0_AUDIENCE: ${{ secrets.AUTH0_AUDIENCE }}
           AWS_ACCOUNT: ${{ secrets.AWS_ID }}
           AWS_REGION: ${{ vars.AWS_REGION }}
+          NUXT_APP_CDN_URL: ${{ secrets.NUXT_APP_CDN_URL }}
+          NUXT_APP_BASE_URL: ${{ vars.NUXT_APP_BASE_URL }}
