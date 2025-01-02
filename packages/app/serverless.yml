@@ -19,6 +19,9 @@ functions:
       - http:
           path: /{proxy+}
           method: any
+      - http:
+          path: /
+          method: any
 
 plugins:
   - serverless-s3-sync
