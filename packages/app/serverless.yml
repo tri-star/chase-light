@@ -11,6 +11,12 @@ provider:
   logs:
     restApi: true
 
+params:
+  default:
+    appDomain: ${sls:stage}.chase-light.jp
+  prod:
+    appDomain: chase-light.jp
+
 functions:
   app:
     handler: .output/server/index.handler
@@ -25,8 +31,15 @@ functions:
 
 plugins:
   - serverless-s3-sync
+  - serverless-domain-manager
 
 custom:
+  customDomains:
+    - rest:
+        domainName: ${param:appDomain}
+        basePath: ""
+        endpointType: REGIONAL
+        certificateName: "*.chase-light.jp"
   s3Sync:
     - bucketName: chase-light-app-${sls:stage}
       localDir: .output/public
