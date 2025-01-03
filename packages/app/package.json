@@ -65,6 +65,7 @@
     "prettier-plugin-tailwindcss": "^0.6.9",
     "rollup": "^4.24.0",
     "serverless": "^4.4.6",
+    "serverless-domain-manager": "^8.0.0",
     "vitest": "^2.1.4",
     "vue-tsc": "^2.1.10"
   },
