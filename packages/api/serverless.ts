@@ -17,7 +17,6 @@ const serverlessConfiguration: Serverless & { build: object } = {
       minify: false,
       buildConcurrency: 3,
       external: ["aws-lambda", "@prisma/client"],
-      target: "node18",
       platform: "node",
       sourcemap: {
         type: "linked",
@@ -29,16 +28,22 @@ const serverlessConfiguration: Serverless & { build: object } = {
     patterns: [
       "package.json",
       "node_modules/.prisma/client/**",
-      "!node_modules/.prisma/client/libquery_engine-*",
-      "node_modules/.prisma/client/libquery_engine-rhel-*",
-      "node_modules/@prisma/**",
+      // "!node_modules/.prisma/client/libquery_engine-*",
+      // "node_modules/.prisma/client/libquery_engine-rhel-*",
+      "!node_modules/prisma/libquery_engine-*",
       "!node_modules/@prisma/engines/**",
+
+      // "node_modules/.prisma/client/**",
+      // "!node_modules/.prisma/client/libquery_engine-*",
+      // "node_modules/.prisma/client/libquery_engine-rhel-*",
+      // "node_modules/@prisma/**",
+      // "!node_modules/@prisma/engines/**",
     ],
     individually: true,
   },
   provider: {
     name: "aws",
-    runtime: "nodejs18.x",
+    runtime: "nodejs22.x",
     region: "ap-northeast-1",
     memorySize: 512,
     environment: {
