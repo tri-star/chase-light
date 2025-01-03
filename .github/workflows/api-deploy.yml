@@ -55,6 +55,7 @@ jobs:
           sed -i '/^  binaryTargets/d' prisma/schema.prisma
           sed -i 's/\/\/ DEPLOY: //g' prisma/schema.prisma
           npx prisma generate
+          sed -i '/^  output  /d' prisma/schema.prisma
           npx serverless deploy --stage ${{ env.STAGE }} --verbose
         env:
           SERVERLESS_ACCESS_KEY: ${{ secrets.SERVERLESS_ACCESS_KEY }}
