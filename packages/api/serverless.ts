@@ -17,7 +17,6 @@ const serverlessConfiguration: Serverless & { build: object } = {
       minify: false,
       buildConcurrency: 3,
       external: ["aws-lambda", "@prisma/client"],
-      target: "node18",
       platform: "node",
       sourcemap: {
         type: "linked",
