@@ -28,8 +28,8 @@ const serverlessConfiguration: Serverless & { build: object } = {
     patterns: [
       "package.json",
       "node_modules/.prisma/client/**",
-      "!node_modules/.prisma/client/libquery_engine-*",
-      "node_modules/.prisma/client/libquery_engine-rhel-*",
+      // "!node_modules/.prisma/client/libquery_engine-*",
+      // "node_modules/.prisma/client/libquery_engine-rhel-*",
       "!node_modules/prisma/libquery_engine-*",
       "!node_modules/@prisma/engines/**",
 
