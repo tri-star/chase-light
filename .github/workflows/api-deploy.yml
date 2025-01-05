@@ -65,3 +65,4 @@ jobs:
           DIRECT_URL: ${{ secrets.DIRECT_URL }}
           AWS_ACCOUNT: ${{ secrets.AWS_ID }}
           AWS_REGION: ${{ vars.AWS_REGION }}
+          PRISMA_SKIP_POSTINSTALL_GENERATE: 1
