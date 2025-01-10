@@ -1,26 +1,26 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
-  compatibilityDate: "2024-04-03",
+  compatibilityDate: '2024-04-03',
   modules: [
-    "@nuxt/eslint",
-    "@pinia/nuxt",
-    "nuxt-auth-utils",
-    "@nuxtjs/storybook",
-    "@nuxtjs/tailwindcss",
-    "@nuxt/test-utils/module",
-    "@nuxt/icon",
+    '@nuxt/eslint',
+    '@pinia/nuxt',
+    'nuxt-auth-utils',
+    '@nuxtjs/storybook',
+    '@nuxtjs/tailwindcss',
+    '@nuxt/test-utils/module',
+    '@nuxt/icon',
   ],
-  srcDir: "src",
+  srcDir: 'src',
   components: {
     dirs: [],
   },
-  plugins: ["~/plugins/zod", "~/plugins/a3-fetch"],
+  plugins: ['~/plugins/zod', '~/plugins/a3-fetch'],
   app: {
     head: {
       link: [
         {
-          rel: "stylesheet",
-          href: "https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700&display=swap",
+          rel: 'stylesheet',
+          href: 'https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700&display=swap',
         },
       ],
     },
@@ -56,21 +56,21 @@ export default defineNuxtConfig({
     // },
     optimizeDeps: {
       include: [
-        "eslint-plugin-regexp > jsdoc-type-pratt-parser",
-        "storybook > @storybook/core > jsdoc-type-pratt-parser",
+        'eslint-plugin-regexp > jsdoc-type-pratt-parser',
+        'storybook > @storybook/core > jsdoc-type-pratt-parser',
       ],
     },
   },
   optimization: {
     keyedComposables: [
       {
-        name: "useA3Fetch",
+        name: 'useA3Fetch',
         argumentLength: 3,
       },
     ],
   },
   icon: {
     // FIXME: 出来ればStorybook経由の時だけこの形にしたい
-    localApiEndpoint: "https://api.iconify.design",
+    localApiEndpoint: 'https://api.iconify.design',
   },
 })

@@ -1,18 +1,18 @@
-import { ActionDefinition } from "@/lib/hono/action-definition"
-import { type AppContext } from "@/app/chase-light-app"
-import { ROUTES } from "@/app/route-consts"
-import { createRoute, z, type OpenAPIHono } from "@hono/zod-openapi"
+import { ActionDefinition } from '@/lib/hono/action-definition'
+import { type AppContext } from '@/app/chase-light-app'
+import { ROUTES } from '@/app/route-consts'
+import { createRoute, z, type OpenAPIHono } from '@hono/zod-openapi'
 // import { getPrismaClientInstance } from "@/lib/prisma/app-prisma-client"
 import {
   feedLogSearchResultSchema,
   type FeedLog,
-} from "@/features/feed/domain/feed-log"
+} from '@/features/feed/domain/feed-log'
 
 export class ListUserFeedLogAction extends ActionDefinition<AppContext> {
   buildOpenApiAppRoute(parentApp: OpenAPIHono<AppContext>): void {
     const route = createRoute({
-      tags: ["feeds"],
-      method: "get",
+      tags: ['feeds'],
+      method: 'get',
       path: ROUTES.FEEDS.LIST_ALL_LOGS.DEFINITION,
       security: [
         {
@@ -21,9 +21,9 @@ export class ListUserFeedLogAction extends ActionDefinition<AppContext> {
       ],
       responses: {
         200: {
-          description: "処理成功",
+          description: '処理成功',
           content: {
-            "application/json": {
+            'application/json': {
               schema: feedLogSearchResultSchema,
             },
           },
@@ -39,9 +39,9 @@ export class ListUserFeedLogAction extends ActionDefinition<AppContext> {
         //   },
         // },
         401: {
-          description: "認証エラー",
+          description: '認証エラー',
           content: {
-            "application/json": {
+            'application/json': {
               schema: z.object({
                 error: z.string(),
               }),
@@ -49,9 +49,9 @@ export class ListUserFeedLogAction extends ActionDefinition<AppContext> {
           },
         },
         500: {
-          description: "予期しないエラー",
+          description: '予期しないエラー',
           content: {
-            "application/json": {
+            'application/json': {
               schema: z.object({
                 error: z.string(),
               }),
@@ -65,7 +65,7 @@ export class ListUserFeedLogAction extends ActionDefinition<AppContext> {
       try {
         const user = c.var.user
         if (user == null) {
-          return c.json({ error: "Unauthorized" }, 401)
+          return c.json({ error: 'Unauthorized' }, 401)
         }
 
         // const prisma = getPrismaClientInstance()
@@ -86,75 +86,75 @@ export class ListUserFeedLogAction extends ActionDefinition<AppContext> {
 
         const feedLogList: FeedLog[] = [
           {
-            id: "1234567890",
-            title: "v0.3.0",
-            url: "https://github.com/",
+            id: '1234567890',
+            title: 'v0.3.0',
+            url: 'https://github.com/',
             date: new Date(),
             summary:
-              "GitHub Copilot is an AI pair programmer that helps you write code faster.",
+              'GitHub Copilot is an AI pair programmer that helps you write code faster.',
             createdAt: new Date(),
             updatedAt: new Date(),
             feed: {
-              id: "1234567890",
-              name: "github/copilot",
-              url: "https://github.com/copilot",
+              id: '1234567890',
+              name: 'github/copilot',
+              url: 'https://github.com/copilot',
               cycle: 1,
               createdAt: new Date(),
               updatedAt: new Date(),
               dataSource: {
-                id: "2345678901",
-                name: "GitHub",
-                url: "https://github.com",
+                id: '2345678901',
+                name: 'GitHub',
+                url: 'https://github.com',
                 createdAt: new Date(),
                 updatedAt: new Date(),
               },
             },
           },
           {
-            id: "1234567891",
-            title: "v0.2.0",
-            url: "https://github.com/",
+            id: '1234567891',
+            title: 'v0.2.0',
+            url: 'https://github.com/',
             date: new Date(),
             summary:
-              "GitHub Copilot is an AI pair programmer that helps you write code faster.",
+              'GitHub Copilot is an AI pair programmer that helps you write code faster.',
             createdAt: new Date(),
             updatedAt: new Date(),
             feed: {
-              id: "1234567890",
-              name: "github/copilot2",
-              url: "https://github.com/copilot2",
+              id: '1234567890',
+              name: 'github/copilot2',
+              url: 'https://github.com/copilot2',
               cycle: 1,
               createdAt: new Date(),
               updatedAt: new Date(),
               dataSource: {
-                id: "2345678901",
-                name: "GitHub",
-                url: "https://github.com",
+                id: '2345678901',
+                name: 'GitHub',
+                url: 'https://github.com',
                 createdAt: new Date(),
                 updatedAt: new Date(),
               },
             },
           },
           {
-            id: "1234567892",
-            title: "v0.1.0",
-            url: "https://github.com/",
+            id: '1234567892',
+            title: 'v0.1.0',
+            url: 'https://github.com/',
             date: new Date(),
             summary:
-              "GitHub Copilot is an AI pair programmer that helps you write code faster.",
+              'GitHub Copilot is an AI pair programmer that helps you write code faster.',
             createdAt: new Date(),
             updatedAt: new Date(),
             feed: {
-              id: "1234567890",
-              name: "github/copilot3",
-              url: "https://github.com/copilot3",
+              id: '1234567890',
+              name: 'github/copilot3',
+              url: 'https://github.com/copilot3',
               cycle: 1,
               createdAt: new Date(),
               updatedAt: new Date(),
               dataSource: {
-                id: "2345678901",
-                name: "GitHub",
-                url: "https://github.com",
+                id: '2345678901',
+                name: 'GitHub',
+                url: 'https://github.com',
                 createdAt: new Date(),
                 updatedAt: new Date(),
               },
@@ -174,7 +174,7 @@ export class ListUserFeedLogAction extends ActionDefinition<AppContext> {
         )
       } catch (error) {
         console.error(error)
-        return c.json({ error: "Unknown error" }, 500)
+        return c.json({ error: 'Unknown error' }, 500)
       }
     })
   }

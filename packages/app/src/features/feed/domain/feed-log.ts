@@ -1,5 +1,5 @@
-import { z } from "zod"
-import { feedSchema } from "~/features/feed/domain/feed"
+import { z } from 'zod'
+import { feedSchema } from '~/features/feed/domain/feed'
 
 export const feedLogSchema = z.object({
   id: z.string(),

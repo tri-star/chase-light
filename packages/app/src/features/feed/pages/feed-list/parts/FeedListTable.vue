@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import type { Feed } from "~/features/feed/domain/feed"
-import FeedListRow from "./FeedListRow.vue"
+import type { Feed } from '~/features/feed/domain/feed'
+import FeedListRow from './FeedListRow.vue'
 
 defineProps<{
   feeds: Feed[]

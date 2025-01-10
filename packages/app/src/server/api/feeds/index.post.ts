@@ -1,5 +1,5 @@
-import { createSsrApiClient } from "~/lib/api/client"
-import { schemas } from "~/lib/api/client.generated"
+import { createSsrApiClient } from '~/lib/api/client'
+import { schemas } from '~/lib/api/client.generated'
 
 export default defineEventHandler(async (event) => {
   const client = await createSsrApiClient(event)

@@ -22,12 +22,12 @@ export type IdTokenPayload = {
   updated_at?: string
 }
 
-type TokenErrorType = "invalid_token"
+type TokenErrorType = 'invalid_token'
 
 export class TokenError extends Error {
-  private static readonly CLASS = "TokenError"
+  private static readonly CLASS = 'TokenError'
 
-  public readonly type: TokenErrorType = "invalid_token" as const
+  public readonly type: TokenErrorType = 'invalid_token' as const
 
   public readonly message: string
 

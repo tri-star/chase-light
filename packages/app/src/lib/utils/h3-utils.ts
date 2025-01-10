@@ -1,4 +1,4 @@
-import type { FetchError } from "ofetch"
+import type { FetchError } from 'ofetch'
 
 export function getH3ErrorData<T = unknown>(
   error: FetchError<unknown> | null,

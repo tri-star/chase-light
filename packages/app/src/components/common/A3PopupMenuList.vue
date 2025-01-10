@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import A3MenuItem from "~/components/common/A3MenuItem.vue"
-import type { A3MenuItemData } from "~/components/common/a3-menu-item"
+import A3MenuItem from '~/components/common/A3MenuItem.vue'
+import type { A3MenuItemData } from '~/components/common/a3-menu-item'
 
 const emit = defineEmits<{
   click: [value: string]
@@ -25,7 +25,7 @@ const keyboardSelectedIndex = ref<number | undefined>(
 )
 
 useClickOutside(menuList, () => {
-  emit("cancel")
+  emit('cancel')
 })
 
 useListKeyboardSelect(
@@ -35,10 +35,10 @@ useListKeyboardSelect(
     if (keyboardSelectedIndex.value == null) {
       return
     }
-    emit("click", props.items[keyboardSelectedIndex.value].value)
+    emit('click', props.items[keyboardSelectedIndex.value].value)
   },
   () => {
-    emit("cancel")
+    emit('cancel')
   }
 )
 
@@ -46,8 +46,8 @@ onMounted(() => {
   if (menuList.value == null) {
     return
   }
-  menuList.value.style.left = ""
-  menuList.value.style.top = ""
+  menuList.value.style.left = ''
+  menuList.value.style.top = ''
 
   let listWidth = menuList.value.offsetWidth
   if (props.stretch) {
@@ -65,7 +65,7 @@ function handleMenuClick(payload: string) {
   keyboardSelectedIndex.value = props.items.findIndex(
     (item) => item.value === payload
   )
-  emit("click", payload)
+  emit('click', payload)
 }
 </script>
 

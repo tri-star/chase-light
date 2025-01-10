@@ -1,7 +1,7 @@
-import { OpenAPIHono } from "@hono/zod-openapi"
-import type { Env } from "hono"
-import type { ActionDefinition } from "@/lib/hono/action-definition"
-import type { Serverless, HttpCors } from "serverless/aws"
+import { OpenAPIHono } from '@hono/zod-openapi'
+import type { Env } from 'hono'
+import type { ActionDefinition } from '@/lib/hono/action-definition'
+import type { Serverless, HttpCors } from 'serverless/aws'
 
 export class HonoOpenApiApp<T extends Env> {
   protected app: OpenAPIHono<T>
@@ -10,7 +10,7 @@ export class HonoOpenApiApp<T extends Env> {
 
   private actions: ActionDefinition<T>[] = []
 
-  private lambdaDefinition: Serverless["functions"] | undefined
+  private lambdaDefinition: Serverless['functions'] | undefined
 
   constructor() {
     this.app = new OpenAPIHono<T>()
@@ -23,7 +23,7 @@ export class HonoOpenApiApp<T extends Env> {
     }
   }
 
-  defineLambdaDefinition(definition: Serverless["functions"]) {
+  defineLambdaDefinition(definition: Serverless['functions']) {
     this.lambdaDefinition = definition
   }
 
@@ -35,9 +35,9 @@ export class HonoOpenApiApp<T extends Env> {
     return this.app
   }
 
-  getLambdaDefinition(): Serverless["functions"] {
+  getLambdaDefinition(): Serverless['functions'] {
     if (!this.lambdaDefinition) {
-      throw new Error("Lambda関数設定が定義されていません")
+      throw new Error('Lambda関数設定が定義されていません')
     }
 
     if (this.corsSetting) {

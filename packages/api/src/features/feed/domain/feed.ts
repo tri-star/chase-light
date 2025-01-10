@@ -1,14 +1,14 @@
-import { datasourceSchema } from "@/features/feed/domain/data-source"
-import { userSchema } from "@/features/user/domain/user"
-import { makeEnumFromArray, makeUnionFromArray } from "@/lib/utils/zod-utils"
-import { z } from "@hono/zod-openapi"
+import { datasourceSchema } from '@/features/feed/domain/data-source'
+import { userSchema } from '@/features/user/domain/user'
+import { makeEnumFromArray, makeUnionFromArray } from '@/lib/utils/zod-utils'
+import { z } from '@hono/zod-openapi'
 import {
   CYCLE_VALUES,
   MAX_FEED_NAME_LENGTH,
   MAX_FEED_URL_LENGTH,
   SORT_ITEMS_VALUES,
-} from "core/features/feed/feed"
-import { SORT_DIRECTION_VALUES } from "core/constants"
+} from 'core/features/feed/feed'
+import { SORT_DIRECTION_VALUES } from 'core/constants'
 
 export const feedSchema = z.object({
   id: z.string(),
@@ -61,12 +61,12 @@ export const validateFeedUrlRequestSchema = z
   })
   .openapi({
     example: {
-      url: "https://github.com/some/repo",
+      url: 'https://github.com/some/repo',
     },
   })
 
-export const FEED_VALIDATE_ERROR_DUPLICATE = "duplicated"
-export const FEED_VALIDATE_ERROR_NOT_SUPPORTED = "not-supported"
+export const FEED_VALIDATE_ERROR_DUPLICATE = 'duplicated'
+export const FEED_VALIDATE_ERROR_NOT_SUPPORTED = 'not-supported'
 export const validateFeedUrlResponseSchema = z.object({
   success: z.boolean(),
   code: makeEnumFromArray([
@@ -83,24 +83,24 @@ export function isSupportedDataSource(url: string) {
     const urlObject = new URL(url)
     const hostName = urlObject.hostname
 
-    if (urlObject.protocol !== "https:") {
+    if (urlObject.protocol !== 'https:') {
       return false
     }
-    if (hostName !== "github.com") {
+    if (hostName !== 'github.com') {
       return false
     }
 
     const pathName = urlObject.pathname
-    const ownerName = pathName.split("/")[1] ?? undefined
-    const repoName = pathName.split("/")[2] ?? undefined
+    const ownerName = pathName.split('/')[1] ?? undefined
+    const repoName = pathName.split('/')[2] ?? undefined
 
     if (ownerName == null || repoName == null) {
       return false
     }
 
     if (
-      decodeURIComponent(ownerName).trim() === "" ||
-      decodeURIComponent(repoName).trim() == ""
+      decodeURIComponent(ownerName).trim() === '' ||
+      decodeURIComponent(repoName).trim() == ''
     ) {
       return false
     }
@@ -124,16 +124,16 @@ export function extractDataSourceUrl(url: string) {
   const hostName = urlObject.hostname
   const pathName = urlObject.pathname
 
-  const ownerName = pathName.split("/")[1] ?? undefined
-  const repoName = pathName.split("/")[2] ?? undefined
+  const ownerName = pathName.split('/')[1] ?? undefined
+  const repoName = pathName.split('/')[2] ?? undefined
 
   if (ownerName == null || repoName == null) {
     throw new Error(`URLの形式が無効です: ${url}`)
   }
 
   if (
-    decodeURIComponent(ownerName).trim() === "" ||
-    decodeURIComponent(repoName).trim() == ""
+    decodeURIComponent(ownerName).trim() === '' ||
+    decodeURIComponent(repoName).trim() == ''
   ) {
     throw new Error(`URLの形式が無効です: ${url}`)
   }

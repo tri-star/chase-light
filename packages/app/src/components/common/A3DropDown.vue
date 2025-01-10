@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { tv } from "tailwind-variants"
-import type { A3MenuItemData } from "./a3-menu-item"
-import A3PopupMenuList from "~/components/common/A3PopupMenuList.vue"
+import { tv } from 'tailwind-variants'
+import type { A3MenuItemData } from './a3-menu-item'
+import A3PopupMenuList from '~/components/common/A3PopupMenuList.vue'
 
 const emit = defineEmits<{
   change: [value: string]
@@ -25,12 +25,12 @@ const props = withDefaults(
 
 const classes = tv({
   slots: {
-    menu: "border-default-input bg-default-input hover:bg-default-input-hover flex min-h-10 cursor-pointer items-center gap-2 text-nowrap rounded-md border px-3 py-3 transition-colors duration-300",
+    menu: 'border-default-input bg-default-input hover:bg-default-input-hover flex min-h-10 cursor-pointer items-center gap-2 text-nowrap rounded-md border px-3 py-3 transition-colors duration-300',
   },
   variants: {
     disabled: {
       true: {
-        menu: "border-disabled bg-disabled text-disabled hover:bg-disabled cursor-not-allowed",
+        menu: 'border-disabled bg-disabled text-disabled hover:bg-disabled cursor-not-allowed',
       },
     },
   },
@@ -43,8 +43,8 @@ const labelText = computed(() => {
 const expanded = ref(false)
 
 const arrowClasses = computed(() => {
-  const className = " text-default transition-all duration-300"
-  const effectClass = !expanded.value ? "transform rotate-180" : ""
+  const className = ' text-default transition-all duration-300'
+  const effectClass = !expanded.value ? 'transform rotate-180' : ''
   return `${className} ${effectClass}`
 })
 
@@ -60,7 +60,7 @@ function handleToggleExpanded() {
 function handleMenuClick(value: string) {
   innerValue.value = value
   expanded.value = false
-  emit("change", value)
+  emit('change', value)
 }
 
 function handleCancel() {

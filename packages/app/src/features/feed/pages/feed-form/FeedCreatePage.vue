@@ -1,37 +1,37 @@
 <script setup lang="ts">
-import { useForm, type Validator } from "@tanstack/vue-form"
-import { zodValidator } from "@tanstack/zod-form-adapter"
-import { CYCLE_VALUE_MAP, cycles } from "core/features/feed/feed"
-import { type ZodType } from "zod"
-import A3Button from "~/components/common/A3Button.vue"
-import A3RadioButton from "~/components/common/A3RadioButton.vue"
-import A3TextField from "~/components/common/A3TextField.vue"
+import { useForm, type Validator } from '@tanstack/vue-form'
+import { zodValidator } from '@tanstack/zod-form-adapter'
+import { CYCLE_VALUE_MAP, cycles } from 'core/features/feed/feed'
+import { type ZodType } from 'zod'
+import A3Button from '~/components/common/A3Button.vue'
+import A3RadioButton from '~/components/common/A3RadioButton.vue'
+import A3TextField from '~/components/common/A3TextField.vue'
 import {
   createFeedFormSchema,
   type CreateFeedForm,
-} from "~/features/feed/domain/feed"
-import { schemas } from "~/lib/api/client.generated"
-import { useFeedUrlValidation } from "./use-feed-url-validation"
-import A3TextFieldIcon from "~/components/common/A3TextFieldIcon.vue"
+} from '~/features/feed/domain/feed'
+import { schemas } from '~/lib/api/client.generated'
+import { useFeedUrlValidation } from './use-feed-url-validation'
+import A3TextFieldIcon from '~/components/common/A3TextFieldIcon.vue'
 
 const toastStore = useToastStore()
 const router = useRouter()
 const form = useForm<CreateFeedForm, Validator<unknown, ZodType>>({
   defaultValues: {
-    name: "",
-    url: "",
+    name: '',
+    url: '',
     cycle: CYCLE_VALUE_MAP.DAILY,
   },
   validatorAdapter: zodValidator(),
   onSubmit: async () => {
-    await useA3Fetch("/api/feeds", {
-      method: "POST",
+    await useA3Fetch('/api/feeds', {
+      method: 'POST',
       body: schemas.postFeeds_Body.parse(form.state.values),
     })
 
     toastStore.createToast({
-      type: "success",
-      message: "フィードを登録しました",
+      type: 'success',
+      message: 'フィードを登録しました',
     })
   },
 })

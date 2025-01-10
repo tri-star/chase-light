@@ -1,5 +1,5 @@
-import path from "path"
-import { fileURLToPath } from "url"
+import path from 'path'
+import { fileURLToPath } from 'url'
 
 export function currentFilePath(importMetaUrl: string) {
   return fileURLToPath(importMetaUrl)

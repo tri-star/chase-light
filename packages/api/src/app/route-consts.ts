@@ -8,24 +8,24 @@
 export const ROUTES = {
   USERS: {
     SIGNUP_VIA_PROVIDER: {
-      DEFINITION: "/users/signup-via-provider",
+      DEFINITION: '/users/signup-via-provider',
     },
     FETCH_SELF: {
-      DEFINITION: "/users/self",
+      DEFINITION: '/users/self',
     },
   },
   FEEDS: {
     CREATE: {
-      DEFINITION: "/feeds",
+      DEFINITION: '/feeds',
     },
     LIST: {
-      DEFINITION: "/feeds",
+      DEFINITION: '/feeds',
     },
     LIST_ALL_LOGS: {
-      DEFINITION: "/feed-logs",
+      DEFINITION: '/feed-logs',
     },
     VALIDATE_FEED_URL: {
-      DEFINITION: "/feeds/validate-url",
+      DEFINITION: '/feeds/validate-url',
     },
   },
 } as const

@@ -5,13 +5,13 @@ export function useListKeyboardSelect(
   onCanceled: () => void,
 ) {
   function handleKeyDown(event: KeyboardEvent) {
-    if (event.key === "ArrowDown") {
+    if (event.key === 'ArrowDown') {
       if (selectedIndexRef.value === undefined) {
         selectedIndexRef.value = 0
       } else {
         selectedIndexRef.value = (selectedIndexRef.value + 1) % items.length
       }
-    } else if (event.key === "ArrowUp") {
+    } else if (event.key === 'ArrowUp') {
       if (selectedIndexRef.value === undefined) {
         selectedIndexRef.value = items.length - 1
       } else {
@@ -22,20 +22,20 @@ export function useListKeyboardSelect(
       }
     }
 
-    if (event.key === "Enter" && selectedIndexRef.value !== undefined) {
+    if (event.key === 'Enter' && selectedIndexRef.value !== undefined) {
       onSelected(selectedIndexRef.value)
     }
 
-    if (event.key === "Escape") {
+    if (event.key === 'Escape') {
       onCanceled()
     }
   }
 
   onMounted(() => {
-    document.addEventListener("keydown", handleKeyDown)
+    document.addEventListener('keydown', handleKeyDown)
   })
 
   onUnmounted(() => {
-    document.removeEventListener("keydown", handleKeyDown)
+    document.removeEventListener('keydown', handleKeyDown)
   })
 }

@@ -1,16 +1,16 @@
 <script setup lang="ts">
-import { tv } from "tailwind-variants"
-import A3Spinner from "./A3Spinner.vue"
+import { tv } from 'tailwind-variants'
+import A3Spinner from './A3Spinner.vue'
 
 withDefaults(
   defineProps<{
     label: string
-    type?: "primary" | "default"
+    type?: 'primary' | 'default'
     loading?: boolean
     disabled?: boolean
   }>(),
   {
-    type: "default",
+    type: 'default',
     loading: false,
     disabled: false,
   }
@@ -18,47 +18,54 @@ withDefaults(
 
 const buttonClasses = tv({
   base: [
-    "flex",
-    "bg-default-button",
-    "hover:bg-default-button-hover",
-    "text-default",
-    "rounded",
-    "px-4",
-    "py-3",
-    "gap-2",
-    "justify-center",
-    "items-center",
-    "shadow-lg",
-    "active:shadow-none",
-    "transition-all",
-    "duration-300",
-    "h-min",
-    "translate-y-[-4px]",
-    "active:translate-y-0",
+    'flex',
+    'bg-default-button',
+    'hover:bg-default-button-hover',
+    'text-default',
+    'border',
+    'rounded',
+    'px-4',
+    'py-3',
+    'gap-2',
+    'justify-center',
+    'items-center',
+    'shadow-lg',
+    'active:shadow-none',
+    'transition-all',
+    'duration-300',
+    'h-min',
+    'translate-y-[-4px]',
+    'active:translate-y-0',
   ],
   variants: {
     type: {
-      default: [],
-      primary: ["bg-primary", "hover:bg-primary-hover", "text-primary"],
+      default: ['border-default'],
+      primary: [
+        'bg-primary',
+        'hover:bg-primary-hover',
+        'text-primary',
+        'border-primary-button',
+      ],
     },
     loading: {
       true: [
-        "bg-disabled",
-        "hover:bg-disabled",
-        "text-disabled",
-        "translate-y-0",
-        "shadow-none",
-        "cursor-wait",
+        'bg-disabled',
+        'hover:bg-disabled',
+        'text-disabled',
+        'translate-y-0',
+        'shadow-none',
+        'cursor-wait',
       ],
     },
     disabled: {
       true: [
-        "bg-disabled",
-        "hover:bg-disabled",
-        "text-disabled",
-        "translate-y-0",
-        "shadow-none",
-        "cursor-not-allowed",
+        'bg-disabled',
+        'hover:bg-disabled',
+        'text-disabled',
+        'border-disabled',
+        'translate-y-0',
+        'shadow-none',
+        'cursor-not-allowed',
       ],
     },
   },

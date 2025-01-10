@@ -3,8 +3,8 @@ import {
   type AccessTokenPayload,
   type IdTokenPayload,
   type TokenParserInterface,
-} from "@/features/auth/services/token-parser-interface"
-import * as jose from "jose"
+} from '@/features/auth/services/token-parser-interface'
+import * as jose from 'jose'
 
 let tokenParserInstance: TokenParserInterface | undefined
 
@@ -17,8 +17,8 @@ export function getTokenParserInstance(): TokenParserInterface {
 }
 
 export function swapTokenParserForTest(newInstance: TokenParserInterface) {
-  if (process.env.NODE_ENV !== "test") {
-    throw new Error("swapTokenParserForTestはテスト環境でのみ使用できます")
+  if (process.env.NODE_ENV !== 'test') {
+    throw new Error('swapTokenParserForTestはテスト環境でのみ使用できます')
   }
   tokenParserInstance = newInstance
 }
@@ -58,13 +58,13 @@ export class Auth0TokenParser implements TokenParserInterface {
 
       return payload
     } catch (error) {
-      throw new TokenError("invalid_token", (error as Error).message)
+      throw new TokenError('invalid_token', (error as Error).message)
     }
   }
 
   async extractProviderId(token: string): Promise<string> {
     const payload = await this.parseAccessToken(token)
-    return payload.sub || ""
+    return payload.sub || ''
   }
 
   /**
@@ -105,7 +105,7 @@ export class Auth0TokenParser implements TokenParserInterface {
 
       return payload
     } catch (error) {
-      throw new TokenError("invalid_token", (error as Error).message)
+      throw new TokenError('invalid_token', (error as Error).message)
     }
   }
 }

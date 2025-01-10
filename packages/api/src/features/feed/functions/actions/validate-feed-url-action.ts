@@ -1,7 +1,7 @@
-import { ActionDefinition } from "@/lib/hono/action-definition"
-import { type AppContext } from "@/app/chase-light-app"
-import { ROUTES } from "@/app/route-consts"
-import { createRoute, z, type OpenAPIHono } from "@hono/zod-openapi"
+import { ActionDefinition } from '@/lib/hono/action-definition'
+import { type AppContext } from '@/app/chase-light-app'
+import { ROUTES } from '@/app/route-consts'
+import { createRoute, z, type OpenAPIHono } from '@hono/zod-openapi'
 import {
   FEED_VALIDATE_ERROR_DUPLICATE,
   FEED_VALIDATE_ERROR_NOT_SUPPORTED,
@@ -10,17 +10,17 @@ import {
   validateFeedUrlRequestSchema,
   validateFeedUrlResponseSchema,
   type ValidateFeedUrlResponse,
-} from "@/features/feed/domain/feed"
-import { getPrismaClientInstance } from "@/lib/prisma/app-prisma-client"
+} from '@/features/feed/domain/feed'
+import { getPrismaClientInstance } from '@/lib/prisma/app-prisma-client'
 
 export class ValidateFeedUrlAction extends ActionDefinition<AppContext> {
   buildOpenApiAppRoute(parentApp: OpenAPIHono<AppContext>): void {
     const route = createRoute({
-      summary: "フィードURLバリデーション",
-      tags: ["feeds"],
-      method: "get",
+      summary: 'フィードURLバリデーション',
+      tags: ['feeds'],
+      method: 'get',
       path: ROUTES.FEEDS.VALIDATE_FEED_URL.DEFINITION,
-      description: "フィードURLの重複チェック、形式チェック",
+      description: 'フィードURLの重複チェック、形式チェック',
       security: [
         {
           AppBearer: [],
@@ -31,9 +31,9 @@ export class ValidateFeedUrlAction extends ActionDefinition<AppContext> {
       },
       responses: {
         200: {
-          description: "処理成功",
+          description: '処理成功',
           content: {
-            "application/json": {
+            'application/json': {
               schema: validateFeedUrlResponseSchema,
               example: {
                 success: true,
@@ -42,9 +42,9 @@ export class ValidateFeedUrlAction extends ActionDefinition<AppContext> {
           },
         },
         400: {
-          description: "バリデーションエラー(URLの形式違反など)",
+          description: 'バリデーションエラー(URLの形式違反など)',
           content: {
-            "application/json": {
+            'application/json': {
               schema: validateFeedUrlResponseSchema,
               example: {
                 success: false,
@@ -54,9 +54,9 @@ export class ValidateFeedUrlAction extends ActionDefinition<AppContext> {
           },
         },
         409: {
-          description: "重複エラー",
+          description: '重複エラー',
           content: {
-            "application/json": {
+            'application/json': {
               schema: validateFeedUrlResponseSchema,
               example: {
                 success: false,
@@ -66,9 +66,9 @@ export class ValidateFeedUrlAction extends ActionDefinition<AppContext> {
           },
         },
         401: {
-          description: "認証エラー",
+          description: '認証エラー',
           content: {
-            "application/json": {
+            'application/json': {
               schema: z.object({
                 error: z.string(),
               }),
@@ -76,9 +76,9 @@ export class ValidateFeedUrlAction extends ActionDefinition<AppContext> {
           },
         },
         500: {
-          description: "予期しないエラー",
+          description: '予期しないエラー',
           content: {
-            "application/json": {
+            'application/json': {
               schema: z.object({
                 error: z.string(),
               }),
@@ -92,10 +92,10 @@ export class ValidateFeedUrlAction extends ActionDefinition<AppContext> {
       try {
         const user = c.var.user
         if (user == null) {
-          return c.json({ error: "Unauthorized" }, 401)
+          return c.json({ error: 'Unauthorized' }, 401)
         }
 
-        const query = c.req.valid("query")
+        const query = c.req.valid('query')
         const url = query.url
 
         if (!isSupportedDataSource(url)) {
@@ -151,7 +151,7 @@ export class ValidateFeedUrlAction extends ActionDefinition<AppContext> {
         )
       } catch (error) {
         console.error(error)
-        return c.json({ error: "Unknown error" }, 500)
+        return c.json({ error: 'Unknown error' }, 500)
       }
     })
   }

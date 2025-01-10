@@ -1,5 +1,5 @@
-import { z } from "@hono/zod-openapi"
-import { feedSchema } from "./feed"
+import { z } from '@hono/zod-openapi'
+import { feedSchema } from './feed'
 
 export const feedLogSchema = z.object({
   id: z.string(),

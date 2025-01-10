@@ -1,5 +1,5 @@
-import { createSsrApiClient } from "~/lib/api/client"
-import type { FeedLog } from "~/features/feed/domain/feed-log"
+import { createSsrApiClient } from '~/lib/api/client'
+import type { FeedLog } from '~/features/feed/domain/feed-log'
 
 export default defineEventHandler(async (event) => {
   const client = await createSsrApiClient(event)

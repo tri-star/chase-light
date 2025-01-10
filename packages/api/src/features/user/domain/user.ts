@@ -1,4 +1,4 @@
-import { z } from "zod"
+import { z } from 'zod'
 
 export const userSchema = z.object({
   id: z.string(),
@@ -22,10 +22,10 @@ export const signupResultSchema = z.object({
   user: userSchema.optional(),
   success: z.boolean(),
   status: z.enum([
-    "created",
-    "updated",
-    "duplicate_account",
-    "no_verified_email",
+    'created',
+    'updated',
+    'duplicate_account',
+    'no_verified_email',
   ]),
 })
 

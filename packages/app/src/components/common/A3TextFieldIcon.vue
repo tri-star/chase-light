@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { tv } from "tailwind-variants"
+import { tv } from 'tailwind-variants'
 
 defineProps<{
   name: string
@@ -8,13 +8,13 @@ defineProps<{
 }>()
 
 const classes = tv({
-  base: ["text-default"],
+  base: ['text-default'],
   variants: {
     error: {
-      true: ["text-alert"],
+      true: ['text-alert'],
     },
     disabled: {
-      true: ["text-disabled"],
+      true: ['text-disabled'],
     },
   },
 })

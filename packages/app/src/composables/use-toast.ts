@@ -1,5 +1,5 @@
 export type ToastMessage = {
-  type: "success" | "alert"
+  type: 'success' | 'alert'
   message: string
   durationMs?: number
 }
@@ -9,7 +9,7 @@ type ToastListItem = ToastMessage & {
   bottomY: number
 }
 
-export const useToastStore = defineStore("toastStore", () => {
+export const useToastStore = defineStore('toastStore', () => {
   const toasts = ref<ToastListItem[]>([])
 
   function createToast(message: ToastMessage) {

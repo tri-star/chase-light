@@ -15,11 +15,11 @@ export function useClickOutside(
     // メニューなどを出現させるための親要素のクリックに反応して即閉じる動作になるので1フレーム遅らせて登録する。
     // nextTickではうまく機能しないのでsetTimeoutで1フレーム分遅らせる
     setTimeout(() => {
-      document.addEventListener("click", handleClickOutside)
+      document.addEventListener('click', handleClickOutside)
     })
   })
 
   onUnmounted(() => {
-    document.removeEventListener("click", handleClickOutside)
+    document.removeEventListener('click', handleClickOutside)
   })
 }

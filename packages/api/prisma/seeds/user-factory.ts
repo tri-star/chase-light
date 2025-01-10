@@ -1,6 +1,6 @@
-import { defineUserFactory } from "@/__generated__/fabbrica"
-import { v7 as uuidv7 } from "uuid"
-import { fakerJA as faker } from "@faker-js/faker"
+import { defineUserFactory } from '@/__generated__/fabbrica'
+import { v7 as uuidv7 } from 'uuid'
+import { fakerJA as faker } from '@faker-js/faker'
 
 export const UserFactory = defineUserFactory({
   defaultData: async () => ({

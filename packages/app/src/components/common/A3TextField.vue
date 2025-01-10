@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { tv } from "tailwind-variants"
-import A3Spinner from "./A3Spinner.vue"
+import { tv } from 'tailwind-variants'
+import A3Spinner from './A3Spinner.vue'
 
 const props = withDefaults(
   defineProps<{
@@ -12,7 +12,7 @@ const props = withDefaults(
   {
     error: false,
     disabled: false,
-    placeHolder: "",
+    placeHolder: '',
     loading: false,
   }
 )
@@ -20,42 +20,42 @@ const props = withDefaults(
 const classes = tv({
   slots: {
     frame: [
-      "relative",
-      "flex",
-      "px-3",
-      "py-3",
-      "gap-1",
-      "rounded-md",
-      "border",
-      "bg-default-input",
-      "border-default-input",
-      "transition-all",
-      "duration-300",
-      "focus-within:outline-1",
-      "focus-within:outline-double",
+      'relative',
+      'flex',
+      'px-3',
+      'py-3',
+      'gap-1',
+      'rounded-md',
+      'border',
+      'bg-default-input',
+      'border-default-input',
+      'transition-all',
+      'duration-300',
+      'focus-within:outline-1',
+      'focus-within:outline-double',
     ],
     input: [
-      "flex",
-      "flex-1",
-      "font-label",
-      "text-size-m",
-      "rounded-md",
-      "bg-transparent",
-      "outline-none",
+      'flex',
+      'flex-1',
+      'font-label',
+      'text-size-m',
+      'rounded-md',
+      'bg-transparent',
+      'outline-none',
     ],
-    icon: ["flex", "items-center"],
+    icon: ['flex', 'items-center'],
   },
   variants: {
     error: {
       true: {
-        frame: ["border-alert", "bg-alert"],
-        input: ["text-alert"],
+        frame: ['border-alert', 'bg-alert'],
+        input: ['text-alert'],
       },
     },
     disabled: {
       true: {
-        frame: ["border-disabled", "bg-disabled"],
-        input: ["text-disabled"],
+        frame: ['border-disabled', 'bg-disabled'],
+        input: ['text-disabled'],
       },
     },
   },

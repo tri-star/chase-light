@@ -1,12 +1,12 @@
 <script setup lang="ts">
-import type { A3MenuItemData } from "~/components/common/a3-menu-item"
-import A3Button from "~/components/common/A3Button.vue"
-import A3DropDown from "~/components/common/A3DropDown.vue"
-import A3TextField from "~/components/common/A3TextField.vue"
-import FeedListTable from "./parts/FeedListTable.vue"
-import type { ApiQueryParametersByAlias } from "~/lib/api/client"
-import { feedSearchFormSchema } from "../../domain/feed"
-import FeedListEmpty from "./parts/FeedListEmpty.vue"
+import type { A3MenuItemData } from '~/components/common/a3-menu-item'
+import A3Button from '~/components/common/A3Button.vue'
+import A3DropDown from '~/components/common/A3DropDown.vue'
+import A3TextField from '~/components/common/A3TextField.vue'
+import FeedListTable from './parts/FeedListTable.vue'
+import type { ApiQueryParametersByAlias } from '~/lib/api/client'
+import { feedSearchFormSchema } from '../../domain/feed'
+import FeedListEmpty from './parts/FeedListEmpty.vue'
 
 const props = defineProps<{
   keyword?: string
@@ -17,25 +17,25 @@ const router = useRouter()
 
 const filterMenuList: A3MenuItemData[] = [
   {
-    label: "更新日：降順",
-    value: "updatedAt:desc",
+    label: '更新日：降順',
+    value: 'updatedAt:desc',
   },
   {
-    label: "更新日：昇順",
-    value: "updatedAt:asc",
+    label: '更新日：昇順',
+    value: 'updatedAt:asc',
   },
   {
-    label: "登録日：降順",
-    value: "createdAt:desc",
+    label: '登録日：降順',
+    value: 'createdAt:desc',
   },
   {
-    label: "登録日：昇順",
-    value: "createdAt:asc",
+    label: '登録日：昇順',
+    value: 'createdAt:asc',
   },
 ]
 
-const searchQuery = computed<ApiQueryParametersByAlias<"getFeeds">>(() => {
-  const [sortItem, direction] = searchForm.value.sort.split(":")
+const searchQuery = computed<ApiQueryParametersByAlias<'getFeeds'>>(() => {
+  const [sortItem, direction] = searchForm.value.sort.split(':')
   return feedSearchFormSchema.parse({
     keyword: props.keyword ? props.keyword : undefined,
     sort: sortItem,
@@ -45,20 +45,20 @@ const searchQuery = computed<ApiQueryParametersByAlias<"getFeeds">>(() => {
 
 const searchForm = ref({
   keyword: props.keyword,
-  sort: props.sort ? props.sort : "updatedAt:desc",
+  sort: props.sort ? props.sort : 'updatedAt:desc',
 })
 
-const { data: feeds, status } = useA3Fetch("/api/feeds", {
+const { data: feeds, status } = useA3Fetch('/api/feeds', {
   query: searchQuery,
 })
 
-const isListLoading = computed(() => status.value === "pending")
+const isListLoading = computed(() => status.value === 'pending')
 const loadingClass = computed(() =>
-  isListLoading.value ? "animate-pulse" : ""
+  isListLoading.value ? 'animate-pulse' : ''
 )
 
 function handleAddFeedClick() {
-  router.push({ path: "/feeds/new" })
+  router.push({ path: '/feeds/new' })
 }
 
 function handlesortChange(value: string) {

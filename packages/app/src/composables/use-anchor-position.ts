@@ -4,7 +4,7 @@ export function useAnchorPosition() {
 
     const targetRect = targetElement.value?.getBoundingClientRect()
     if (targetElement === undefined) {
-      throw new Error("要素が見つかりません。")
+      throw new Error('要素が見つかりません。')
     }
 
     const resultRect = {
@@ -38,7 +38,7 @@ export function useAnchorPosition() {
   }
 
   function getWindowBoundingRect() {
-    const topSideStickies = document.querySelectorAll("[data-sticky-top]")
+    const topSideStickies = document.querySelectorAll('[data-sticky-top]')
     const topMargin = Array.from(topSideStickies.values()).reduce<number>(
       (sum, element) => {
         sum += element.getBoundingClientRect().height
@@ -47,7 +47,7 @@ export function useAnchorPosition() {
       0,
     )
 
-    const leftSideStickies = document.querySelectorAll("[data-sticky-left]")
+    const leftSideStickies = document.querySelectorAll('[data-sticky-left]')
     const leftMargin = Array.from(leftSideStickies.values()).reduce<number>(
       (sum, element) => {
         sum += element.getBoundingClientRect().width

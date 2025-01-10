@@ -1,4 +1,4 @@
-import { z } from "@hono/zod-openapi"
+import { z } from '@hono/zod-openapi'
 
 export function makeEnumFromArray<T extends string>(values: T[]) {
   const [firstValue, ...restValues] = values

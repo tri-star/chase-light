@@ -1,18 +1,18 @@
-import { ActionDefinition } from "@/lib/hono/action-definition"
-import { type AppContext } from "@/app/chase-light-app"
-import { ROUTES } from "@/app/route-consts"
-import { createRoute, z, type OpenAPIHono } from "@hono/zod-openapi"
+import { ActionDefinition } from '@/lib/hono/action-definition'
+import { type AppContext } from '@/app/chase-light-app'
+import { ROUTES } from '@/app/route-consts'
+import { createRoute, z, type OpenAPIHono } from '@hono/zod-openapi'
 import {
   feedSearchRequestSchema,
   feedSearchResultSchema,
-} from "@/features/feed/domain/feed"
-import { getPrismaClientInstance } from "@/lib/prisma/app-prisma-client"
+} from '@/features/feed/domain/feed'
+import { getPrismaClientInstance } from '@/lib/prisma/app-prisma-client'
 
 export class ListFeedAction extends ActionDefinition<AppContext> {
   buildOpenApiAppRoute(parentApp: OpenAPIHono<AppContext>): void {
     const route = createRoute({
-      tags: ["feeds"],
-      method: "get",
+      tags: ['feeds'],
+      method: 'get',
       path: ROUTES.FEEDS.CREATE.DEFINITION,
       security: [
         {
@@ -24,9 +24,9 @@ export class ListFeedAction extends ActionDefinition<AppContext> {
       },
       responses: {
         200: {
-          description: "処理成功",
+          description: '処理成功',
           content: {
-            "application/json": {
+            'application/json': {
               schema: feedSearchResultSchema,
             },
           },
@@ -42,9 +42,9 @@ export class ListFeedAction extends ActionDefinition<AppContext> {
         //   },
         // },
         401: {
-          description: "認証エラー",
+          description: '認証エラー',
           content: {
-            "application/json": {
+            'application/json': {
               schema: z.object({
                 error: z.string(),
               }),
@@ -52,9 +52,9 @@ export class ListFeedAction extends ActionDefinition<AppContext> {
           },
         },
         500: {
-          description: "予期しないエラー",
+          description: '予期しないエラー',
           content: {
-            "application/json": {
+            'application/json': {
               schema: z.object({
                 error: z.string(),
               }),
@@ -68,10 +68,10 @@ export class ListFeedAction extends ActionDefinition<AppContext> {
       try {
         const user = c.var.user
         if (user == null) {
-          return c.json({ error: "Unauthorized" }, 401)
+          return c.json({ error: 'Unauthorized' }, 401)
         }
 
-        const query = c.req.valid("query")
+        const query = c.req.valid('query')
 
         const prisma = getPrismaClientInstance()
         const orderBy = buildOrderQuery(query)
@@ -103,7 +103,7 @@ export class ListFeedAction extends ActionDefinition<AppContext> {
         )
       } catch (error) {
         console.error(error)
-        return c.json({ error: "Unknown error" }, 500)
+        return c.json({ error: 'Unknown error' }, 500)
       }
     })
   }
@@ -113,11 +113,11 @@ function buildOrderQuery(query: unknown) {
   const queryObj = feedSearchRequestSchema.parse(query)
 
   const orderBy: {
-    [k in Exclude<(typeof queryObj)["sort"], undefined>]?: "asc" | "desc"
+    [k in Exclude<(typeof queryObj)['sort'], undefined>]?: 'asc' | 'desc'
   } = {}
 
   if (queryObj.sort) {
-    orderBy[queryObj.sort] = queryObj.sortDirection || "asc"
+    orderBy[queryObj.sort] = queryObj.sortDirection || 'asc'
   }
 
   return orderBy

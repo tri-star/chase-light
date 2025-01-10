@@ -1,4 +1,4 @@
-import { useAuth } from "~/features/auth/composables/use-auth"
+import { useAuth } from '~/features/auth/composables/use-auth'
 
 export default defineNuxtRouteMiddleware((from, to) => {
   if (to.meta.allowGuest) return

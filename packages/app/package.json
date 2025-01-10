@@ -14,7 +14,7 @@
     "lint:prettier": "prettier --check '**/*.vue'",
     "lint:biome": "biome check --config-path=../../biome.json .",
     "lint": "npm-run-all2 lint:eslint lint:tsc lint:biome",
-    "format:biome": "biome format --write *.ts *.js *.mjs **/*.ts **/*.js **/*.mjs",
+    "format:biome": "biome format --write src .storybook eslint.config.mjs nuxt.config.ts tailwind.config.ts vitest.config.ts",
     "format:prettier": "prettier --write '**/*.vue'",
     "format": "npm-run-all2 format:biome format:prettier",
     "test": "vitest"

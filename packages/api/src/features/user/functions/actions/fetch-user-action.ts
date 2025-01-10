@@ -1,14 +1,14 @@
-import { userSchema } from "@/features/user/domain/user"
-import { ActionDefinition } from "@/lib/hono/action-definition"
-import { type AppContext } from "@/app/chase-light-app"
-import { ROUTES } from "@/app/route-consts"
-import { createRoute, z, type OpenAPIHono } from "@hono/zod-openapi"
+import { userSchema } from '@/features/user/domain/user'
+import { ActionDefinition } from '@/lib/hono/action-definition'
+import { type AppContext } from '@/app/chase-light-app'
+import { ROUTES } from '@/app/route-consts'
+import { createRoute, z, type OpenAPIHono } from '@hono/zod-openapi'
 
 export class FetchSelfAction extends ActionDefinition<AppContext> {
   buildOpenApiAppRoute(parentApp: OpenAPIHono<AppContext>): void {
     const route = createRoute({
-      tags: ["users"],
-      method: "get",
+      tags: ['users'],
+      method: 'get',
       path: ROUTES.USERS.FETCH_SELF.DEFINITION,
       security: [
         {
@@ -17,9 +17,9 @@ export class FetchSelfAction extends ActionDefinition<AppContext> {
       ],
       responses: {
         200: {
-          description: "",
+          description: '',
           content: {
-            "application/json": {
+            'application/json': {
               schema: z.object({
                 user: userSchema,
               }),
@@ -27,9 +27,9 @@ export class FetchSelfAction extends ActionDefinition<AppContext> {
           },
         },
         401: {
-          description: "",
+          description: '',
           content: {
-            "application/json": {
+            'application/json': {
               schema: z.object({
                 error: z.string(),
               }),
@@ -37,9 +37,9 @@ export class FetchSelfAction extends ActionDefinition<AppContext> {
           },
         },
         500: {
-          description: "",
+          description: '',
           content: {
-            "application/json": {
+            'application/json': {
               schema: z.object({
                 error: z.string(),
               }),
@@ -53,7 +53,7 @@ export class FetchSelfAction extends ActionDefinition<AppContext> {
       try {
         const user = c.var.user
         if (user == null) {
-          return c.json({ error: "Unauthorized" }, 401)
+          return c.json({ error: 'Unauthorized' }, 401)
         }
 
         return c.json(
@@ -64,7 +64,7 @@ export class FetchSelfAction extends ActionDefinition<AppContext> {
         )
       } catch (error) {
         console.error(error)
-        return c.json({ error: "Unknown error" }, 500)
+        return c.json({ error: 'Unknown error' }, 500)
       }
     })
   }

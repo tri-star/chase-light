@@ -62,7 +62,7 @@ label {
 
 label::before,
 label::after {
-  content: "";
+  content: '';
   display: block;
   border-radius: 50%;
   position: absolute;

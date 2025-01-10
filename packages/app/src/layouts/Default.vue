@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import A3Toast from "~/components/common/A3Toast.vue"
-import AppHeader from "~/components/common/header/AppHeader.vue"
-import SideMenu from "~/components/common/side-menu/SideMenu.vue"
+import A3Toast from '~/components/common/A3Toast.vue'
+import AppHeader from '~/components/common/header/AppHeader.vue'
+import SideMenu from '~/components/common/side-menu/SideMenu.vue'
 
 const toastStore = useToastStore()
 const { toasts } = storeToRefs(toastStore)

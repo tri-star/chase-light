@@ -1,14 +1,14 @@
-import { ChaseLightApp } from "@/app/chase-light-app"
-import { FetchSelfAction } from "@/features/user/functions/actions/fetch-user-action"
-import { SignupVieProviderAction } from "@/features/user/functions/actions/signup-via-provider-action"
-import { handlerPath } from "@/lib/hono/handler-resolver"
-import { currentDirPath } from "@/lib/utils/path-utils"
+import { ChaseLightApp } from '@/app/chase-light-app'
+import { FetchSelfAction } from '@/features/user/functions/actions/fetch-user-action'
+import { SignupVieProviderAction } from '@/features/user/functions/actions/signup-via-provider-action'
+import { handlerPath } from '@/lib/hono/handler-resolver'
+import { currentDirPath } from '@/lib/utils/path-utils'
 import {
   handle,
   type APIGatewayProxyResult,
   type LambdaContext,
   type LambdaEvent,
-} from "hono/aws-lambda"
+} from 'hono/aws-lambda'
 
 export const userApp: ChaseLightApp = new ChaseLightApp()
 
@@ -19,14 +19,14 @@ userApp.defineLambdaDefinition({
     events: [
       {
         http: {
-          method: "ANY",
-          path: "users/{proxy+}",
+          method: 'ANY',
+          path: 'users/{proxy+}',
         },
       },
       {
         http: {
-          method: "ANY",
-          path: "users",
+          method: 'ANY',
+          path: 'users',
         },
       },
     ],

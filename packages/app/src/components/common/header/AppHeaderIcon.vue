@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { tv } from "tailwind-variants"
+import { tv } from 'tailwind-variants'
 
 defineProps<{
   icon: string
@@ -7,27 +7,27 @@ defineProps<{
 
 const menuClasses = tv({
   base: [
-    "flex",
-    "w-12",
-    "p-1",
-    "justify-center",
-    "items-center",
-    "rounded-full",
-    "bg-header-icon",
-    "hover:bg-header-icon-hover",
-    "transition-all",
-    "duration-500",
-    "cursor-pointer",
-    "group",
+    'flex',
+    'w-12',
+    'p-1',
+    'justify-center',
+    'items-center',
+    'rounded-full',
+    'bg-header-icon',
+    'hover:bg-header-icon-hover',
+    'transition-all',
+    'duration-500',
+    'cursor-pointer',
+    'group',
   ],
 })
 
 const iconClasses = tv({
   base: [
-    "text-header-icon",
-    "group-hover:text-header-icon-hover",
-    "transition-all",
-    "duration-500",
+    'text-header-icon',
+    'group-hover:text-header-icon-hover',
+    'transition-all',
+    'duration-500',
   ],
 })
 </script>

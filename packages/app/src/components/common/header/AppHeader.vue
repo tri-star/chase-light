@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import AppHeaderIcon from "./AppHeaderIcon.vue"
+import AppHeaderIcon from './AppHeaderIcon.vue'
 </script>
 
 <template>

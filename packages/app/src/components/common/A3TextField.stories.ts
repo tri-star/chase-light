@@ -1,13 +1,13 @@
-import type { Meta, StoryObj } from "@storybook/vue3"
+import type { Meta, StoryObj } from '@storybook/vue3'
 
-import { defaultLayoutDecorator } from "~/stories/default-layout-decorator"
-import A3TextField from "~/components/common/A3TextField.vue"
-import A3TextFieldIcon from "~/components/common/A3TextFieldIcon.vue"
+import { defaultLayoutDecorator } from '~/stories/default-layout-decorator'
+import A3TextField from '~/components/common/A3TextField.vue'
+import A3TextFieldIcon from '~/components/common/A3TextFieldIcon.vue'
 
 const meta = {
-  title: "Components/A3TextField",
+  title: 'Components/A3TextField',
   component: A3TextField,
-  tags: ["autodocs"],
+  tags: ['autodocs'],
   decorators: [defaultLayoutDecorator],
 } satisfies Meta<typeof A3TextField>
 
@@ -19,9 +19,9 @@ type Story = StoryObj<typeof meta> & {
 }
 
 export const A3TextFieldPlaygroundStory: Story = {
-  name: "Playground",
+  name: 'Playground',
   args: {
-    placeHolder: "入力してください",
+    placeHolder: '入力してください',
     disabled: false,
     error: false,
     loading: false,
@@ -36,18 +36,18 @@ export const A3TextFieldPlaygroundStory: Story = {
 }
 
 export const A3TextFieldTailIconStory: Story = {
-  name: "TailIcon",
+  name: 'TailIcon',
   args: {
-    placeHolder: "入力してください",
+    placeHolder: '入力してください',
     disabled: false,
     error: false,
-    icon: "material-symbols:close",
+    icon: 'material-symbols:close',
     loading: false,
   },
   parameters: {
     docs: {
       description: {
-        story: "テキストフィールドの末尾にアイコンを表示します。",
+        story: 'テキストフィールドの末尾にアイコンを表示します。',
       },
     },
   },

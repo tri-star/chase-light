@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { tv } from "tailwind-variants"
-import type { A3MenuItemData } from "./a3-menu-item"
+import { tv } from 'tailwind-variants'
+import type { A3MenuItemData } from './a3-menu-item'
 
 defineProps<{
   menu: A3MenuItemData
@@ -12,10 +12,10 @@ const emit = defineEmits<{
 }>()
 
 const classes = tv({
-  base: "hover:bg-menu-item-hover flex min-h-9 shrink-0 items-center gap-1 rounded p-2",
+  base: 'hover:bg-menu-item-hover flex min-h-9 shrink-0 items-center gap-1 rounded p-2',
   variants: {
     active: {
-      true: "bg-menu-item-hover",
+      true: 'bg-menu-item-hover',
     },
   },
 })

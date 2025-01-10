@@ -1,5 +1,5 @@
 <script setup lang="ts">
-type ColorVariant = "white" | "gray"
+type ColorVariant = 'white' | 'gray'
 
 const props = withDefaults(
   defineProps<{
@@ -7,18 +7,18 @@ const props = withDefaults(
     sizeClass?: string
   }>(),
   {
-    color: "white",
-    sizeClass: "w-5 h-5",
+    color: 'white',
+    sizeClass: 'w-5 h-5',
   }
 )
 
 const colorClass = computed(() => {
   switch (props.color) {
-    case "gray":
-      return "before:border-gray-300"
-    case "white":
+    case 'gray':
+      return 'before:border-gray-300'
+    case 'white':
     default:
-      return "before:border-white"
+      return 'before:border-white'
   }
 })
 </script>
@@ -34,7 +34,7 @@ const colorClass = computed(() => {
   animation: rotate 1s linear infinite;
 }
 .loader::before {
-  content: "";
+  content: '';
   box-sizing: border-box;
   position: absolute;
   inset: 0px;

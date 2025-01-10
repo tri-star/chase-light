@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { tv } from "tailwind-variants"
-import type { RouteLocationAsPathGeneric } from "vue-router"
+import { tv } from 'tailwind-variants'
+import type { RouteLocationAsPathGeneric } from 'vue-router'
 
 defineProps<{
   icon: string
@@ -11,31 +11,31 @@ defineProps<{
 
 const menuClasses = tv({
   base: [
-    "bg-side-menu",
-    "w-full",
-    "items-center",
-    "rounded-md",
-    "flex",
-    "py-2",
-    "px-2",
-    "gap-4",
-    "overflow-hidden",
-    "group",
+    'bg-side-menu',
+    'w-full',
+    'items-center',
+    'rounded-md',
+    'flex',
+    'py-2',
+    'px-2',
+    'gap-4',
+    'overflow-hidden',
+    'group',
   ],
   variants: {
     active: {
-      true: ["bg-side-menu-active"],
-      false: ["hover:bg-side-menu-hover", "transition-all", "duration-300"],
+      true: ['bg-side-menu-active'],
+      false: ['hover:bg-side-menu-hover', 'transition-all', 'duration-300'],
     },
   },
 })
 
 const menuTextClasses = tv({
-  base: ["text-side-menu-text", "text-size-l", "font-bold", "flex-shrink-0"],
+  base: ['text-side-menu-text', 'text-size-l', 'font-bold', 'flex-shrink-0'],
   variants: {
     active: {
-      true: ["text-side-menu-text-active"],
-      false: ["text-side-menu-text", "group-hover:text-side-menu-text-hover"],
+      true: ['text-side-menu-text-active'],
+      false: ['text-side-menu-text', 'group-hover:text-side-menu-text-hover'],
     },
   },
 })

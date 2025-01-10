@@ -1,5 +1,5 @@
-import { isAxiosError } from "axios"
-import { createSsrApiClient } from "~/lib/api/client"
+import { isAxiosError } from 'axios'
+import { createSsrApiClient } from '~/lib/api/client'
 
 export default defineEventHandler(
   async (event): Promise<{ success: boolean; code?: string }> => {
@@ -10,7 +10,7 @@ export default defineEventHandler(
     try {
       const response = await client.getFeedsvalidateUrl({
         queries: {
-          url: queries["url"] as string,
+          url: queries['url'] as string,
         },
       })
 
@@ -25,7 +25,7 @@ export default defineEventHandler(
           status: e.response?.status ?? 500,
           data: {
             success: false,
-            code: e.response?.data["code"],
+            code: e.response?.data['code'],
           },
         })
       } else {

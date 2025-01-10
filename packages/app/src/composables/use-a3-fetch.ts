@@ -5,7 +5,7 @@ export const useA3Fetch: typeof useFetch = (req, opts) => {
     const ssrFetch = useRequestFetch()
     _fetch = ((req, opts) => {
       return ssrFetch(req, opts).catch((e) => {
-        console.error("useA3Fetch error: ", e)
+        console.error('useA3Fetch error: ', e)
       })
     }) as typeof _fetch
   }

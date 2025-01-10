@@ -1,4 +1,4 @@
-import type { H3Event } from "h3"
+import type { H3Event } from 'h3'
 
 /**
  * 有効期限が一定時間以上のアクセストークンを返す。
@@ -22,7 +22,7 @@ export async function getActiveAccessToken(event: H3Event) {
     `3: current token: ${token}\n`,
     `session token: ${session.secure?.accessToken}`,
   )
-  const expirationSeconds = getExpirationSecondsFromToken(token ?? "") ?? 0
+  const expirationSeconds = getExpirationSecondsFromToken(token ?? '') ?? 0
   console.log(`new token expirationSeconds: ${expirationSeconds}`)
   if (expirationSeconds < 60) {
     token = await requestNewAccessToken(event)
@@ -57,12 +57,12 @@ async function requestNewAccessToken(event: H3Event) {
       scope: string
       refresh_token: string
     }>(tokenEndpoint, {
-      method: "POST",
+      method: 'POST',
       headers: {
-        "Content-Type": "application/x-www-form-urlencoded",
+        'Content-Type': 'application/x-www-form-urlencoded',
       },
       body: new URLSearchParams({
-        grant_type: "refresh_token",
+        grant_type: 'refresh_token',
         client_id: config.oauth.auth0.clientId,
         client_secret: config.oauth.auth0.clientSecret,
         refresh_token: session.secure.refreshToken,
@@ -77,7 +77,7 @@ async function requestNewAccessToken(event: H3Event) {
       },
     })
 
-    console.log("new token", response.access_token)
+    console.log('new token', response.access_token)
     return response.access_token
   } catch (e) {
     clearUserSession(event)
@@ -88,9 +88,9 @@ async function requestNewAccessToken(event: H3Event) {
 
 export function getExpirationSecondsFromToken(token: string) {
   try {
-    const [, payload] = token.split(".")
+    const [, payload] = token.split('.')
     const decodedPayload = JSON.parse(
-      Buffer.from(payload, "base64").toString("utf-8"),
+      Buffer.from(payload, 'base64').toString('utf-8'),
     )
 
     if (!decodedPayload.exp) {

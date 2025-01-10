@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import type { Feed } from "~/features/feed/domain/feed"
-import { toDateTimeString } from "~/lib/utils/date-utils"
+import type { Feed } from '~/features/feed/domain/feed'
+import { toDateTimeString } from '~/lib/utils/date-utils'
 
 defineProps<{
   feed: Feed

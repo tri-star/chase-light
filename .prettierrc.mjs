@@ -3,12 +3,12 @@
  * @type {import("prettier").Config}
  */
 const config = {
-  trailingComma: "es5",
+  trailingComma: 'es5',
   tabWidth: 2,
   semi: false,
-  singleQuote: false,
-  plugins: ["prettier-plugin-tailwindcss"],
-  tailwindFunctions: ["tv"],
+  singleQuote: true,
+  plugins: ['prettier-plugin-tailwindcss'],
+  tailwindFunctions: ['tv'],
 }
 
 export default config

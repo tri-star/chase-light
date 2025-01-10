@@ -1,22 +1,22 @@
-import { ActionDefinition } from "@/lib/hono/action-definition"
-import { type AppContext } from "@/app/chase-light-app"
-import { ROUTES } from "@/app/route-consts"
-import { createRoute, z, type OpenAPIHono } from "@hono/zod-openapi"
+import { ActionDefinition } from '@/lib/hono/action-definition'
+import { type AppContext } from '@/app/chase-light-app'
+import { ROUTES } from '@/app/route-consts'
+import { createRoute, z, type OpenAPIHono } from '@hono/zod-openapi'
 import {
   createFeedRequestSchema,
   extractDataSourceUrl,
   feedSchema,
   type CreateFeedRequest,
-} from "@/features/feed/domain/feed"
-import { v7 as uuidv7 } from "uuid"
-import { getPrismaClientInstance } from "@/lib/prisma/app-prisma-client"
-import type { CycleValue } from "core/features/feed/feed"
+} from '@/features/feed/domain/feed'
+import { v7 as uuidv7 } from 'uuid'
+import { getPrismaClientInstance } from '@/lib/prisma/app-prisma-client'
+import type { CycleValue } from 'core/features/feed/feed'
 
 export class CreateFeedAction extends ActionDefinition<AppContext> {
   buildOpenApiAppRoute(parentApp: OpenAPIHono<AppContext>): void {
     const route = createRoute({
-      tags: ["feeds"],
-      method: "post",
+      tags: ['feeds'],
+      method: 'post',
       path: ROUTES.FEEDS.CREATE.DEFINITION,
       security: [
         {
@@ -26,7 +26,7 @@ export class CreateFeedAction extends ActionDefinition<AppContext> {
       request: {
         body: {
           content: {
-            "application/json": {
+            'application/json': {
               schema: createFeedRequestSchema,
             },
           },
@@ -34,9 +34,9 @@ export class CreateFeedAction extends ActionDefinition<AppContext> {
       },
       responses: {
         200: {
-          description: "処理成功",
+          description: '処理成功',
           content: {
-            "application/json": {
+            'application/json': {
               schema: z.object({
                 feed: feedSchema,
               }),
@@ -44,9 +44,9 @@ export class CreateFeedAction extends ActionDefinition<AppContext> {
           },
         },
         400: {
-          description: "バリデーションエラー",
+          description: 'バリデーションエラー',
           content: {
-            "application/json": {
+            'application/json': {
               schema: z.object({
                 error: z.string(),
               }),
@@ -54,9 +54,9 @@ export class CreateFeedAction extends ActionDefinition<AppContext> {
           },
         },
         401: {
-          description: "認証エラー",
+          description: '認証エラー',
           content: {
-            "application/json": {
+            'application/json': {
               schema: z.object({
                 error: z.string(),
               }),
@@ -64,9 +64,9 @@ export class CreateFeedAction extends ActionDefinition<AppContext> {
           },
         },
         500: {
-          description: "予期しないエラー",
+          description: '予期しないエラー',
           content: {
-            "application/json": {
+            'application/json': {
               schema: z.object({
                 error: z.string(),
               }),
@@ -80,9 +80,9 @@ export class CreateFeedAction extends ActionDefinition<AppContext> {
       try {
         const user = c.var.user
         if (user == null) {
-          return c.json({ error: "Unauthorized" }, 401)
+          return c.json({ error: 'Unauthorized' }, 401)
         }
-        const input = c.req.valid("json")
+        const input = c.req.valid('json')
 
         const startTime = new Date()
 
@@ -128,7 +128,7 @@ export class CreateFeedAction extends ActionDefinition<AppContext> {
         )
       } catch (error) {
         console.error(error)
-        return c.json({ error: "Unknown error" }, 500)
+        return c.json({ error: 'Unknown error' }, 500)
       }
     })
   }

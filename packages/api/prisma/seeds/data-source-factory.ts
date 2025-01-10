@@ -1,6 +1,6 @@
-import { defineDataSourceFactory } from "@/__generated__/fabbrica"
-import { faker } from "@faker-js/faker"
-import { v7 as uuidv7 } from "uuid"
+import { defineDataSourceFactory } from '@/__generated__/fabbrica'
+import { faker } from '@faker-js/faker'
+import { v7 as uuidv7 } from 'uuid'
 
 export const DataSourceFactory = defineDataSourceFactory({
   defaultData: async () => ({

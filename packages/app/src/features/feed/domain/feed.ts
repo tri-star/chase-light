@@ -1,9 +1,9 @@
-import { z } from "zod"
+import { z } from 'zod'
 
-import { makeEnumFromArray, makeUnionFromArray } from "core/utils/zod-utils"
-import { CYCLE_VALUES, SORT_ITEMS_VALUES } from "core/features/feed/feed"
-import { datasourceSchema } from "~/features/feed/domain/data-source"
-import { SORT_DIRECTION_VALUES } from "core/constants"
+import { makeEnumFromArray, makeUnionFromArray } from 'core/utils/zod-utils'
+import { CYCLE_VALUES, SORT_ITEMS_VALUES } from 'core/features/feed/feed'
+import { datasourceSchema } from '~/features/feed/domain/data-source'
+import { SORT_DIRECTION_VALUES } from 'core/constants'
 
 export const feedSchema = z.object({
   id: z.string(),

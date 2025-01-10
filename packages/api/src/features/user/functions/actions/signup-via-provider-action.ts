@@ -2,27 +2,27 @@ import {
   signupResultSchema,
   signupViaProviderSchema,
   type SignupResult,
-} from "@/features/user/domain/user"
-import { getTokenParserInstance } from "@/features/auth/services/token-parser"
-import { ActionDefinition } from "@/lib/hono/action-definition"
-import { type AppContext } from "@/app/chase-light-app"
-import { ROUTES } from "@/app/route-consts"
-import { createRoute, z, type OpenAPIHono } from "@hono/zod-openapi"
-import { v7 as uuidv7 } from "uuid"
-import { ToDbDateTimeStrict } from "@/lib/utils/date-utils"
-import { TokenError } from "@/features/auth/services/token-parser-interface"
-import { getPrismaClientInstance } from "@/lib/prisma/app-prisma-client"
+} from '@/features/user/domain/user'
+import { getTokenParserInstance } from '@/features/auth/services/token-parser'
+import { ActionDefinition } from '@/lib/hono/action-definition'
+import { type AppContext } from '@/app/chase-light-app'
+import { ROUTES } from '@/app/route-consts'
+import { createRoute, z, type OpenAPIHono } from '@hono/zod-openapi'
+import { v7 as uuidv7 } from 'uuid'
+import { ToDbDateTimeStrict } from '@/lib/utils/date-utils'
+import { TokenError } from '@/features/auth/services/token-parser-interface'
+import { getPrismaClientInstance } from '@/lib/prisma/app-prisma-client'
 
 export class SignupVieProviderAction extends ActionDefinition<AppContext> {
   buildOpenApiAppRoute(parentApp: OpenAPIHono<AppContext>): void {
     const route = createRoute({
-      tags: ["users"],
-      method: "post",
+      tags: ['users'],
+      method: 'post',
       path: ROUTES.USERS.SIGNUP_VIA_PROVIDER.DEFINITION,
       request: {
         body: {
           content: {
-            "application/json": {
+            'application/json': {
               schema: signupViaProviderSchema,
             },
           },
@@ -30,17 +30,17 @@ export class SignupVieProviderAction extends ActionDefinition<AppContext> {
       },
       responses: {
         200: {
-          description: "",
+          description: '',
           content: {
-            "application/json": {
+            'application/json': {
               schema: signupResultSchema,
             },
           },
         },
         400: {
-          description: "",
+          description: '',
           content: {
-            "application/json": {
+            'application/json': {
               schema: z.object({
                 error: z.string(),
               }),
@@ -48,9 +48,9 @@ export class SignupVieProviderAction extends ActionDefinition<AppContext> {
           },
         },
         500: {
-          description: "",
+          description: '',
           content: {
-            "application/json": {
+            'application/json': {
               schema: z.object({
                 error: z.string(),
               }),
@@ -61,7 +61,7 @@ export class SignupVieProviderAction extends ActionDefinition<AppContext> {
     })
 
     parentApp.openapi(route, async (c) => {
-      const json = c.req.valid("json")
+      const json = c.req.valid('json')
       const accessToken = json.accessToken
       const idToken = json.idToken
 
@@ -81,10 +81,10 @@ export class SignupVieProviderAction extends ActionDefinition<AppContext> {
         const createdUser = await prisma.user.create({
           data: {
             id: userId,
-            providerId: payload.sub || "",
-            accountName: payload.nickname || "",
-            displayName: payload.name || "",
-            email: payload.email || "",
+            providerId: payload.sub || '',
+            accountName: payload.nickname || '',
+            displayName: payload.name || '',
+            email: payload.email || '',
             emailVerified: payload.email_verified || false,
             createdAt: ToDbDateTimeStrict(new Date()),
             updatedAt: ToDbDateTimeStrict(new Date()),
@@ -95,7 +95,7 @@ export class SignupVieProviderAction extends ActionDefinition<AppContext> {
           {
             user: createdUser,
             success: true,
-            status: "created",
+            status: 'created',
           } as SignupResult,
           200,
         )
@@ -104,7 +104,7 @@ export class SignupVieProviderAction extends ActionDefinition<AppContext> {
         if (error instanceof TokenError) {
           return c.json({ error: error.message }, 400)
         }
-        return c.json({ error: "Unknown error" }, 500)
+        return c.json({ error: 'Unknown error' }, 500)
       }
     })
   }

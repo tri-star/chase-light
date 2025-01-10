@@ -1,28 +1,28 @@
-import type { ValidationError } from "@tanstack/vue-form"
-import { getH3ErrorData } from "~/lib/utils/h3-utils"
+import type { ValidationError } from '@tanstack/vue-form'
+import { getH3ErrorData } from '~/lib/utils/h3-utils'
 
-type ValidationState = "valid" | "invalid" | "pending" | "initial"
+type ValidationState = 'valid' | 'invalid' | 'pending' | 'initial'
 
 export function useFeedUrlValidation() {
-  const validationState = ref<ValidationState>("initial")
+  const validationState = ref<ValidationState>('initial')
   const isLoading = computed(() => {
-    if (validationState.value === "pending") {
+    if (validationState.value === 'pending') {
       return true
     }
     return false
   })
 
   const isValidated = computed(() => {
-    if (["initial", "pending"].includes(validationState.value)) {
+    if (['initial', 'pending'].includes(validationState.value)) {
       return false
     }
     return true
   })
 
   async function validateFeedUrl(url: string): Promise<ValidationError> {
-    validationState.value = "pending"
+    validationState.value = 'pending'
 
-    const { error } = await useA3Fetch("/api/feeds/validate-url", {
+    const { error } = await useA3Fetch('/api/feeds/validate-url', {
       query: {
         url,
       },
@@ -31,19 +31,19 @@ export function useFeedUrlValidation() {
     const errorData = getH3ErrorData<{ code: string }>(error.value)
     const errorCode = errorData?.code
     if (errorCode) {
-      if (errorCode === "duplicated") {
-        validationState.value = "invalid"
-        return "このURLはすでに登録されています"
-      } else if (errorCode === "not-supported") {
-        validationState.value = "invalid"
+      if (errorCode === 'duplicated') {
+        validationState.value = 'invalid'
+        return 'このURLはすでに登録されています'
+      } else if (errorCode === 'not-supported') {
+        validationState.value = 'invalid'
         return "URLは 'https://gitHub.com/owner/repo' 形式で入力してください"
       } else {
-        validationState.value = "invalid"
-        return "不明なエラーが発生しました"
+        validationState.value = 'invalid'
+        return '不明なエラーが発生しました'
       }
     }
 
-    validationState.value = "valid"
+    validationState.value = 'valid'
     return undefined
   }
 
