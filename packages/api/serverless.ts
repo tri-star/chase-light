@@ -1,7 +1,7 @@
 // Requiring @types/serverless in your project package.json
-import { feedApp } from '@/features/feed/functions'
-import { userApp } from '@/features/user/functions'
-import { scalerUiApp } from '@/functions/open-api'
+import { feedApp } from '@/handlers/api-gateway/feed'
+import { userApp } from '@/handlers/api-gateway/user'
+import { scalerUiApp } from '@/handlers/api-gateway/open-api'
 import type { Serverless } from 'serverless/aws'
 // serverless.ts
 const serverlessConfiguration: Serverless & { build: object } = {
@@ -86,6 +86,24 @@ const serverlessConfiguration: Serverless & { build: object } = {
     ...feedApp.getLambdaDefinition(),
     ...scalerUiApp.getLambdaDefinition(),
   },
+  // stepFunctions: {
+  //   stateMachines: {
+  //     feedCollector: {
+  //       definition: {
+  //         StartAt: 'listFeeds',
+  //         States: {
+  //           listFeeds: {
+  //             Type: 'Task',
+  //             Resource: {
+  //               'Fn::GetAtt': ['ListFeed', 'Arn'],
+  //             },
+  //             End: true,
+  //           },
+  //         },
+  //       },
+  //     },
+  //   },
+  // },
 }
 
 module.exports = serverlessConfiguration

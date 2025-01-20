@@ -1,6 +1,6 @@
 import { ChaseLightApp } from '@/app/chase-light-app'
-import { feedApp } from '@/features/feed/functions'
-import { userApp } from '@/features/user/functions'
+import { feedApp } from '@/handlers/api-gateway/feed'
+import { userApp } from '@/handlers/api-gateway/user'
 import { handlerPath } from '@/lib/hono/handler-resolver'
 import { currentDirPath } from '@/lib/utils/path-utils'
 import { apiReference } from '@scalar/hono-api-reference'

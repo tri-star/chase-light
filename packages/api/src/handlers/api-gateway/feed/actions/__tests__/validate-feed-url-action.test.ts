@@ -6,7 +6,7 @@ import {
   FEED_VALIDATE_ERROR_NOT_SUPPORTED,
   type ValidateFeedUrlResponse,
 } from '@/features/feed/domain/feed'
-import { feedApp } from '@/features/feed/functions'
+import { feedApp } from '@/handlers/api-gateway/feed'
 import type { OpenAPIHono } from '@hono/zod-openapi'
 import { DataSourceFactory } from 'prisma/seeds/data-source-factory'
 import { FeedFactory } from 'prisma/seeds/feed-factory'
