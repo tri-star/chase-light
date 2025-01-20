@@ -1,6 +1,6 @@
 import { ActionDefinition } from '@/lib/hono/action-definition'
-import { type AppContext } from '@/app/chase-light-app'
-import { ROUTES } from '@/app/route-consts'
+import { type AppContext } from '@/handlers/api-gateway/app/chase-light-app'
+import { ROUTES } from '@/handlers/api-gateway/app/route-consts'
 import { createRoute, z, type OpenAPIHono } from '@hono/zod-openapi'
 import {
   createFeedRequestSchema,

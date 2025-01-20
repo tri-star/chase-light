@@ -1,4 +1,4 @@
-import type { AppContext } from '@/app/chase-light-app'
+import type { AppContext } from '@/handlers/api-gateway/app/chase-light-app'
 import { StubTokenParser } from '@/features/auth/services/stub-token-parser'
 import { swapTokenParserForTest } from '@/features/auth/services/token-parser'
 import type {

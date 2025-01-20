@@ -1,5 +1,5 @@
-import type { AppContext } from '@/app/chase-light-app'
-import { ROUTES } from '@/app/route-consts'
+import type { AppContext } from '@/handlers/api-gateway/app/chase-light-app'
+import { ROUTES } from '@/handlers/api-gateway/app/route-consts'
 import { getTokenParserInstance } from '@/features/auth/services/token-parser'
 import { TokenError } from '@/features/auth/services/token-parser-interface'
 import type { User } from '@/features/user/domain/user'

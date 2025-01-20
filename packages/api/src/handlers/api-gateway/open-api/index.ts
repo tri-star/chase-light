@@ -1,4 +1,4 @@
-import { ChaseLightApp } from '@/app/chase-light-app'
+import { ChaseLightApp } from '@/handlers/api-gateway/app/chase-light-app'
 import { feedApp } from '@/handlers/api-gateway/feed'
 import { userApp } from '@/handlers/api-gateway/user'
 import { handlerPath } from '@/lib/hono/handler-resolver'

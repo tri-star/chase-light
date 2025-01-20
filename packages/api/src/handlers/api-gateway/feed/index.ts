@@ -1,4 +1,4 @@
-import { ChaseLightApp } from '@/app/chase-light-app'
+import { ChaseLightApp } from '@/handlers/api-gateway/app/chase-light-app'
 import { CreateFeedAction } from '@/handlers/api-gateway/feed/actions/create-feed-action'
 import { ListUserFeedLogAction } from '@/handlers/api-gateway/feed/actions/list-all-feed-log-action'
 import { ListFeedAction } from '@/handlers/api-gateway/feed/actions/list-feed-action'

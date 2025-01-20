@@ -1,4 +1,4 @@
-import { authMiddleware } from '@/app/middlewares/auth-middleware'
+import { authMiddleware } from '@/handlers/api-gateway/app/middlewares/auth-middleware'
 import type { User } from '@/features/user/domain/user'
 import { HonoOpenApiApp } from '@/lib/hono/hono-openapi-app'
 import { cors } from 'hono/cors'

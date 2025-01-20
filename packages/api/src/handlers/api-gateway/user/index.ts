@@ -1,4 +1,4 @@
-import { ChaseLightApp } from '@/app/chase-light-app'
+import { ChaseLightApp } from '@/handlers/api-gateway/app/chase-light-app'
 import { FetchSelfAction } from '@/handlers/api-gateway/user/actions/fetch-user-action'
 import { SignupVieProviderAction } from '@/handlers/api-gateway/user/actions/signup-via-provider-action'
 import { handlerPath } from '@/lib/hono/handler-resolver'
