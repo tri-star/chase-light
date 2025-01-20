@@ -3,6 +3,21 @@ import { feedApp } from '@/handlers/api-gateway/feed'
 import { userApp } from '@/handlers/api-gateway/user'
 import { scalerUiApp } from '@/handlers/api-gateway/open-api'
 import type { Serverless } from 'serverless/aws'
+
+import {
+  feedAnalyzerStateMachine,
+  feedAnalyzerHandlers,
+} from '@/handlers/step-functions/feed-analyzer'
+
+function buildStateMachineHandlers(prefix: string, handlers: object) {
+  return Object.entries(handlers).reduce((acc, [key, handler]) => {
+    return {
+      ...acc,
+      [`${prefix}_${key}`]: handler,
+    }
+  }, {})
+}
+
 // serverless.ts
 const serverlessConfiguration: Serverless & { build: object } = {
   org: 'tristar',
@@ -10,7 +25,7 @@ const serverlessConfiguration: Serverless & { build: object } = {
   service: 'chase-light-api',
   configValidationMode: 'error',
   frameworkVersion: '4',
-  plugins: ['serverless-offline'],
+  plugins: ['serverless-offline', 'serverless-step-functions'],
   build: {
     esbuild: {
       bundle: true,
@@ -85,25 +100,13 @@ const serverlessConfiguration: Serverless & { build: object } = {
     ...userApp.getLambdaDefinition(),
     ...feedApp.getLambdaDefinition(),
     ...scalerUiApp.getLambdaDefinition(),
+    ...buildStateMachineHandlers('feedAnalyzer', feedAnalyzerHandlers),
   },
-  // stepFunctions: {
-  //   stateMachines: {
-  //     feedCollector: {
-  //       definition: {
-  //         StartAt: 'listFeeds',
-  //         States: {
-  //           listFeeds: {
-  //             Type: 'Task',
-  //             Resource: {
-  //               'Fn::GetAtt': ['ListFeed', 'Arn'],
-  //             },
-  //             End: true,
-  //           },
-  //         },
-  //       },
-  //     },
-  //   },
-  // },
+  stepFunctions: {
+    stateMachines: {
+      FeedAnalyzer: feedAnalyzerStateMachine,
+    },
+  },
 }
 
 module.exports = serverlessConfiguration
