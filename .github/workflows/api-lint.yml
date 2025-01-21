@@ -5,10 +5,10 @@ on:
     branches:
       - main
     paths:
-      - "packages/api/**"
+      - 'packages/api/**'
   pull_request:
     paths:
-      - "packages/api/**"
+      - 'packages/api/**'
   workflow_dispatch:
 
 jobs:
@@ -24,7 +24,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: "22"
+          node-version: '22'
 
       - uses: actions/cache/restore@v4
         id: pnpm-cache
@@ -56,3 +56,104 @@ jobs:
             node_modules
             packages/api/node_modules
           key: ${{ steps.pnpm-cache.outputs.cache-primary-key }}
+  build:
+    runs-on: ubuntu-latest
+    environment: dev
+    env:
+      ROLE_ARN: arn:aws:iam::${{ secrets.AWS_ID }}:role/${{ secrets.ROLE_NAME }}
+      SESSION_NAME: gh-oidc-${{ vars.PROJECT_NAME }}-${{ github.run_id }}-${{ github.run_attempt }}
+      STAGE: ${{ github.event.inputs.environment }}
+      AWS_REGION: ${{ vars.AWS_REGION }}
+      AWS_ACCOUNT: ${{ secrets.AWS_ID }}
+      SERVERLESS_ACCESS_KEY: ${{ secrets.SERVERLESS_ACCESS_KEY }}
+
+    permissions:
+      id-token: write
+      contents: read
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ env.ROLE_ARN }}
+          role-session-name: ${{ env.SESSION_NAME }}
+          aws-region: ${{ vars.AWS_REGION }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/cache/restore@v4
+        id: pnpm-cache
+        with:
+          path: |
+            ~/.local/share/pnpm
+            node_modules
+            packages/api/node_modules
+          key: api-lint-pnpm-${{ hashFiles('pnpm-lock.yaml') }}
+          restore-keys: |
+            api-lint-pnpm-
+
+      - name: Install dependencies
+        working-directory: packages/api
+        run: pnpm install --frozen-lockfile
+
+      - name: Package with Serverless
+        working-directory: packages/api
+        run: npx serverless package
+        env:
+          SERVERLESS_ACCESS_KEY: ${{ secrets.SERVERLESS_ACCESS_KEY }}
+          API_URL: ${{ secrets.API_URL }}
+          AUTH0_DOMAIN: ${{ secrets.AUTH0_DOMAIN }}
+          AUTH0_AUDIENCE: ${{ secrets.AUTH0_AUDIENCE }}
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          DIRECT_URL: ${{ secrets.DIRECT_URL }}
+          AWS_ACCOUNT: ${{ secrets.AWS_ID }}
+          AWS_REGION: ${{ vars.AWS_REGION }}
+          PRISMA_SKIP_POSTINSTALL_GENERATE: 1
+
+      - name: List and record zip file sizes
+        working-directory: packages/api
+        run: |
+          ls -l .serverless/build/*.zip
+          ls -l .serverless/build/*.zip | awk '{print $9 ": " $5}' > .serverless/build/sizes.txt
+
+      - name: Download previous artifact
+        uses: actions/cache/restore@v4
+        id: build-sizes
+        with:
+          path: packages/api/.serverless/build/previous_sizes.txt
+          key: build-sizes
+        continue-on-error: true
+
+      - name: Compare with previous sizes
+        id: compare
+        run: |
+          if [ -f packages/api/.serverless/build/previous_sizes.txt ]; then
+            echo "Comparing with previous sizes..."
+            diff -u packages/api/.serverless/build/previous_sizes.txt packages/api/.serverless/build/sizes.txt > packages/api/.serverless/build/diff.txt || true
+          else
+            echo "No previous sizes to compare."
+            touch packages/api/.serverless/build/diff.txt
+          fi
+
+      - name: Save current sizes for next comparison
+        run: cp packages/api/.serverless/build/sizes.txt packages/api/.serverless/build/previous_sizes.txt
+
+      - name: Upload current sizes
+        uses: actions/cache/save@v4
+        if: github.ref_name == 'main'
+        with:
+          path: packages/api/.serverless/build/previous_sizes.txt
+          key: ${{ steps.build-sizes.outputs.cache-primary-key }}
+
+      - name: Post PR comment with size differences
+        if: steps.compare.outputs.diff != ''
+        uses: marocchino/sticky-pull-request-comment@v2
+        with:
+          path: packages/api/.serverless/build/diff.txt
