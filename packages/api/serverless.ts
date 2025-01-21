@@ -13,7 +13,7 @@ function buildStateMachineHandlers(prefix: string, handlers: object) {
   return Object.entries(handlers).reduce((acc, [key, handler]) => {
     return {
       ...acc,
-      [`${prefix}_${key}`]: handler,
+      [`${prefix}-${key}`]: handler,
     }
   }, {})
 }

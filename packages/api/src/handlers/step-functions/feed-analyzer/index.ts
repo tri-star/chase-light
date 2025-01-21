@@ -12,7 +12,7 @@ export const feedAnalyzerStateMachine: StateMachine['stateMachines'][number] = {
       ListFeeds: {
         Type: 'Task',
         Resource: {
-          'Fn::GetAtt': ['feedAnalyzer_listFeedHandler', 'Arn'],
+          'Fn::GetAtt': ['feedAnalyzer-listFeedHandler', 'Arn'],
         },
         Assign: {
           feedList: '{% $states.result %}',
