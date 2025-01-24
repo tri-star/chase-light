@@ -53,20 +53,33 @@ model Notification {
 }
 
 model Feed {
-  id           String     @id @db.Uuid
-  userId       String     @map("user_id") @db.Uuid
-  user         User       @relation(fields: [userId], references: [id])
-  name         String     @db.VarChar(100)
-  url          String     @default("") @db.Text
-  cycle        Int        @default(0)
-  dataSourceId String     @map("data_source_id") @db.Uuid
-  dataSource   DataSource @relation(fields: [dataSourceId], references: [id])
-  feedLogs     FeedLog[]
+  id             String          @id @db.Uuid
+  userId         String          @map("user_id") @db.Uuid
+  user           User            @relation(fields: [userId], references: [id])
+  name           String          @db.VarChar(100)
+  url            String          @default("") @db.Text
+  cycle          Int             @default(0)
+  dataSourceId   String          @map("data_source_id") @db.Uuid
+  dataSource     DataSource      @relation(fields: [dataSourceId], references: [id])
+  feedLogs       FeedLog[]
+  feedGitHubMeta FeedGitHubMeta?
 
   createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz
   updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz
 
   @@map("feeds")
+}
+
+model FeedGitHubMeta {
+  id              String    @id @db.Uuid
+  feedId          String    @unique @map("feed_id") @db.Uuid
+  feed            Feed      @relation(fields: [feedId], references: [id])
+  lastReleaseDate DateTime? @map("last_release_date") @db.Timestamptz
+
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz
+
+  @@map("feed_github_metas")
 }
 
 model DataSource {

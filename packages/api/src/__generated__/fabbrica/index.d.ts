@@ -1,6 +1,7 @@
 import type { User } from "@prisma/client";
 import type { Notification } from "@prisma/client";
 import type { Feed } from "@prisma/client";
+import type { FeedGitHubMeta } from "@prisma/client";
 import type { DataSource } from "@prisma/client";
 import type { FeedLog } from "@prisma/client";
 import type { Prisma } from "@prisma/client";
@@ -122,6 +123,10 @@ type FeeddataSourceFactory = {
     _factoryFor: "DataSource";
     build: () => PromiseLike<Prisma.DataSourceCreateNestedOneWithoutFeedInput["create"]>;
 };
+type FeedfeedGitHubMetaFactory = {
+    _factoryFor: "FeedGitHubMeta";
+    build: () => PromiseLike<Prisma.FeedGitHubMetaCreateNestedOneWithoutFeedInput["create"]>;
+};
 type FeedFactoryDefineInput = {
     id?: string;
     name?: string;
@@ -132,6 +137,7 @@ type FeedFactoryDefineInput = {
     user: FeeduserFactory | Prisma.UserCreateNestedOneWithoutFeedInput;
     dataSource: FeeddataSourceFactory | Prisma.DataSourceCreateNestedOneWithoutFeedInput;
     feedLogs?: Prisma.FeedLogCreateNestedManyWithoutFeedInput;
+    feedGitHubMeta?: FeedfeedGitHubMetaFactory | Prisma.FeedGitHubMetaCreateNestedOneWithoutFeedInput;
 };
 type FeedTransientFields = Record<string, unknown> & Partial<Record<keyof FeedFactoryDefineInput, never>>;
 type FeedFactoryTrait<TTransients extends Record<string, unknown>> = {
@@ -170,6 +176,54 @@ interface FeedFactoryBuilder {
  * @returns factory {@link FeedFactoryInterface}
  */
 export declare const defineFeedFactory: FeedFactoryBuilder;
+type FeedGitHubMetafeedFactory = {
+    _factoryFor: "Feed";
+    build: () => PromiseLike<Prisma.FeedCreateNestedOneWithoutFeedGitHubMetaInput["create"]>;
+};
+type FeedGitHubMetaFactoryDefineInput = {
+    id?: string;
+    lastReleaseDate?: Date | null;
+    createdAt?: Date;
+    updatedAt?: Date;
+    feed: FeedGitHubMetafeedFactory | Prisma.FeedCreateNestedOneWithoutFeedGitHubMetaInput;
+};
+type FeedGitHubMetaTransientFields = Record<string, unknown> & Partial<Record<keyof FeedGitHubMetaFactoryDefineInput, never>>;
+type FeedGitHubMetaFactoryTrait<TTransients extends Record<string, unknown>> = {
+    data?: Resolver<Partial<FeedGitHubMetaFactoryDefineInput>, BuildDataOptions<TTransients>>;
+} & CallbackDefineOptions<FeedGitHubMeta, Prisma.FeedGitHubMetaCreateInput, TTransients>;
+type FeedGitHubMetaFactoryDefineOptions<TTransients extends Record<string, unknown> = Record<string, unknown>> = {
+    defaultData: Resolver<FeedGitHubMetaFactoryDefineInput, BuildDataOptions<TTransients>>;
+    traits?: {
+        [traitName: string | symbol]: FeedGitHubMetaFactoryTrait<TTransients>;
+    };
+} & CallbackDefineOptions<FeedGitHubMeta, Prisma.FeedGitHubMetaCreateInput, TTransients>;
+type FeedGitHubMetaTraitKeys<TOptions extends FeedGitHubMetaFactoryDefineOptions<any>> = Exclude<keyof TOptions["traits"], number>;
+export interface FeedGitHubMetaFactoryInterfaceWithoutTraits<TTransients extends Record<string, unknown>> {
+    readonly _factoryFor: "FeedGitHubMeta";
+    build(inputData?: Partial<Prisma.FeedGitHubMetaCreateInput & TTransients>): PromiseLike<Prisma.FeedGitHubMetaCreateInput>;
+    buildCreateInput(inputData?: Partial<Prisma.FeedGitHubMetaCreateInput & TTransients>): PromiseLike<Prisma.FeedGitHubMetaCreateInput>;
+    buildList(list: readonly Partial<Prisma.FeedGitHubMetaCreateInput & TTransients>[]): PromiseLike<Prisma.FeedGitHubMetaCreateInput[]>;
+    buildList(count: number, item?: Partial<Prisma.FeedGitHubMetaCreateInput & TTransients>): PromiseLike<Prisma.FeedGitHubMetaCreateInput[]>;
+    pickForConnect(inputData: FeedGitHubMeta): Pick<FeedGitHubMeta, "id">;
+    create(inputData?: Partial<Prisma.FeedGitHubMetaCreateInput & TTransients>): PromiseLike<FeedGitHubMeta>;
+    createList(list: readonly Partial<Prisma.FeedGitHubMetaCreateInput & TTransients>[]): PromiseLike<FeedGitHubMeta[]>;
+    createList(count: number, item?: Partial<Prisma.FeedGitHubMetaCreateInput & TTransients>): PromiseLike<FeedGitHubMeta[]>;
+    createForConnect(inputData?: Partial<Prisma.FeedGitHubMetaCreateInput & TTransients>): PromiseLike<Pick<FeedGitHubMeta, "id">>;
+}
+export interface FeedGitHubMetaFactoryInterface<TTransients extends Record<string, unknown> = Record<string, unknown>, TTraitName extends TraitName = TraitName> extends FeedGitHubMetaFactoryInterfaceWithoutTraits<TTransients> {
+    use(name: TTraitName, ...names: readonly TTraitName[]): FeedGitHubMetaFactoryInterfaceWithoutTraits<TTransients>;
+}
+interface FeedGitHubMetaFactoryBuilder {
+    <TOptions extends FeedGitHubMetaFactoryDefineOptions>(options: TOptions): FeedGitHubMetaFactoryInterface<{}, FeedGitHubMetaTraitKeys<TOptions>>;
+    withTransientFields: <TTransients extends FeedGitHubMetaTransientFields>(defaultTransientFieldValues: TTransients) => <TOptions extends FeedGitHubMetaFactoryDefineOptions<TTransients>>(options: TOptions) => FeedGitHubMetaFactoryInterface<TTransients, FeedGitHubMetaTraitKeys<TOptions>>;
+}
+/**
+ * Define factory for {@link FeedGitHubMeta} model.
+ *
+ * @param options
+ * @returns factory {@link FeedGitHubMetaFactoryInterface}
+ */
+export declare const defineFeedGitHubMetaFactory: FeedGitHubMetaFactoryBuilder;
 type DataSourceFactoryDefineInput = {
     id?: string;
     name?: string;
