@@ -15,3 +15,15 @@ export class GitHubApiClient implements GitHubApiClientInterface {
     return releases
   }
 }
+
+let apiClient: GitHubApiClientInterface | undefined = undefined
+export function getGitHubApiClient(): GitHubApiClientInterface {
+  if (apiClient) {
+    return apiClient
+  }
+  return new GitHubApiClient()
+}
+
+export function swapGitHubApiClientForTest(client: GitHubApiClientInterface) {
+  apiClient = client
+}
