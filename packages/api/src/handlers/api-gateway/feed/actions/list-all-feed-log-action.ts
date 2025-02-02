@@ -4,8 +4,8 @@ import { ROUTES } from '@/handlers/api-gateway/app/route-consts'
 import { createRoute, z, type OpenAPIHono } from '@hono/zod-openapi'
 // import { getPrismaClientInstance } from "@/lib/prisma/app-prisma-client"
 import {
-  feedLogSearchResultSchema,
-  type FeedLog,
+  feedLogSearchResultModelSchema,
+  type FeedLogListItemModel,
 } from '@/features/feed/domain/feed-log'
 
 export class ListUserFeedLogAction extends ActionDefinition<AppContext> {
@@ -24,7 +24,7 @@ export class ListUserFeedLogAction extends ActionDefinition<AppContext> {
           description: '処理成功',
           content: {
             'application/json': {
-              schema: feedLogSearchResultSchema,
+              schema: feedLogSearchResultModelSchema,
             },
           },
         },
@@ -84,7 +84,7 @@ export class ListUserFeedLogAction extends ActionDefinition<AppContext> {
         //   },
         // })
 
-        const feedLogList: FeedLog[] = [
+        const feedLogList: FeedLogListItemModel[] = [
           {
             id: '1234567890',
             title: 'v0.3.0',
@@ -97,17 +97,6 @@ export class ListUserFeedLogAction extends ActionDefinition<AppContext> {
             feed: {
               id: '1234567890',
               name: 'github/copilot',
-              url: 'https://github.com/copilot',
-              cycle: 1,
-              createdAt: new Date(),
-              updatedAt: new Date(),
-              dataSource: {
-                id: '2345678901',
-                name: 'GitHub',
-                url: 'https://github.com',
-                createdAt: new Date(),
-                updatedAt: new Date(),
-              },
             },
           },
           {
@@ -122,17 +111,6 @@ export class ListUserFeedLogAction extends ActionDefinition<AppContext> {
             feed: {
               id: '1234567890',
               name: 'github/copilot2',
-              url: 'https://github.com/copilot2',
-              cycle: 1,
-              createdAt: new Date(),
-              updatedAt: new Date(),
-              dataSource: {
-                id: '2345678901',
-                name: 'GitHub',
-                url: 'https://github.com',
-                createdAt: new Date(),
-                updatedAt: new Date(),
-              },
             },
           },
           {
@@ -147,24 +125,13 @@ export class ListUserFeedLogAction extends ActionDefinition<AppContext> {
             feed: {
               id: '1234567890',
               name: 'github/copilot3',
-              url: 'https://github.com/copilot3',
-              cycle: 1,
-              createdAt: new Date(),
-              updatedAt: new Date(),
-              dataSource: {
-                id: '2345678901',
-                name: 'GitHub',
-                url: 'https://github.com',
-                createdAt: new Date(),
-                updatedAt: new Date(),
-              },
             },
           },
         ]
 
         // TODO: ページング処理
         return c.json(
-          feedLogSearchResultSchema.parse({
+          feedLogSearchResultModelSchema.parse({
             result: feedLogList,
             total: 10,
             page: 1,
