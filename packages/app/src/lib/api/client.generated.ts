@@ -35,32 +35,13 @@ const endpoints = makeApi([
               .object({
                 id: z.string(),
                 feed: z
-                  .object({
-                    id: z.string(),
-                    name: z.string(),
-                    url: z.string(),
-                    cycle: z.union([z.literal(1), z.literal(2)]),
-                    dataSource: z
-                      .object({
-                        id: z.string(),
-                        name: z.string(),
-                        url: z.string(),
-                        createdAt: z.string(),
-                        updatedAt: z.string(),
-                      })
-                      .strict()
-                      .passthrough()
-                      .readonly(),
-                    createdAt: z.string(),
-                    updatedAt: z.string(),
-                  })
+                  .object({ id: z.string(), name: z.string() })
                   .strict()
                   .passthrough()
                   .readonly(),
                 date: z.union([z.string(), z.string()]),
                 title: z.string(),
                 summary: z.string(),
-                body: z.string().optional(),
                 url: z.string(),
                 createdAt: z.union([z.string(), z.string()]),
                 updatedAt: z.union([z.string(), z.string()]),
@@ -129,6 +110,15 @@ const endpoints = makeApi([
               .strict()
               .passthrough()
               .readonly(),
+            feedGitHubMeta: z
+              .object({
+                id: z.string(),
+                lastReleaseDate: z.string().optional(),
+              })
+              .strict()
+              .passthrough()
+              .readonly()
+              .optional(),
             user: z
               .object({
                 id: z.string(),
@@ -266,7 +256,7 @@ const endpoints = makeApi([
     method: "get",
     path: "/feeds/validate-url",
     alias: "getFeedsvalidateUrl",
-    description: `フィードURLの洋服チェック、形式チェック`,
+    description: `フィードURLの重複チェック、形式チェック`,
     requestFormat: "json",
     parameters: [
       {
