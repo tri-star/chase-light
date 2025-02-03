@@ -58,7 +58,7 @@ const serverlessConfiguration: Serverless & { build: object } = {
   },
   provider: {
     name: 'aws',
-    runtime: 'nodejs22.x',
+    runtime: 'nodejs20.x',
     region: 'ap-northeast-1',
     memorySize: 512,
     environment: {
