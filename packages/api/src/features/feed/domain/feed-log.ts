@@ -53,7 +53,7 @@ export const feedLogListItemModelSchema = z.object({
 export type FeedLogListItemModel = z.infer<typeof feedLogListItemModelSchema>
 
 export const feedLogSearchResultModelSchema = z.object({
-  result: z.array(feedLogSchema),
+  result: z.array(feedLogListItemModelSchema),
   total: z.number(),
   page: z.number(),
   pageSize: z.number(),
