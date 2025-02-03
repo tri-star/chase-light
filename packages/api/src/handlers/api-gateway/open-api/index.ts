@@ -15,7 +15,7 @@ export const scalerUiApp: ChaseLightApp = new ChaseLightApp()
 
 scalerUiApp.defineLambdaDefinition({
   scalerUiHandler: {
-    handler: `${handlerPath(currentDirPath(import.meta.url))}/open-api.handler`,
+    handler: `${handlerPath(currentDirPath(import.meta.url))}/index.handler`,
     timeout: 15,
     events: [
       {
