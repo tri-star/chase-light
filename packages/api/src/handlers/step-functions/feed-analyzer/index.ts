@@ -22,7 +22,7 @@ export const feedAnalyzerStateMachine: StateMachine['stateMachines'][number] = {
       },
       CreateFeedLogCollections: {
         Type: 'Map',
-        Items: '{% feedIdList %}',
+        Items: '{% $feedIdList %}',
         MaxConcurrency: 3,
         ItemProcessor: {
           StartAt: 'CreateFeedLogs',

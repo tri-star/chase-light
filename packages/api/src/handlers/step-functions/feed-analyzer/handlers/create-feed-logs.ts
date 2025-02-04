@@ -6,9 +6,7 @@ import { z } from 'zod'
 import { CreateFeedLogUseCase } from '@/features/feed/usecases/create-feed-logs-usecase'
 import dayjs from 'dayjs'
 
-const createFeedLogsRequestSchema = z.object({
-  feedId: z.string(),
-})
+const createFeedLogsRequestSchema = z.string()
 type CreateFeedLogRequest = z.infer<typeof createFeedLogsRequestSchema>
 
 export type CreateFeedLogResponse = {
@@ -28,7 +26,7 @@ export async function handler(
 ): Promise<CreateFeedLogResponse> {
   // const prisma = getPrismaClientInstance()
 
-  const { feedId } = createFeedLogsRequestSchema.parse(event)
+  const feedId = createFeedLogsRequestSchema.parse(event)
 
   const createFeedLogsUseCase = new CreateFeedLogUseCase()
   const feedLogs = await createFeedLogsUseCase.execute(feedId)

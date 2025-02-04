@@ -33,12 +33,7 @@ describe('createFeedLogs', () => {
     stubGithubApiClient.setReleaseResponse(githubReleaseListItems)
     swapGitHubApiClientForTest(stubGithubApiClient)
 
-    const response = await handler(
-      {
-        feedId: feed.id,
-      },
-      {} as Context,
-    )
+    const response = await handler(feed.id, {} as Context)
 
     const filteredResponse = response.map((item) => {
       return {
