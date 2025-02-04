@@ -13,6 +13,7 @@ type CreateFeedLogRequest = z.infer<typeof createFeedLogsRequestSchema>
 
 export type CreateFeedLogResponse = {
   id: string
+  key: string
   title: string
   date: Date
 }[]
@@ -34,6 +35,7 @@ export async function handler(
 
   return feedLogs.map((feedLog) => ({
     id: feedLog.id,
+    key: feedLog.key,
     title: feedLog.title,
     date: dayjs(feedLog.date).toDate(),
   }))

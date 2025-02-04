@@ -4,6 +4,7 @@ import { z } from '@hono/zod-openapi'
 export const feedLogSchema = z.object({
   id: z.string(),
   feedId: z.string(),
+  key: z.string(),
   date: z.date().or(z.string()),
   title: z.string(),
   summary: z.string(),
@@ -20,6 +21,7 @@ export type FeedLog = z.infer<typeof feedLogSchema>
 export const feedLogCreateCommandSchema = z.object({
   id: z.string(),
   feedId: z.string(),
+  key: z.string(),
   date: z.date().or(z.string()),
   title: z.string(),
   url: z.string(),

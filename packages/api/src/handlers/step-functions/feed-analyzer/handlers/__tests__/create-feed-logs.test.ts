@@ -42,6 +42,7 @@ describe('createFeedLogs', () => {
 
     const filteredResponse = response.map((item) => {
       return {
+        key: item.key,
         name: item.title,
         date: item.date,
       }
@@ -49,14 +50,17 @@ describe('createFeedLogs', () => {
 
     expect(filteredResponse).toEqual([
       {
+        key: '3',
         name: 'v1.0.2',
         date: new Date('2021-01-03T00:00:00Z'),
       },
       {
+        key: '2',
         name: 'v1.0.1',
         date: new Date('2021-01-02T00:00:00Z'),
       },
       {
+        key: '1',
         name: 'v1.0.0',
         date: new Date('2021-01-01T00:00:00Z'),
       },

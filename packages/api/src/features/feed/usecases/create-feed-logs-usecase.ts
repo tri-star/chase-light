@@ -82,6 +82,7 @@ export class CreateFeedLogUseCase {
       const feedLogId = uuidv7()
       const feedLog = await this.feedLogRepository.saveFeedLog({
         id: feedLogId,
+        key: release.id.toString(),
         date: release.publishedAt,
         title: release.name,
         feedId: feed.id,
