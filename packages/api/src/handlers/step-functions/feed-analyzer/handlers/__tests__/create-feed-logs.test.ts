@@ -16,17 +16,17 @@ describe('createFeedLogs', () => {
       {
         id: 3,
         name: 'v1.0.2',
-        publishedAt: '2021-01-03T00:00:00Z',
+        published_at: '2021-01-03T00:00:00Z',
       },
       {
         id: 2,
         name: 'v1.0.1',
-        publishedAt: '2021-01-02T00:00:00Z',
+        published_at: '2021-01-02T00:00:00Z',
       },
       {
         id: 1,
         name: 'v1.0.0',
-        publishedAt: '2021-01-01T00:00:00Z',
+        published_at: '2021-01-01T00:00:00Z',
       },
     ]
     const stubGithubApiClient = new GitHubApiClientStub()

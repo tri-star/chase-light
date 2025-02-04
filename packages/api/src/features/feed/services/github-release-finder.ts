@@ -20,14 +20,14 @@ export class GitHubReleaseFinder implements GitHubReleaseFinderInterface {
     let filterResult = responseJson
     if (lastSearchDate) {
       filterResult = responseJson.filter(
-        (release) => new Date(release.publishedAt) > lastSearchDate,
+        (release) => new Date(release.published_at) > lastSearchDate,
       )
     }
 
     return filterResult.map((item) => ({
       id: item.id,
       name: item.name,
-      publishedAt: new Date(item.publishedAt),
+      publishedAt: new Date(item.published_at),
     }))
   }
 }
