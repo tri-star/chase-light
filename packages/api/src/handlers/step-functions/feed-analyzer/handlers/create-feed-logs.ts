@@ -18,6 +18,7 @@ export type CreateFeedLogResponse = {
 
 export const createFeedLogsHandler: AwsFunctionHandler = {
   handler: `${handlerPath(currentDirPath(import.meta.url))}/create-feed-logs.handler`,
+  timeout: 300,
 }
 
 export async function handler(
