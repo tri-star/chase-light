@@ -21,6 +21,9 @@ export class GitHubApiClient implements GitHubApiClientInterface {
       const externalServiceError = ExternalServiceError.fromUnknownError(
         e,
         'GitHub API実行中にエラーが発生しました',
+        {
+          url,
+        },
       )
       console.error(externalServiceError.getDetailedMessageWithStack())
       throw externalServiceError
