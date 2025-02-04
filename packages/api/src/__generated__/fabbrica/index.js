@@ -539,6 +539,7 @@ function isFeedLogfeedFactory(x) {
 function autoGenerateFeedLogScalarsOrEnums({ seq }) {
     return {
         id: getScalarFieldValueGenerator().String({ modelName: "FeedLog", fieldName: "id", isId: true, isUnique: false, seq }),
+        key: getScalarFieldValueGenerator().String({ modelName: "FeedLog", fieldName: "key", isId: false, isUnique: false, seq }),
         date: getScalarFieldValueGenerator().DateTime({ modelName: "FeedLog", fieldName: "date", isId: false, isUnique: false, seq }),
         title: getScalarFieldValueGenerator().String({ modelName: "FeedLog", fieldName: "title", isId: false, isUnique: false, seq }),
         summary: getScalarFieldValueGenerator().String({ modelName: "FeedLog", fieldName: "summary", isId: false, isUnique: false, seq }),

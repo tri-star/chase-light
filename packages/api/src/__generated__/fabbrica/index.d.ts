@@ -275,6 +275,7 @@ type FeedLogfeedFactory = {
 };
 type FeedLogFactoryDefineInput = {
     id?: string;
+    key?: string;
     date?: Date;
     title?: string;
     summary?: string;
