@@ -1,12 +1,5 @@
-import { z } from 'zod'
-
-export const releaseListItemSchema = z.object({
-  id: z.number(),
-  name: z.string(),
-  published_at: z.string(),
-})
-export type ReleaseListItem = z.infer<typeof releaseListItemSchema>
+import type { RawGitHubReleaseListItem } from '@/features/feed/domain/github-release'
 
 export interface GitHubApiClientInterface {
-  getReleases(owner: string, repo: string): Promise<ReleaseListItem[]>
+  getReleases(owner: string, repo: string): Promise<RawGitHubReleaseListItem[]>
 }

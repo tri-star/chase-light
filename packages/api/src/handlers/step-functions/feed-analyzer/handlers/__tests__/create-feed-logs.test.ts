@@ -5,6 +5,7 @@ import type { Context } from 'aws-lambda'
 import { GitHubApiClientStub } from '@/features/feed/services/github-api-client-stub'
 import { swapGitHubApiClientForTest } from '@/features/feed/services/github-api-client'
 import { getPrismaClientInstance } from '@/lib/prisma/app-prisma-client'
+import type { RawGitHubReleaseListItem } from '@/features/feed/domain/github-release'
 
 describe('createFeedLogs', () => {
   test('初回は全てのリリースを対象にフィードを作成すること', async () => {
@@ -12,20 +13,23 @@ describe('createFeedLogs', () => {
       url: 'https://github.com/owner/repo',
     })
 
-    const githubReleaseListItems = [
+    const githubReleaseListItems: RawGitHubReleaseListItem[] = [
       {
         id: 3,
         name: 'v1.0.2',
+        tag_name: 'v1.0.2',
         published_at: '2021-01-03T00:00:00Z',
       },
       {
         id: 2,
         name: 'v1.0.1',
+        tag_name: 'v1.0.1',
         published_at: '2021-01-02T00:00:00Z',
       },
       {
         id: 1,
         name: 'v1.0.0',
+        tag_name: 'v1.0.0',
         published_at: '2021-01-01T00:00:00Z',
       },
     ]

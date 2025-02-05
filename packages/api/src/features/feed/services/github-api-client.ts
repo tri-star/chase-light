@@ -1,21 +1,24 @@
 import { ExternalServiceError } from '@/errors/external-api-error'
 import {
-  releaseListItemSchema,
-  type GitHubApiClientInterface,
-  type ReleaseListItem,
-} from '@/features/feed/services/github-api-client-interface'
+  rawGithubReleaseListItemSchema,
+  type RawGitHubReleaseListItem,
+} from '@/features/feed/domain/github-release'
+import { type GitHubApiClientInterface } from '@/features/feed/services/github-api-client-interface'
 import { handleFetchResponse, isFetchError } from '@/lib/utils/fetch-utils'
 import { z } from 'zod'
 
 export class GitHubApiClient implements GitHubApiClientInterface {
-  async getReleases(owner: string, repo: string): Promise<ReleaseListItem[]> {
+  async getReleases(
+    owner: string,
+    repo: string,
+  ): Promise<RawGitHubReleaseListItem[]> {
     const url = `https://api.github.com/repos/${owner}/${repo}/releases`
 
     try {
       const response = handleFetchResponse(await fetch(url))
       const json = await response.json()
 
-      const releases = z.array(releaseListItemSchema).parse(json)
+      const releases = z.array(rawGithubReleaseListItemSchema).parse(json)
       return releases
     } catch (e: unknown) {
       if (isFetchError(e)) {

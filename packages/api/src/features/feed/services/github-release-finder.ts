@@ -24,10 +24,13 @@ export class GitHubReleaseFinder implements GitHubReleaseFinderInterface {
       )
     }
 
-    return filterResult.map((item) => ({
-      id: item.id,
-      name: item.name,
-      publishedAt: new Date(item.published_at),
-    }))
+    return filterResult.map((item) => {
+      const name = item.name ?? item.tag_name
+      return {
+        id: item.id,
+        name,
+        publishedAt: new Date(item.published_at),
+      } satisfies GitHubReleaseListItem
+    })
   }
 }
