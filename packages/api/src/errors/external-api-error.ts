@@ -65,11 +65,15 @@ export class ExternalServiceError extends Error {
       e.cause?.message ?? 'External Service Error'
     const detailedMessage = `${baseDetailedMessage}${statusCodeText}`
 
+    const contextData = {
+      externalError: true,
+      ...(context ? context : {}),
+    }
     return new ExternalServiceError(
       message ?? detailedMessage,
       detailedMessage,
       e as Error,
-      context,
+      contextData,
     )
   }
 

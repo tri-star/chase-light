@@ -4,7 +4,7 @@ import {
   type GitHubApiClientInterface,
   type ReleaseListItem,
 } from '@/features/feed/services/github-api-client-interface'
-import { handleFetchResponse } from '@/lib/utils/fetch-utils'
+import { handleFetchResponse, isFetchError } from '@/lib/utils/fetch-utils'
 import { z } from 'zod'
 
 export class GitHubApiClient implements GitHubApiClientInterface {
@@ -18,15 +18,27 @@ export class GitHubApiClient implements GitHubApiClientInterface {
       const releases = z.array(releaseListItemSchema).parse(json)
       return releases
     } catch (e: unknown) {
-      const externalServiceError = ExternalServiceError.fromUnknownError(
-        e,
-        'GitHub API実行中にエラーが発生しました',
-        {
-          url,
-        },
-      )
-      console.error(externalServiceError.getDetailedMessageWithStack())
-      throw externalServiceError
+      if (isFetchError(e)) {
+        const externalServiceError = ExternalServiceError.fromFetchError(
+          e,
+          'GitHub API実行中にエラーが発生しました',
+          {
+            url,
+          },
+        )
+        console.error(externalServiceError.getDetailedMessageWithStack())
+        throw externalServiceError
+      } else {
+        const unknownError = ExternalServiceError.fromUnknownError(
+          e,
+          'GitHub API実行中にアプリケーション側でエラーが発生しました',
+          {
+            url,
+          },
+        )
+        console.error(unknownError.getDetailedMessageWithStack())
+        throw unknownError
+      }
     }
   }
 }
