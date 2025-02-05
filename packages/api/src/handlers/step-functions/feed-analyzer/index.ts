@@ -35,6 +35,18 @@ export const feedAnalyzerStateMachine: StateMachine['stateMachines'][number] = {
               Assign: {
                 feedLogs: '{% $states.result %}',
               },
+              Catch: [
+                {
+                  ErrorEquals: ['States.ALL'],
+                  Next: 'Error',
+                },
+              ],
+              End: true,
+            },
+            Error: {
+              Type: 'Pass',
+              Output:
+                '{"item": "{% $states.context.Map.Item.Value %}", "error": "{% $states.errorOutput %}"}',
               End: true,
             },
           },
