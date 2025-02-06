@@ -4,6 +4,14 @@ import { FlatCompat } from '@eslint/eslintrc'
 const compat = new FlatCompat()
 
 export default withNuxt(
+  {
+    ignores: [
+      '.nuxt',
+      '.output',
+      '.serverless',
+      //
+    ],
+  },
   // SFC内でscript setupを利用するために必要
   // https://zenn.dev/gn5r/scraps/324e1371f64554#comment-326968e19bccc3
   ...compat.extends('@vue/typescript/recommended'),
