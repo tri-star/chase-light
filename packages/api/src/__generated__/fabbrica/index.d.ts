@@ -4,6 +4,7 @@ import type { Feed } from "@prisma/client";
 import type { FeedGitHubMeta } from "@prisma/client";
 import type { DataSource } from "@prisma/client";
 import type { FeedLog } from "@prisma/client";
+import type { FeedLogStatus } from "@prisma/client";
 import type { Prisma } from "@prisma/client";
 import type { Resolver } from "@quramy/prisma-fabbrica/lib/internal";
 export { resetSequence, registerScalarFieldValueGenerator, resetScalarFieldValueGenerator } from "@quramy/prisma-fabbrica/lib/internal";
@@ -281,6 +282,7 @@ type FeedLogFactoryDefineInput = {
     summary?: string;
     body?: string | null;
     url?: string;
+    status?: FeedLogStatus;
     createdAt?: Date;
     updatedAt?: Date;
     feed: FeedLogfeedFactory | Prisma.FeedCreateNestedOneWithoutFeedLogsInput;
