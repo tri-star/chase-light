@@ -45,8 +45,10 @@ export const feedAnalyzerStateMachine: StateMachine['stateMachines'][number] = {
             },
             Error: {
               Type: 'Pass',
-              Output:
-                '{"item": "{% $states.context.Map.Item.Value %}", "error": "{% $states.errorOutput %}"}',
+              Output: {
+                item: '{% $states.context.Map.Item.Value %}',
+                error: '{% $states.errorOutput %}',
+              },
               End: true,
             },
           },
