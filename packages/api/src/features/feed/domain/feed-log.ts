@@ -1,5 +1,7 @@
 import { feedDetailModelSchema } from '@/features/feed/domain/feed'
+import { makeEnumFromArray } from '@/lib/utils/zod-utils'
 import { z } from '@hono/zod-openapi'
+import { FEED_LOG_STATUS_VALUES } from 'core/features/feed/feed-logs'
 
 export const feedLogSchema = z.object({
   id: z.string(),
@@ -10,6 +12,7 @@ export const feedLogSchema = z.object({
   summary: z.string(),
   body: z.string().optional(),
   url: z.string(),
+  status: makeEnumFromArray(FEED_LOG_STATUS_VALUES),
   createdAt: z.date().or(z.string()),
   updatedAt: z.date().or(z.string()),
 })
@@ -49,6 +52,7 @@ export const feedLogListItemModelSchema = z.object({
   title: z.string(),
   summary: z.string(),
   url: z.string(),
+  status: makeEnumFromArray(FEED_LOG_STATUS_VALUES),
   createdAt: z.date().or(z.string()),
   updatedAt: z.date().or(z.string()),
 })

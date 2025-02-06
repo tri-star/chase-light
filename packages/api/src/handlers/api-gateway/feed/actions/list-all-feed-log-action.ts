@@ -2,11 +2,8 @@ import { ActionDefinition } from '@/lib/hono/action-definition'
 import { type AppContext } from '@/handlers/api-gateway/app/chase-light-app'
 import { ROUTES } from '@/handlers/api-gateway/app/route-consts'
 import { createRoute, z, type OpenAPIHono } from '@hono/zod-openapi'
-// import { getPrismaClientInstance } from "@/lib/prisma/app-prisma-client"
-import {
-  feedLogSearchResultModelSchema,
-  type FeedLogListItemModel,
-} from '@/features/feed/domain/feed-log'
+import { feedLogSearchResultModelSchema } from '@/features/feed/domain/feed-log'
+import { FeedLogRepository } from '@/features/feed/repositories/feed-log-repository'
 
 export class ListUserFeedLogAction extends ActionDefinition<AppContext> {
   buildOpenApiAppRoute(parentApp: OpenAPIHono<AppContext>): void {
@@ -68,74 +65,17 @@ export class ListUserFeedLogAction extends ActionDefinition<AppContext> {
           return c.json({ error: 'Unauthorized' }, 401)
         }
 
-        // const prisma = getPrismaClientInstance()
-
-        // const feedLogList = await prisma.feedLog.findMany({
-        //   where: {
-        //     feed: {
-        //       userId: user.id,
-        //     },
-        //   },
-        //   include: {
-        //     feed: true,
-        //   },
-        //   orderBy: {
-        //     createdAt: "desc",
-        //   },
-        // })
-
-        const feedLogList: FeedLogListItemModel[] = [
-          {
-            id: '1234567890',
-            title: 'v0.3.0',
-            url: 'https://github.com/',
-            date: new Date(),
-            summary:
-              'GitHub Copilot is an AI pair programmer that helps you write code faster.',
-            createdAt: new Date(),
-            updatedAt: new Date(),
-            feed: {
-              id: '1234567890',
-              name: 'github/copilot',
-            },
-          },
-          {
-            id: '1234567891',
-            title: 'v0.2.0',
-            url: 'https://github.com/',
-            date: new Date(),
-            summary:
-              'GitHub Copilot is an AI pair programmer that helps you write code faster.',
-            createdAt: new Date(),
-            updatedAt: new Date(),
-            feed: {
-              id: '1234567890',
-              name: 'github/copilot2',
-            },
-          },
-          {
-            id: '1234567892',
-            title: 'v0.1.0',
-            url: 'https://github.com/',
-            date: new Date(),
-            summary:
-              'GitHub Copilot is an AI pair programmer that helps you write code faster.',
-            createdAt: new Date(),
-            updatedAt: new Date(),
-            feed: {
-              id: '1234567890',
-              name: 'github/copilot3',
-            },
-          },
-        ]
+        const feedLogRepository = new FeedLogRepository()
+        const feedLogList =
+          await feedLogRepository.findFeedLogsListItemModelsByUserId(user.id)
 
         // TODO: ページング処理
         return c.json(
           feedLogSearchResultModelSchema.parse({
             result: feedLogList,
-            total: 10,
+            total: feedLogList.length,
             page: 1,
-            pageSize: 10,
+            pageSize: feedLogList.length,
           }),
           200,
         )

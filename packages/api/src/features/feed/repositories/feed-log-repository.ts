@@ -47,6 +47,45 @@ export class FeedLogRepository {
     return z.array(feedLogListItemModelSchema).parse(logs)
   }
 
+  /**
+   * 指定ユーザーのFeedLogを一覧画面での表示用に整形して返す
+   */
+  async findFeedLogsListItemModelsByUserId(
+    userId: string,
+  ): Promise<FeedLogListItemModel[]> {
+    const prisma = getPrismaClientInstance()
+
+    const loadedFeedLogs = await prisma.feedLog.findMany({
+      where: {
+        feed: {
+          userId,
+        },
+      },
+      include: {
+        feed: {
+          include: {
+            dataSource: true,
+            user: true,
+          },
+        },
+      },
+      orderBy: {
+        date: 'desc',
+      },
+    })
+
+    const logs = loadedFeedLogs.map((loadedFeedLog) => {
+      return {
+        ...loadedFeedLog,
+        feed: {
+          id: loadedFeedLog.feed.id,
+          name: loadedFeedLog.feed.name,
+        },
+      } satisfies FeedLogListItemModel
+    })
+    return z.array(feedLogListItemModelSchema).parse(logs)
+  }
+
   async saveFeedLog(
     request: FeedLogCreateCommand,
   ): Promise<FeedLogDetailModel> {
