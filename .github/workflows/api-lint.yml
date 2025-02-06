@@ -70,6 +70,7 @@ jobs:
     permissions:
       id-token: write
       contents: read
+      pull-requests: write
 
     steps:
       - name: Checkout repository
@@ -137,6 +138,13 @@ jobs:
           if [ -f packages/api/.serverless/build/previous_sizes.txt ]; then
             echo "Comparing with previous sizes..."
             diff -u packages/api/.serverless/build/previous_sizes.txt packages/api/.serverless/build/sizes.txt > packages/api/.serverless/build/diff.txt || true
+            cat packages/api/.serverless/build/diff.txt
+            DIFF=$(cat packages/api/.serverless/build/diff.txt)
+            {
+              echo "diff<<EOT"
+              echo "${DIFF}"
+              echo "EOT"
+            } >> $GITHUB_OUTPUT
           else
             echo "No previous sizes to compare."
             touch packages/api/.serverless/build/diff.txt

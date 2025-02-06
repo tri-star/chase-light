@@ -3,5 +3,12 @@
   "extends": "./.nuxt/tsconfig.json",
   "compilerOptions": {
     "typeRoots": ["src/types"]
-  }
+  },
+  "include": [
+    ".nuxt/**/*.ts",
+    "src/**/*.ts",
+    "src/**/*.vue",
+    ".storybook/**/*.ts",
+    "./*.ts"
+  ]
 }

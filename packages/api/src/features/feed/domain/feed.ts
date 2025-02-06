@@ -10,19 +10,41 @@ import {
 } from 'core/features/feed/feed'
 import { SORT_DIRECTION_VALUES } from 'core/constants'
 
+export const feedGitHubMetaSchema = z.object({
+  id: z.string(),
+  lastReleaseDate: z.date().optional(),
+})
+export type FeedGitHubMeta = z.infer<typeof feedGitHubMetaSchema>
+
+/**
+ * フィードのベースとなるモデル定義
+ */
 export const feedSchema = z.object({
   id: z.string(),
   name: z.string(),
   url: z.string(),
   cycle: makeUnionFromArray(CYCLE_VALUES),
   dataSource: datasourceSchema,
+  feedGitHubMeta: feedGitHubMetaSchema.optional(),
   user: userSchema,
   createdAt: z.date(),
   updatedAt: z.date(),
 })
-
 export type Feed = z.infer<typeof feedSchema>
 
+/**
+ * 詳細表示用
+ */
+export const feedDetailModelSchema = feedSchema.extend({
+  dataSource: datasourceSchema,
+  feedGitHubMeta: feedGitHubMetaSchema.optional(),
+  user: userSchema,
+})
+export type FeedDetailModel = z.infer<typeof feedDetailModelSchema>
+
+/**
+ * 登録処理用
+ */
 export const createFeedRequestSchema = z.object({
   name: z.string().max(MAX_FEED_NAME_LENGTH),
   url: z.string().max(MAX_FEED_URL_LENGTH),
@@ -31,12 +53,18 @@ export const createFeedRequestSchema = z.object({
 
 export type CreateFeedRequest = z.infer<typeof createFeedRequestSchema>
 
+/**
+ * 検索リクエスト
+ */
 export const feedSearchRequestSchema = z.object({
   keyword: z.string().optional(),
   sort: makeEnumFromArray(SORT_ITEMS_VALUES).optional(),
   sortDirection: makeEnumFromArray(SORT_DIRECTION_VALUES).optional(),
 })
 
+/**
+ * 検索結果中の1件
+ */
 export const feedSearchResultItemSchema = z.object({
   id: z.string(),
   name: z.string(),
@@ -48,6 +76,9 @@ export const feedSearchResultItemSchema = z.object({
 })
 export type feedSearchResult = z.infer<typeof feedSearchResultSchema>
 
+/**
+ * 検索結果
+ */
 export const feedSearchResultSchema = z.object({
   result: z.array(feedSearchResultItemSchema),
   total: z.number(),

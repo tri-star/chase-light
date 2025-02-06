@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import type { FeedLog } from '~/features/feed/domain/feed-log'
+import type { FeedLogListItemModel } from '~/features/feed/domain/feed-log'
 
 defineProps<{
-  feedLog: FeedLog
+  feedLog: FeedLogListItemModel
 }>()
 </script>
 

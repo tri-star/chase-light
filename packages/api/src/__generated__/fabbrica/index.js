@@ -35,6 +35,17 @@ const modelFieldDefinitions = [{
                 name: "feedLogs",
                 type: "FeedLog",
                 relationName: "FeedToFeedLog"
+            }, {
+                name: "feedGitHubMeta",
+                type: "FeedGitHubMeta",
+                relationName: "FeedToFeedGitHubMeta"
+            }]
+    }, {
+        name: "FeedGitHubMeta",
+        fields: [{
+                name: "feed",
+                type: "Feed",
+                relationName: "FeedToFeedGitHubMeta"
             }]
     }, {
         name: "DataSource",
@@ -241,6 +252,9 @@ function isFeeduserFactory(x) {
 function isFeeddataSourceFactory(x) {
     return x?._factoryFor === "DataSource";
 }
+function isFeedfeedGitHubMetaFactory(x) {
+    return x?._factoryFor === "FeedGitHubMeta";
+}
 function autoGenerateFeedScalarsOrEnums({ seq }) {
     return {
         id: getScalarFieldValueGenerator().String({ modelName: "Feed", fieldName: "id", isId: true, isUnique: false, seq }),
@@ -285,7 +299,10 @@ function defineFeedFactoryInternal({ defaultData: defaultDataResolver, onAfterBu
                 } : defaultData.user,
                 dataSource: isFeeddataSourceFactory(defaultData.dataSource) ? {
                     create: await defaultData.dataSource.build()
-                } : defaultData.dataSource
+                } : defaultData.dataSource,
+                feedGitHubMeta: isFeedfeedGitHubMetaFactory(defaultData.feedGitHubMeta) ? {
+                    create: await defaultData.feedGitHubMeta.build()
+                } : defaultData.feedGitHubMeta
             };
             const data = { ...requiredScalarData, ...defaultData, ...defaultAssociations, ...filteredInputData };
             await handleAfterBuild(data, transientFields);
@@ -335,6 +352,99 @@ export const defineFeedFactory = ((options) => {
     return defineFeedFactoryInternal(options, {});
 });
 defineFeedFactory.withTransientFields = defaultTransientFieldValues => options => defineFeedFactoryInternal(options, defaultTransientFieldValues);
+function isFeedGitHubMetafeedFactory(x) {
+    return x?._factoryFor === "Feed";
+}
+function autoGenerateFeedGitHubMetaScalarsOrEnums({ seq }) {
+    return {
+        id: getScalarFieldValueGenerator().String({ modelName: "FeedGitHubMeta", fieldName: "id", isId: true, isUnique: false, seq })
+    };
+}
+function defineFeedGitHubMetaFactoryInternal({ defaultData: defaultDataResolver, onAfterBuild, onBeforeCreate, onAfterCreate, traits: traitsDefs = {} }, defaultTransientFieldValues) {
+    const getFactoryWithTraits = (traitKeys = []) => {
+        const seqKey = {};
+        const getSeq = () => getSequenceCounter(seqKey);
+        const screen = createScreener("FeedGitHubMeta", modelFieldDefinitions);
+        const handleAfterBuild = createCallbackChain([
+            onAfterBuild,
+            ...traitKeys.map(traitKey => traitsDefs[traitKey]?.onAfterBuild),
+        ]);
+        const handleBeforeCreate = createCallbackChain([
+            ...traitKeys.slice().reverse().map(traitKey => traitsDefs[traitKey]?.onBeforeCreate),
+            onBeforeCreate,
+        ]);
+        const handleAfterCreate = createCallbackChain([
+            onAfterCreate,
+            ...traitKeys.map(traitKey => traitsDefs[traitKey]?.onAfterCreate),
+        ]);
+        const build = async (inputData = {}) => {
+            const seq = getSeq();
+            const requiredScalarData = autoGenerateFeedGitHubMetaScalarsOrEnums({ seq });
+            const resolveValue = normalizeResolver(defaultDataResolver);
+            const [transientFields, filteredInputData] = destructure(defaultTransientFieldValues, inputData);
+            const resolverInput = { seq, ...transientFields };
+            const defaultData = await traitKeys.reduce(async (queue, traitKey) => {
+                const acc = await queue;
+                const resolveTraitValue = normalizeResolver(traitsDefs[traitKey]?.data ?? {});
+                const traitData = await resolveTraitValue(resolverInput);
+                return {
+                    ...acc,
+                    ...traitData,
+                };
+            }, resolveValue(resolverInput));
+            const defaultAssociations = {
+                feed: isFeedGitHubMetafeedFactory(defaultData.feed) ? {
+                    create: await defaultData.feed.build()
+                } : defaultData.feed
+            };
+            const data = { ...requiredScalarData, ...defaultData, ...defaultAssociations, ...filteredInputData };
+            await handleAfterBuild(data, transientFields);
+            return data;
+        };
+        const buildList = (...args) => Promise.all(normalizeList(...args).map(data => build(data)));
+        const pickForConnect = (inputData) => ({
+            id: inputData.id
+        });
+        const create = async (inputData = {}) => {
+            const [transientFields] = destructure(defaultTransientFieldValues, inputData);
+            const data = await build(inputData).then(screen);
+            await handleBeforeCreate(data, transientFields);
+            const createdData = await getClient().feedGitHubMeta.create({ data });
+            await handleAfterCreate(createdData, transientFields);
+            return createdData;
+        };
+        const createList = (...args) => Promise.all(normalizeList(...args).map(data => create(data)));
+        const createForConnect = (inputData = {}) => create(inputData).then(pickForConnect);
+        return {
+            _factoryFor: "FeedGitHubMeta",
+            build,
+            buildList,
+            buildCreateInput: build,
+            pickForConnect,
+            create,
+            createList,
+            createForConnect,
+        };
+    };
+    const factory = getFactoryWithTraits();
+    const useTraits = (name, ...names) => {
+        return getFactoryWithTraits([name, ...names]);
+    };
+    return {
+        ...factory,
+        use: useTraits,
+    };
+}
+/**
+ * Define factory for {@link FeedGitHubMeta} model.
+ *
+ * @param options
+ * @returns factory {@link FeedGitHubMetaFactoryInterface}
+ */
+export const defineFeedGitHubMetaFactory = ((options) => {
+    return defineFeedGitHubMetaFactoryInternal(options, {});
+});
+defineFeedGitHubMetaFactory.withTransientFields = defaultTransientFieldValues => options => defineFeedGitHubMetaFactoryInternal(options, defaultTransientFieldValues);
 function autoGenerateDataSourceScalarsOrEnums({ seq }) {
     return {
         id: getScalarFieldValueGenerator().String({ modelName: "DataSource", fieldName: "id", isId: true, isUnique: false, seq }),
@@ -429,6 +539,7 @@ function isFeedLogfeedFactory(x) {
 function autoGenerateFeedLogScalarsOrEnums({ seq }) {
     return {
         id: getScalarFieldValueGenerator().String({ modelName: "FeedLog", fieldName: "id", isId: true, isUnique: false, seq }),
+        key: getScalarFieldValueGenerator().String({ modelName: "FeedLog", fieldName: "key", isId: false, isUnique: false, seq }),
         date: getScalarFieldValueGenerator().DateTime({ modelName: "FeedLog", fieldName: "date", isId: false, isUnique: false, seq }),
         title: getScalarFieldValueGenerator().String({ modelName: "FeedLog", fieldName: "title", isId: false, isUnique: false, seq }),
         summary: getScalarFieldValueGenerator().String({ modelName: "FeedLog", fieldName: "summary", isId: false, isUnique: false, seq }),
