@@ -43,6 +43,13 @@ const endpoints = makeApi([
                 title: z.string(),
                 summary: z.string(),
                 url: z.string(),
+                status: z.enum([
+                  "wait",
+                  "in_progress",
+                  "error",
+                  "failed",
+                  "done",
+                ]),
                 createdAt: z.union([z.string(), z.string()]),
                 updatedAt: z.union([z.string(), z.string()]),
               })
