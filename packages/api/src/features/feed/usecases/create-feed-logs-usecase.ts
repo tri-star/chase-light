@@ -48,12 +48,14 @@ export class CreateFeedLogUseCase {
 
     const feedLogs = await this.createFeedLogs(feed, releases)
 
+    const previousReleaseDate =
+      feed.feedGitHubMeta?.lastReleaseDate ?? new Date('1900-01-01 00:00:00')
     const latestReleaseDate = releases.reduce((acc, release) => {
       if (dayjs(release.publishedAt).isBefore(acc)) {
         return acc
       }
       return release.publishedAt
-    }, new Date('1900-01-01 00:00:00'))
+    }, previousReleaseDate)
 
     feed.feedGitHubMeta = {
       id: feed.feedGitHubMeta?.id ?? uuidv7(),
