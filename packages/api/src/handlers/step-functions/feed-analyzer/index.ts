@@ -38,6 +38,9 @@ export const feedAnalyzerStateMachine: StateMachine['stateMachines'][number] = {
               Catch: [
                 {
                   ErrorEquals: ['States.ALL'],
+                  Assign: {
+                    errorDetail: '{% $states.errorOutput %}',
+                  },
                   Next: 'Error',
                 },
               ],
@@ -46,8 +49,7 @@ export const feedAnalyzerStateMachine: StateMachine['stateMachines'][number] = {
             Error: {
               Type: 'Pass',
               Output: {
-                item: '{% $states.context.Map.Item.Value %}',
-                error: '{% $states.errorOutput %}',
+                error: '{% $errorDetail %}',
               },
               End: true,
             },
