@@ -90,6 +90,11 @@ const serverlessConfiguration: Serverless & { build: object } = {
         Action: ['xray:PutTraceSegments', 'xray:PutTelemetryRecords'],
         Resource: '*',
       },
+      {
+        Effect: 'Allow',
+        Action: ['sqs:SendMessage'],
+        Resource: { 'Fn::GetAtt': ['FeedAnalyzeQueue', 'Arn'] },
+      },
     ],
     apiGateway: {
       minimumCompressionSize: 1024,
@@ -105,6 +110,27 @@ const serverlessConfiguration: Serverless & { build: object } = {
   stepFunctions: {
     stateMachines: {
       FeedAnalyzer: feedAnalyzerStateMachine,
+    },
+  },
+  resources: {
+    Resources: {
+      FeedAnalyzeDlq: {
+        Type: 'AWS::SQS::Queue',
+        Properties: {
+          QueueName: 'FeedAnalyzeDlq',
+          MessageRetentionPeriod: 1209600,
+        },
+      },
+      FeedAnalyzeQueue: {
+        Type: 'AWS::SQS::Queue',
+        Properties: {
+          QueueName: 'FeedAnalyzeQueue',
+          RedrivePolicy: {
+            deadLetterTargetArn: { 'Fn::GetAtt': ['FeedAnalyzeDlq', 'Arn'] },
+            maxReceiveCount: 5,
+          },
+        },
+      },
     },
   },
 }
