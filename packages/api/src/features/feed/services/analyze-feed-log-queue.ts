@@ -1,3 +1,5 @@
+import { SendMessageCommand, SQSClient } from '@aws-sdk/client-sqs'
+
 import type { AnalyzeFeedLogQueueInterface } from '@/features/feed/services/analyze-feed-log-queue-interface'
 import { z } from 'zod'
 
@@ -7,7 +9,20 @@ export const analyzeFeedLogMessageSchema = z.object({
 export type AnalyzeFeedLogMessage = z.infer<typeof analyzeFeedLogMessageSchema>
 
 export class AnalyzeFeedLogQueue implements AnalyzeFeedLogQueueInterface {
-  async send(_message: AnalyzeFeedLogMessage): Promise<void> {}
+  private queueArn
+
+  constructor() {
+    this.queueArn = process.env.ANALYZE_FEED_LOG_QUEUE_ARN
+  }
+
+  async send(_message: AnalyzeFeedLogMessage): Promise<void> {
+    const sqsClient = new SQSClient()
+    const command = new SendMessageCommand({
+      QueueUrl: this.queueArn,
+      MessageBody: JSON.stringify(_message),
+    })
+    await sqsClient.send(command)
+  }
 }
 
 let analyzeFeedLogQueueInstance: AnalyzeFeedLogQueueInterface | undefined =

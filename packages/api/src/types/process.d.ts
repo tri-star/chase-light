@@ -6,5 +6,7 @@ declare namespace NodeJS {
     AUTH0_DOMAIN: string
     AUTH0_AUDIENCE: string
     OPENAI_API_KEY: string
+
+    ANALYZE_FEED_LOG_QUEUE_ARN: string
   }
 }
