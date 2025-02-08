@@ -6,7 +6,7 @@ import { getAnalyzeFeedLogQueue } from '@/features/feed/services/analyze-feed-lo
 import { FeedLogRepository } from '@/features/feed/repositories/feed-log-repository'
 
 export const enqueuePendingFeedLogHandler: AwsFunctionHandler = {
-  handler: `${handlerPath(currentDirPath(import.meta.url))}/enqueue-pending-feed-log-handler.handle`,
+  handler: `${handlerPath(currentDirPath(import.meta.url))}/enqueue-pending-feed-log-handler.handler`,
   timeout: 300,
 }
 
