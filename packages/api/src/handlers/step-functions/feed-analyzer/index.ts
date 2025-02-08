@@ -1,6 +1,7 @@
 import type StateMachine from 'serverless-step-functions'
 import { listFeedHandler } from '@/handlers/step-functions/feed-analyzer/handlers/list-feed-handler'
 import { createFeedLogsHandler } from '@/handlers/step-functions/feed-analyzer/handlers/create-feed-logs'
+import { enqueuePendingFeedLogHandler } from '@/handlers/step-functions/feed-analyzer/handlers/enqueue-pending-feed-log-handler'
 
 export const feedAnalyzerStateMachine: StateMachine['stateMachines'][number] = {
   tracingConfig: {
@@ -55,6 +56,13 @@ export const feedAnalyzerStateMachine: StateMachine['stateMachines'][number] = {
             },
           },
         },
+        Next: 'EnqueuePendingFeedLog',
+      },
+      EnqueuePendingFeedLog: {
+        Type: 'Task',
+        Resource: {
+          'Fn::GetAtt': ['feedAnalyzer-enqueuePendingFeedLogHandler', 'Arn'],
+        },
         End: true,
       },
     },
@@ -64,4 +72,5 @@ export const feedAnalyzerStateMachine: StateMachine['stateMachines'][number] = {
 export const feedAnalyzerHandlers = {
   listFeedHandler,
   createFeedLogsHandler,
+  enqueuePendingFeedLogHandler,
 }
