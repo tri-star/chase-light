@@ -45,6 +45,7 @@
     "vitest": "^2.1.4"
   },
   "dependencies": {
+    "@aws-sdk/client-sqs": "^3.744.0",
     "@hono/zod-openapi": "^0.16.4",
     "@prisma/client": "6.1.0",
     "@scalar/hono-api-reference": "^0.5.158",
