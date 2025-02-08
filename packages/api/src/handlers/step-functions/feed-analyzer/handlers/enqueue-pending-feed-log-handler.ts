@@ -2,11 +2,8 @@ import { handlerPath } from '@/lib/hono/handler-resolver'
 import { currentDirPath } from '@/lib/utils/path-utils'
 import type { Context } from 'aws-lambda'
 import type { AwsFunctionHandler } from 'serverless/aws'
-import { z } from 'zod'
 import { getAnalyzeFeedLogQueue } from '@/features/feed/services/analyze-feed-log-queue'
-
-const enqueueFeedLogsRequestSchema = z.string()
-type EnqueueFeedLogRequest = z.infer<typeof enqueueFeedLogsRequestSchema>
+import { FeedLogRepository } from '@/features/feed/repositories/feed-log-repository'
 
 export const enqueuePendingFeedLogHandler: AwsFunctionHandler = {
   handler: `${handlerPath(currentDirPath(import.meta.url))}/enqueue-pending-feed-log-handler.handle`,
@@ -14,14 +11,22 @@ export const enqueuePendingFeedLogHandler: AwsFunctionHandler = {
 }
 
 export async function handler(
-  event: EnqueueFeedLogRequest,
+  _event: unknown,
   _context: Context,
 ): Promise<void> {
-  const feedLogId = enqueueFeedLogsRequestSchema.parse(event)
+  const feedLogRepository = new FeedLogRepository()
+  const pendingFeedLogs = await feedLogRepository.findPendingFeedLogs()
+
+  if (pendingFeedLogs.length === 0) {
+    console.info('未処理のフィードログはありません')
+    return
+  }
 
   const analyzeFeedLogQueue = getAnalyzeFeedLogQueue()
 
-  await analyzeFeedLogQueue.send({
-    feedLogId,
-  })
+  for (const feedLog of pendingFeedLogs) {
+    await analyzeFeedLogQueue.send({
+      feedLogId: feedLog.id,
+    })
+  }
 }
