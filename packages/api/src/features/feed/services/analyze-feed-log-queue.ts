@@ -9,16 +9,16 @@ export const analyzeFeedLogMessageSchema = z.object({
 export type AnalyzeFeedLogMessage = z.infer<typeof analyzeFeedLogMessageSchema>
 
 export class AnalyzeFeedLogQueue implements AnalyzeFeedLogQueueInterface {
-  private queueArn
+  private queueUrl
 
   constructor() {
-    this.queueArn = process.env.ANALYZE_FEED_LOG_QUEUE_ARN
+    this.queueUrl = process.env.ANALYZE_FEED_LOG_QUEUE_URL
   }
 
   async send(_message: AnalyzeFeedLogMessage): Promise<void> {
     const sqsClient = new SQSClient()
     const command = new SendMessageCommand({
-      QueueUrl: this.queueArn,
+      QueueUrl: this.queueUrl,
       MessageBody: JSON.stringify(_message),
     })
     await sqsClient.send(command)

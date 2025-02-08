@@ -70,7 +70,7 @@ const serverlessConfiguration: Serverless & { build: object } = {
       DATABASE_URL:
         '${env:DATABASE_URL, ssm:/aws/reference/secretsmanager/${sls:stage}/supabase/db_url}',
       AUTH0_DOMAIN: '${env:AUTH0_DOMAIN}',
-      ANALYZE_FEED_LOG_QUEUE_ARN: { 'Fn::GetAtt': ['FeedAnalyzeQueue', 'Arn'] },
+      ANALYZE_FEED_LOG_QUEUE_URL: { Ref: 'FeedAnalyzeQueue' },
     },
     tracing: {
       apiGateway: true,
