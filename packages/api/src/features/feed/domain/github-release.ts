@@ -16,3 +16,22 @@ export const githubReleaseListItemSchema = z.object({
   publishedAt: z.date(),
 })
 export type GitHubReleaseListItem = z.infer<typeof githubReleaseListItemSchema>
+
+export const rawGitHubReleaseSchema = z.object({
+  id: z.number(),
+  name: z.string().nullable(),
+  tag_name: z.string(),
+  published_at: z.string(),
+  body: z.string(),
+  url: z.string(),
+})
+export type RawGitHubRelease = z.infer<typeof rawGitHubReleaseSchema>
+
+export const gitHubRelease = z.object({
+  id: z.number(),
+  name: z.string().nullable(),
+  tagName: z.string(),
+  publishedAt: z.date(),
+  body: z.string(),
+  url: z.string(),
+})
