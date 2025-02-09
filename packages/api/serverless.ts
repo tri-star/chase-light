@@ -31,7 +31,7 @@ const serverlessConfiguration: Serverless & { build: object } = {
       bundle: true,
       minify: false,
       buildConcurrency: 3,
-      external: ['aws-lambda', '@prisma/client'],
+      external: ['aws-lambda', '@prisma/client', '@aws-sdk/client-sqs'],
       platform: 'node',
       sourcemap: {
         type: 'linked',
