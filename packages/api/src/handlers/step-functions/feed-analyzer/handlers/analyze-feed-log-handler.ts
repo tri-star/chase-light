@@ -4,7 +4,7 @@ import { getGitHubReleaseAnalyzer } from '@/features/feed/services/github-releas
 import { GitHubUrlParser } from '@/features/feed/services/github-url-parser'
 import { handlerPath } from '@/lib/hono/handler-resolver'
 import { currentDirPath } from '@/lib/utils/path-utils'
-import type { Context } from 'aws-lambda'
+import type { Context, SQSEvent } from 'aws-lambda'
 import { FEED_LOG_STATUS_VALUE_MAP } from 'core/features/feed/feed-logs'
 import type { AwsFunctionHandler } from 'serverless/aws'
 import z from 'zod'
@@ -30,9 +30,14 @@ export const analyzeFeedLogHandler: AwsFunctionHandler = {
   ],
 }
 
-export async function handler(payload: AnalyzeFeedRequest, _context: Context) {
-  // feedLogの情報を取得する
-  const { feedLogId } = analyzeFeedRequestSchema.parse(payload)
+export async function handler(event: SQSEvent, _context: Context) {
+  for (const record of event.Records) {
+    await handleEvent(JSON.parse(record.body))
+  }
+}
+
+async function handleEvent(request: AnalyzeFeedRequest) {
+  const { feedLogId } = analyzeFeedRequestSchema.parse(request)
   const feedLogRepository = new FeedLogRepository()
 
   // TODO: feedLogが見つからない場合などアプリ起因の場合、このジョブはリトライ不能で失敗させる
