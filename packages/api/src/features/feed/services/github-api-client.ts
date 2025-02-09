@@ -23,27 +23,7 @@ export class GitHubApiClient implements GitHubApiClientInterface {
       const releases = z.array(rawGithubReleaseListItemSchema).parse(json)
       return releases
     } catch (e: unknown) {
-      if (isFetchError(e)) {
-        const externalServiceError = ExternalServiceError.fromFetchError(
-          e,
-          'GitHub API実行中にエラーが発生しました',
-          {
-            url,
-          },
-        )
-        console.error(externalServiceError.getDetailedMessageWithStack())
-        throw externalServiceError
-      } else {
-        const unknownError = ExternalServiceError.fromUnknownError(
-          e,
-          'GitHub API実行中にアプリケーション側でエラーが発生しました',
-          {
-            url,
-          },
-        )
-        console.error(unknownError.getDetailedMessageWithStack())
-        throw unknownError
-      }
+      this.handleError(url, e)
     }
   }
 
@@ -60,27 +40,31 @@ export class GitHubApiClient implements GitHubApiClientInterface {
 
       return rawGitHubReleaseSchema.parse(json)
     } catch (e: unknown) {
-      if (isFetchError(e)) {
-        const externalServiceError = ExternalServiceError.fromFetchError(
-          e,
-          'GitHub API実行中にエラーが発生しました',
-          {
-            url,
-          },
-        )
-        console.error(externalServiceError.getDetailedMessageWithStack())
-        throw externalServiceError
-      } else {
-        const unknownError = ExternalServiceError.fromUnknownError(
-          e,
-          'GitHub API実行中にアプリケーション側でエラーが発生しました',
-          {
-            url,
-          },
-        )
-        console.error(unknownError.getDetailedMessageWithStack())
-        throw unknownError
-      }
+      this.handleError(url, e)
+    }
+  }
+
+  private handleError(url: string, e: unknown): never {
+    if (isFetchError(e)) {
+      const externalServiceError = ExternalServiceError.fromFetchError(
+        e,
+        'GitHub API実行中にエラーが発生しました',
+        {
+          url,
+        },
+      )
+      console.error(externalServiceError.getDetailedMessageWithStack())
+      throw externalServiceError
+    } else {
+      const unknownError = ExternalServiceError.fromUnknownError(
+        e,
+        'GitHub API実行中にアプリケーション側でエラーが発生しました',
+        {
+          url,
+        },
+      )
+      console.error(unknownError.getDetailedMessageWithStack())
+      throw unknownError
     }
   }
 }
