@@ -36,6 +36,7 @@ const serverlessConfiguration: Serverless & { build: object } = {
         '@prisma/client',
         '@aws-sdk/client-sqs',
         'openai',
+        'zod',
       ],
       platform: 'node',
       sourcemap: {
