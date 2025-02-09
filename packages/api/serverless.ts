@@ -126,6 +126,7 @@ const serverlessConfiguration: Serverless & { build: object } = {
         Type: 'AWS::SQS::Queue',
         Properties: {
           QueueName: 'FeedAnalyzeQueue',
+          VisibilityTimeout: 300,
           RedrivePolicy: {
             deadLetterTargetArn: { 'Fn::GetAtt': ['FeedAnalyzeDlq', 'Arn'] },
             maxReceiveCount: 5,
