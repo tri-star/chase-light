@@ -1,3 +1,5 @@
+import { DbNotFoundError } from '@/errors/db-not-found-error'
+import { DbRelationError } from '@/errors/db-relation-error'
 import {
   type FeedLogCreateCommand,
   type FeedLogDetailModel,
@@ -11,6 +13,59 @@ import { FEED_LOG_STATUS_VALUE_MAP } from 'core/features/feed/feed-logs'
 import { z } from 'zod'
 
 export class FeedLogRepository {
+  /**
+   * 指定したIDのFeedLogを返す
+   */
+  async findById(feedLogId: string): Promise<FeedLogDetailModel> {
+    const prisma = getPrismaClientInstance()
+
+    const loadedFeedLog = await prisma.feedLog.findFirst({
+      where: {
+        id: feedLogId,
+      },
+      include: {
+        feed: {
+          include: {
+            dataSource: true,
+            user: true,
+          },
+        },
+      },
+    })
+
+    if (!loadedFeedLog) {
+      throw new DbNotFoundError('feed_logs', `FeedLog not found: ${feedLogId}`)
+    }
+
+    if (loadedFeedLog.feed == null) {
+      throw new DbRelationError(
+        'feed_logs',
+        `feed_logs.feedが見つかりません: ${feedLogId}`,
+      )
+    }
+    if (loadedFeedLog.feed.user == null) {
+      throw new DbRelationError(
+        'feed_logs',
+        `feed_logs.feedが見つかりません: ${feedLogId}`,
+      )
+    }
+    if (loadedFeedLog.feed.dataSource == null) {
+      throw new DbRelationError(
+        'feed_logs',
+        `feed_logs.feed.dataSourceが見つかりません: ${feedLogId}`,
+      )
+    }
+
+    const feedLog = feedLogDetailModelSchema.parse({
+      ...loadedFeedLog,
+      body: loadedFeedLog.body ?? undefined,
+      feed: {
+        ...loadedFeedLog.feed,
+        cycle: loadedFeedLog.feed.cycle as CycleValue,
+      },
+    } satisfies FeedLogDetailModel)
+    return feedLog
+  }
   /**
    * FeedLogを一覧画面での表示用に整形して返す
    */
@@ -87,6 +142,9 @@ export class FeedLogRepository {
     return z.array(feedLogListItemModelSchema).parse(logs)
   }
 
+  /**
+   * 処理が完了していないFeedLogの一覧を返す
+   */
   async findPendingFeedLogs(): Promise<FeedLogListItemModel[]> {
     const prisma = getPrismaClientInstance()
 
@@ -162,5 +220,15 @@ export class FeedLogRepository {
         cycle: loadedFeedLog.feed.cycle as CycleValue,
       },
     } satisfies FeedLogDetailModel)
+  }
+
+  async clearFeedLogItems(feedLogId: string): Promise<void> {
+    const prisma = getPrismaClientInstance()
+
+    await prisma.feedLogItem.deleteMany({
+      where: {
+        feedLogId,
+      },
+    })
   }
 }
