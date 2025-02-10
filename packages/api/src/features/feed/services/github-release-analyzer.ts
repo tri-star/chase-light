@@ -101,7 +101,12 @@ export class GitHubReleaseAnalyzerOpenAI
         ),
       })
 
-    console.log('Open AI Response:', completionResponse)
+    console.log('OpenAI Usage', {
+      model: completionResponse.model,
+      usage: completionResponse.usage,
+      service_tier: completionResponse.service_tier,
+    })
+    console.log('Open AI Response:', completionResponse.choices[0].message)
     return []
   }
 }
