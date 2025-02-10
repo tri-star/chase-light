@@ -10,18 +10,20 @@ export type AnalyzeResultItem = {
   }
 }
 
-export const analyzeResultResponseSchema = z.array(
-  z.object({
-    title: z.string(),
-    summary: z.string(),
-    link: z
-      .object({
-        title: z.string(),
-        url: z.string(),
-      })
-      .optional(),
-  }),
-)
+export const analyzeResultResponseSchema = z.object({
+  items: z.array(
+    z.object({
+      title: z.string(),
+      summary: z.string(),
+      link: z
+        .object({
+          title: z.string(),
+          url: z.string(),
+        })
+        .optional(),
+    }),
+  ),
+})
 
 export const analyzeBasePrompt = `
 # 概要
