@@ -126,13 +126,13 @@ model FeedLog {
 }
 
 model FeedLogItem {
-  id        String   @id @db.Uuid
-  feedLogId String   @map("feed_log_id") @db.Uuid
-  feedLog   FeedLog  @relation(fields: [feedLogId], references: [id])
-  title     String   @db.VarChar(255)
-  summary   String   @db.Text
-  url       String   @db.Text
-  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz
+  id         String   @id @db.Uuid
+  feedLogId  String   @map("feed_log_id") @db.Uuid
+  feedLog    FeedLog  @relation(fields: [feedLogId], references: [id])
+  summary    String   @db.Text
+  link_url   String   @map("linkUrl") @db.VarChar(255)
+  link_title String   @map("linkTitle") @db.VarChar(255)
+  createdAt  DateTime @default(now()) @map("created_at") @db.Timestamptz
 
   @@index([feedLogId])
   @@map("feed_log_items")

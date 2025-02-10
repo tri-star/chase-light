@@ -2,9 +2,9 @@
 CREATE TABLE "feed_log_items" (
     "id" UUID NOT NULL,
     "feed_log_id" UUID NOT NULL,
-    "title" VARCHAR(255) NOT NULL,
     "summary" TEXT NOT NULL,
-    "url" TEXT NOT NULL,
+    "linkUrl" VARCHAR(255) NOT NULL,
+    "linkTitle" VARCHAR(255) NOT NULL,
     "created_at" TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     CONSTRAINT "feed_log_items_pkey" PRIMARY KEY ("id")

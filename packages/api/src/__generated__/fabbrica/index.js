@@ -648,9 +648,9 @@ function isFeedLogItemfeedLogFactory(x) {
 function autoGenerateFeedLogItemScalarsOrEnums({ seq }) {
     return {
         id: getScalarFieldValueGenerator().String({ modelName: "FeedLogItem", fieldName: "id", isId: true, isUnique: false, seq }),
-        title: getScalarFieldValueGenerator().String({ modelName: "FeedLogItem", fieldName: "title", isId: false, isUnique: false, seq }),
         summary: getScalarFieldValueGenerator().String({ modelName: "FeedLogItem", fieldName: "summary", isId: false, isUnique: false, seq }),
-        url: getScalarFieldValueGenerator().String({ modelName: "FeedLogItem", fieldName: "url", isId: false, isUnique: false, seq })
+        link_url: getScalarFieldValueGenerator().String({ modelName: "FeedLogItem", fieldName: "link_url", isId: false, isUnique: false, seq }),
+        link_title: getScalarFieldValueGenerator().String({ modelName: "FeedLogItem", fieldName: "link_title", isId: false, isUnique: false, seq })
     };
 }
 function defineFeedLogItemFactoryInternal({ defaultData: defaultDataResolver, onAfterBuild, onBeforeCreate, onAfterCreate, traits: traitsDefs = {} }, defaultTransientFieldValues) {

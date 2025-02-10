@@ -332,9 +332,9 @@ type FeedLogItemfeedLogFactory = {
 };
 type FeedLogItemFactoryDefineInput = {
     id?: string;
-    title?: string;
     summary?: string;
-    url?: string;
+    link_url?: string;
+    link_title?: string;
     createdAt?: Date;
     feedLog: FeedLogItemfeedLogFactory | Prisma.FeedLogCreateNestedOneWithoutFeedLogItemsInput;
 };
