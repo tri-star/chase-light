@@ -7,6 +7,7 @@ import {
   feedLogDetailModelSchema,
   feedLogListItemModelSchema,
 } from '@/features/feed/domain/feed-log'
+import type { NewFeedLogItemModel } from '@/features/feed/domain/feed-log-item'
 import { getPrismaClientInstance } from '@/lib/prisma/app-prisma-client'
 import type { CycleValue } from 'core/features/feed/feed'
 import { FEED_LOG_STATUS_VALUE_MAP } from 'core/features/feed/feed-logs'
@@ -230,5 +231,27 @@ export class FeedLogRepository {
         feedLogId,
       },
     })
+  }
+
+  async saveFeedLogItems(items: NewFeedLogItemModel[]): Promise<void> {
+    const prisma = getPrismaClientInstance()
+
+    const feedLogItemsPromises = items.map((item) =>
+      prisma.feedLogItem.create({
+        data: {
+          id: item.id,
+          feedLog: {
+            connect: {
+              id: item.feedLogId,
+            },
+          },
+          link_title: item.link?.title ?? '',
+          link_url: item.link?.url ?? '',
+          summary: item.summary,
+        },
+      }),
+    )
+
+    await Promise.all(feedLogItemsPromises)
   }
 }

@@ -107,6 +107,19 @@ export class GitHubReleaseAnalyzerOpenAI
       service_tier: completionResponse.service_tier,
     })
     console.log('Open AI Response:', completionResponse.choices[0].message)
-    return []
+
+    return (
+      completionResponse.choices[0].message.parsed?.items.map((item) => {
+        return {
+          summary: item.summary,
+          link: item.link
+            ? {
+                title: item.link.title,
+                url: item.link.url,
+              }
+            : undefined,
+        } satisfies AnalyzeResultItem
+      }) ?? []
+    )
   }
 }

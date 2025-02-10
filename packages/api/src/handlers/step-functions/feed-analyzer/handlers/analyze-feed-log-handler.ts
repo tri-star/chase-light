@@ -1,3 +1,4 @@
+import type { NewFeedLogItemModel } from '@/features/feed/domain/feed-log-item'
 import { FeedLogRepository } from '@/features/feed/repositories/feed-log-repository'
 import { getAnalyzeFeedLogQueue } from '@/features/feed/services/analyze-feed-log-queue'
 import { GitHubApiClient } from '@/features/feed/services/github-api-client'
@@ -9,6 +10,7 @@ import type { Context, SQSEvent } from 'aws-lambda'
 import { FEED_LOG_STATUS_VALUE_MAP } from 'core/features/feed/feed-logs'
 import type { AwsFunctionHandler } from 'serverless/aws'
 import z from 'zod'
+import { v7 as uuidv7 } from 'uuid'
 
 export const analyzeFeedRequestSchema = z.object({
   feedLogId: z.string(),
@@ -63,21 +65,18 @@ async function handleEvent(receiptHandle: string, request: AnalyzeFeedRequest) {
   )
 
   const githubReleaseAnalyzer = getGitHubReleaseAnalyzer()
-  await githubReleaseAnalyzer.analyze(release.body)
+  const analyzeResultItems = await githubReleaseAnalyzer.analyze(release.body)
+
+  const feedLogItems: NewFeedLogItemModel[] = analyzeResultItems.map(
+    (analyzeResultItem) => ({
+      id: uuidv7(),
+      feedLogId: feedLog.id,
+      summary: analyzeResultItem.summary,
+      link: analyzeResultItem.link,
+    }),
+  )
+  await feedLogRepository.saveFeedLogItems(feedLogItems)
 
   const analyzeFeedLogQueue = getAnalyzeFeedLogQueue()
   await analyzeFeedLogQueue.complete(receiptHandle)
-
-  // GitHubReleaseAnalyzer
-  //   LLMでリリース内容を以下のように分解
-  //    - 「description #PR-number」の構造はdescription, PR-numberに分解
-  //      - PRのURLをurlに設定
-  //      - このタイミングでdescriptionを日本語化
-  //    - この形式に当てはまらない場合はdescriptionに内容をまとめる
-  //      - 外部URLを含む場合はurlにURLを設定
-  //    - 解析結果はAnalyzeResultItem型のオブジェクトとして返す
-  //      - ドキュメントの更新、chore系の内容は除外する
-  // AnalyzeResultItemをFeedLogItemなどのモデル名でDBに保存
-  // feedLogを完了に更新
-  //
 }
