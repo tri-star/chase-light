@@ -75,6 +75,8 @@ const serverlessConfiguration: Serverless & { build: object } = {
       API_URL: '${env:API_URL}',
       DATABASE_URL:
         '${env:DATABASE_URL, ssm:/aws/reference/secretsmanager/${sls:stage}/supabase/db_url}',
+      OPENAI_API_KEY:
+        '${env:OPENAI_API_KEY, ssm:/aws/reference/secretsmanager/openai/api_key}',
       AUTH0_DOMAIN: '${env:AUTH0_DOMAIN}',
       ANALYZE_FEED_LOG_QUEUE_URL: { Ref: 'FeedAnalyzeQueue' },
     },
