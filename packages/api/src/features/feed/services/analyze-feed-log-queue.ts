@@ -1,4 +1,8 @@
-import { SendMessageCommand, SQSClient } from '@aws-sdk/client-sqs'
+import {
+  DeleteMessageCommand,
+  SendMessageCommand,
+  SQSClient,
+} from '@aws-sdk/client-sqs'
 
 import type { AnalyzeFeedLogQueueInterface } from '@/features/feed/services/analyze-feed-log-queue-interface'
 import { z } from 'zod'
@@ -20,6 +24,15 @@ export class AnalyzeFeedLogQueue implements AnalyzeFeedLogQueueInterface {
     const command = new SendMessageCommand({
       QueueUrl: this.queueUrl,
       MessageBody: JSON.stringify(_message),
+    })
+    await sqsClient.send(command)
+  }
+
+  async complete(receiptHandle: string): Promise<void> {
+    const sqsClient = new SQSClient()
+    const command = new DeleteMessageCommand({
+      QueueUrl: this.queueUrl,
+      ReceiptHandle: receiptHandle,
     })
     await sqsClient.send(command)
   }

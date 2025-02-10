@@ -1,4 +1,5 @@
 import { FeedLogRepository } from '@/features/feed/repositories/feed-log-repository'
+import { getAnalyzeFeedLogQueue } from '@/features/feed/services/analyze-feed-log-queue'
 import { GitHubApiClient } from '@/features/feed/services/github-api-client'
 import { getGitHubReleaseAnalyzer } from '@/features/feed/services/github-release-analyzer'
 import { GitHubUrlParser } from '@/features/feed/services/github-url-parser'
@@ -32,11 +33,11 @@ export const analyzeFeedLogHandler: AwsFunctionHandler = {
 
 export async function handler(event: SQSEvent, _context: Context) {
   for (const record of event.Records) {
-    await handleEvent(JSON.parse(record.body))
+    await handleEvent(record.receiptHandle, JSON.parse(record.body))
   }
 }
 
-async function handleEvent(request: AnalyzeFeedRequest) {
+async function handleEvent(receiptHandle: string, request: AnalyzeFeedRequest) {
   const { feedLogId } = analyzeFeedRequestSchema.parse(request)
   const feedLogRepository = new FeedLogRepository()
 
@@ -63,6 +64,9 @@ async function handleEvent(request: AnalyzeFeedRequest) {
 
   const githubReleaseAnalyzer = getGitHubReleaseAnalyzer()
   await githubReleaseAnalyzer.analyze(release.body)
+
+  const analyzeFeedLogQueue = getAnalyzeFeedLogQueue()
+  await analyzeFeedLogQueue.complete(receiptHandle)
 
   // GitHubReleaseAnalyzer
   //   LLMでリリース内容を以下のように分解

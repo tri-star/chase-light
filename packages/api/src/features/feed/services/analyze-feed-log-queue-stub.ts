@@ -10,6 +10,7 @@ export class AnalyzeFeedQueueStub implements AnalyzeFeedLogQueueInterface {
     console.log('Message sent:', _message)
     this.messages.push(_message)
   }
+  async complete(_receiptHandle: string): Promise<void> {}
 
   getMessages(): AnalyzeFeedLogMessage[] {
     return this.messages

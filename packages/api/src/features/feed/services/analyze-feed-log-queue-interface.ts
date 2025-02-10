@@ -7,4 +7,6 @@ export type AnalyzeFeedLogMessage = z.infer<typeof analyzeFeedLogMessageSchema>
 
 export interface AnalyzeFeedLogQueueInterface {
   send(message: AnalyzeFeedLogMessage): Promise<void>
+
+  complete(receiptHandle: string): Promise<void>
 }
