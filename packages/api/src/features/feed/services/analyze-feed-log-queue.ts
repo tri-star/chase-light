@@ -6,6 +6,7 @@ import {
 
 import type { AnalyzeFeedLogQueueInterface } from '@/features/feed/services/analyze-feed-log-queue-interface'
 import { z } from 'zod'
+import { AnalyzeFeedQueueStub } from '@/features/feed/services/analyze-feed-log-queue-stub'
 
 export const analyzeFeedLogMessageSchema = z.object({
   feedLogId: z.string(),
@@ -43,7 +44,11 @@ let analyzeFeedLogQueueInstance: AnalyzeFeedLogQueueInterface | undefined =
 
 export function getAnalyzeFeedLogQueue(): AnalyzeFeedLogQueueInterface {
   if (!analyzeFeedLogQueueInstance) {
-    analyzeFeedLogQueueInstance = new AnalyzeFeedLogQueue()
+    if (process.env.STAGE === 'local') {
+      analyzeFeedLogQueueInstance = new AnalyzeFeedQueueStub()
+    } else {
+      analyzeFeedLogQueueInstance = new AnalyzeFeedLogQueue()
+    }
   }
   return analyzeFeedLogQueueInstance
 }

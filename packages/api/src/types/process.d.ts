@@ -1,5 +1,6 @@
 declare namespace NodeJS {
   interface ProcessEnv {
+    STAGE: string
     SERVERLESS_ACCESS_KEY: string
     DATABASE_URL: string
     DIRECT_URL: string

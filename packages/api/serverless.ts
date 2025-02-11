@@ -68,6 +68,7 @@ const serverlessConfiguration: Serverless & { build: object } = {
   },
   provider: {
     name: 'aws',
+    stage: '${opt:stage, "local"}',
     runtime: 'nodejs20.x',
     region: 'ap-northeast-1',
     memorySize: 512,
