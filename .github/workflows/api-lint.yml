@@ -117,6 +117,7 @@ jobs:
           AWS_ACCOUNT: ${{ secrets.AWS_ID }}
           AWS_REGION: ${{ vars.AWS_REGION }}
           PRISMA_SKIP_POSTINSTALL_GENERATE: 1
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
 
       - name: List and record zip file sizes
         working-directory: packages/api

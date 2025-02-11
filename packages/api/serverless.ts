@@ -63,7 +63,8 @@ const serverlessConfiguration: Serverless & { build: object } = {
     individually: true,
   },
   custom: {
-    openAi: '${ssm:/aws/reference/secretsmanager/openai}',
+    openAiApiKey:
+      '${env:OPENAI_API_KEY, ssm:/aws/reference/secretsmanager/openai:api_key}',
   },
   provider: {
     name: 'aws',
@@ -77,7 +78,7 @@ const serverlessConfiguration: Serverless & { build: object } = {
 
       API_URL: '${env:API_URL}',
       DATABASE_URL: '${env:DATABASE_URL, ssm:supabase/db_url}',
-      OPENAI_API_KEY: '${env:OPENAI_API_KEY, self:custom.openAi.api_key}',
+      OPENAI_API_KEY: '${self:custom.openAiApiKey}',
       AUTH0_DOMAIN: '${env:AUTH0_DOMAIN}',
       ANALYZE_FEED_LOG_QUEUE_URL: { Ref: 'FeedAnalyzeQueue' },
     },
