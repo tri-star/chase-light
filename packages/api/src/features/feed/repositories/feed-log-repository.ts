@@ -1,7 +1,6 @@
 import { DbNotFoundError } from '@/errors/db-not-found-error'
 import { DbRelationError } from '@/errors/db-relation-error'
 import {
-  type FeedLogCreateCommand,
   type FeedLogDetailModel,
   type FeedLogListItemModel,
   feedLogDetailModelSchema,
@@ -175,52 +174,37 @@ export class FeedLogRepository {
     return z.array(feedLogListItemModelSchema).parse(logs)
   }
 
-  async saveFeedLog(
-    request: FeedLogCreateCommand,
-  ): Promise<FeedLogDetailModel> {
+  async save(feedLog: FeedLogDetailModel): Promise<void> {
     const prisma = getPrismaClientInstance()
 
-    const loadedFeedLog = await prisma.feedLog.upsert({
+    await prisma.feedLog.upsert({
       where: {
-        id: request.id,
+        id: feedLog.id,
       },
       create: {
-        id: request.id,
+        id: feedLog.id,
         feed: {
           connect: {
-            id: request.feedId,
+            id: feedLog.feedId,
           },
         },
-        key: request.key,
-        date: request.date,
-        title: request.title,
-        url: request.url,
+        key: feedLog.key,
+        date: feedLog.date,
+        title: feedLog.title,
+        url: feedLog.url,
         summary: '',
+        body: feedLog.body ?? null,
+        status: feedLog.status,
       },
       update: {
-        key: request.key,
-        date: request.date,
-        title: request.title,
-        url: request.url,
-      },
-      include: {
-        feed: {
-          include: {
-            dataSource: true,
-            user: true,
-          },
-        },
+        key: feedLog.key,
+        date: feedLog.date,
+        title: feedLog.title,
+        url: feedLog.url,
+        body: feedLog.body ?? null,
+        status: feedLog.status,
       },
     })
-
-    return feedLogDetailModelSchema.parse({
-      ...loadedFeedLog,
-      body: loadedFeedLog.body ?? undefined,
-      feed: {
-        ...loadedFeedLog.feed,
-        cycle: loadedFeedLog.feed.cycle as CycleValue,
-      },
-    } satisfies FeedLogDetailModel)
   }
 
   async clearFeedLogItems(feedLogId: string): Promise<void> {

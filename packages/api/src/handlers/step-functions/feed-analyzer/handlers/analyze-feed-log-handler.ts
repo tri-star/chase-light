@@ -49,7 +49,7 @@ async function handleEvent(receiptHandle: string, request: AnalyzeFeedRequest) {
 
   // feedLogを解析中に更新
   feedLog.status = FEED_LOG_STATUS_VALUE_MAP.IN_PROGRESS
-  await feedLogRepository.saveFeedLog(feedLog)
+  await feedLogRepository.save(feedLog)
 
   await feedLogRepository.clearFeedLogItems(feedLogId)
 
@@ -79,4 +79,7 @@ async function handleEvent(receiptHandle: string, request: AnalyzeFeedRequest) {
 
   const analyzeFeedLogQueue = getAnalyzeFeedLogQueue()
   await analyzeFeedLogQueue.complete(receiptHandle)
+
+  feedLog.status = FEED_LOG_STATUS_VALUE_MAP.DONE
+  await feedLogRepository.save(feedLog)
 }
