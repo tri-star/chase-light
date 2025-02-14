@@ -43,6 +43,24 @@ const endpoints = makeApi([
                 title: z.string(),
                 summary: z.string(),
                 url: z.string(),
+                items: z
+                  .array(
+                    z
+                      .object({
+                        id: z.string(),
+                        summary: z.string(),
+                        link: z
+                          .object({ title: z.string(), url: z.string() })
+                          .strict()
+                          .passthrough()
+                          .readonly()
+                          .optional(),
+                      })
+                      .strict()
+                      .passthrough()
+                      .readonly()
+                  )
+                  .readonly(),
                 status: z.enum([
                   "wait",
                   "in_progress",

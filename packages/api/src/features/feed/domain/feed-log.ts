@@ -18,6 +18,18 @@ export const feedLogSchema = z.object({
 })
 export type FeedLog = z.infer<typeof feedLogSchema>
 
+export const feedLogItemModelSchema = z.object({
+  id: z.string(),
+  summary: z.string(),
+  link: z
+    .object({
+      title: z.string(),
+      url: z.string(),
+    })
+    .optional(),
+})
+export type FeedLogItemModel = z.infer<typeof feedLogItemModelSchema>
+
 /**
  * 登録処理用
  */
@@ -52,6 +64,7 @@ export const feedLogListItemModelSchema = z.object({
   title: z.string(),
   summary: z.string(),
   url: z.string(),
+  items: z.array(feedLogItemModelSchema),
   status: makeEnumFromArray(FEED_LOG_STATUS_VALUES),
   createdAt: z.date().or(z.string()),
   updatedAt: z.date().or(z.string()),

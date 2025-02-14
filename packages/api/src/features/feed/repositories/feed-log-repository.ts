@@ -6,7 +6,10 @@ import {
   feedLogDetailModelSchema,
   feedLogListItemModelSchema,
 } from '@/features/feed/domain/feed-log'
-import type { NewFeedLogItemModel } from '@/features/feed/domain/feed-log-item'
+import {
+  feedLogItemModelSchema,
+  type NewFeedLogItemModel,
+} from '@/features/feed/domain/feed-log-item'
 import { getPrismaClientInstance } from '@/lib/prisma/app-prisma-client'
 import type { CycleValue } from 'core/features/feed/feed'
 import { FEED_LOG_STATUS_VALUE_MAP } from 'core/features/feed/feed-logs'
@@ -85,6 +88,7 @@ export class FeedLogRepository {
             user: true,
           },
         },
+        feedLogItems: true,
       },
       orderBy: {
         date: 'desc',
@@ -98,6 +102,9 @@ export class FeedLogRepository {
           id: loadedFeedLog.feed.id,
           name: loadedFeedLog.feed.name,
         },
+        items: loadedFeedLog.feedLogItems.map((item) => {
+          return feedLogItemModelSchema.parse(item)
+        }),
       } satisfies FeedLogListItemModel
     })
     return z.array(feedLogListItemModelSchema).parse(logs)
@@ -108,6 +115,7 @@ export class FeedLogRepository {
    */
   async findFeedLogsListItemModelsByUserId(
     userId: string,
+    limit = 20,
   ): Promise<FeedLogListItemModel[]> {
     const prisma = getPrismaClientInstance()
 
@@ -124,10 +132,12 @@ export class FeedLogRepository {
             user: true,
           },
         },
+        feedLogItems: true,
       },
       orderBy: {
         date: 'desc',
       },
+      take: limit,
     })
 
     const logs = loadedFeedLogs.map((loadedFeedLog) => {
@@ -137,6 +147,9 @@ export class FeedLogRepository {
           id: loadedFeedLog.feed.id,
           name: loadedFeedLog.feed.name,
         },
+        items: loadedFeedLog.feedLogItems.map((item) => {
+          return feedLogItemModelSchema.parse(item)
+        }),
       } satisfies FeedLogListItemModel
     })
     return z.array(feedLogListItemModelSchema).parse(logs)
@@ -169,6 +182,7 @@ export class FeedLogRepository {
           id: loadedFeedLog.feed.id,
           name: loadedFeedLog.feed.name,
         },
+        items: [],
       } satisfies FeedLogListItemModel
     })
     return z.array(feedLogListItemModelSchema).parse(logs)
