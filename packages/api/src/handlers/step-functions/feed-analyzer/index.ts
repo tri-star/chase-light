@@ -1,6 +1,8 @@
 import type StateMachine from 'serverless-step-functions'
 import { listFeedHandler } from '@/handlers/step-functions/feed-analyzer/handlers/list-feed-handler'
 import { createFeedLogsHandler } from '@/handlers/step-functions/feed-analyzer/handlers/create-feed-logs'
+import { enqueuePendingFeedLogHandler } from '@/handlers/step-functions/feed-analyzer/handlers/enqueue-pending-feed-log-handler'
+import { analyzeFeedLogHandler } from '@/handlers/step-functions/feed-analyzer/handlers/analyze-feed-log-handler'
 
 export const feedAnalyzerStateMachine: StateMachine['stateMachines'][number] = {
   tracingConfig: {
@@ -38,6 +40,9 @@ export const feedAnalyzerStateMachine: StateMachine['stateMachines'][number] = {
               Catch: [
                 {
                   ErrorEquals: ['States.ALL'],
+                  Assign: {
+                    errorDetail: '{% $states.errorOutput %}',
+                  },
                   Next: 'Error',
                 },
               ],
@@ -46,12 +51,18 @@ export const feedAnalyzerStateMachine: StateMachine['stateMachines'][number] = {
             Error: {
               Type: 'Pass',
               Output: {
-                item: '{% $states.context.Map.Item.Value %}',
-                error: '{% $states.errorOutput %}',
+                error: '{% $errorDetail %}',
               },
               End: true,
             },
           },
+        },
+        Next: 'EnqueuePendingFeedLog',
+      },
+      EnqueuePendingFeedLog: {
+        Type: 'Task',
+        Resource: {
+          'Fn::GetAtt': ['feedAnalyzer-enqueuePendingFeedLogHandler', 'Arn'],
         },
         End: true,
       },
@@ -62,4 +73,6 @@ export const feedAnalyzerStateMachine: StateMachine['stateMachines'][number] = {
 export const feedAnalyzerHandlers = {
   listFeedHandler,
   createFeedLogsHandler,
+  enqueuePendingFeedLogHandler,
+  analyzeFeedLogHandler,
 }

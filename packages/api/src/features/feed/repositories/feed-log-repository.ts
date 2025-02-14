@@ -1,15 +1,71 @@
+import { DbNotFoundError } from '@/errors/db-not-found-error'
+import { DbRelationError } from '@/errors/db-relation-error'
 import {
-  type FeedLogCreateCommand,
   type FeedLogDetailModel,
   type FeedLogListItemModel,
   feedLogDetailModelSchema,
   feedLogListItemModelSchema,
 } from '@/features/feed/domain/feed-log'
+import type { NewFeedLogItemModel } from '@/features/feed/domain/feed-log-item'
 import { getPrismaClientInstance } from '@/lib/prisma/app-prisma-client'
 import type { CycleValue } from 'core/features/feed/feed'
+import { FEED_LOG_STATUS_VALUE_MAP } from 'core/features/feed/feed-logs'
 import { z } from 'zod'
 
 export class FeedLogRepository {
+  /**
+   * 指定したIDのFeedLogを返す
+   */
+  async findById(feedLogId: string): Promise<FeedLogDetailModel> {
+    const prisma = getPrismaClientInstance()
+
+    const loadedFeedLog = await prisma.feedLog.findFirst({
+      where: {
+        id: feedLogId,
+      },
+      include: {
+        feed: {
+          include: {
+            dataSource: true,
+            user: true,
+          },
+        },
+      },
+    })
+
+    if (!loadedFeedLog) {
+      throw new DbNotFoundError('feed_logs', `FeedLog not found: ${feedLogId}`)
+    }
+
+    if (loadedFeedLog.feed == null) {
+      throw new DbRelationError(
+        'feed_logs',
+        `feed_logs.feedが見つかりません: ${feedLogId}`,
+      )
+    }
+    if (loadedFeedLog.feed.user == null) {
+      throw new DbRelationError(
+        'feed_logs',
+        `feed_logs.feedが見つかりません: ${feedLogId}`,
+      )
+    }
+    if (loadedFeedLog.feed.dataSource == null) {
+      throw new DbRelationError(
+        'feed_logs',
+        `feed_logs.feed.dataSourceが見つかりません: ${feedLogId}`,
+      )
+    }
+
+    const feedLog = feedLogDetailModelSchema.parse({
+      ...loadedFeedLog,
+      body: loadedFeedLog.body ?? undefined,
+      feed: {
+        ...loadedFeedLog.feed,
+        cycle: loadedFeedLog.feed.cycle as CycleValue,
+      },
+    } satisfies FeedLogDetailModel)
+    return feedLog
+  }
   /**
    * FeedLogを一覧画面での表示用に整形して返す
    */
@@ -86,51 +142,100 @@ export class FeedLogRepository {
     return z.array(feedLogListItemModelSchema).parse(logs)
   }
 
-  async saveFeedLog(
-    request: FeedLogCreateCommand,
-  ): Promise<FeedLogDetailModel> {
+  /**
+   * 処理が完了していないFeedLogの一覧を返す
+   */
+  async findPendingFeedLogs(): Promise<FeedLogListItemModel[]> {
     const prisma = getPrismaClientInstance()
 
-    const loadedFeedLog = await prisma.feedLog.upsert({
+    const loadedFeedLogs = await prisma.feedLog.findMany({
       where: {
-        id: request.id,
-      },
-      create: {
-        id: request.id,
-        feed: {
-          connect: {
-            id: request.feedId,
-          },
+        status: {
+          in: [FEED_LOG_STATUS_VALUE_MAP.WAIT, FEED_LOG_STATUS_VALUE_MAP.ERROR],
         },
-        key: request.key,
-        date: request.date,
-        title: request.title,
-        url: request.url,
-        summary: '',
-      },
-      update: {
-        key: request.key,
-        date: request.date,
-        title: request.title,
-        url: request.url,
       },
       include: {
-        feed: {
-          include: {
-            dataSource: true,
-            user: true,
-          },
-        },
+        feed: true,
+      },
+      orderBy: {
+        date: 'asc',
       },
     })
 
-    return feedLogDetailModelSchema.parse({
-      ...loadedFeedLog,
-      body: loadedFeedLog.body ?? undefined,
-      feed: {
-        ...loadedFeedLog.feed,
-        cycle: loadedFeedLog.feed.cycle as CycleValue,
+    const logs = loadedFeedLogs.map((loadedFeedLog) => {
+      return {
+        ...loadedFeedLog,
+        feed: {
+          id: loadedFeedLog.feed.id,
+          name: loadedFeedLog.feed.name,
+        },
+      } satisfies FeedLogListItemModel
+    })
+    return z.array(feedLogListItemModelSchema).parse(logs)
+  }
+
+  async save(feedLog: FeedLogDetailModel): Promise<void> {
+    const prisma = getPrismaClientInstance()
+
+    await prisma.feedLog.upsert({
+      where: {
+        id: feedLog.id,
       },
-    } satisfies FeedLogDetailModel)
+      create: {
+        id: feedLog.id,
+        feed: {
+          connect: {
+            id: feedLog.feedId,
+          },
+        },
+        key: feedLog.key,
+        date: feedLog.date,
+        title: feedLog.title,
+        url: feedLog.url,
+        summary: '',
+        body: feedLog.body ?? null,
+        status: feedLog.status,
+      },
+      update: {
+        key: feedLog.key,
+        date: feedLog.date,
+        title: feedLog.title,
+        url: feedLog.url,
+        body: feedLog.body ?? null,
+        status: feedLog.status,
+      },
+    })
+  }
+
+  async clearFeedLogItems(feedLogId: string): Promise<void> {
+    const prisma = getPrismaClientInstance()
+
+    await prisma.feedLogItem.deleteMany({
+      where: {
+        feedLogId,
+      },
+    })
+  }
+
+  async saveFeedLogItems(items: NewFeedLogItemModel[]): Promise<void> {
+    const prisma = getPrismaClientInstance()
+
+    const feedLogItemsPromises = items.map((item) =>
+      prisma.feedLogItem.create({
+        data: {
+          id: item.id,
+          feedLog: {
+            connect: {
+              id: item.feedLogId,
+            },
+          },
+          link_title: item.link?.title ?? '',
+          link_url: item.link?.url ?? '',
+          summary: item.summary,
+        },
+      }),
+    )
+
+    await Promise.all(feedLogItemsPromises)
   }
 }

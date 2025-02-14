@@ -31,7 +31,13 @@ const serverlessConfiguration: Serverless & { build: object } = {
       bundle: true,
       minify: false,
       buildConcurrency: 3,
-      external: ['aws-lambda', '@prisma/client'],
+      external: [
+        'aws-lambda',
+        '@prisma/client',
+        '@aws-sdk/client-sqs',
+        'openai',
+        'zod',
+      ],
       platform: 'node',
       sourcemap: {
         type: 'linked',
@@ -56,8 +62,13 @@ const serverlessConfiguration: Serverless & { build: object } = {
     ],
     individually: true,
   },
+  custom: {
+    openAiApiKey:
+      '${env:OPENAI_API_KEY, ssm:/aws/reference/secretsmanager/openai:api_key}',
+  },
   provider: {
     name: 'aws',
+    stage: '${opt:stage, "local"}',
     runtime: 'nodejs20.x',
     region: 'ap-northeast-1',
     memorySize: 512,
@@ -67,9 +78,10 @@ const serverlessConfiguration: Serverless & { build: object } = {
       // NODE_OPTIONS: "--enable-source-maps --stack-trace-limit=1000",
 
       API_URL: '${env:API_URL}',
-      DATABASE_URL:
-        '${env:DATABASE_URL, ssm:/aws/reference/secretsmanager/${sls:stage}/supabase/db_url}',
+      DATABASE_URL: '${env:DATABASE_URL, ssm:supabase/db_url}',
+      OPENAI_API_KEY: '${self:custom.openAiApiKey}',
       AUTH0_DOMAIN: '${env:AUTH0_DOMAIN}',
+      ANALYZE_FEED_LOG_QUEUE_URL: { Ref: 'FeedAnalyzeQueue' },
     },
     tracing: {
       apiGateway: true,
@@ -90,6 +102,11 @@ const serverlessConfiguration: Serverless & { build: object } = {
         Action: ['xray:PutTraceSegments', 'xray:PutTelemetryRecords'],
         Resource: '*',
       },
+      {
+        Effect: 'Allow',
+        Action: ['sqs:SendMessage'],
+        Resource: { 'Fn::GetAtt': ['FeedAnalyzeQueue', 'Arn'] },
+      },
     ],
     apiGateway: {
       minimumCompressionSize: 1024,
@@ -105,6 +122,28 @@ const serverlessConfiguration: Serverless & { build: object } = {
   stepFunctions: {
     stateMachines: {
       FeedAnalyzer: feedAnalyzerStateMachine,
+    },
+  },
+  resources: {
+    Resources: {
+      FeedAnalyzeDlq: {
+        Type: 'AWS::SQS::Queue',
+        Properties: {
+          QueueName: 'FeedAnalyzeDlq',
+          MessageRetentionPeriod: 1209600,
+        },
+      },
+      FeedAnalyzeQueue: {
+        Type: 'AWS::SQS::Queue',
+        Properties: {
+          QueueName: 'FeedAnalyzeQueue',
+          VisibilityTimeout: 300,
+          RedrivePolicy: {
+            deadLetterTargetArn: { 'Fn::GetAtt': ['FeedAnalyzeDlq', 'Arn'] },
+            maxReceiveCount: 5,
+          },
+        },
+      },
     },
   },
 }

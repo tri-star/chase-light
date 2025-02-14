@@ -7,7 +7,7 @@
     "dev": "nuxt dev",
     "generate": "nuxt generate",
     "preview": "nuxt preview",
-    "build-api-client": "openapi-zod-client http://localhost:3001/dev/openapi.json -o ./src/lib/api/client.generated.ts --all-readonly --strict-objects",
+    "build-api-client": "openapi-zod-client http://localhost:3001/local/openapi.json -o ./src/lib/api/client.generated.ts --all-readonly --strict-objects",
     "postinstall": "nuxt prepare",
     "lint:eslint": "eslint .",
     "lint:tsc": "vue-tsc --noEmit",

@@ -1,4 +1,4 @@
-import type { Feed } from '@/features/feed/domain/feed'
+import type { FeedDetailModel } from '@/features/feed/domain/feed'
 import type { FeedLogDetailModel } from '@/features/feed/domain/feed-log'
 import type { GitHubReleaseListItem } from '@/features/feed/domain/github-release'
 import { FeedLogRepository } from '@/features/feed/repositories/feed-log-repository'
@@ -9,6 +9,7 @@ import { GitHubReleaseFinder } from '@/features/feed/services/github-release-fin
 import type { GitHubReleaseFinderInterface } from '@/features/feed/services/github-release-finder-interface'
 import { GitHubUrlParser } from '@/features/feed/services/github-url-parser'
 import { getPrismaClientInstance } from '@/lib/prisma/app-prisma-client'
+import { FEED_LOG_STATUS_VALUE_MAP } from 'core/features/feed/feed-logs'
 import dayjs from 'dayjs'
 import { v7 as uuidv7 } from 'uuid'
 
@@ -75,21 +76,28 @@ export class CreateFeedLogUseCase {
   }
 
   private async createFeedLogs(
-    feed: Feed,
+    feed: FeedDetailModel,
     releases: GitHubReleaseListItem[],
   ): Promise<FeedLogDetailModel[]> {
     const { owner, repo } = this.githubUrlParser.parse(feed.url)
     const feedLogs = []
     for (const release of releases) {
       const feedLogId = uuidv7()
-      const feedLog = await this.feedLogRepository.saveFeedLog({
+      const feedLog = {
         id: feedLogId,
+        feed: feed,
         key: release.id.toString(),
         date: release.publishedAt,
         title: release.name,
         feedId: feed.id,
         url: `https://github.com/${owner}/${repo}/releases/tag/${release.name}`,
-      })
+        summary: '',
+        body: undefined,
+        status: FEED_LOG_STATUS_VALUE_MAP.WAIT,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      }
+      await this.feedLogRepository.save(feedLog)
 
       feedLogs.push(feedLog)
     }

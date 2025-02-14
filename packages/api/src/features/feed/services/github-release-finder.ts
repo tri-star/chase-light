@@ -14,6 +14,7 @@ export class GitHubReleaseFinder implements GitHubReleaseFinderInterface {
     owner: string,
     repo: string,
     lastSearchDate: Date | undefined,
+    limit: number = 10,
   ): Promise<GitHubReleaseListItem[]> {
     const responseJson = await this.githubApiClient.getReleases(owner, repo)
 
@@ -24,13 +25,19 @@ export class GitHubReleaseFinder implements GitHubReleaseFinderInterface {
       )
     }
 
-    return filterResult.map((item) => {
-      const name = item.name ?? item.tag_name
-      return {
-        id: item.id,
-        name,
-        publishedAt: new Date(item.published_at),
-      } satisfies GitHubReleaseListItem
-    })
+    const releases = filterResult
+      .map((item) => {
+        const name = item.name ?? item.tag_name
+        return {
+          id: item.id,
+          name,
+          publishedAt: new Date(item.published_at),
+        } satisfies GitHubReleaseListItem
+      })
+      // 昇順でソート
+      .sort((a, b) => a.publishedAt.getTime() - b.publishedAt.getTime())
+      .slice(-limit)
+
+    return releases
   }
 }

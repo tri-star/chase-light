@@ -103,18 +103,19 @@ enum FeedLogStatus {
 }
 
 model FeedLog {
-  id        String        @id @db.Uuid
-  feedId    String        @map("feed_id") @db.Uuid
-  feed      Feed          @relation(fields: [feedId], references: [id])
-  key       String        @db.VarChar(50)
-  date      DateTime      @map("date") @db.Timestamptz
-  title     String        @db.VarChar(255)
-  summary   String        @db.Text
-  body      String?       @db.Text
-  url       String        @db.Text
-  status    FeedLogStatus @default(wait)
-  createdAt DateTime      @default(now()) @map("created_at") @db.Timestamptz
-  updatedAt DateTime      @updatedAt @map("updated_at") @db.Timestamptz
+  id           String        @id @db.Uuid
+  feedId       String        @map("feed_id") @db.Uuid
+  feed         Feed          @relation(fields: [feedId], references: [id])
+  key          String        @db.VarChar(50)
+  date         DateTime      @map("date") @db.Timestamptz
+  title        String        @db.VarChar(255)
+  summary      String        @db.Text
+  body         String?       @db.Text
+  url          String        @db.Text
+  status       FeedLogStatus @default(wait)
+  createdAt    DateTime      @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt    DateTime      @updatedAt @map("updated_at") @db.Timestamptz
+  feedLogItems FeedLogItem[]
 
   @@index([feedId])
   @@index([key])
@@ -122,4 +123,17 @@ model FeedLog {
   @@index([createdAt])
   @@index([updatedAt])
   @@map("feed_logs")
+}
+
+model FeedLogItem {
+  id         String   @id @db.Uuid
+  feedLogId  String   @map("feed_log_id") @db.Uuid
+  feedLog    FeedLog  @relation(fields: [feedLogId], references: [id])
+  summary    String   @db.Text
+  link_url   String   @map("linkUrl") @db.VarChar(255)
+  link_title String   @map("linkTitle") @db.VarChar(255)
+  createdAt  DateTime @default(now()) @map("created_at") @db.Timestamptz
+
+  @@index([feedLogId])
+  @@map("feed_log_items")
 }
