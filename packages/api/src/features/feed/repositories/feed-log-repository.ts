@@ -8,6 +8,7 @@ import {
 } from '@/features/feed/domain/feed-log'
 import {
   feedLogItemModelSchema,
+  type FeedLogItemModel,
   type NewFeedLogItemModel,
 } from '@/features/feed/domain/feed-log-item'
 import { getPrismaClientInstance } from '@/lib/prisma/app-prisma-client'
@@ -103,7 +104,20 @@ export class FeedLogRepository {
           name: loadedFeedLog.feed.name,
         },
         items: loadedFeedLog.feedLogItems.map((item) => {
-          return feedLogItemModelSchema.parse(item)
+          return feedLogItemModelSchema.parse({
+            id: item.id,
+            summary: item.summary,
+            feedLogId: item.feedLogId,
+            ...(item.link_url !== ''
+              ? {
+                  link: {
+                    title: item.link_title,
+                    url: item.link_url,
+                  },
+                }
+              : {}),
+            createdAt: new Date(item.createdAt),
+          } satisfies FeedLogItemModel)
         }),
       } satisfies FeedLogListItemModel
     })
@@ -148,7 +162,20 @@ export class FeedLogRepository {
           name: loadedFeedLog.feed.name,
         },
         items: loadedFeedLog.feedLogItems.map((item) => {
-          return feedLogItemModelSchema.parse(item)
+          return feedLogItemModelSchema.parse({
+            id: item.id,
+            summary: item.summary,
+            feedLogId: item.feedLogId,
+            ...(item.link_url !== ''
+              ? {
+                  link: {
+                    title: item.link_title,
+                    url: item.link_url,
+                  },
+                }
+              : {}),
+            createdAt: new Date(item.createdAt),
+          } satisfies FeedLogItemModel)
         }),
       } satisfies FeedLogListItemModel
     })
