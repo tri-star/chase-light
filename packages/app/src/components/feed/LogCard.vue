@@ -8,7 +8,7 @@ defineProps<{
 
 <template>
   <div
-    class="bg-default-input flex w-10/12 w-80 flex-col gap-4 rounded-2xl"
+    class="bg-default-input flex w-10/12 flex-col gap-4 rounded-2xl"
     :data-id="feedLog.id"
   >
     <div class="flex">
