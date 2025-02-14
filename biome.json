@@ -11,6 +11,8 @@
       "__generated__/**",
       "**/node_modules/**",
       ".nuxt",
+      ".output",
+      ".serverless",
       "**/client.generated.ts",
       "**/*.vue"
     ]

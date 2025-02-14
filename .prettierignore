@@ -1,2 +1,4 @@
 packages/app/.nuxt/**
+packages/app/.output/**
+packages/app/.serverless/**
 packages/api/prisma/seed/**

@@ -8,6 +8,7 @@ export default defineEventHandler(async (event) => {
   const feedLogs: FeedLogListItemModel[] = response.result.map((feedLog) => {
     return {
       ...feedLog,
+      items: feedLog.items.map((item) => item),
     }
   })
 

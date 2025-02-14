@@ -19,7 +19,7 @@ function handleAddFeedClick() {
 
 <template>
   <div
-    class="bg-default flex flex-col rounded-2xl p-4 md:w-[600px] lg:w-[800px]"
+    class="bg-default flex flex-col rounded-2xl p-4 md:w-[800px] lg:w-[1024px]"
   >
     <div class="flex flex-col gap-6">
       <div class="flex items-center">
