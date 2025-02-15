@@ -31,13 +31,7 @@ const serverlessConfiguration: Serverless & { build: object } = {
       bundle: true,
       minify: false,
       buildConcurrency: 3,
-      external: [
-        'aws-lambda',
-        '@prisma/client',
-        '@aws-sdk/client-sqs',
-        'openai',
-        'zod',
-      ],
+      external: ['aws-lambda', '@prisma/client'],
       platform: 'node',
       sourcemap: {
         type: 'linked',
@@ -62,24 +56,20 @@ const serverlessConfiguration: Serverless & { build: object } = {
     ],
     individually: true,
   },
-  custom: {
-    openAiApiKey:
-      '${env:OPENAI_API_KEY, ssm:/aws/reference/secretsmanager/openai:api_key}',
-  },
   provider: {
     name: 'aws',
-    stage: '${opt:stage, "local"}',
     runtime: 'nodejs20.x',
     region: 'ap-northeast-1',
     memorySize: 512,
     environment: {
       STAGE: '${sls:stage}',
       AWS_NODEJS_CONNECTION_REUSE_ENABLED: '1',
+      AWS_LAMBDA_EXEC_WRAPPER: '/opt/otel-handler',
       // NODE_OPTIONS: "--enable-source-maps --stack-trace-limit=1000",
 
       API_URL: '${env:API_URL}',
-      DATABASE_URL: '${env:DATABASE_URL, ssm:supabase/db_url}',
-      OPENAI_API_KEY: '${self:custom.openAiApiKey}',
+      DATABASE_URL:
+        '${env:DATABASE_URL, ssm:/aws/reference/secretsmanager/${sls:stage}/supabase/db_url}',
       AUTH0_DOMAIN: '${env:AUTH0_DOMAIN}',
       ANALYZE_FEED_LOG_QUEUE_URL: { Ref: 'FeedAnalyzeQueue' },
     },
@@ -137,7 +127,6 @@ const serverlessConfiguration: Serverless & { build: object } = {
         Type: 'AWS::SQS::Queue',
         Properties: {
           QueueName: 'FeedAnalyzeQueue',
-          VisibilityTimeout: 300,
           RedrivePolicy: {
             deadLetterTargetArn: { 'Fn::GetAtt': ['FeedAnalyzeDlq', 'Arn'] },
             maxReceiveCount: 5,
@@ -147,5 +136,16 @@ const serverlessConfiguration: Serverless & { build: object } = {
     },
   },
 }
+
+Object.keys(serverlessConfiguration.functions as object).forEach((key) => {
+  const fnDef = serverlessConfiguration.functions![key]
+  serverlessConfiguration.functions![key] = {
+    ...fnDef,
+    layers: [
+      ...(fnDef.layers || []),
+      'arn:aws:lambda:${self:provider.region}:901920570463:layer:aws-otel-nodejs-amd64-ver-1-30-1:1',
+    ],
+  }
+})
 
 module.exports = serverlessConfiguration
