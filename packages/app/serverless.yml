@@ -21,6 +21,7 @@ functions:
   app:
     handler: .output/server/index.handler
     url: true
+    timeout: 30
     events:
       - http:
           path: /{proxy+}
