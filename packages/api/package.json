@@ -6,7 +6,7 @@
   "scripts": {
     "test": "vitest",
     "format": "biome format --write prisma src serverless.ts eslint.config.mjs",
-    "dev": "serverless offline --httpPort=3001",
+    "dev": "serverless offline --httpPort=3001 --stage=local",
     "seed": "tsx prisma/seed.ts",
     "lint:eslint": "eslint .",
     "lint:tsc": "tsc --noEmit",
