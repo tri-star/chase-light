@@ -27,7 +27,7 @@ export const analyzeFeedLogHandler: AwsFunctionHandler = {
         arn: {
           'Fn::GetAtt': ['FeedAnalyzeQueue', 'Arn'],
         },
-        batchSize: 10,
+        batchSize: 3,
       },
     },
   ],
