@@ -30,15 +30,15 @@ const sideMenuClasses = tv({
   },
 })
 
-// const logoClasses = tv({
-//   base: ['h-14', 'tramsition-left', 'duration-300'],
-//   variants: {
-//     expanded: {
-//       true: ['left-0'],
-//       false: ['absolute', 'left-[-200px]'],
-//     },
-//   },
-// })
+const logoClasses = tv({
+  base: ['h-14', 'tramsition-left', 'duration-300'],
+  variants: {
+    expanded: {
+      true: ['left-0'],
+      false: ['absolute', 'left-[-200px]'],
+    },
+  },
+})
 
 function handleClickToggleSideMenu() {
   isExpanded.value = !isExpanded.value
@@ -53,7 +53,13 @@ function isActive(sideMenuId: SideMenuItemId) {
 <template>
   <aside :class="sideMenuClasses({ expanded: isExpanded })">
     <div class="relative flex">
-      <div class="flex-1"></div>
+      <div class="flex-1">
+        <img
+          src="~/assets/chase-light-logo-s.svg"
+          :class="logoClasses({ expanded: isExpanded })"
+          class="w-10/12"
+        />
+      </div>
       <button class="p-2" @click="handleClickToggleSideMenu">
         <Icon name="mdi:menu" size="40" class="text-side-menu-text" />
       </button>
