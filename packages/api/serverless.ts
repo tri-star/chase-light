@@ -38,6 +38,7 @@ const serverlessConfiguration: Serverless & { build: object } = {
         'openai',
         'zod',
         'aws-xray-sdk-core',
+        '@opentelemetry/api',
       ],
       platform: 'node',
       sourcemap: {
