@@ -37,6 +37,7 @@ const serverlessConfiguration: Serverless & { build: object } = {
         '@aws-sdk/client-sqs',
         'openai',
         'zod',
+        'aws-xray-sdk-core',
       ],
       platform: 'node',
       sourcemap: {
