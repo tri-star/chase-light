@@ -1,4 +1,5 @@
-import OpenAI from 'openai'
+import http from 'node:http'
+import { OpenAI } from 'openai'
 import { zodResponseFormat } from 'openai/helpers/zod'
 import { z } from 'zod'
 
@@ -74,6 +75,7 @@ export class GitHubReleaseAnalyzerOpenAI
   constructor(openAiClient?: OpenAI) {
     if (openAiClient === undefined) {
       this.openAiClient = new OpenAI({
+        httpAgent: new http.Agent(),
         apiKey: process.env.OPENAI_API_KEY,
       })
     } else {
