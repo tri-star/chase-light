@@ -62,8 +62,13 @@ const serverlessConfiguration: Serverless & { build: object } = {
     ],
     individually: true,
   },
+  custom: {
+    openAiApiKey:
+      '${env:OPENAI_API_KEY, ssm:/aws/reference/secretsmanager/openai:api_key}',
+  },
   provider: {
     name: 'aws',
+    stage: '${opt:stage, "local"}',
     runtime: 'nodejs20.x',
     region: 'ap-northeast-1',
     memorySize: 512,
@@ -76,6 +81,7 @@ const serverlessConfiguration: Serverless & { build: object } = {
       API_URL: '${env:API_URL}',
       DATABASE_URL:
         '${env:DATABASE_URL, ssm:/aws/reference/secretsmanager/${sls:stage}/supabase/db_url}',
+      OPENAI_API_KEY: '${self:custom.openAiApiKey}',
       AUTH0_DOMAIN: '${env:AUTH0_DOMAIN}',
       ANALYZE_FEED_LOG_QUEUE_URL: { Ref: 'FeedAnalyzeQueue' },
     },
@@ -133,6 +139,7 @@ const serverlessConfiguration: Serverless & { build: object } = {
         Type: 'AWS::SQS::Queue',
         Properties: {
           QueueName: 'FeedAnalyzeQueue',
+          VisibilityTimeout: 300,
           RedrivePolicy: {
             deadLetterTargetArn: { 'Fn::GetAtt': ['FeedAnalyzeDlq', 'Arn'] },
             maxReceiveCount: 5,
