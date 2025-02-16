@@ -31,14 +31,14 @@ const serverlessConfiguration: Serverless & { build: object } = {
       bundle: true,
       minify: false,
       buildConcurrency: 3,
+      format: 'esm',
       external: [
         'aws-lambda',
         '@prisma/client',
         '@aws-sdk/client-sqs',
         'openai',
+        'openai/helpers/zod',
         'zod',
-        'aws-xray-sdk-core',
-        '@opentelemetry/api',
       ],
       platform: 'node',
       sourcemap: {
