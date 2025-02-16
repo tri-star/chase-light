@@ -1,4 +1,4 @@
-const isBuild = process.env.NODE_ENV === 'production'
+// const isBuild = process.env.NODE_ENV === 'production'
 
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
@@ -51,17 +51,17 @@ export default defineNuxtConfig({
   // 現時点では以下のワークアラウンドが必要
   // https://github.com/nuxt-modules/storybook/issues/776#issuecomment-2434672219
   vite: {
-    resolve: isBuild
-      ? undefined
-      : {
-          alias: {
-            vue: 'vue/dist/vue.esm-bundler.js',
-          },
-        },
+    // resolve: isBuild
+    //   ? undefined
+    //   : {
+    //       alias: {
+    //         vue: 'vue/dist/vue.esm-bundler.js',
+    //       },
+    //     },
     optimizeDeps: {
       include: [
         'eslint-plugin-regexp > jsdoc-type-pratt-parser',
-        'storybook > @storybook/core > jsdoc-type-pratt-parser',
+        // 'storybook > @storybook/core > jsdoc-type-pratt-parser',
       ],
     },
   },
