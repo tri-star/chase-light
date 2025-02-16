@@ -32,14 +32,7 @@ const serverlessConfiguration: Serverless & { build: object } = {
       minify: false,
       buildConcurrency: 3,
       format: 'esm',
-      external: [
-        'aws-lambda',
-        '@prisma/client',
-        '@aws-sdk/client-sqs',
-        'openai',
-        'openai/helpers/zod',
-        'zod',
-      ],
+      external: ['aws-lambda', '@prisma/client', 'openai', 'zod'],
       platform: 'node',
       sourcemap: {
         type: 'linked',
