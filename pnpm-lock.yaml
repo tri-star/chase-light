@@ -57,8 +57,8 @@ importers:
         specifier: ^5.9.6
         version: 5.9.6
       openai:
-        specifier: ^4.83.0
-        version: 4.83.0(ws@8.18.0)(zod@3.23.8)
+        specifier: ^4.85.1
+        version: 4.85.1(ws@8.18.0)(zod@3.23.8)
       uuid:
         specifier: ^11.0.2
         version: 11.0.2
@@ -3458,11 +3458,8 @@ packages:
   '@types/node-fetch@2.6.12':
     resolution: {integrity: sha512-8nneRWKCg3rMtF69nLQJnOYUcbafYeFSjqkw3jCRLsqkWFlHaoQrr5mXmofFGOx3DKn7UfmBMyov8ySvLRVldA==}
 
-  '@types/node@18.19.59':
-    resolution: {integrity: sha512-vizm2EqwV/7Zay+A6J3tGl9Lhr7CjZe2HmWS988sefiEmsyP9CeXEleho6i4hJk/8UtZAo0bWN4QPZZr83RxvQ==}
-
-  '@types/node@22.10.5':
-    resolution: {integrity: sha512-F8Q+SeGimwOo86fiovQh8qiXfFEh2/ocYv7tU5pJ3EXMSSxk1Joj5wefpFK2fHTf/N6HKGSxIDBT9f3gCxXPkQ==}
+  '@types/node@18.19.76':
+    resolution: {integrity: sha512-yvR7Q9LdPz2vGpmpJX5LolrgRdWvB67MJKDPSgIIzpFbaf9a1j/f5DnLp5VDyHGMR0QZHlTr1afsD87QCXFHKw==}
 
   '@types/node@22.13.4':
     resolution: {integrity: sha512-ywP2X0DYtX3y08eFVx5fNIw7/uIv8hYUKgXoK8oayJlLnKcRfEYCxWMVE1XagUdVtCJlZT1AU4LXEABW+L1Peg==}
@@ -5103,6 +5100,10 @@ packages:
     resolution: {integrity: sha512-3T8uNMC3OQTHkFUsFq8r/BwAXLHvU/9O9mE0fBc/MY5iq/8H7ncvO947LmYA6ldWw9Uh8Yhf25zu6n7nML5QWQ==}
     engines: {node: '>= 0.4'}
 
+  es-set-tostringtag@2.1.0:
+    resolution: {integrity: sha512-j6vWzfrGVfyXxge+O0x5sh6cvxAog0a/4Rdd2K36zCMV5eJ+/+tOAngRO8cODMNWbVRdVlmGZQL2YS3yR8bIUA==}
+    engines: {node: '>= 0.4'}
+
   es-shim-unscopables@1.0.2:
     resolution: {integrity: sha512-J3yBRXCzDu4ULnQwxyToo/OjdMx6akgVC7K6few0a7F/0wLtmKKN7I73AH5T2836UuXRqN7Qg+IIUw/+YJksRw==}
 
@@ -5577,6 +5578,10 @@ packages:
 
   form-data@4.0.1:
     resolution: {integrity: sha512-tzN8e4TX8+kkxGPK8D5u0FNmjPUjw3lwC9lSLxxoB/+GtsJG91CO8bSWy73APlgAZzZbXEYZJuxjkHH2w+Ezhw==}
+    engines: {node: '>= 6'}
+
+  form-data@4.0.2:
+    resolution: {integrity: sha512-hGfm/slu0ZabnNt4oaRZ6uREyfCj6P4fT/n6A1rGV+Z0VdGXjfOhVUpkn6qVQONHGIFwmveGXyDs75+nr6FM8w==}
     engines: {node: '>= 6'}
 
   formdata-node@4.4.1:
@@ -6991,8 +6996,8 @@ packages:
     resolution: {integrity: sha512-7x81NCL719oNbsq/3mh+hVrAWmFuEYUqrq/Iw3kUzH8ReypT9QQ0BLoJS7/G9k6N81XjW4qHWtjWwe/9eLy1EQ==}
     engines: {node: '>=12'}
 
-  openai@4.83.0:
-    resolution: {integrity: sha512-fmTsqud0uTtRKsPC7L8Lu55dkaTwYucqncDHzVvO64DKOpNTuiYwjbR/nVgpapXuYy8xSnhQQPUm+3jQaxICgw==}
+  openai@4.85.1:
+    resolution: {integrity: sha512-jkX2fntHljUvSH3MkWh4jShl10oNkb+SsCj4auKlbu2oF4KWAnmHLNR5EpnUHK1ZNW05Rp0fjbJzYwQzMsH8ZA==}
     hasBin: true
     peerDependencies:
       ws: ^8.18.0
@@ -14327,7 +14332,7 @@ snapshots:
     dependencies:
       '@types/http-cache-semantics': 4.0.4
       '@types/keyv': 3.1.4
-      '@types/node': 22.10.5
+      '@types/node': 22.7.8
       '@types/responselike': 1.0.3
 
   '@types/cls-hooked@4.3.9':
@@ -14336,7 +14341,7 @@ snapshots:
 
   '@types/docker-modem@3.0.6':
     dependencies:
-      '@types/node': 22.10.5
+      '@types/node': 22.7.8
       '@types/ssh2': 1.15.1
 
   '@types/dockerode@3.3.31':
@@ -14360,7 +14365,7 @@ snapshots:
 
   '@types/fs-extra@9.0.13':
     dependencies:
-      '@types/node': 22.10.5
+      '@types/node': 22.13.4
 
   '@types/http-cache-semantics@4.0.4': {}
 
@@ -14380,16 +14385,12 @@ snapshots:
 
   '@types/node-fetch@2.6.12':
     dependencies:
-      '@types/node': 22.10.5
-      form-data: 4.0.1
+      '@types/node': 22.7.8
+      form-data: 4.0.2
 
-  '@types/node@18.19.59':
+  '@types/node@18.19.76':
     dependencies:
       undici-types: 5.26.5
-
-  '@types/node@22.10.5':
-    dependencies:
-      undici-types: 6.20.0
 
   '@types/node@22.13.4':
     dependencies:
@@ -14416,7 +14417,7 @@ snapshots:
 
   '@types/responselike@1.0.3':
     dependencies:
-      '@types/node': 22.10.5
+      '@types/node': 22.7.8
 
   '@types/serverless-step-functions@3.14.4': {}
 
@@ -14428,12 +14429,12 @@ snapshots:
 
   '@types/ssh2@0.5.52':
     dependencies:
-      '@types/node': 22.10.5
+      '@types/node': 22.7.8
       '@types/ssh2-streams': 0.1.12
 
   '@types/ssh2@1.15.1':
     dependencies:
-      '@types/node': 18.19.59
+      '@types/node': 18.19.76
 
   '@types/uuid@9.0.8': {}
 
@@ -16348,6 +16349,13 @@ snapshots:
       has-tostringtag: 1.0.2
       hasown: 2.0.2
 
+  es-set-tostringtag@2.1.0:
+    dependencies:
+      es-errors: 1.3.0
+      get-intrinsic: 1.2.7
+      has-tostringtag: 1.0.2
+      hasown: 2.0.2
+
   es-shim-unscopables@1.0.2:
     dependencies:
       hasown: 2.0.2
@@ -17041,6 +17049,13 @@ snapshots:
     dependencies:
       asynckit: 0.4.0
       combined-stream: 1.0.8
+      mime-types: 2.1.35
+
+  form-data@4.0.2:
+    dependencies:
+      asynckit: 0.4.0
+      combined-stream: 1.0.8
+      es-set-tostringtag: 2.1.0
       mime-types: 2.1.35
 
   formdata-node@4.4.1:
@@ -18713,9 +18728,9 @@ snapshots:
       is-docker: 2.2.1
       is-wsl: 2.2.0
 
-  openai@4.83.0(ws@8.18.0)(zod@3.23.8):
+  openai@4.85.1(ws@8.18.0)(zod@3.23.8):
     dependencies:
-      '@types/node': 18.19.59
+      '@types/node': 18.19.76
       '@types/node-fetch': 2.6.12
       abort-controller: 3.0.0
       agentkeepalive: 4.6.0
