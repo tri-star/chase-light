@@ -37,6 +37,7 @@ const serverlessConfiguration: Serverless & { build: object } = {
         type: 'linked',
         setNodeOptions: true,
       },
+      exclude: ['openai'],
     },
   },
   package: {
@@ -59,6 +60,12 @@ const serverlessConfiguration: Serverless & { build: object } = {
   custom: {
     openAiApiKey:
       '${env:OPENAI_API_KEY, ssm:/aws/reference/secretsmanager/openai:api_key}',
+  },
+  layers: {
+    openai: {
+      path: '../lambda-layers/openai',
+      compatibleRuntimes: ['nodejs20.x'],
+    },
   },
   provider: {
     name: 'aws',
