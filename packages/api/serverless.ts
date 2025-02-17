@@ -65,6 +65,7 @@ const serverlessConfiguration: Serverless & { build: object } = {
     openai: {
       path: '../lambda-layers/openai',
       compatibleRuntimes: ['nodejs20.x'],
+      retain: true,
     },
   },
   provider: {
