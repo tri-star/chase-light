@@ -21,9 +21,6 @@ export const analyzeFeedLogHandler: AwsFunctionHandler = {
   handler: `${handlerPath(currentDirPath(import.meta.url))}/analyze-feed-log-handler.handler`,
   reservedConcurrency: 3,
   timeout: 300,
-  layers: [
-    'arn:aws:lambda:${env:AWS_REGION}:${env:AWS_ACCOUNT}:layer:openai:6',
-  ],
   events: [
     {
       sqs: {

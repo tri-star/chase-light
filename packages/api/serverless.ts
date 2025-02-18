@@ -37,7 +37,8 @@ const serverlessConfiguration: Serverless & { build: object } = {
         type: 'linked',
         setNodeOptions: true,
       },
-      exclude: ['openai'],
+      // レイヤー化したことで個別の関数からは除外したいパッケージがある場合パッケージ名を列挙する
+      // exclude: [],
     },
   },
   package: {
@@ -61,13 +62,13 @@ const serverlessConfiguration: Serverless & { build: object } = {
     openAiApiKey:
       '${env:OPENAI_API_KEY, ssm:/aws/reference/secretsmanager/openai:api_key}',
   },
-  layers: {
-    openai: {
-      path: '../lambda-layers/openai',
-      compatibleRuntimes: ['nodejs20.x'],
-      retain: true,
-    },
-  },
+  // layers: {
+  //   openai: {
+  //     path: '../lambda-layers/openai',
+  //     compatibleRuntimes: ['nodejs20.x'],
+  //     retain: true,
+  //   },
+  // },
   provider: {
     name: 'aws',
     stage: '${opt:stage, "local"}',
@@ -91,6 +92,9 @@ const serverlessConfiguration: Serverless & { build: object } = {
       apiGateway: true,
       lambda: true,
     },
+    layers: [
+      'arn:aws:lambda:${self:provider.region}:901920570463:layer:aws-otel-nodejs-amd64-ver-1-30-1:1',
+    ],
     iamRoleStatements: [
       {
         Effect: 'Allow',
@@ -151,16 +155,5 @@ const serverlessConfiguration: Serverless & { build: object } = {
     },
   },
 }
-
-Object.keys(serverlessConfiguration.functions as object).forEach((key) => {
-  const fnDef = serverlessConfiguration.functions![key]
-  serverlessConfiguration.functions![key] = {
-    ...fnDef,
-    layers: [
-      ...(fnDef.layers || []),
-      'arn:aws:lambda:${self:provider.region}:901920570463:layer:aws-otel-nodejs-amd64-ver-1-30-1:1',
-    ],
-  }
-})
 
 module.exports = serverlessConfiguration
