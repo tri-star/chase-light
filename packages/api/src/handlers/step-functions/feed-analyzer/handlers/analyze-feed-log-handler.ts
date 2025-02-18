@@ -22,7 +22,7 @@ export const analyzeFeedLogHandler: AwsFunctionHandler = {
   reservedConcurrency: 3,
   timeout: 300,
   layers: [
-    'arn:aws:lambda:${env:AWS_REGION}:${env:AWS_ACCOUNT}:layer:openai:6',
+    'arn:aws:lambda:${env:AWS_REGION}:${env:AWS_ACCOUNT}:layer:openai:8',
   ],
   events: [
     {
