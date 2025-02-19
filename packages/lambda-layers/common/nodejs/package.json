@@ -1,0 +1,21 @@
+{
+  "name": "common-layer",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "@opentelemetry/api": "^1.9.0",
+    "@opentelemetry/exporter-trace-otlp-grpc": "^0.57.2",
+    "@opentelemetry/id-generator-aws-xray": "^1.2.2",
+    "@opentelemetry/instrumentation-http": "^0.57.2",
+    "@opentelemetry/instrumentation-undici": "^0.10.0",
+    "@opentelemetry/propagator-aws-xray": "^1.26.1",
+    "@opentelemetry/resource-detector-aws": "^1.11.0",
+    "@opentelemetry/sdk-node": "^0.57.2"
+  }
+}
