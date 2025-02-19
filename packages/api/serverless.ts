@@ -37,7 +37,7 @@ const serverlessConfiguration: Serverless & { build: object } = {
         type: 'linked',
         setNodeOptions: true,
       },
-      exclude: ['openai'],
+      exclude: ['openai', '@opentelemetry/api'],
     },
   },
   package: {
@@ -62,6 +62,11 @@ const serverlessConfiguration: Serverless & { build: object } = {
       '${env:OPENAI_API_KEY, ssm:/aws/reference/secretsmanager/openai:api_key}',
   },
   layers: {
+    common: {
+      path: '../lambda-layers/common',
+      compatibleRuntimes: ['nodejs20.x'],
+      retain: true,
+    },
     openai: {
       path: '../lambda-layers/openai',
       compatibleRuntimes: ['nodejs20.x'],
@@ -77,7 +82,7 @@ const serverlessConfiguration: Serverless & { build: object } = {
     environment: {
       STAGE: '${sls:stage}',
       AWS_NODEJS_CONNECTION_REUSE_ENABLED: '1',
-      AWS_LAMBDA_EXEC_WRAPPER: '/opt/otel-handler',
+      // AWS_LAMBDA_EXEC_WRAPPER: '/opt/otel-handler',
       // NODE_OPTIONS: "--enable-source-maps --stack-trace-limit=1000",
 
       API_URL: '${env:API_URL}',
@@ -151,16 +156,5 @@ const serverlessConfiguration: Serverless & { build: object } = {
     },
   },
 }
-
-Object.keys(serverlessConfiguration.functions as object).forEach((key) => {
-  const fnDef = serverlessConfiguration.functions![key]
-  serverlessConfiguration.functions![key] = {
-    ...fnDef,
-    layers: [
-      ...(fnDef.layers || []),
-      'arn:aws:lambda:${self:provider.region}:901920570463:layer:aws-otel-nodejs-amd64-ver-1-30-1:1',
-    ],
-  }
-})
 
 module.exports = serverlessConfiguration

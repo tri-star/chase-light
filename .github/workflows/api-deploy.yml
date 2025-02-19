@@ -48,7 +48,11 @@ jobs:
         run: |
           cd packages/api
           pnpm install --frozen-lockfile
-          cd ../lambda-layers/openai/nodejs
+          pushd ../lambda-layers/openai/nodejs
+          rm -rf node_modules
+          npm install
+          popd
+          pushd ../lambda-layers/common/nodejs
           rm -rf node_modules
           npm install
 
