@@ -31,13 +31,19 @@ const serverlessConfiguration: Serverless & { build: object } = {
       bundle: true,
       minify: false,
       buildConcurrency: 3,
-      external: ['aws-lambda', '@prisma/client', 'openai', 'zod'],
+      external: [
+        'aws-lambda',
+        '@prisma/client',
+        'openai',
+        'zod',
+        '@opentelemetry/*',
+      ],
       platform: 'node',
       sourcemap: {
         type: 'linked',
         setNodeOptions: true,
       },
-      exclude: ['openai', '@opentelemetry/api'],
+      exclude: ['openai', '@opentelemetry/*'],
     },
   },
   package: {
@@ -97,7 +103,7 @@ const serverlessConfiguration: Serverless & { build: object } = {
       lambda: true,
     },
     layers: [
-      'arn:aws:lambda:${env:AWS_REGION}:${env:AWS_ACCOUNT}:layer:common:1',
+      'arn:aws:lambda:${env:AWS_REGION}:${env:AWS_ACCOUNT}:layer:common:2',
     ],
     iamRoleStatements: [
       {

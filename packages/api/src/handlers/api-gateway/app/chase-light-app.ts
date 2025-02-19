@@ -2,6 +2,7 @@ import { authMiddleware } from '@/handlers/api-gateway/app/middlewares/auth-midd
 import type { User } from '@/features/user/domain/user'
 import { HonoOpenApiApp } from '@/lib/hono/hono-openapi-app'
 import { cors } from 'hono/cors'
+import { otlpMiddleware } from '@/handlers/api-gateway/app/middlewares/otlp-middleware'
 
 export type AppContext = {
   Variables: {
@@ -31,6 +32,7 @@ export class ChaseLightApp extends HonoOpenApiApp<AppContext> {
       }),
     )
 
+    this.app.use(otlpMiddleware)
     this.app.use(authMiddleware)
   }
 }
