@@ -96,6 +96,9 @@ const serverlessConfiguration: Serverless & { build: object } = {
       apiGateway: true,
       lambda: true,
     },
+    layers: [
+      'arn:aws:lambda:${env:AWS_REGION}:${env:AWS_ACCOUNT}:layer:common:1',
+    ],
     iamRoleStatements: [
       {
         Effect: 'Allow',
