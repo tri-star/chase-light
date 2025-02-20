@@ -103,7 +103,7 @@ const serverlessConfiguration: Serverless & { build: object } = {
       lambda: true,
     },
     layers: [
-      'arn:aws:lambda:${env:AWS_REGION}:${env:AWS_ACCOUNT}:layer:common:2',
+      'arn:aws:lambda:${env:AWS_REGION}:${env:AWS_ACCOUNT}:layer:common:3',
     ],
     iamRoleStatements: [
       {
