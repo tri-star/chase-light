@@ -10,7 +10,6 @@
   "description": "",
   "dependencies": {
     "@opentelemetry/api": "^1.9.0",
-    "@opentelemetry/exporter-trace-otlp-grpc": "^0.57.2",
     "@opentelemetry/id-generator-aws-xray": "^1.2.2",
     "@opentelemetry/instrumentation-http": "^0.57.2",
     "@opentelemetry/instrumentation-undici": "^0.10.0",

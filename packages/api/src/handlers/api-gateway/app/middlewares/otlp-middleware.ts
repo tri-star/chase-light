@@ -5,14 +5,11 @@ import { AWSXRayIdGenerator } from '@opentelemetry/id-generator-aws-xray'
 import { HttpInstrumentation } from '@opentelemetry/instrumentation-http'
 import { AWSXRayPropagator } from '@opentelemetry/propagator-aws-xray'
 import { createMiddleware } from 'hono/factory'
-import {
-  BatchSpanProcessor,
-  ConsoleSpanExporter,
-} from '@opentelemetry/sdk-trace-base'
+import { BatchSpanProcessor } from '@opentelemetry/sdk-trace-base'
 import { Resource } from '@opentelemetry/resources'
 import { ATTR_SERVICE_NAME } from '@opentelemetry/semantic-conventions'
 import { UndiciInstrumentation } from '@opentelemetry/instrumentation-undici'
-import { OTLPTraceExporter } from '@opentelemetry/exporter-trace-otlp-grpc'
+import { OTLPTraceExporter } from '@opentelemetry/exporter-trace-otlp-http'
 
 export const otlpMiddleware = createMiddleware<AppContext>(async (c, next) => {
   diag.setLogger(new DiagConsoleLogger(), DiagLogLevel.DEBUG)
