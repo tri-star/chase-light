@@ -10,6 +10,7 @@ import { Resource } from '@opentelemetry/resources'
 import { ATTR_SERVICE_NAME } from '@opentelemetry/semantic-conventions'
 import { UndiciInstrumentation } from '@opentelemetry/instrumentation-undici'
 import { OTLPTraceExporter } from '@opentelemetry/exporter-trace-otlp-http'
+import { AwsLambdaInstrumentation } from '@opentelemetry/instrumentation-aws-lambda'
 
 export const otlpMiddleware = createMiddleware<AppContext>(async (c, next) => {
   diag.setLogger(new DiagConsoleLogger(), DiagLogLevel.DEBUG)
@@ -25,7 +26,11 @@ export const otlpMiddleware = createMiddleware<AppContext>(async (c, next) => {
 
   const sdk = new opentelemetry.NodeSDK({
     textMapPropagator: new AWSXRayPropagator(),
-    instrumentations: [new HttpInstrumentation(), new UndiciInstrumentation()],
+    instrumentations: [
+      new HttpInstrumentation(),
+      new UndiciInstrumentation(),
+      new AwsLambdaInstrumentation(),
+    ],
     resource: _resource,
     spanProcessor: _spanProcessor,
     traceExporter: _traceExporter,
