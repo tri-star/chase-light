@@ -3,7 +3,8 @@ import type { AppContext } from '@/handlers/api-gateway/app/chase-light-app'
 import { diag, DiagConsoleLogger, DiagLogLevel } from '@opentelemetry/api'
 import { AWSXRayIdGenerator } from '@opentelemetry/id-generator-aws-xray'
 import { HttpInstrumentation } from '@opentelemetry/instrumentation-http'
-import { AWSXRayPropagator } from '@opentelemetry/propagator-aws-xray'
+// import { AWSXRayPropagator } from '@opentelemetry/propagator-aws-xray'
+import { AWSXRayLambdaPropagator } from '@opentelemetry/propagator-aws-xray-lambda'
 import { createMiddleware } from 'hono/factory'
 import { BatchSpanProcessor } from '@opentelemetry/sdk-trace-base'
 import { Resource } from '@opentelemetry/resources'
@@ -25,7 +26,7 @@ export const otlpMiddleware = createMiddleware<AppContext>(async (c, next) => {
   const _spanProcessor = new BatchSpanProcessor(_traceExporter, {})
 
   const sdk = new opentelemetry.NodeSDK({
-    textMapPropagator: new AWSXRayPropagator(),
+    textMapPropagator: new AWSXRayLambdaPropagator(),
     instrumentations: [
       new HttpInstrumentation(),
       new UndiciInstrumentation(),
