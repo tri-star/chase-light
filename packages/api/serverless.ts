@@ -100,7 +100,7 @@ const serverlessConfiguration: Serverless & { build: object } = {
     },
     tracing: {
       apiGateway: true,
-      lambda: false,
+      lambda: true,
     },
     layers: [
       'arn:aws:lambda:ap-northeast-1:955192521523:layer:otel-collector:4',
