@@ -103,7 +103,7 @@ const serverlessConfiguration: Serverless & { build: object } = {
       lambda: true,
     },
     layers: [
-      'arn:aws:lambda:ap-northeast-1:955192521523:layer:otel-collector:4',
+      'arn:aws:lambda:ap-northeast-1:955192521523:layer:otel-collector:6',
       'arn:aws:lambda:${env:AWS_REGION}:${env:AWS_ACCOUNT}:layer:common:4',
     ],
     iamRoleStatements: [
