@@ -1,4 +1,4 @@
-import { context, trace } from '@opentelemetry/api'
+import { context, SpanKind, trace } from '@opentelemetry/api'
 import { PrismaClient } from '@prisma/client'
 import dayjs from 'dayjs'
 
@@ -40,11 +40,13 @@ export function getPrismaClientInstance() {
         'query',
         {
           startTime,
+          kind: SpanKind.CLIENT,
         },
         ctx,
       )
       const query = getQueryWithParams(event.query, JSON.parse(event.params))
-      console.dir(query, { depth: 10 })
+      // console.dir(query, { depth: 10 })
+      console.log(span)
       span.addEvent('query', {
         query,
       })
