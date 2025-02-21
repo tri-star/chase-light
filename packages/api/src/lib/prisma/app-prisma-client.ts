@@ -1,4 +1,4 @@
-import { context, SpanKind, trace } from '@opentelemetry/api'
+import { SpanKind, trace } from '@opentelemetry/api'
 import { PrismaClient } from '@prisma/client'
 import dayjs from 'dayjs'
 
@@ -29,7 +29,7 @@ export function getPrismaClientInstance() {
     // @ts-expect-error なぜか、'query'イベント名の型がneverとなってしまう
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     prismaClient.$on('query', (event: Record<string, any>) => {
-      const ctx = trace.setSpan(context.active(), trace.getActiveSpan()!)
+      // const ctx = trace.setSpan(context.active(), trace.getActiveSpan()!)
 
       const startTime = new Date(event.timestamp)
       const endTime = dayjs(event.timestamp.valueOf())
@@ -42,11 +42,11 @@ export function getPrismaClientInstance() {
           startTime,
           kind: SpanKind.CLIENT,
         },
-        ctx,
+        // ctx,
       )
       const query = getQueryWithParams(event.query, JSON.parse(event.params))
       // console.dir(query, { depth: 10 })
-      console.log(span)
+      // console.log(span)
       span.addEvent('query', {
         query,
       })

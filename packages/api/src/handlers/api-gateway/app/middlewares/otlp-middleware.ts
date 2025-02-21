@@ -1,6 +1,15 @@
 import opentelemetry from '@opentelemetry/sdk-node'
 import type { AppContext } from '@/handlers/api-gateway/app/chase-light-app'
-import { diag, DiagConsoleLogger, DiagLogLevel } from '@opentelemetry/api'
+import {
+  context,
+  trace,
+  diag,
+  DiagConsoleLogger,
+  DiagLogLevel,
+  propagation,
+  SpanKind,
+  SpanStatusCode,
+} from '@opentelemetry/api'
 import { AWSXRayIdGenerator } from '@opentelemetry/id-generator-aws-xray'
 import { HttpInstrumentation } from '@opentelemetry/instrumentation-http'
 // import { AWSXRayPropagator } from '@opentelemetry/propagator-aws-xray'
@@ -40,7 +49,7 @@ export const otlpMiddleware = createMiddleware<AppContext>(async (c, next) => {
   })
 
   // this enables the API to record telemetry
-  await sdk.start()
+  sdk.start()
 
   // gracefully shut down the SDK on process exit
   process.on('SIGTERM', () => {
@@ -53,5 +62,38 @@ export const otlpMiddleware = createMiddleware<AppContext>(async (c, next) => {
       .finally(() => process.exit(0))
   })
 
-  await next()
+  console.log(process.env)
+  const textMapGetter = {
+    keys: (carrer: object) => Object.keys(carrer),
+    get: (
+      carrier: Record<string, string | string[] | undefined>,
+      key: string,
+    ) => carrier[key],
+  }
+  const newContext = propagation.extract(
+    context.active(),
+    process.env,
+    textMapGetter,
+  )
+  console.log('new context', newContext)
+  await trace.getTracer('API').startActiveSpan(
+    'API',
+    {
+      kind: SpanKind.SERVER,
+    },
+    newContext,
+    async (span) => {
+      try {
+        await next()
+      } catch (e) {
+        span.setStatus({
+          code: SpanStatusCode.ERROR,
+          message: JSON.stringify(e),
+        })
+        throw e
+      } finally {
+        span.end()
+      }
+    },
+  )
 })
