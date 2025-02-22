@@ -29,10 +29,10 @@ export function getPrismaClientInstance() {
     // @ts-expect-error なぜか、'query'イベント名の型がneverとなってしまう
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     prismaClient.$on('query', (event: Record<string, any>) => {
-      const currentSpanContext = trace.setSpan(
-        context.active(),
-        trace.getActiveSpan()!,
-      )
+      // const currentSpanContext = trace.setSpan(
+      //   context.active(),
+      //   trace.getActiveSpan()!,
+      // )
 
       const startTime = new Date(event.timestamp)
       const endTime = dayjs(event.timestamp.valueOf())
@@ -45,7 +45,7 @@ export function getPrismaClientInstance() {
           startTime,
           kind: SpanKind.INTERNAL,
         },
-        currentSpanContext,
+        // currentSpanContext,
       )
       const query = getQueryWithParams(event.query, JSON.parse(event.params))
       // console.dir(query, { depth: 10 })
