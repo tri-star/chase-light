@@ -1,21 +1,17 @@
-const opentelemetry = require('@opentelemetry/sdk-node')
-const { diag, DiagConsoleLogger, DiagLogLevel } = require('@opentelemetry/api')
+import opentelemetry from '@opentelemetry/sdk-node'
+import { diag, DiagConsoleLogger, DiagLogLevel } from '@opentelemetry/api'
 
-const { AWSXRayIdGenerator } = require('@opentelemetry/id-generator-aws-xray')
-const { HttpInstrumentation } = require('@opentelemetry/instrumentation-http')
-const {
-  AWSXRayLambdaPropagator,
-} = require('@opentelemetry/propagator-aws-xray-lambda')
-const { BatchSpanProcessor } = require('@opentelemetry/sdk-trace-base')
-const { Resource } = require('@opentelemetry/resources')
-const { ATTR_SERVICE_NAME } = require('@opentelemetry/semantic-conventions')
-const {
-  UndiciInstrumentation,
-} = require('@opentelemetry/instrumentation-undici')
-const { OTLPTraceExporter } = require('@opentelemetry/exporter-trace-otlp-http')
-const {
-  AwsLambdaInstrumentation,
-} = require('@opentelemetry/instrumentation-aws-lambda')
+import { AWSXRayIdGenerator } from '@opentelemetry/id-generator-aws-xray'
+import { HttpInstrumentation } from '@opentelemetry/instrumentation-http'
+import { AWSXRayLambdaPropagator } from '@opentelemetry/propagator-aws-xray-lambda'
+import { BatchSpanProcessor } from '@opentelemetry/sdk-trace-base'
+import { Resource } from '@opentelemetry/resources'
+import { ATTR_SERVICE_NAME } from '@opentelemetry/semantic-conventions'
+import { UndiciInstrumentation } from '@opentelemetry/instrumentation-undici'
+import { OTLPTraceExporter } from '@opentelemetry/exporter-trace-otlp-http'
+import { AwsLambdaInstrumentation } from '@opentelemetry/instrumentation-aws-lambda'
+
+console.info('START OTEL SETUP')
 
 diag.setLogger(new DiagConsoleLogger(), DiagLogLevel.DEBUG)
 
