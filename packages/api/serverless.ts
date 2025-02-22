@@ -89,8 +89,7 @@ const serverlessConfiguration: Serverless & { build: object } = {
       STAGE: '${sls:stage}',
       AWS_NODEJS_CONNECTION_REUSE_ENABLED: '1',
       // AWS_LAMBDA_EXEC_WRAPPER: '/opt/otel-handler',
-      NODE_OPTIONS:
-        '--experimental-loader=@opentelemetry/instrumentation/hook.mjs --experimental-loader=/opt/nodejs/otel-setup.js --require=lambda-wrapper',
+      NODE_OPTIONS: '--import=/opt/nodejs/otel-setup.mjs',
 
       API_URL: '${env:API_URL}',
       DATABASE_URL:

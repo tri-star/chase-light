@@ -1,3 +1,7 @@
+// https://github.com/open-telemetry/opentelemetry-js/issues/4933
+import { register } from 'module'
+import { Hook, createAddHookMessageChannel } from 'import-in-the-middle'
+
 import opentelemetry from '@opentelemetry/sdk-node'
 import { diag, DiagConsoleLogger, DiagLogLevel } from '@opentelemetry/api'
 
@@ -10,6 +14,10 @@ import { ATTR_SERVICE_NAME } from '@opentelemetry/semantic-conventions'
 import { UndiciInstrumentation } from '@opentelemetry/instrumentation-undici'
 import { OTLPTraceExporter } from '@opentelemetry/exporter-trace-otlp-http'
 import { AwsLambdaInstrumentation } from '@opentelemetry/instrumentation-aws-lambda'
+
+const { registerOptions, waitForAllMessagesAcknowledged } =
+  createAddHookMessageChannel()
+register('import-in-the-middle/hook.mjs', import.meta.url, registerOptions)
 
 console.info('START OTEL SETUP')
 
@@ -50,3 +58,5 @@ process.on('SIGTERM', () => {
     )
     .finally(() => process.exit(0))
 })
+
+await waitForAllMessagesAcknowledged()
