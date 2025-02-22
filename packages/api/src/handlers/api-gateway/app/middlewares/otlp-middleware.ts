@@ -77,7 +77,7 @@ export const otlpMiddleware = createMiddleware<AppContext>(async (c, next) => {
   }
   const newContext = propagation.extract(
     context.active(),
-    process.env,
+    c.req.raw.headers,
     textMapGetter,
   )
   await trace.getTracer('API').startActiveSpan(
