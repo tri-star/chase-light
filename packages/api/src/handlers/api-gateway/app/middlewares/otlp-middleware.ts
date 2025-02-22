@@ -22,39 +22,43 @@ import { UndiciInstrumentation } from '@opentelemetry/instrumentation-undici'
 import { OTLPTraceExporter } from '@opentelemetry/exporter-trace-otlp-http'
 import { AwsLambdaInstrumentation } from '@opentelemetry/instrumentation-aws-lambda'
 
+// const sdkInitialized = false
+
+diag.setLogger(new DiagConsoleLogger(), DiagLogLevel.DEBUG)
+
+const _resource = Resource.default().merge(
+  new Resource({
+    [ATTR_SERVICE_NAME]: 'chase-light-api',
+  }),
+)
+
+const _traceExporter = new OTLPTraceExporter()
+const _spanProcessor = new BatchSpanProcessor(_traceExporter, {})
+
+let sdk: opentelemetry.NodeSDK | undefined = undefined
+
 export const otlpMiddleware = createMiddleware<AppContext>(async (c, next) => {
-  diag.setLogger(new DiagConsoleLogger(), DiagLogLevel.DEBUG)
-
-  const _resource = Resource.default().merge(
-    new Resource({
-      [ATTR_SERVICE_NAME]: 'chase-light-api',
-    }),
-  )
-
-  const _traceExporter = new OTLPTraceExporter()
-  const _spanProcessor = new BatchSpanProcessor(_traceExporter, {})
-
-  const sdk = new opentelemetry.NodeSDK({
-    textMapPropagator: new AWSXRayLambdaPropagator(),
-    instrumentations: [
-      new HttpInstrumentation(),
-      new UndiciInstrumentation(),
-      new AwsLambdaInstrumentation(),
-    ],
-    resource: _resource,
-    spanProcessor: _spanProcessor,
-    traceExporter: _traceExporter,
-    idGenerator: new AWSXRayIdGenerator(),
-    spanProcessors: [new BatchSpanProcessor(_traceExporter)],
-  })
-
-  // this enables the API to record telemetry
+  if (sdk == null) {
+    sdk = new opentelemetry.NodeSDK({
+      textMapPropagator: new AWSXRayLambdaPropagator(),
+      instrumentations: [
+        new HttpInstrumentation(),
+        new UndiciInstrumentation(),
+        new AwsLambdaInstrumentation(),
+      ],
+      resource: _resource,
+      spanProcessor: _spanProcessor,
+      traceExporter: _traceExporter,
+      idGenerator: new AWSXRayIdGenerator(),
+      spanProcessors: [new BatchSpanProcessor(_traceExporter)],
+    })
+  }
   sdk.start()
 
   // gracefully shut down the SDK on process exit
   process.on('SIGTERM', () => {
     sdk
-      .shutdown()
+      ?.shutdown()
       .then(() => console.log('Tracing and Metrics terminated'))
       .catch((error) =>
         console.log('Error terminating tracing and metrics', error),
@@ -72,7 +76,7 @@ export const otlpMiddleware = createMiddleware<AppContext>(async (c, next) => {
   }
   const newContext = propagation.extract(
     context.active(),
-    process.env,
+    c.req.raw.headers,
     textMapGetter,
   )
   await trace.getTracer('API').startActiveSpan(

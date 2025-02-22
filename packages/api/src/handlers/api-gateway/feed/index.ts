@@ -50,4 +50,4 @@ feedApp.importActions([
 export const handler: (
   event: LambdaEvent,
   lambdaContext?: LambdaContext,
-) => Promise<APIGatewayProxyResult> = handle(feedApp.getApp())
+) => Promise<APIGatewayProxyResult> = handle(feedApp.createApp())
