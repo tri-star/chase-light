@@ -17,6 +17,7 @@ export const otlpMiddleware = createMiddleware<AppContext>(async (c, next) => {
       key: string,
     ) => carrier[key],
   }
+  console.log('request headers', c.req.raw.headers)
   const newContext = propagation.extract(
     context.active(),
     c.req.raw.headers,
