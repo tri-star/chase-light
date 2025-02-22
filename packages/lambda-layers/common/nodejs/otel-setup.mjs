@@ -11,7 +11,7 @@ import {
 } from '@opentelemetry/api'
 
 import { AWSXRayIdGenerator } from '@opentelemetry/id-generator-aws-xray'
-import { HttpInstrumentation } from '@opentelemetry/instrumentation-http'
+// import { HttpInstrumentation } from '@opentelemetry/instrumentation-http'
 import { AWSXRayLambdaPropagator } from '@opentelemetry/propagator-aws-xray-lambda'
 import { BatchSpanProcessor } from '@opentelemetry/sdk-trace-base'
 import { Resource } from '@opentelemetry/resources'
@@ -42,7 +42,7 @@ const awsLambdaInstrumentation = new AwsLambdaInstrumentation()
 const sdk = new opentelemetry.NodeSDK({
   textMapPropagator: new AWSXRayLambdaPropagator(),
   instrumentations: [
-    new HttpInstrumentation(),
+    // new HttpInstrumentation(),
     new UndiciInstrumentation(),
     awsLambdaInstrumentation,
   ],
