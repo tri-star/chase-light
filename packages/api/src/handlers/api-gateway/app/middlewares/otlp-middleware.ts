@@ -1,11 +1,4 @@
 import type { AppContext } from '@/handlers/api-gateway/app/chase-light-app'
-import {
-  // context,
-  trace,
-  // propagation,
-  SpanKind,
-  SpanStatusCode,
-} from '@opentelemetry/api'
 import { createMiddleware } from 'hono/factory'
 
 export const otlpMiddleware = createMiddleware<AppContext>(async (c, next) => {
@@ -23,24 +16,5 @@ export const otlpMiddleware = createMiddleware<AppContext>(async (c, next) => {
   //   c.req.raw.headers,
   //   textMapGetter,
   // )
-  await trace.getTracer('API').startActiveSpan(
-    'API',
-    {
-      kind: SpanKind.SERVER,
-    },
-    async (span) => {
-      try {
-        console.log(span.spanContext())
-        await next()
-      } catch (e) {
-        span.setStatus({
-          code: SpanStatusCode.ERROR,
-          message: JSON.stringify(e),
-        })
-        throw e
-      } finally {
-        span.end()
-      }
-    },
-  )
+  await next()
 })
