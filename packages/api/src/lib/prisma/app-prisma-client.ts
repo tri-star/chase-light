@@ -40,7 +40,7 @@ export function getPrismaClientInstance() {
         'query',
         {
           startTime,
-          kind: SpanKind.CLIENT,
+          kind: SpanKind.INTERNAL,
         },
         // ctx,
       )
