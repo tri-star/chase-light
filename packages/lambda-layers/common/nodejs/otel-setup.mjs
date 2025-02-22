@@ -3,7 +3,12 @@ import { register } from 'module'
 import { Hook, createAddHookMessageChannel } from 'import-in-the-middle'
 
 import opentelemetry from '@opentelemetry/sdk-node'
-import { diag, DiagConsoleLogger, DiagLogLevel } from '@opentelemetry/api'
+import {
+  diag,
+  DiagConsoleLogger,
+  DiagLogLevel,
+  trace,
+} from '@opentelemetry/api'
 
 import { AWSXRayIdGenerator } from '@opentelemetry/id-generator-aws-xray'
 import { HttpInstrumentation } from '@opentelemetry/instrumentation-http'
@@ -32,12 +37,14 @@ const _resource = Resource.default().merge(
 const _traceExporter = new OTLPTraceExporter()
 const _spanProcessor = new BatchSpanProcessor(_traceExporter, {})
 
+const awsLambdaInstrumentation = new AwsLambdaInstrumentation()
+
 const sdk = new opentelemetry.NodeSDK({
   textMapPropagator: new AWSXRayLambdaPropagator(),
   instrumentations: [
     new HttpInstrumentation(),
     new UndiciInstrumentation(),
-    new AwsLambdaInstrumentation(),
+    awsLambdaInstrumentation,
   ],
   resource: _resource,
   spanProcessor: _spanProcessor,
@@ -47,6 +54,8 @@ const sdk = new opentelemetry.NodeSDK({
 })
 // this enables the API to record telemetry
 sdk.start()
+
+awsLambdaInstrumentation.setTracerProvider(trace.getTracerProvider())
 
 // gracefully shut down the SDK on process exit
 process.on('SIGTERM', () => {
