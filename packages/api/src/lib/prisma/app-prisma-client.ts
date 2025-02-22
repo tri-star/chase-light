@@ -1,4 +1,4 @@
-import { context, SpanKind, trace } from '@opentelemetry/api'
+import { SpanKind, trace } from '@opentelemetry/api'
 import { PrismaClient } from '@prisma/client'
 import dayjs from 'dayjs'
 
