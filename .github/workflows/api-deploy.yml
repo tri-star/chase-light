@@ -44,6 +44,28 @@ jobs:
         with:
           node-version: 22.9
 
+      - uses: actions/cache/restore@v4
+        id: pnpm-cache
+        with:
+          path: |
+            ~/.local/share/pnpm
+            node_modules
+            packages/api/node_modules
+          key: api-deploy-pnpm-${{ hashFiles('pnpm-lock.yaml') }}
+          restore-keys: |
+            api-deploy-pnpm-
+
+      - uses: actions/cache/restore@v4
+        id: npm-cache
+        with:
+          path: |
+            ~/.npm
+            packages/lambda-layers/openai/nodejs/node_modules
+            packages/lambda-layers/common/nodejs/node_modules
+          key: api-deploy-npm-${{ hashFiles('packages/lambda-layers/**/package-lock.json') }}
+          restore-keys: |
+            api-deploy-npm-
+
       - name: install js package
         run: |
           cd packages/api
@@ -74,3 +96,21 @@ jobs:
           AWS_REGION: ${{ vars.AWS_REGION }}
           PRISMA_SKIP_POSTINSTALL_GENERATE: 1
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+
+      - uses: actions/cache/save@v4
+        if: github.ref_name == 'main'
+        with:
+          path: |
+            ~/.local/share/pnpm
+            node_modules
+            packages/api/node_modules
+          key: ${{ steps.pnpm-cache.outputs.cache-primary-key }}
+
+      - uses: actions/cache/save@v4
+        if: github.ref_name == 'main'
+        with:
+          path: |
+            ~/.npm
+            packages/lambda-layers/openai/nodejs/node_modules
+            packages/lambda-layers/common/nodejs/node_modules
+          key: ${{ steps.npm-cache.outputs.cache-primary-key }}
