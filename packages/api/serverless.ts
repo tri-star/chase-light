@@ -87,7 +87,6 @@ const serverlessConfiguration: Serverless & { build: object } = {
     memorySize: 512,
     environment: {
       STAGE: '${sls:stage}',
-      AWS_NODEJS_CONNECTION_REUSE_ENABLED: '1',
       // AWS_LAMBDA_EXEC_WRAPPER: '/opt/otel-handler',
       NODE_OPTIONS: '--import=/opt/nodejs/otel-setup.mjs',
 
@@ -103,7 +102,7 @@ const serverlessConfiguration: Serverless & { build: object } = {
       lambda: true,
     },
     layers: [
-      'arn:aws:lambda:ap-northeast-1:955192521523:layer:otel-collector:6',
+      'arn:aws:lambda:ap-northeast-1:955192521523:layer:otel-collector:7',
       'arn:aws:lambda:${env:AWS_REGION}:${env:AWS_ACCOUNT}:layer:common:8',
     ],
     iamRoleStatements: [
