@@ -11,9 +11,10 @@ export type AppContext = {
 }
 
 export class ChaseLightApp extends HonoOpenApiApp<AppContext> {
-  constructor() {
-    super()
-
+  init(): void {
+    if (!this.app) {
+      throw new Error('Honoが初期化されていません')
+    }
     this.app.openAPIRegistry.registerComponent('securitySchemes', 'AppBearer', {
       type: 'http',
       scheme: 'bearer',

@@ -4,7 +4,7 @@ import type { ActionDefinition } from '@/lib/hono/action-definition'
 import type { Serverless, HttpCors } from 'serverless/aws'
 
 export class HonoOpenApiApp<T extends Env> {
-  protected app: OpenAPIHono<T>
+  protected app: OpenAPIHono<T> | undefined
 
   private corsSetting: HttpCors | undefined
 
@@ -13,14 +13,16 @@ export class HonoOpenApiApp<T extends Env> {
   private lambdaDefinition: Serverless['functions'] | undefined
 
   constructor() {
-    this.app = new OpenAPIHono<T>()
+    // this.app = new OpenAPIHono<T>()
+  }
+
+  init(): void {
+    // アプリ固有の初期化処理
+    // (ミドルウェア設定など)
   }
 
   importActions(actionDefinitions: ActionDefinition<T>[]): void {
     this.actions.push(...actionDefinitions)
-    for (const k in actionDefinitions) {
-      actionDefinitions[k].buildOpenApiAppRoute(this.app)
-    }
   }
 
   defineLambdaDefinition(definition: Serverless['functions']) {
@@ -31,7 +33,13 @@ export class HonoOpenApiApp<T extends Env> {
     this.corsSetting = cors
   }
 
-  getApp(): OpenAPIHono<T> {
+  createApp(): OpenAPIHono<T> {
+    this.app = new OpenAPIHono<T>()
+    this.init()
+    for (const k in this.actions) {
+      this.actions[k].buildOpenApiAppRoute(this.app)
+    }
+
     return this.app
   }
 
@@ -53,9 +61,9 @@ export class HonoOpenApiApp<T extends Env> {
     return this.lambdaDefinition
   }
 
-  buildOpenApiRoute() {
-    for (const k in this.actions) {
-      this.actions[k].buildOpenApiAppRoute(this.app)
-    }
-  }
+  // buildOpenApiRoute() {
+  //   for (const k in this.actions) {
+  //     this.actions[k].buildOpenApiAppRoute(this.app)
+  //   }
+  // }
 }

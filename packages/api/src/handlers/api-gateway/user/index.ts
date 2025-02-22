@@ -41,4 +41,4 @@ userApp.importActions([
 export const handler: (
   event: LambdaEvent,
   lambdaContext?: LambdaContext,
-) => Promise<APIGatewayProxyResult> = handle(userApp.getApp())
+) => Promise<APIGatewayProxyResult> = handle(userApp.createApp())

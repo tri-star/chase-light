@@ -16,7 +16,7 @@ import { beforeEach, describe, expect, test } from 'vitest'
 let app: OpenAPIHono<AppContext>
 
 beforeEach(() => {
-  app = feedApp.getApp()
+  app = feedApp.createApp()
 })
 
 describe('ValidateFeedUrlAction', () => {

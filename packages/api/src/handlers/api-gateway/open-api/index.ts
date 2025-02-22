@@ -39,11 +39,11 @@ scalerUiApp.defineLambdaDefinition({
     ],
   },
 })
-const honoApp = scalerUiApp.getApp()
+const honoApp = scalerUiApp.createApp()
 const stage = process.env.STAGE || 'local'
 
-honoApp.route('/', userApp.getApp())
-honoApp.route('/', feedApp.getApp())
+honoApp.route('/', userApp.createApp())
+honoApp.route('/', feedApp.createApp())
 honoApp.doc('/openapi.json', {
   openapi: '3.0.0',
   servers: [
@@ -71,4 +71,4 @@ honoApp.get(
 export const handler: (
   event: LambdaEvent,
   lambdaContext?: LambdaContext,
-) => Promise<APIGatewayProxyResult> = handle(scalerUiApp.getApp())
+) => Promise<APIGatewayProxyResult> = handle(scalerUiApp.createApp())
