@@ -1,6 +1,6 @@
 // https://github.com/open-telemetry/opentelemetry-js/issues/4933
 import { register } from 'module'
-import { Hook, createAddHookMessageChannel } from 'import-in-the-middle'
+import { createAddHookMessageChannel } from 'import-in-the-middle'
 
 import opentelemetry from '@opentelemetry/sdk-node'
 import {
@@ -10,10 +10,12 @@ import {
   trace,
 } from '@opentelemetry/api'
 
-import { AWSXRayIdGenerator } from '@opentelemetry/id-generator-aws-xray'
-// import { HttpInstrumentation } from '@opentelemetry/instrumentation-http'
 import { AWSXRayLambdaPropagator } from '@opentelemetry/propagator-aws-xray-lambda'
-import { BatchSpanProcessor } from '@opentelemetry/sdk-trace-base'
+import {
+  BatchSpanProcessor,
+  ConsoleSpanExporter,
+  SimpleSpanProcessor,
+} from '@opentelemetry/sdk-trace-base'
 import { Resource } from '@opentelemetry/resources'
 import { ATTR_SERVICE_NAME } from '@opentelemetry/semantic-conventions'
 import { UndiciInstrumentation } from '@opentelemetry/instrumentation-undici'
@@ -35,22 +37,19 @@ const _resource = Resource.default().merge(
 )
 
 const _traceExporter = new OTLPTraceExporter()
-const _spanProcessor = new BatchSpanProcessor(_traceExporter, {})
 
 const awsLambdaInstrumentation = new AwsLambdaInstrumentation()
 
 const sdk = new opentelemetry.NodeSDK({
   textMapPropagator: new AWSXRayLambdaPropagator(),
-  instrumentations: [
-    // new HttpInstrumentation(),
-    new UndiciInstrumentation(),
-    awsLambdaInstrumentation,
-  ],
+  instrumentations: [new UndiciInstrumentation(), awsLambdaInstrumentation],
   resource: _resource,
-  spanProcessor: _spanProcessor,
   traceExporter: _traceExporter,
   // idGenerator: new AWSXRayIdGenerator(),
-  spanProcessors: [new BatchSpanProcessor(_traceExporter)],
+  spanProcessors: [
+    new SimpleSpanProcessor(_traceExporter),
+    new SimpleSpanProcessor(new ConsoleSpanExporter()),
+  ],
 })
 // this enables the API to record telemetry
 sdk.start()
