@@ -1,6 +1,7 @@
 import { SpanKind, trace } from '@opentelemetry/api'
 import { PrismaClient } from '@prisma/client'
 import dayjs from 'dayjs'
+import { handle } from 'hono/aws-lambda'
 
 let prismaClient: PrismaClient | undefined
 const getQueryWithParams = (query: string, params: string[]) => {
@@ -26,9 +27,8 @@ export function getPrismaClientInstance() {
       ],
     })
 
-    // @ts-expect-error なぜか、'query'イベント名の型がneverとなってしまう
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    prismaClient.$on('query', (event: Record<string, any>) => {
+    function handleQuery(event: Record<string, any>) {
       // const currentSpanContext = trace.setSpan(
       //   context.active(),
       //   trace.getActiveSpan()!,
@@ -56,7 +56,9 @@ export function getPrismaClientInstance() {
       span.setAttribute('query', query)
       span.setAttribute('duraiton', event.duration)
       span.end(endTime)
-    })
+    }
+    // @ts-expect-error なぜか、'query'イベント名の型がneverとなってしまう
+    prismaClient.$on('query', handleQuery)
   }
   return prismaClient
 }
