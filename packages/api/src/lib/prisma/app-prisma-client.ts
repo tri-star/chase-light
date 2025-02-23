@@ -15,8 +15,11 @@ const getQueryWithParams = (query: string, params: string[]) => {
   return query
 }
 
-export function getPrismaClientInstance() {
-  if (!prismaClient) {
+export function getPrismaClientInstance(forceRenew = false) {
+  if (forceRenew || !prismaClient) {
+    if (forceRenew && prismaClient) {
+      prismaClient.$disconnect()
+    }
     prismaClient = new PrismaClient({
       log: [
         {

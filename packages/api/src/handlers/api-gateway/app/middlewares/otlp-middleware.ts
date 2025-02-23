@@ -16,7 +16,7 @@ export const otlpMiddleware = createMiddleware<AppContext>(async (c, next) => {
   //   ) => carrier[key],
   // }
   console.log('request headers', c.req.raw.headers)
-  const prisma = getPrismaClientInstance()
+  const prisma = getPrismaClientInstance(true)
   setupQueryLogger(prisma)
   // const span = trace.getTracer('API').startSpan(
   //   'API',
