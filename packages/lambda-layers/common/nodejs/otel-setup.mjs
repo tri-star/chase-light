@@ -10,9 +10,9 @@ import {
   trace,
 } from '@opentelemetry/api'
 
-import { AWSXRayLambdaPropagator } from '@opentelemetry/propagator-aws-xray-lambda'
+// import { AWSXRayLambdaPropagator } from '@opentelemetry/propagator-aws-xray-lambda'
 import {
-  BatchSpanProcessor,
+  // BatchSpanProcessor,
   ConsoleSpanExporter,
   SimpleSpanProcessor,
 } from '@opentelemetry/sdk-trace-base'
@@ -41,7 +41,7 @@ const _traceExporter = new OTLPTraceExporter()
 const awsLambdaInstrumentation = new AwsLambdaInstrumentation()
 
 const sdk = new opentelemetry.NodeSDK({
-  textMapPropagator: new AWSXRayLambdaPropagator(),
+  // textMapPropagator: new AWSXRayLambdaPropagator(),
   instrumentations: [new UndiciInstrumentation(), awsLambdaInstrumentation],
   resource: _resource,
   traceExporter: _traceExporter,
