@@ -1,5 +1,5 @@
 import type { AppContext } from '@/handlers/api-gateway/app/chase-light-app'
-import { context, propagation, SpanKind, trace } from '@opentelemetry/api'
+// import { context, propagation, SpanKind, trace } from '@opentelemetry/api'
 import { createMiddleware } from 'hono/factory'
 
 export const otlpMiddleware = createMiddleware<AppContext>(async (c, next) => {
@@ -12,15 +12,15 @@ export const otlpMiddleware = createMiddleware<AppContext>(async (c, next) => {
   //   ) => carrier[key],
   // }
   console.log('request headers', c.req.raw.headers)
-  const span = trace.getTracer('API').startSpan(
-    'API',
-    {
-      kind: SpanKind.SERVER,
-    },
-    propagation.extract(context.active(), c.req.raw.headers),
-  )
-  await context.with(trace.setSpan(context.active(), span), async () => {
-    await next()
-  })
-  span.end()
+  // const span = trace.getTracer('API').startSpan(
+  //   'API',
+  //   {
+  //     kind: SpanKind.SERVER,
+  //   },
+  //   propagation.extract(context.active(), c.req.raw.headers),
+  // )
+  // await context.with(trace.setSpan(context.active(), span), async () => {
+  await next()
+  // })
+  // span.end()
 })
