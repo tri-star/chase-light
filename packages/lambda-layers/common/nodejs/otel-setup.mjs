@@ -10,10 +10,9 @@ import {
   trace,
 } from '@opentelemetry/api'
 
-// import { AWSXRayLambdaPropagator } from '@opentelemetry/propagator-aws-xray-lambda'
+import { AWSXRayLambdaPropagator } from '@opentelemetry/propagator-aws-xray-lambda'
 import {
   // BatchSpanProcessor,
-  ConsoleSpanExporter,
   SimpleSpanProcessor,
 } from '@opentelemetry/sdk-trace-base'
 import { Resource } from '@opentelemetry/resources'
@@ -41,15 +40,12 @@ const _traceExporter = new OTLPTraceExporter()
 const awsLambdaInstrumentation = new AwsLambdaInstrumentation()
 
 const sdk = new opentelemetry.NodeSDK({
-  // textMapPropagator: new AWSXRayLambdaPropagator(),
+  textMapPropagator: new AWSXRayLambdaPropagator(),
   instrumentations: [new UndiciInstrumentation(), awsLambdaInstrumentation],
   resource: _resource,
   traceExporter: _traceExporter,
   // idGenerator: new AWSXRayIdGenerator(),
-  spanProcessors: [
-    new SimpleSpanProcessor(_traceExporter),
-    new SimpleSpanProcessor(new ConsoleSpanExporter()),
-  ],
+  spanProcessors: [new SimpleSpanProcessor(_traceExporter)],
 })
 // this enables the API to record telemetry
 sdk.start()
