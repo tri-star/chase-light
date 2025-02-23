@@ -49,7 +49,7 @@ const sdk = new opentelemetry.NodeSDK({
   resource: _resource,
   spanProcessor: _spanProcessor,
   traceExporter: _traceExporter,
-  idGenerator: new AWSXRayIdGenerator(),
+  // idGenerator: new AWSXRayIdGenerator(),
   spanProcessors: [new BatchSpanProcessor(_traceExporter)],
 })
 // this enables the API to record telemetry
