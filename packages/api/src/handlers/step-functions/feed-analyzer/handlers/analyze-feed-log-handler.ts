@@ -11,10 +11,6 @@ import { FEED_LOG_STATUS_VALUE_MAP } from 'core/features/feed/feed-logs'
 import type { AwsFunctionHandler } from 'serverless/aws'
 import z from 'zod'
 import { v7 as uuidv7 } from 'uuid'
-import {
-  getPrismaClientInstance,
-  setupQueryLogger,
-} from '@/lib/prisma/app-prisma-client'
 
 export const analyzeFeedRequestSchema = z.object({
   feedLogId: z.string(),
@@ -44,9 +40,6 @@ export const analyzeFeedLogHandler: AwsFunctionHandler = {
 }
 
 export async function handler(event: SQSEvent, _context: Context) {
-  // TODO: クエリログ有効化のための暫定対応。ミドルウェア的な仕組みが必要
-  const prisma = getPrismaClientInstance(true)
-  setupQueryLogger(prisma)
   for (const record of event.Records) {
     await handleEvent(record.receiptHandle, JSON.parse(record.body))
   }

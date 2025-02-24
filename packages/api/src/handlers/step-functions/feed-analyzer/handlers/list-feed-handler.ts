@@ -1,8 +1,5 @@
 import { handlerPath } from '@/lib/hono/handler-resolver'
-import {
-  getPrismaClientInstance,
-  setupQueryLogger,
-} from '@/lib/prisma/app-prisma-client'
+import { getPrismaClientInstance } from '@/lib/prisma/app-prisma-client'
 import { currentDirPath } from '@/lib/utils/path-utils'
 import type { Context } from 'aws-lambda'
 import type { AwsFunctionHandler } from 'serverless/aws'
@@ -19,8 +16,7 @@ export async function handler(
   _event: unknown,
   _context: Context,
 ): Promise<ListFeedResponse> {
-  const prisma = getPrismaClientInstance(true)
-  setupQueryLogger(prisma)
+  const prisma = getPrismaClientInstance()
 
   try {
     const feeds = await prisma.feed.findMany({

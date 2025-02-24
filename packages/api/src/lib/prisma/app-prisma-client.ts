@@ -15,11 +15,8 @@ const getQueryWithParams = (query: string, params: string[]) => {
   return query
 }
 
-export function getPrismaClientInstance(forceRenew = false) {
-  if (forceRenew || !prismaClient) {
-    if (forceRenew && prismaClient) {
-      prismaClient.$disconnect()
-    }
+export function getPrismaClientInstance() {
+  if (!prismaClient) {
     prismaClient = new PrismaClient({
       log: [
         {
@@ -28,46 +25,33 @@ export function getPrismaClientInstance(forceRenew = false) {
         },
       ],
     })
+
+    // @ts-expect-error なぜか、'query'イベント名の型がneverとなってしまう
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    prismaClient.$on('query', (event: Record<string, any>) => {
+      const startTime = new Date(event.timestamp)
+      const endTime = dayjs(event.timestamp.valueOf())
+        .add(event.duration, 'ms')
+        .toDate()
+
+      const span = trace.getTracer('prisma').startSpan('Prisma', {
+        startTime,
+        kind: SpanKind.INTERNAL,
+      })
+      const query = getQueryWithParams(event.query, JSON.parse(event.params))
+      // console.dir(query, { depth: 10 })
+      // console.log(span)
+      span.addEvent('query', {
+        query,
+      })
+      span.setAttribute('query', query)
+      span.setAttribute('duraiton', event.duration)
+      span.end(endTime)
+    })
   }
   return prismaClient
 }
 
-export function setupQueryLogger(client: PrismaClient) {
-  // @ts-expect-error なぜか、'query'イベント名の型がneverとなってしまう
-  client.$on('query', handleQuery)
-}
-
 export function swapPrismaClientForTest(newPrismaClient: PrismaClient) {
   prismaClient = newPrismaClient
-}
-
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-function handleQuery(event: Record<string, any>) {
-  // const currentSpanContext = trace.setSpan(
-  //   context.active(),
-  //   trace.getActiveSpan()!,
-  // )
-
-  const startTime = new Date(event.timestamp)
-  const endTime = dayjs(event.timestamp.valueOf())
-    .add(event.duration, 'ms')
-    .toDate()
-
-  const span = trace.getTracer('prisma').startSpan(
-    'Prisma',
-    {
-      startTime,
-      kind: SpanKind.INTERNAL,
-    },
-    // currentSpanContext,
-  )
-  const query = getQueryWithParams(event.query, JSON.parse(event.params))
-  // console.dir(query, { depth: 10 })
-  // console.log(span)
-  span.addEvent('query', {
-    query,
-  })
-  span.setAttribute('query', query)
-  span.setAttribute('duraiton', event.duration)
-  span.end(endTime)
 }

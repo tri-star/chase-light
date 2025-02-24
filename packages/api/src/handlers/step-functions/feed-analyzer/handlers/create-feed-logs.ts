@@ -5,10 +5,6 @@ import type { AwsFunctionHandler } from 'serverless/aws'
 import { z } from 'zod'
 import { CreateFeedLogUseCase } from '@/features/feed/usecases/create-feed-logs-usecase'
 import dayjs from 'dayjs'
-import {
-  getPrismaClientInstance,
-  setupQueryLogger,
-} from '@/lib/prisma/app-prisma-client'
 
 const createFeedLogsRequestSchema = z.string()
 type CreateFeedLogRequest = z.infer<typeof createFeedLogsRequestSchema>
@@ -29,9 +25,6 @@ export async function handler(
   event: CreateFeedLogRequest,
   _context: Context,
 ): Promise<CreateFeedLogResponse> {
-  const prisma = getPrismaClientInstance(true)
-  setupQueryLogger(prisma)
-
   const feedId = createFeedLogsRequestSchema.parse(event)
 
   const createFeedLogsUseCase = new CreateFeedLogUseCase()

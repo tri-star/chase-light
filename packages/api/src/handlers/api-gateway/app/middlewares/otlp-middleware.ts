@@ -1,8 +1,4 @@
 import type { AppContext } from '@/handlers/api-gateway/app/chase-light-app'
-import {
-  getPrismaClientInstance,
-  setupQueryLogger,
-} from '@/lib/prisma/app-prisma-client'
 // import { context, propagation, SpanKind, trace } from '@opentelemetry/api'
 import { createMiddleware } from 'hono/factory'
 
@@ -16,8 +12,6 @@ export const otlpMiddleware = createMiddleware<AppContext>(async (c, next) => {
   //   ) => carrier[key],
   // }
   console.log('request headers', c.req.raw.headers)
-  const prisma = getPrismaClientInstance(true)
-  setupQueryLogger(prisma)
   // const span = trace.getTracer('API').startSpan(
   //   'API',
   //   {
