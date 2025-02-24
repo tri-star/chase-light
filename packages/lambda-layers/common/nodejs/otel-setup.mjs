@@ -20,7 +20,7 @@ import { ATTR_SERVICE_NAME } from '@opentelemetry/semantic-conventions'
 import { UndiciInstrumentation } from '@opentelemetry/instrumentation-undici'
 import { OTLPTraceExporter } from '@opentelemetry/exporter-trace-otlp-http'
 import { AwsLambdaInstrumentation } from '@opentelemetry/instrumentation-aws-lambda'
-import { PrismaInstrumentation } from '@prisma/instrumentation'
+import prismaInstrumentation from '@prisma/instrumentation'
 
 const { registerOptions, waitForAllMessagesAcknowledged } =
   createAddHookMessageChannel()
@@ -43,7 +43,7 @@ const sdk = new opentelemetry.NodeSDK({
   instrumentations: [
     new UndiciInstrumentation(),
     new AwsLambdaInstrumentation(),
-    new PrismaInstrumentation(),
+    new prismaInstrumentation.PrismaInstrumentation(),
   ],
   resource: _resource,
   traceExporter: _traceExporter,
