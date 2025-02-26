@@ -21,6 +21,7 @@ import { UndiciInstrumentation } from '@opentelemetry/instrumentation-undici'
 import { OTLPTraceExporter } from '@opentelemetry/exporter-trace-otlp-http'
 import { AwsLambdaInstrumentation } from '@opentelemetry/instrumentation-aws-lambda'
 import prismaInstrumentation from '@prisma/instrumentation'
+import { HttpInstrumentation } from '@opentelemetry/instrumentation-http'
 
 const { registerOptions, waitForAllMessagesAcknowledged } =
   createAddHookMessageChannel()
@@ -41,8 +42,9 @@ const _traceExporter = new OTLPTraceExporter()
 const sdk = new opentelemetry.NodeSDK({
   textMapPropagator: new AWSXRayLambdaPropagator(),
   instrumentations: [
-    new UndiciInstrumentation(),
     new AwsLambdaInstrumentation(),
+    new UndiciInstrumentation(),
+    new HttpInstrumentation(),
     new prismaInstrumentation.PrismaInstrumentation(),
   ],
   resource: _resource,
