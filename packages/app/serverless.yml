@@ -13,7 +13,7 @@ provider:
     NODE_OPTIONS: '--import=/opt/nodejs/otel-setup.mjs'
   layers:
     - 'arn:aws:lambda:${env:AWS_REGION}:${env:AWS_ACCOUNT}:layer:otel-collector:7'
-    - 'arn:aws:lambda:${env:AWS_REGION}:${env:AWS_ACCOUNT}:layer:common:19'
+    - 'arn:aws:lambda:${env:AWS_REGION}:${env:AWS_ACCOUNT}:layer:common:27'
   logs:
     restApi: true
   iamRoleStatements:
