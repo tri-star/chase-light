@@ -8,8 +8,19 @@ provider:
   tracing:
     apiGateway: true
     lambda: true
+  environment:
+    NODE_OPTIONS: '--import=/opt/nodejs/otel-setup.mjs'
+  layers:
+    - 'arn:aws:lambda:${env:AWS_REGION}:${env:AWS_ACCOUNT}:layer:otel-collector:7'
+    - 'arn:aws:lambda:${env:AWS_REGION}:${env:AWS_ACCOUNT}:layer:common:19'
   logs:
     restApi: true
+  iamRoleStatements:
+    - Effect: Allow
+      Action:
+        - xray:PutTraceSegments
+        - xray:PutTelemetryRecords
+      Resource: "*"
 
 params:
   default:
