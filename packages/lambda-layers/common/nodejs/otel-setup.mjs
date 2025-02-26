@@ -32,7 +32,7 @@ diag.setLogger(new DiagConsoleLogger(), DiagLogLevel.DEBUG)
 
 const _resource = Resource.default().merge(
   new Resource({
-    [ATTR_SERVICE_NAME]: 'chase-light-api',
+    [ATTR_SERVICE_NAME]: process.env.ATTR_SERVICE_NAME || 'chase-light-api',
   }),
 )
 

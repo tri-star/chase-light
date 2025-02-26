@@ -9,6 +9,7 @@ provider:
     apiGateway: true
     lambda: true
   environment:
+    ATTR_SERVICE_NAME: 'chase-light-app'
     NODE_OPTIONS: '--import=/opt/nodejs/otel-setup.mjs'
   layers:
     - 'arn:aws:lambda:${env:AWS_REGION}:${env:AWS_ACCOUNT}:layer:otel-collector:7'
