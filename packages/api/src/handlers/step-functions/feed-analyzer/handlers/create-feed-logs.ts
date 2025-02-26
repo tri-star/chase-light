@@ -25,8 +25,6 @@ export async function handler(
   event: CreateFeedLogRequest,
   _context: Context,
 ): Promise<CreateFeedLogResponse> {
-  // const prisma = getPrismaClientInstance()
-
   const feedId = createFeedLogsRequestSchema.parse(event)
 
   const createFeedLogsUseCase = new CreateFeedLogUseCase()
