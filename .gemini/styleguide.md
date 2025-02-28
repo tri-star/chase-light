@@ -131,4 +131,6 @@
 
 - app配下ではapiとは異なりRepository, Serviceクラスを設けることを今の所考えていません。
 
-TBD
+- 以下のフォルダ配下のコードでは、各ファイルに対応するテストコードが存在する必要があります。
+  - /packages/app/src/handlers/api-gateway/<feature_name>/actions
+  - /packages/app/src/features/step-functions/<feature_name>
