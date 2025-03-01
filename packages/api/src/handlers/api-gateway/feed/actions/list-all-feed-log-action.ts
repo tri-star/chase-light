@@ -87,7 +87,6 @@ export class ListUserFeedLogAction extends ActionDefinition<AppContext> {
             currentPage,
           )
 
-        // TODO: ページング処理
         return c.json(
           feedLogSearchResultModelSchema.parse({
             result: feedLogList,
