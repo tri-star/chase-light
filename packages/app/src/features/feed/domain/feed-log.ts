@@ -15,14 +15,14 @@ export const feedLogItemSchema = z.object({
 export const feedLogSchema = z.object({
   id: z.string(),
   feed: feedSchema,
-  date: z.date().or(z.string()),
+  date: z.union([z.date(), z.string()]),
   title: z.string(),
   summary: z.string(),
   body: z.string().optional(),
   url: z.string(),
   items: z.array(feedLogItemSchema),
-  createdAt: z.date().or(z.string()),
-  updatedAt: z.date().or(z.string()),
+  createdAt: z.union([z.date(), z.string()]),
+  updatedAt: z.union([z.date(), z.string()]),
 })
 export type FeedLog = z.infer<typeof feedLogSchema>
 
@@ -35,12 +35,12 @@ export const feedLogListItemModelSchema = z.object({
     id: z.string(),
     name: z.string(),
   }),
-  date: z.date().or(z.string()),
+  date: z.union([z.date(), z.string()]),
   title: z.string(),
   summary: z.string(),
   url: z.string(),
   items: z.array(feedLogItemSchema),
-  createdAt: z.date().or(z.string()),
-  updatedAt: z.date().or(z.string()),
+  createdAt: z.union([z.date(), z.string()]),
+  updatedAt: z.union([z.date(), z.string()]),
 })
 export type FeedLogListItemModel = z.infer<typeof feedLogListItemModelSchema>
