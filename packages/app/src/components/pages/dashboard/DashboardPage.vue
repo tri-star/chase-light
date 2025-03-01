@@ -1,17 +1,11 @@
 <script setup lang="ts">
 import A3Button from '~/components/common/A3Button.vue'
 import A3Spinner from '~/components/common/A3Spinner.vue'
-import { SIDE_MENU_ITEM_MAP } from '~/components/common/side-menu/side-menu'
 import LogCard from '~/components/feed/LogCard.vue'
 import { useDashboardPageStore } from '~/components/pages/dashboard/dashboard-page-store'
 import { useInfiniteScroll } from '~/composables/use-infinite-scroll'
 
 const router = useRouter()
-
-definePageMeta({
-  allowGuest: false,
-  menuId: SIDE_MENU_ITEM_MAP.dashboard.id,
-})
 
 const { observe, hasNextPage } = useInfiniteScroll()
 
