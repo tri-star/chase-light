@@ -27,6 +27,18 @@ const endpoints = makeApi([
     path: "/feed-logs",
     alias: "getFeedLogs",
     requestFormat: "json",
+    parameters: [
+      {
+        name: "page",
+        type: "Query",
+        schema: z.string().optional(),
+      },
+      {
+        name: "pageSize",
+        type: "Query",
+        schema: z.string(),
+      },
+    ],
     response: z
       .object({
         result: z
@@ -77,13 +89,20 @@ const endpoints = makeApi([
           )
           .readonly(),
         total: z.number(),
-        page: z.number(),
-        pageSize: z.number(),
       })
       .strict()
       .passthrough()
       .readonly(),
     errors: [
+      {
+        status: 400,
+        description: `バリデーションエラー`,
+        schema: z
+          .object({ error: z.string() })
+          .strict()
+          .passthrough()
+          .readonly(),
+      },
       {
         status: 401,
         description: `認証エラー`,

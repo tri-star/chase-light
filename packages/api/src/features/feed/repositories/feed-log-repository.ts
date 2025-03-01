@@ -129,8 +129,9 @@ export class FeedLogRepository {
    */
   async findFeedLogsListItemModelsByUserId(
     userId: string,
-    limit = 20,
-  ): Promise<FeedLogListItemModel[]> {
+    pageSize: number,
+    page = 1,
+  ): Promise<{ count: number; items: FeedLogListItemModel[] }> {
     const prisma = getPrismaClientInstance()
 
     const loadedFeedLogs = await prisma.feedLog.findMany({
@@ -151,7 +152,16 @@ export class FeedLogRepository {
       orderBy: {
         date: 'desc',
       },
-      take: limit,
+      take: pageSize,
+      skip: (page - 1) * pageSize,
+    })
+
+    const feedLogCount = await prisma.feedLog.count({
+      where: {
+        feed: {
+          userId,
+        },
+      },
     })
 
     const logs = loadedFeedLogs.map((loadedFeedLog) => {
@@ -179,7 +189,10 @@ export class FeedLogRepository {
         }),
       } satisfies FeedLogListItemModel
     })
-    return z.array(feedLogListItemModelSchema).parse(logs)
+    return {
+      count: feedLogCount,
+      items: z.array(feedLogListItemModelSchema).parse(logs),
+    }
   }
 
   /**

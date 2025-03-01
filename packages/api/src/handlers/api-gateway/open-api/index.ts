@@ -71,4 +71,4 @@ honoApp.get(
 export const handler: (
   event: LambdaEvent,
   lambdaContext?: LambdaContext,
-) => Promise<APIGatewayProxyResult> = handle(scalerUiApp.getApp())
+) => Promise<APIGatewayProxyResult> = handle(honoApp)

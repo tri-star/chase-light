@@ -1,15 +1,21 @@
 import { createSsrApiClient } from '~/lib/api/client'
-import type { FeedLogListItemModel } from '~/features/feed/domain/feed-log'
+import {
+  feedLogListItemModelSchema,
+  type FeedLogListItemModel,
+} from '~/features/feed/domain/feed-log'
 
 export default defineEventHandler(async (event) => {
   const client = await createSsrApiClient(event)
-  const response = await client.getFeedLogs()
+  const queries = getQuery(event)
+  const response = await client.getFeedLogs({
+    queries: {
+      page: String(queries['page']),
+      pageSize: String(queries['pageSize']),
+    },
+  })
 
   const feedLogs: FeedLogListItemModel[] = response.result.map((feedLog) => {
-    return {
-      ...feedLog,
-      items: feedLog.items.map((item) => item),
-    }
+    return feedLogListItemModelSchema.parse(feedLog)
   })
 
   return {
