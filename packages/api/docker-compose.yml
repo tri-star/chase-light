@@ -1,6 +1,6 @@
 services:
   db:
-    image: postgres:15.6 # Supabaseと合わせる
+    image: public.ecr.aws/docker/library/postgres:15.6-bookworm # Supabaseと合わせる
     environment:
       POSTGRES_USER: app
       POSTGRES_PASSWORD: secret
