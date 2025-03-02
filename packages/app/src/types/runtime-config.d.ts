@@ -1,5 +1,7 @@
 declare module 'nuxt/schema' {
-  interface RuntimeConfig {}
+  interface RuntimeConfig {
+    appHost: string
+  }
   interface PublicRuntimeConfig {
     apiHost: string
     auth0: {
