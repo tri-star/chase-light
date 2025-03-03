@@ -28,6 +28,7 @@ export default defineNuxtConfig({
     },
   },
   runtimeConfig: {
+    appHost: process.env.NUXT_APP_HOST,
     apiHost: process.env.NUXT_API_HOST,
     oauth: {
       auth0: {
