@@ -5,6 +5,10 @@ defineProps<{
   icon: string
 }>()
 
+const emit = defineEmits<{
+  click: []
+}>()
+
 const menuClasses = tv({
   base: [
     'flex',
@@ -33,7 +37,7 @@ const iconClasses = tv({
 </script>
 
 <template>
-  <div :class="menuClasses()">
+  <div :class="menuClasses()" @click="emit('click')">
     <Icon :name="icon" mode="svg" size="32" :class="iconClasses()" />
   </div>
 </template>

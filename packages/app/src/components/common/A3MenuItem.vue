@@ -23,7 +23,7 @@ const classes = tv({
 
 <template>
   <div :class="classes({ active })" @click="() => emit('click', menu.value)">
-    <p class="text-default">{{ menu.label }}</p>
+    <p class="text-default whitespace-nowrap">{{ menu.label }}</p>
   </div>
 </template>
 

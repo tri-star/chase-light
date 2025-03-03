@@ -3,7 +3,7 @@ on:
   workflow_dispatch:
     inputs:
       environment:
-        description: "Select environment"
+        description: 'Select environment'
         required: true
         type: choice
         options:
@@ -55,9 +55,10 @@ jobs:
           pnpm build
           npx serverless deploy --stage ${{ env.STAGE }} --verbose
         env:
-          NITRO_PRESET: "aws-lambda"
+          NITRO_PRESET: 'aws-lambda'
           SERVERLESS_ACCESS_KEY: ${{ secrets.SERVERLESS_ACCESS_KEY }}
           NUXT_SESSION_PASSWORD: ${{ secrets.NUXT_SESSION_PASSWORD }}
+          NUXT_APP_HOST: ${{ secrets.APP_URL }}
           NUXT_API_HOST: ${{ secrets.API_URL }}
           NUXT_OAUTH_AUTH0_DOMAIN: ${{ secrets.AUTH0_DOMAIN }}
           NUXT_OAUTH_AUTH0_CLIENT_ID: ${{ secrets.AUTH0_CLIENT_ID }}
