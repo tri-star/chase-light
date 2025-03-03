@@ -40,6 +40,14 @@ if ! echo "$gh_ranges" | jq -e '.web and .api and .git' >/dev/null; then
     exit 1
 fi
 
+# echo "Fetching AWS ECR public related ips..."
+
+# aws_s3_ips=$(curl -s https://ip-ranges.amazonaws.com/ip-ranges.json | jq -r '.prefixes[] | select(.region=="ap-northeast-1" and .service=="S3") | .ip_prefix')
+# if [ -z "$aws_s3_ips" ]; then
+#     echo "ERROR: Failed to fetch GitHub IP ranges"
+#     exit 1
+# fi
+
 echo "Processing GitHub IPs..."
 while read -r cidr; do
     if [[ ! "$cidr" =~ ^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}/[0-9]{1,2}$ ]]; then
@@ -50,14 +58,26 @@ while read -r cidr; do
     ipset add allowed-domains "$cidr"
 done < <(echo "$gh_ranges" | jq -r '(.web + .api + .git)[]' | aggregate -q)
 
+
+# echo "Processing AWS S3 IPs..."
+# while read -r cidr; do
+#     if [[ ! "$cidr" =~ ^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}/[0-9]{1,2}$ ]]; then
+#         echo "ERROR: Invalid CIDR range from GitHub meta: $cidr"
+#         exit 1
+#     fi
+#     echo "Adding AWS S3 range $cidr"
+#     ipset add allowed-domains "$cidr"
+# done < <(echo "$aws_s3_ips")
+
 # Resolve and add other allowed domains
+# "public.ecr.aws"
+# "marketplace.visualstudio.com"
 for domain in \
     "registry.npmjs.org" \
     "api.anthropic.com" \
     "sentry.io" \
     "statsig.anthropic.com" \
-    "statsig.com" \
-    "marketplace.visualstudio.com"; do
+    "statsig.com" ; do
     echo "Resolving $domain..."
     ips=$(dig +short A "$domain")
     if [ -z "$ips" ]; then

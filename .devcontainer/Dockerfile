@@ -1,12 +1,16 @@
+# syntax=docker/dockerfile:1
+
 # https://github.com/anthropics/claude-code
-FROM node:22
+FROM public.ecr.aws/docker/library/node:22-bookworm
 
 ARG TZ
 ENV TZ="$TZ"
 
 # Install basic development tools and iptables/ipset
-RUN --mount=type=cache,target=/var/lib/apt --mount=type=cache,target=/var/cache/apt \
-  apt update && apt install -y less \
+RUN --mount=type=cache,target=/var/lib/apt,sharing=locked \
+    --mount=type=cache,target=/var/cache/apt,sharing=locked \
+  apt update && apt install -y locales \
+  less \
   git \
   procps \
   sudo \
@@ -21,7 +25,15 @@ RUN --mount=type=cache,target=/var/lib/apt --mount=type=cache,target=/var/cache/
   dnsutils \
   aggregate \
   jq \
-  docker.io
+  ripgrep \
+  postgresql-client
+
+RUN echo "ja_JP.UTF-8 UTF-8" > /etc/locale.gen \
+ && locale-gen \
+ && update-locale LANG=ja_JP.UTF-8
+
+RUN ln -sf /usr/share/zoneinfo/Asia/Tokyo /etc/localtime \
+ && echo "Asia/Tokyo" > /etc/timezone
 
 # Ensure default node user has access to /usr/local/share
 RUN mkdir -p /usr/local/share/npm-global && \

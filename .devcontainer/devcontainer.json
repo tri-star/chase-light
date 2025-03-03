@@ -1,15 +1,7 @@
 {
   "name": "MML Agent Sandbox",
-  "build": {
-    "dockerfile": "Dockerfile",
-    "args": {
-      "TZ": "${localEnv:TZ:Asia/Tokyo}"
-    }
-  },
-  "runArgs": [
-    "--cap-add=NET_ADMIN",
-    "--cap-add=NET_RAW"
-  ],
+  "dockerComposeFile": "../compose.yaml",
+  "service": "workspace",
   "customizations": {
     "vscode": {
       "extensions": [
@@ -27,7 +19,8 @@
         "yoavbls.pretty-ts-errors",
         "prisma.prisma",
         "bradlc.vscode-tailwindcss",
-        "vitest.explorer"
+        "vitest.explorer",
+        "vue.volar"
       ],
       "settings": {
         "prettier.requireConfig": true,
@@ -50,7 +43,7 @@
         "tailwindCSS.experimental.classRegex": [
           // "tv\\(([^)(]*(?:\\([^)(]*(?:\\([^)(]*(?:\\([^)(]*\\)[^)(]*)*\\)[^)(]*)*\\)[^)(]*)*)\\)"
           // https://www.tailwind-variants.org/docs/getting-started#intellisense-setup-optional
-          "([\"'`][^\"'`]*.*?[\"'`])", "[\"'`]([^\"'`]*).*?[\"'`]",
+          "([\"'`][^\"'`]*.*?[\"'`])", "[\"'`]([^\"'`]*).*?[\"'`]"
         ]
       }
     }
@@ -58,9 +51,7 @@
   "remoteUser": "node",
   "mounts": [
     "source=claude-code-bashhistory,target=/commandhistory,type=volume",
-    "source=claude-code-config,target=/home/node/.claude,type=volume",
-    // 追加: ホストのDockerソケットをマウント
-    "source=/var/run/docker.sock,target=/var/run/docker.sock,type=bind"
+    "source=claude-code-config,target=/home/node/.claude,type=volume"
   ],
   "remoteEnv": {
     "NODE_OPTIONS": "--max-old-space-size=4096",
