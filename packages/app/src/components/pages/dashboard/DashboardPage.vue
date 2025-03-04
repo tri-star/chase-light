@@ -7,33 +7,34 @@ import { useInfiniteScroll } from '~/composables/use-infinite-scroll'
 
 const router = useRouter()
 
-const { observe, hasNextPage } = useInfiniteScroll()
+const { observe } = useInfiniteScroll()
 
-const { feedLogs, pageNo, pageSize, loadedList, loadListStatus } = storeToRefs(
-  useDashboardPageStore()
-)
+const dashboardPageStore = useDashboardPageStore()
+const { feedLogs, pageNo, loadingStatus } = storeToRefs(dashboardPageStore)
 
 const loadMoreRef = ref<HTMLDivElement | null>(null)
 
-onMounted(() => {
-  observe(loadMoreRef, (isIntersecting) => {
+onMounted(async () => {
+  if (feedLogs.value.length === 0) {
+    await dashboardPageStore.fetchFeedLogs(1)
+  }
+
+  observe(loadMoreRef, async (isIntersecting) => {
     if (!isIntersecting) {
       return
     }
-    if (loadListStatus.value === 'pending') {
+
+    if (loadingStatus.value === 'pending') {
       return
     }
-    const paginationInfo = {
-      page: pageNo.value,
-      total: loadedList.value?.total ?? 0,
-      pageSize: pageSize.value,
-    }
-    if (!hasNextPage(paginationInfo)) {
-      return
-    }
-    pageNo.value++
+
+    await dashboardPageStore.fetchFeedLogs(pageNo.value + 1)
   })
 })
+
+if (import.meta.server) {
+  await dashboardPageStore.fetchFeedLogs(1)
+}
 
 function handleAddFeedClick() {
   router.push({ path: '/feeds/new' })
@@ -62,7 +63,7 @@ function handleAddFeedClick() {
         />
         <div ref="loadMoreRef" class="flex w-full items-center justify-center">
           <A3Spinner
-            v-if="loadListStatus === 'pending'"
+            v-if="loadingStatus === 'pending'"
             size-class="h-7 w-7"
             color="gray"
           />

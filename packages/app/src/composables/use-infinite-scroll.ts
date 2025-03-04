@@ -34,13 +34,7 @@ export function useInfiniteScroll() {
     observer.observe(element.value)
   }
 
-  function hasNextPage(paginationInfo: InfiniteScrollPaginationInfo) {
-    const nextOffset = paginationInfo.page * paginationInfo.pageSize
-    return nextOffset < paginationInfo.total
-  }
-
   return {
     observe,
-    hasNextPage,
   }
 }
