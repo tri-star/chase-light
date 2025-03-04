@@ -27,17 +27,15 @@
 - フィードの詳細情報を取得するAPIは /api/feed/[id] となる予定ですが、今はこのAPIは /packages/app/src/server/api配下に存在しません。
   - 必要に応じ作成してください。
   - この時点では作成せず、固定値で実装しても構いません。
-- フィードログの一覧を取得するAPIは /api/feed-logs/[feed-id] となる予定ですが、このAPIもまだ/packages/app/src/server/api配下に存在しません。
-  - 必要に応じ作成してください。
-  - この時点では作成せず、固定値で実装しても構いません。
 - フロントエンド側はテストが十分整備出来ていないため、テストは不要です。
   動作確認はユーザーに求めてください。
 
 ## (2). フィード詳細情報取得API の実装
 
-- (1)でAPIを実装しなかった場合、このタイミングで実装してください。
-  既に作成していた場合はこの手順はスキップしてください。
-- フィードの詳細情報取得APIは、 /packages/api配下には存在しますが、
-  /packages/app/src/server/api配下に定義出来ていない状態です。
-- /packages/app/src/server/api/feeds/index.get.ts などを参考に実装してください。
-- 実装が終わった後、components/pages内で行った仮の実装をAPI呼び出しに置き換えてください。
+/packages/app/src/server/api/feeds/[id].get.ts は今仮の実装ですが、これを実際の実装に置き換えます。
+このために以下の作業を行います。
+
+- packages/api/src/handlers/api-gateway/feed/actions配下に fetch-feed-action.tsを作成します。
+  内容は packages/api/src/handlers/api-gateway/feed/actions/list-feed-action.ts などを参考にしてください。
+- このプロジェクト固有のルールで、actions配下にAPIを追加したら、一つ上の階層にあるindex.tsもメンテナンスする必要があります。
+- このAPIに対するテストを作成、テストが通ることを確認してください。
