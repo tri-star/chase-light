@@ -2,7 +2,8 @@
 import { computed, ref } from 'vue'
 import type { Feed } from '~/features/feed/domain/feed'
 import { toDateTimeString } from '~/lib/utils/date-utils'
-import { useFetch } from '#app'
+import A3Spinner from '~/components/common/A3Spinner.vue'
+import A3Button from '~/components/common/A3Button.vue'
 
 const props = defineProps<{
   feedId: string
@@ -12,7 +13,9 @@ const props = defineProps<{
 const loading = ref(true)
 
 // APIからフィードデータを取得
-const { data, error } = await useFetch(`/api/feeds/${props.feedId}`)
+const { data, error } = await useA3Fetch(`/api/feeds/${props.feedId}`, {
+  method: 'GET',
+})
 
 // フィードデータと最終更新日時
 const feed = ref<Feed | null>(null)
@@ -51,58 +54,70 @@ const feedType = computed(() => 'GitHubリリース')
 <template>
   <div class="container mx-auto p-8">
     <div class="mb-8">
-      <h1 class="text-size-h3 font-bold mb-6">フィード詳細</h1>
-      
+      <h1 class="text-size-h3 mb-6 font-bold">フィード詳細</h1>
+
       <!-- データ読み込み中 -->
-      <div v-if="loading" class="flex justify-center items-center py-10">
+      <div v-if="loading" class="flex items-center justify-center py-10">
         <A3Spinner />
         <span class="ml-2">読み込み中...</span>
       </div>
-      
+
       <!-- エラー表示 -->
-      <div v-else-if="hasError" class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
+      <div
+        v-else-if="hasError"
+        class="rounded border border-red-400 bg-red-100 px-4 py-3 text-red-700"
+      >
         <p>データの読み込みに失敗しました。</p>
         <p>{{ error }}</p>
       </div>
-      
+
       <!-- データ表示 -->
       <template v-else-if="feed">
-        <div class="bg-list rounded-lg p-6 mb-8 shadow-md">
+        <div class="bg-list mb-8 rounded-lg p-6 shadow-md">
           <div class="grid grid-cols-1 gap-4">
             <div class="flex">
               <div class="w-40 font-bold">フィード名:</div>
               <div>{{ feed.name }}</div>
             </div>
-            
+
             <div class="flex">
               <div class="w-40 font-bold">URL:</div>
               <div class="break-all">
-                <a :href="feed.url" target="_blank" class="text-blue-600 hover:underline">{{ feed.url }}</a>
+                <a
+                  :href="feed.url"
+                  target="_blank"
+                  class="text-blue-600 hover:underline"
+                  >{{ feed.url }}</a
+                >
               </div>
             </div>
-            
+
             <div class="flex">
               <div class="w-40 font-bold">種類:</div>
               <div>{{ feedType }}</div>
             </div>
-            
+
             <div class="flex">
               <div class="w-40 font-bold">最終更新日時:</div>
-              <div>{{ lastReleaseDate ? toDateTimeString(lastReleaseDate) : 'なし' }}</div>
+              <div>
+                {{
+                  lastReleaseDate ? toDateTimeString(lastReleaseDate) : 'なし'
+                }}
+              </div>
             </div>
-            
+
             <div class="flex">
               <div class="w-40 font-bold">登録日時:</div>
               <div>{{ toDateTimeString(feed.createdAt) }}</div>
             </div>
-            
+
             <div class="flex">
               <div class="w-40 font-bold">更新日時:</div>
               <div>{{ toDateTimeString(feed.updatedAt) }}</div>
             </div>
           </div>
         </div>
-        
+
         <div class="flex justify-between">
           <A3Button label="編集" type="primary" @click="handleEditClick" />
           <A3Button label="戻る" type="default" @click="handleBackClick" />
