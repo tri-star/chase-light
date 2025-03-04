@@ -15,14 +15,16 @@
   - mainブランチで作業を開始した場合は新しく作業用ブランチを作成
   - feature/xxxx の形式
   - 課題番号が与えられている場合、feature/<課題番号>-xxx。 例： feature/URB-123-add-some-feature
-- 新しい画面を追加、既存の画面を更新する場合、以下のフォルダを参考にコンポーネントやURL構造を検討してください
+- 新しい画面を追加、既存の画面を更新する場合、以下のフォルダを参考にコンポーネントやURL構造を検討してください。
   - packages/app/src/pages
   - packages/app/src/components/pages
   - packages/app/src/components/common
   - packages/app/src/features/feed/domain
+- 作業に入る前に、どんなファイルを作り進めていくかを /development/<課題番号>/work.mdに記述し、ユーザーに確認を求めてください。
+  必要に応じMermaidによる図解や、別ファイルにdrawioを作成して図解してください。
+  - 作成中に方針が変わる都度、このファイルも更新してください。
 - 以下のフォルダはdeprecatedで、この下に新しい要素は増やさないでください。
   (このフォルダ下のファイルの改修が必要で改修するのはOKです)
-  - packages/app/src/components/feed
   - packages/app/src/features/feed/pages
 - API呼び出しが必要で対応するAPIが不明な場合、ユーザーに問い合わせてください。
   「固定値で対応」と指示があった場合は、API呼び出し部分を固定値で実装しておき、後で置き換えるようにしてください。

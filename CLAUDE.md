@@ -92,8 +92,8 @@
     │       ├── assets : バンドル対象となる画像/CSS置き場
     │       ├── components : Vueコンポーネントを配置。画面レベルのコンポーネントもここにフォルダを作成して配置
     │       │   ├── common : 複数画面で共有するコンポーネントを配置するフォルダ
-    │       │   │   ├── GlobalHeader.vue : アプリ全体で利用しうるコンポーネントはcommon配下に直接配置
-    │       │   │   └── <feature> : ある機能の中で共通して使われるコンポーネントを配置するフォルダ。例：FeedLogCard.vue
+    │       │   │   └── GlobalHeader.vue : アプリ全体で利用しうるコンポーネントはcommon配下に直接配置
+    │       │   ├── <feature> : ある機能の中で共通して使われるコンポーネントを配置するフォルダ。例：FeedLogCard.vue
     │       │   └── <page> : ある画面に関するページレベル、ページ内の要素レベルのコンポーネントを配置。例： DashboardPage.vue, FeedListTable.vue
     │       ├── composables : アプリケーション内で共通して利用されるcomposableの置き場
     │       ├── exceptions : アプリケーション内で共通して利用されるErrorクラスの置き場
