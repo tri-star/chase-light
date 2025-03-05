@@ -1,5 +1,6 @@
 import { ChaseLightApp } from '@/handlers/api-gateway/app/chase-light-app'
 import { CreateFeedAction } from '@/handlers/api-gateway/feed/actions/create-feed-action'
+import { FetchFeedAction } from '@/handlers/api-gateway/feed/actions/fetch-feed-action'
 import { ListUserFeedLogAction } from '@/handlers/api-gateway/feed/actions/list-all-feed-log-action'
 import { ListFeedAction } from '@/handlers/api-gateway/feed/actions/list-feed-action'
 import { ValidateFeedUrlAction } from '@/handlers/api-gateway/feed/actions/validate-feed-url-action'
@@ -43,6 +44,7 @@ feedApp.defineLambdaDefinition({
 feedApp.importActions([
   new CreateFeedAction(),
   new ListFeedAction(),
+  new FetchFeedAction(),
   new ListUserFeedLogAction(),
   new ValidateFeedUrlAction(),
 ])

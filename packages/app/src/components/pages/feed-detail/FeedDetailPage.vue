@@ -4,6 +4,7 @@ import type { Feed } from '~/features/feed/domain/feed'
 import { toDateTimeString } from '~/lib/utils/date-utils'
 import A3Spinner from '~/components/common/A3Spinner.vue'
 import A3Button from '~/components/common/A3Button.vue'
+import type { GetFeedResponse } from '~/server/api/feeds/[id].get'
 
 const props = defineProps<{
   feedId: string
@@ -13,9 +14,10 @@ const props = defineProps<{
 const loading = ref(true)
 
 // APIからフィードデータを取得
-const { data, error } = await useA3Fetch(`/api/feeds/${props.feedId}`, {
-  method: 'GET',
-})
+const { data, error } = await useA3Fetch<GetFeedResponse>(
+  `/api/feeds/${props.feedId}`,
+  {}
+)
 
 // フィードデータと最終更新日時
 const feed = ref<Feed | null>(null)
@@ -23,8 +25,8 @@ const lastReleaseDate = ref<string | null>(null)
 
 // APIレスポンスがあれば反映
 if (data.value) {
-  feed.value = data.value.feed as Feed
-  lastReleaseDate.value = data.value.lastReleaseDate as string
+  feed.value = data.value.feed
+  lastReleaseDate.value = data.value.lastReleaseDate
   loading.value = false
 }
 

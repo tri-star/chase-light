@@ -21,6 +21,10 @@ export const ROUTES = {
     LIST: {
       DEFINITION: '/feeds',
     },
+    FETCH: {
+      DEFINITION: '/feeds/{feedId}',
+      URL: (feedId: string) => `/feeds/${feedId}`,
+    },
     LIST_ALL_LOGS: {
       DEFINITION: '/feed-logs',
     },

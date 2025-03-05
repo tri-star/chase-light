@@ -1,6 +1,13 @@
-import type { Feed } from '~/features/feed/domain/feed'
+import { Feed } from '~/features/feed/domain/feed'
+import { createSsrApiClient } from '~/lib/api/client'
+import { createErrorResponse } from '~/server/utils/api-utils'
 
-export default defineEventHandler(async (event) => {
+export type GetFeedResponse = {
+  feed: Feed
+  lastReleaseDate: string | null
+}
+
+export default defineEventHandler(async (event): Promise<GetFeedResponse> => {
   const feedId = event.context.params?.id as string
 
   if (!feedId) {
@@ -10,28 +17,19 @@ export default defineEventHandler(async (event) => {
     })
   }
 
-  // 固定値でレスポンスを返す（APIが実装されたら置き換える）
-  const dummyFeed: Feed = {
-    id: feedId,
-    name: `サンプルフィード ${feedId}`,
-    url: 'https://github.com/nuxt/nuxt',
-    cycle: 'daily',
-    dataSource: {
-      id: '1',
-      name: 'GitHubリリース',
-      url: '',
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-    },
-    createdAt: '2025-02-01T12:00:00.000Z',
-    updatedAt: '2025-03-01T15:30:00.000Z',
-  }
+  try {
+    const apiClient = await createSsrApiClient(event)
+    const response = await apiClient.getFeedsFeedId({ params: { feedId } })
 
-  // フィードの最終更新日時（仮）
-  const lastReleaseDate = '2025-03-05T10:15:00.000Z'
-
-  return {
-    feed: dummyFeed,
-    lastReleaseDate: lastReleaseDate,
+    return {
+      feed: response.feed,
+      lastReleaseDate: response.lastReleaseDate ?? null,
+    }
+  } catch (error) {
+    const errorResponse = createErrorResponse(error)
+    throw createError({
+      statusCode: errorResponse.status,
+      message: errorResponse.body,
+    })
   }
 })
