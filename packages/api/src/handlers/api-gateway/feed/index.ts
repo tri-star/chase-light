@@ -44,9 +44,9 @@ feedApp.defineLambdaDefinition({
 feedApp.importActions([
   new CreateFeedAction(),
   new ListFeedAction(),
+  new ValidateFeedUrlAction(),
   new FetchFeedAction(),
   new ListUserFeedLogAction(),
-  new ValidateFeedUrlAction(),
 ])
 
 export const handler: (
