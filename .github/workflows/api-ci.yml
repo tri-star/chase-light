@@ -5,15 +5,30 @@ on:
     branches:
       - main
     paths:
-      - "packages/api/**"
+      - 'packages/api/**'
   pull_request:
     paths:
-      - "packages/api/**"
+      - 'packages/api/**'
   workflow_dispatch:
 
 jobs:
   test:
     runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: public.ecr.aws/docker/library/postgres:15.6-bookworm
+        ports:
+          - '10000:5432'
+        env:
+          POSTGRES_USER: test_user
+          POSTGRES_PASSWORD: secret
+          POSTGRES_DB: test_db
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
 
     steps:
       - uses: actions/checkout@v4
@@ -23,7 +38,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: "22.9.0"
+          node-version: '22.9.0'
 
       - uses: actions/cache/restore@v4
         id: pnpm-cache
