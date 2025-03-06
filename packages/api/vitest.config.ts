@@ -17,6 +17,10 @@ export default defineConfig({
       },
     },
     maxConcurrency: 1,
+    env: {
+      DATABASE_URL: 'postgresql://test_user:secret@localhost:10000/test_db',
+      DIRECT_URL: 'postgresql://test_user:secret@localhost:10000/test_db',
+    },
   },
   resolve: {
     alias: {
