@@ -1,7 +1,7 @@
 <script setup lang="ts">
 // フィード詳細ページのエントリーポイント
 import { SIDE_MENU_ITEM_MAP } from '~/components/common/side-menu/side-menu'
-import FeedDetailPage from '~/components/pages/feed-detail/FeedDetailPage.vue'
+import FeedDetailPage from '~/components/pages/feeds/detail/FeedDetailPage.vue'
 
 definePageMeta({
   allowGuest: false,
