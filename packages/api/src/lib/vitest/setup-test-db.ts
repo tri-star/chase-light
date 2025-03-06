@@ -6,6 +6,11 @@ import { beforeEach } from 'vitest'
 let initialized = false
 
 beforeEach(async () => {
+  if (process.env.NODE_ENV !== 'test') {
+    throw new Error(
+      `ENVがtestではありません: ${process.env.NODE_ENV}, ${process.env.DATABASE_URL}`,
+    )
+  }
   if (!initialized) {
     const connectionUrl = process.env.DATABASE_URL
     execSync(
