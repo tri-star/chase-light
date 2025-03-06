@@ -27,10 +27,7 @@ export class FetchFeedAction extends ActionDefinition<AppContext> {
           description: '処理成功',
           content: {
             'application/json': {
-              schema: z.object({
-                feed: feedDetailModelSchema,
-                lastReleaseDate: z.string().nullable(),
-              }),
+              schema: feedDetailModelSchema,
             },
           },
         },
@@ -85,15 +82,7 @@ export class FetchFeedAction extends ActionDefinition<AppContext> {
             return c.json({ error: 'Feed not found' }, 404)
           }
 
-          const lastReleaseDate = feed.feedGitHubMeta?.lastReleaseDate?.toISOString() ?? null
-
-          return c.json(
-            {
-              feed,
-              lastReleaseDate,
-            },
-            200,
-          )
+          return c.json(feed, 200)
         } catch (error) {
           if (error instanceof DbNotFoundError) {
             return c.json({ error: 'Feed not found' }, 404)

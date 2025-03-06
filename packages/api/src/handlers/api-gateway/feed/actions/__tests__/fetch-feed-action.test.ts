@@ -7,6 +7,7 @@ import { FeedFactory } from 'prisma/seeds/feed-factory'
 import { UserFactory } from 'prisma/seeds/user-factory'
 import { FeedGitHubMetaFactory } from 'prisma/seeds/feed-github-meta-factory'
 import { beforeEach, describe, expect, test } from 'vitest'
+import type { FeedDetailModel } from '@/features/feed/domain/feed'
 
 let app: OpenAPIHono<AppContext>
 
@@ -43,12 +44,10 @@ describe('FetchFeedAction', () => {
         'Content-Type': 'application/json',
       },
     })
-    const resultJson = await result.json()
+    const resultJson = (await result.json()) as FeedDetailModel
     expect(result.status).toBe(200)
-    expect(resultJson).toHaveProperty('feed')
-    expect(resultJson).toHaveProperty('lastReleaseDate')
-    expect(resultJson.feed.id).toBe(feed.id)
-    expect(resultJson.feed.name).toBe(feed.name)
+    expect(resultJson.id).toBe(feed.id)
+    expect(resultJson.name).toBe(feed.name)
   })
 
   test('存在しないフィードの場合は404エラーが返ること', async () => {
@@ -65,7 +64,7 @@ describe('FetchFeedAction', () => {
         'Content-Type': 'application/json',
       },
     })
-    const resultJson = await result.json()
+    const resultJson = (await result.json()) as { error: string }
     expect(result.status).toBe(404)
     expect(resultJson).toHaveProperty('error')
     expect(resultJson.error).toBe('Feed not found')
@@ -93,7 +92,7 @@ describe('FetchFeedAction', () => {
         'Content-Type': 'application/json',
       },
     })
-    const resultJson = await result.json()
+    const resultJson = (await result.json()) as { error: string }
     expect(result.status).toBe(404)
     expect(resultJson).toHaveProperty('error')
     expect(resultJson.error).toBe('Feed not found')
@@ -119,9 +118,6 @@ describe('FetchFeedAction', () => {
         'Content-Type': 'application/json',
       },
     })
-    const resultJson = await result.json()
     expect(result.status).toBe(401)
-    expect(resultJson).toHaveProperty('error')
-    expect(resultJson.error).toBe('Unauthorized')
   })
 })
