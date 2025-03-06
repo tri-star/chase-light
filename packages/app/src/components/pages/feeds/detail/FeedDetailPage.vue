@@ -103,7 +103,9 @@ const feedType = computed(() => 'GitHubリリース')
               <div class="w-40 font-bold">最終更新日時:</div>
               <div>
                 {{
-                  lastReleaseDate ? toDateTimeString(lastReleaseDate) : 'なし'
+                  feed.feedGitHubMeta?.lastReleaseDate
+                    ? toDateTimeString(feed.feedGitHubMeta?.lastReleaseDate)
+                    : 'なし'
                 }}
               </div>
             </div>

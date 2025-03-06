@@ -28,7 +28,7 @@ export type CreateFeedForm = z.infer<typeof createFeedFormSchema>
  * 詳細画面用
  */
 export const feedDetailModelSchema = feedSchema.extend({
-  feedGithubMeta: z
+  feedGitHubMeta: z
     .object({
       lastReleaseDate: z.date().or(z.string()),
     })

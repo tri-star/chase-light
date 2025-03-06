@@ -21,7 +21,7 @@ export default defineEventHandler(async (event): Promise<GetFeedResponse> => {
     const apiClient = await createSsrApiClient(event)
     const response = await apiClient.getFeedsFeedId({ params: { feedId } })
 
-    return feedDetailModelSchema.parse(response.data)
+    return feedDetailModelSchema.parse(response)
   } catch (error) {
     const errorResponse = createErrorResponse(error)
     throw createError({
