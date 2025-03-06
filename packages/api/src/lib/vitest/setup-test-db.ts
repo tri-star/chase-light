@@ -1,37 +1,31 @@
 import { initialize } from '@/__generated__/fabbrica'
-import { swapPrismaClientForTest } from '@/lib/prisma/app-prisma-client'
-import { PrismaClient } from '@prisma/client'
-import { beforeEach, inject } from 'vitest'
+import { getPrismaClientInstance } from '@/lib/prisma/app-prisma-client'
+import { execSync } from 'child_process'
+import { beforeEach } from 'vitest'
+
+let initialized = false
 
 beforeEach(async () => {
-  const connectionUrl = inject('testDbConnectUrl')
+  if (process.env.NODE_ENV !== 'test') {
+    throw new Error(
+      `ENVがtestではありません: ${process.env.NODE_ENV}, ${process.env.DATABASE_URL}`,
+    )
+  }
+  if (!initialized) {
+    const connectionUrl = process.env.DATABASE_URL
+    execSync(
+      `DATABASE_URL=${connectionUrl} DIRECT_URL=${connectionUrl} npx prisma migrate dev --skip-generate`,
+    )
+    initialized = true
+  }
 
-  const prismaClientForTest = new PrismaClient({
-    log: [
-      {
-        emit: 'event',
-        level: 'query',
-      },
-    ],
-    datasources: {
-      db: {
-        url: connectionUrl,
-      },
-    },
-  })
-
-  prismaClientForTest.$on('query', (e: unknown) => {
-    console.log('Query: ', e)
-  })
-
-  swapPrismaClientForTest(prismaClientForTest)
-
-  initialize({ prisma: prismaClientForTest })
+  const prisma = getPrismaClientInstance()
+  initialize({ prisma: prisma })
 
   console.log('before each: Start DB reset.')
 
   // https://www.prisma.io/docs/orm/prisma-client/queries/crud#deleting-all-data-with-raw-sql--truncate
-  const tablenames = await prismaClientForTest.$queryRaw<
+  const tablenames = await prisma.$queryRaw<
     Array<{ tablename: string }>
   >`SELECT tablename FROM pg_tables WHERE schemaname='public'`
 
@@ -42,9 +36,7 @@ beforeEach(async () => {
     .join(', ')
 
   try {
-    await prismaClientForTest.$executeRawUnsafe(
-      `TRUNCATE TABLE ${tables} CASCADE;`,
-    )
+    await prisma.$executeRawUnsafe(`TRUNCATE TABLE ${tables} CASCADE;`)
   } catch (error) {
     console.log({ error })
   }

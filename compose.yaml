@@ -16,6 +16,7 @@ services:
       - NET_RAW
     depends_on:
       - db
+      - test_db
     # networks:
     #   - app-network
 
@@ -30,8 +31,20 @@ services:
     ports:
       - '15432:5432'
 
+  test_db:
+    image: public.ecr.aws/docker/library/postgres:15.6-bookworm
+    environment:
+      POSTGRES_USER: test_user
+      POSTGRES_PASSWORD: secret
+      POSTGRES_DB: test_db
+    volumes:
+      - test_db_data:/var/lib/postgresql/data
+    ports:
+      - '15433:15432'
+
 volumes:
   db_data:
+  test_db_data:
 # networks:
 #   app-network:
 #     driver: bridge

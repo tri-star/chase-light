@@ -24,6 +24,21 @@ export const createFeedFormSchema = z.object({
 })
 export type CreateFeedForm = z.infer<typeof createFeedFormSchema>
 
+/**
+ * 詳細画面用
+ */
+export const feedDetailModelSchema = feedSchema.extend({
+  feedGitHubMeta: z
+    .object({
+      lastReleaseDate: z.date().or(z.string()),
+    })
+    .optional(),
+})
+export type FeedDetailModel = z.infer<typeof feedDetailModelSchema>
+
+/**
+ * 検索結果用
+ */
 export const feedSearchFormSchema = z.object({
   keyword: z.string().optional(),
   sort: makeEnumFromArray(SORT_ITEMS_VALUES).optional(),

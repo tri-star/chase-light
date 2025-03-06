@@ -298,6 +298,91 @@ const endpoints = makeApi([
   },
   {
     method: "get",
+    path: "/feeds/:feedId",
+    alias: "getFeedsFeedId",
+    requestFormat: "json",
+    parameters: [
+      {
+        name: "feedId",
+        type: "Path",
+        schema: z.string(),
+      },
+    ],
+    response: z
+      .object({
+        id: z.string(),
+        name: z.string(),
+        url: z.string(),
+        cycle: z.union([z.literal(1), z.literal(2)]),
+        dataSource: z
+          .object({
+            id: z.string(),
+            name: z.string(),
+            url: z.string(),
+            createdAt: z.string(),
+            updatedAt: z.string(),
+          })
+          .strict()
+          .passthrough()
+          .readonly(),
+        feedGitHubMeta: z
+          .object({ id: z.string(), lastReleaseDate: z.string().optional() })
+          .strict()
+          .passthrough()
+          .readonly()
+          .optional(),
+        user: z
+          .object({
+            id: z.string(),
+            displayName: z.string(),
+            accountName: z.string(),
+            email: z.string(),
+            emailVerified: z.boolean(),
+            providerId: z.string(),
+            createdAt: z.string(),
+            updatedAt: z.string(),
+          })
+          .strict()
+          .passthrough()
+          .readonly(),
+        createdAt: z.string(),
+        updatedAt: z.string(),
+      })
+      .strict()
+      .passthrough()
+      .readonly(),
+    errors: [
+      {
+        status: 401,
+        description: `認証エラー`,
+        schema: z
+          .object({ error: z.string() })
+          .strict()
+          .passthrough()
+          .readonly(),
+      },
+      {
+        status: 404,
+        description: `フィードが見つかりません`,
+        schema: z
+          .object({ error: z.string() })
+          .strict()
+          .passthrough()
+          .readonly(),
+      },
+      {
+        status: 500,
+        description: `予期しないエラー`,
+        schema: z
+          .object({ error: z.string() })
+          .strict()
+          .passthrough()
+          .readonly(),
+      },
+    ],
+  },
+  {
+    method: "get",
     path: "/feeds/validate-url",
     alias: "getFeedsvalidateUrl",
     description: `フィードURLの重複チェック、形式チェック`,

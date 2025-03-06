@@ -8,10 +8,15 @@ import {
 } from '@/features/feed/domain/feed'
 import { getPrismaClientInstance } from '@/lib/prisma/app-prisma-client'
 import type { CycleValue } from 'core/features/feed/feed'
+import { validate as validateUuid } from 'uuid'
 
 export class FeedRepository {
   async findFeedById(feedId: string): Promise<FeedDetailModel> {
     const prisma = getPrismaClientInstance()
+
+    if (!validateUuid(feedId)) {
+      throw new DbNotFoundError('feeds', 'Feedのロードに失敗しました')
+    }
 
     const loadedFeed = await prisma.feed.findFirst({
       where: {
