@@ -1,11 +1,11 @@
-import { Feed } from '~/features/feed/domain/feed'
+import {
+  FeedDetailModel,
+  feedDetailModelSchema,
+} from '~/features/feed/domain/feed'
 import { createSsrApiClient } from '~/lib/api/client'
 import { createErrorResponse } from '~/server/utils/api-utils'
 
-export type GetFeedResponse = {
-  feed: Feed
-  lastReleaseDate: string | null
-}
+export type GetFeedResponse = FeedDetailModel
 
 export default defineEventHandler(async (event): Promise<GetFeedResponse> => {
   const feedId = event.context.params?.id as string
@@ -21,10 +21,7 @@ export default defineEventHandler(async (event): Promise<GetFeedResponse> => {
     const apiClient = await createSsrApiClient(event)
     const response = await apiClient.getFeedsFeedId({ params: { feedId } })
 
-    return {
-      feed: response.feed,
-      lastReleaseDate: response.lastReleaseDate ?? null,
-    }
+    return feedDetailModelSchema.parse(response.data)
   } catch (error) {
     const errorResponse = createErrorResponse(error)
     throw createError({
