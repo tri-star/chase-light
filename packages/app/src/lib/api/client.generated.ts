@@ -310,53 +310,43 @@ const endpoints = makeApi([
     ],
     response: z
       .object({
-        feed: z
+        id: z.string(),
+        name: z.string(),
+        url: z.string(),
+        cycle: z.union([z.literal(1), z.literal(2)]),
+        dataSource: z
           .object({
             id: z.string(),
             name: z.string(),
             url: z.string(),
-            cycle: z.union([z.literal(1), z.literal(2)]),
-            dataSource: z
-              .object({
-                id: z.string(),
-                name: z.string(),
-                url: z.string(),
-                createdAt: z.string(),
-                updatedAt: z.string(),
-              })
-              .strict()
-              .passthrough()
-              .readonly(),
-            feedGitHubMeta: z
-              .object({
-                id: z.string(),
-                lastReleaseDate: z.string().optional(),
-              })
-              .strict()
-              .passthrough()
-              .readonly()
-              .optional(),
-            user: z
-              .object({
-                id: z.string(),
-                displayName: z.string(),
-                accountName: z.string(),
-                email: z.string(),
-                emailVerified: z.boolean(),
-                providerId: z.string(),
-                createdAt: z.string(),
-                updatedAt: z.string(),
-              })
-              .strict()
-              .passthrough()
-              .readonly(),
             createdAt: z.string(),
             updatedAt: z.string(),
           })
           .strict()
           .passthrough()
           .readonly(),
-        lastReleaseDate: z.string().nullable(),
+        feedGitHubMeta: z
+          .object({ id: z.string(), lastReleaseDate: z.string().optional() })
+          .strict()
+          .passthrough()
+          .readonly()
+          .optional(),
+        user: z
+          .object({
+            id: z.string(),
+            displayName: z.string(),
+            accountName: z.string(),
+            email: z.string(),
+            emailVerified: z.boolean(),
+            providerId: z.string(),
+            createdAt: z.string(),
+            updatedAt: z.string(),
+          })
+          .strict()
+          .passthrough()
+          .readonly(),
+        createdAt: z.string(),
+        updatedAt: z.string(),
       })
       .strict()
       .passthrough()
