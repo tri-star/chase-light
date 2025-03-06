@@ -1,7 +1,5 @@
-import {
-  FeedDetailModel,
-  feedDetailModelSchema,
-} from '~/features/feed/domain/feed'
+import { feedDetailModelSchema } from '~/features/feed/domain/feed'
+import type { FeedDetailModel } from '~/features/feed/domain/feed'
 import { createSsrApiClient } from '~/lib/api/client'
 import { createErrorResponse } from '~/server/utils/api-utils'
 
