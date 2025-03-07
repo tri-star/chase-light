@@ -46,3 +46,41 @@
 - マジックナンバーを避け、定数を定義する
   - そのファイル・フォルダ固有で閉じて参照されるものであれば、ファイル内・フォルダ内のconstants.tsなどに宣言
   - より広い範囲で参照されるケースではpackages/app/src/features/<feature>/domain 配下が想定されます
+
+## 開発中に実行するコマンド
+
+- **テストの実行**: `pnpm test`
+- **単一ファイルのテストの実行**: `pnpm test path/to/test.ts` or `pnpm test -t "test description"`
+- **Linting**: `pnpm lint` (runs eslint, type checking, and biome)
+- **Formatting**: `pnpm format` (API) or `pnpm format:biome && pnpm format:prettier` (App)
+
+## フォルダ構成
+
+```
+/
+├── docs : ドキュメント置き場
+└── src
+    ├── assets : バンドル対象となる画像/CSS置き場
+    ├── components : Vueコンポーネントを配置。画面レベルのコンポーネントもここにフォルダを作成して配置
+    │   ├── common : 複数画面で共有するコンポーネントを配置するフォルダ
+    │   │   └── GlobalHeader.vue : アプリ全体で利用しうるコンポーネントはcommon配下に直接配置
+    │   ├── <feature> : ある機能の中で共通して使われるコンポーネントを配置するフォルダ。例：FeedLogCard.vue
+    │   └── <page> : ある画面に関するページレベル、ページ内の要素レベルのコンポーネントを配置。例： DashboardPage.vue, FeedListTable.vue
+    ├── composables : アプリケーション内で共通して利用されるcomposableの置き場
+    ├── exceptions : アプリケーション内で共通して利用されるErrorクラスの置き場
+    ├── features : ドメインオブジェクト、ロジック、型定義、定数宣言ファイルの置き場
+    │   └── <feature>
+    │       ├── composables
+    │       ├── domain
+    │       └── pages : deprecated。このフォルダにあるコードは徐々に app/src/components/<page> に移動していきたいです。
+    ├── layouts : Nuxt.jsのレイアウトコンポーネント
+    ├── lib : 外部ライブラリに関するユーティリティ関数の定義
+    ├── middleware : Nuxt.jsのミドルウェア
+    ├── pages : Nuxt.jsのページコンポーネント置き場
+    ├── plugins : Nuxt.jsのプラグイン
+    ├── public : 静的ファイル置き場
+    ├── server : Nuxt.jsのサーバーサイドコード置き場
+    │   └── api : API関連のコード。この下で定義するAPIは/packages/apiをプロキシして内部でappプロジェクト内のオブジェクトに変換して返す実装となっていることを想定しています。
+    ├── stories : Storybookのストーリー置き場
+    └── types : TypeScriptのアンビエント型宣言ファイルを配置
+```
