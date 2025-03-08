@@ -77,6 +77,8 @@ async function requestNewAccessToken(event: H3Event) {
       },
     })
 
+    event.context.needSyncSession = true
+
     console.log('new token', response.access_token)
     return response.access_token
   } catch (e) {
@@ -100,7 +102,7 @@ export function getExpirationSecondsFromToken(token: string) {
     const now = new Date().getTime() / 1000
 
     return decodedPayload.exp - now
-  } catch (e) {
+  } catch (_e) {
     console.log(`トークンから有効期限を取得に失敗: ${token}`)
     return undefined
   }
