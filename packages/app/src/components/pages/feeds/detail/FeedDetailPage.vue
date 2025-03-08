@@ -152,8 +152,18 @@ const feedType = computed(() => 'GitHubリリース')
       </div>
       <div class="flex">
         <div class="flex flex-1 justify-center gap-8">
-          <A3Button label="編集" type="primary" @click="handleEditClick" />
-          <A3Button label="戻る" type="default" @click="handleBackClick" />
+          <A3Button
+            label="編集"
+            type="primary"
+            class="w-36"
+            @click="handleEditClick"
+          />
+          <A3Button
+            label="戻る"
+            type="default"
+            class="w-36"
+            @click="handleBackClick"
+          />
         </div>
         <div>
           <A3Button label="削除" type="default" @click="handleDeleteClick" />
