@@ -1,29 +1,16 @@
 import { initialize } from '@/__generated__/fabbrica'
 import { getPrismaClientInstance } from '@/lib/prisma/app-prisma-client'
-import { execSync } from 'child_process'
 import { beforeEach } from 'vitest'
 
-let initialized = false
-
 beforeEach(async () => {
-  if (process.env.NODE_ENV !== 'test') {
-    throw new Error(
-      `ENVがtestではありません: ${process.env.NODE_ENV}, ${process.env.DATABASE_URL}`,
-    )
-  }
-  if (!initialized) {
-    const connectionUrl = process.env.DATABASE_URL
-    execSync(
-      `DATABASE_URL=${connectionUrl} DIRECT_URL=${connectionUrl} npx prisma migrate dev --skip-generate`,
-    )
-    initialized = true
+  if (!process.env.DATABASE_URL.match('test_db')) {
+    throw new Error('テスト対象がテスト用DBではありません')
   }
 
   const prisma = getPrismaClientInstance()
   initialize({ prisma: prisma })
 
-  console.log('before each: Start DB reset.')
-
+  console.time('reset tables')
   // https://www.prisma.io/docs/orm/prisma-client/queries/crud#deleting-all-data-with-raw-sql--truncate
   const tablenames = await prisma.$queryRaw<
     Array<{ tablename: string }>
@@ -40,4 +27,5 @@ beforeEach(async () => {
   } catch (error) {
     console.log({ error })
   }
+  console.timeEnd('reset tables')
 })
