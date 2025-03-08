@@ -19,7 +19,7 @@ const {
   data: feed,
   error,
   status,
-} = useA3Fetch<GetFeedResponse>(`/api/feeds/${props.feedId}`, {})
+} = await useA3Fetch<GetFeedResponse>(`/api/feeds/${props.feedId}`, {})
 
 // エラー状態
 const hasError = computed(() => !!error.value)
@@ -27,15 +27,21 @@ const hasError = computed(() => !!error.value)
 const isLoading = computed(() => status.value === 'pending')
 
 // 404エラーが発生した場合（削除済みフィードなど）、一覧画面に自動リダイレクト
-watch(error, (newError) => {
-  if (isNotFoundError(newError)) {
-    toastStore.createToast({
-      type: 'alert',
-      message: 'このフィードは存在しないか削除されています',
-    })
-    router.replace('/feeds')
+watch(
+  error,
+  (newError) => {
+    if (isNotFoundError(newError)) {
+      toastStore.createToast({
+        type: 'alert',
+        message: 'このフィードは存在しないか削除されています',
+      })
+      router.replace('/feeds')
+    }
+  },
+  {
+    immediate: true,
   }
-})
+)
 
 // 編集ボタンのクリックハンドラ（機能はまだ実装しない）
 const handleEditClick = () => {
