@@ -4,6 +4,7 @@ import { toDateTimeString } from '~/lib/utils/date-utils'
 import A3Spinner from '~/components/common/A3Spinner.vue'
 import A3Button from '~/components/common/A3Button.vue'
 import type { GetFeedResponse } from '~/server/api/feeds/[id].get'
+import { isNotFoundError } from '~/lib/utils/h3-utils'
 
 const props = defineProps<{
   feedId: string
@@ -27,7 +28,7 @@ const isLoading = computed(() => status.value === 'pending')
 
 // 404エラーが発生した場合（削除済みフィードなど）、一覧画面に自動リダイレクト
 watch(error, (newError) => {
-  if (newError?.status === 404) {
+  if (isNotFoundError(newError)) {
     toastStore.createToast({
       type: 'alert',
       message: 'このフィードは存在しないか削除されています',
