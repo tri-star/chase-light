@@ -382,6 +382,62 @@ const endpoints = makeApi([
     ],
   },
   {
+    method: "delete",
+    path: "/feeds/:feedId",
+    alias: "deleteFeedsFeedId",
+    requestFormat: "json",
+    parameters: [
+      {
+        name: "feedId",
+        type: "Path",
+        schema: z.string(),
+      },
+    ],
+    response: z
+      .object({ success: z.boolean() })
+      .strict()
+      .passthrough()
+      .readonly(),
+    errors: [
+      {
+        status: 400,
+        description: `バリデーションエラー`,
+        schema: z
+          .object({ error: z.string() })
+          .strict()
+          .passthrough()
+          .readonly(),
+      },
+      {
+        status: 401,
+        description: `認証エラー`,
+        schema: z
+          .object({ error: z.string() })
+          .strict()
+          .passthrough()
+          .readonly(),
+      },
+      {
+        status: 404,
+        description: `フィードが見つからない`,
+        schema: z
+          .object({ error: z.string() })
+          .strict()
+          .passthrough()
+          .readonly(),
+      },
+      {
+        status: 500,
+        description: `予期しないエラー`,
+        schema: z
+          .object({ error: z.string() })
+          .strict()
+          .passthrough()
+          .readonly(),
+      },
+    ],
+  },
+  {
     method: "get",
     path: "/feeds/validate-url",
     alias: "getFeedsvalidateUrl",
