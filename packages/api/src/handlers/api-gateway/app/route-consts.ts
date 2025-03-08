@@ -25,6 +25,10 @@ export const ROUTES = {
       DEFINITION: '/feeds/{feedId}',
       URL: (feedId: string) => `/feeds/${feedId}`,
     },
+    DELETE: {
+      DEFINITION: '/feeds/{feedId}',
+      URL: (feedId: string) => `/feeds/${feedId}`,
+    },
     LIST_ALL_LOGS: {
       DEFINITION: '/feed-logs',
     },

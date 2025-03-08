@@ -139,4 +139,61 @@ export class FeedRepository {
       },
     })
   }
+  
+  async deleteFeed(feedId: string, userId: string): Promise<boolean> {
+    const prisma = getPrismaClientInstance()
+
+    if (!validateUuid(feedId)) {
+      throw new DbNotFoundError('feeds', 'Feedの削除に失敗しました')
+    }
+
+    // まず対象のフィードが存在するか、かつユーザーのものかを確認
+    const feed = await prisma.feed.findFirst({
+      where: {
+        id: feedId,
+        userId: userId,
+      },
+      include: {
+        feedGitHubMeta: true,
+      },
+    })
+
+    if (!feed) {
+      throw new DbNotFoundError('feeds', 'Feedの削除に失敗しました')
+    }
+
+    // フィードに関連するFeedGitHubMetaがあれば削除
+    if (feed.feedGitHubMeta) {
+      await prisma.feedGitHubMeta.delete({
+        where: {
+          id: feed.feedGitHubMeta.id,
+        },
+      })
+    }
+
+    // フィードに関連するFeedLogItemsの削除
+    await prisma.feedLogItem.deleteMany({
+      where: {
+        feedLog: {
+          feedId: feedId,
+        },
+      },
+    })
+
+    // フィードに関連するFeedLogsの削除
+    await prisma.feedLog.deleteMany({
+      where: {
+        feedId: feedId,
+      },
+    })
+
+    // フィードの削除
+    await prisma.feed.delete({
+      where: {
+        id: feedId,
+      },
+    })
+
+    return true
+  }
 }
