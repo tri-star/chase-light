@@ -33,6 +33,7 @@ const form = useForm<CreateFeedForm, Validator<unknown, ZodType>>({
       type: 'success',
       message: 'フィードを登録しました',
     })
+    router.back()
   },
 })
 
