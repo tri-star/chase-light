@@ -9,6 +9,10 @@ const props = defineProps<{
   feedId: string
 }>()
 
+// ルーター参照の初期化
+const router = useRouter()
+const toastStore = useToastStore()
+
 // APIからフィードデータを取得
 const {
   data: feed,
@@ -21,18 +25,50 @@ const hasError = computed(() => !!error.value)
 
 const isLoading = computed(() => status.value === 'pending')
 
+// 404エラーが発生した場合（削除済みフィードなど）、一覧画面に自動リダイレクト
+watch(error, (newError) => {
+  if (newError?.status === 404) {
+    toastStore.createToast({
+      type: 'alert',
+      message: 'このフィードは存在しないか削除されています',
+    })
+    router.replace('/feeds')
+  }
+})
+
 // 編集ボタンのクリックハンドラ（機能はまだ実装しない）
 const handleEditClick = () => {
   alert('編集機能はまだ実装されていません')
 }
 
-// 削除ボタンのクリックハンドラ（機能はまだ実装しない）
-const handleDeleteClick = () => {
-  alert('削除機能はまだ実装されていません')
+// 削除ボタンのクリックハンドラ
+const handleDeleteClick = async () => {
+  // 確認ダイアログを表示
+  const isConfirmed = window.confirm('このフィードを削除してもよろしいですか？')
+  if (!isConfirmed) return
+
+  try {
+    // APIを呼び出し
+    await $fetch(`/api/feeds/${props.feedId}`, {
+      method: 'DELETE',
+    })
+
+    // 成功時はトーストを表示してフィード一覧に戻る
+    toastStore.createToast({
+      type: 'success',
+      message: 'フィードを削除しました',
+    })
+    router.push('/feeds')
+  } catch (error) {
+    console.error('削除エラー:', error)
+    toastStore.createToast({
+      type: 'alert',
+      message: '削除に失敗しました',
+    })
+  }
 }
 
 // 戻るボタンのクリックハンドラ
-const router = useRouter()
 const handleBackClick = () => {
   router.push('/feeds')
 }

@@ -11,7 +11,11 @@ defineProps<{
   <tr class="border-list bg-list border-b">
     <td><Icon name="mdi:github" size="40" /></td>
     <td class="p-3 text-left">
-      <NuxtLink :to="`/feeds/${feed.id}`" class="text-size-h5 text-default font-bold hover:underline">{{ feed.name }}</NuxtLink>
+      <NuxtLink
+        :to="`/feeds/${feed.id}`"
+        class="text-size-h5 text-default font-bold hover:underline"
+        >{{ feed.name }}</NuxtLink
+      >
     </td>
     <td class="w-36 p-3 text-center">
       <p class="text-disabled">N/A</p>
