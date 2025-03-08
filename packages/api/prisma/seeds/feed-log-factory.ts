@@ -5,7 +5,7 @@ import { FEED_LOG_STATUS_VALUES } from 'core/features/feed/feed-logs'
 import { FeedFactory } from 'prisma/seeds/feed-factory'
 import { v7 as uuidv7 } from 'uuid'
 
-export const feedLogFactory = defineFeedLogFactory({
+export const FeedLogFactory = defineFeedLogFactory({
   defaultData: async () => ({
     id: uuidv7(),
     feed: FeedFactory,

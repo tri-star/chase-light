@@ -3,23 +3,23 @@ import { AnalyzeFeedQueueStub } from '@/features/feed/services/analyze-feed-log-
 import { handler } from '@/handlers/step-functions/feed-analyzer/handlers/enqueue-pending-feed-log-handler'
 import type { Context } from 'aws-lambda'
 import { FEED_LOG_STATUS_VALUE_MAP } from 'core/features/feed/feed-logs'
-import { feedLogFactory } from 'prisma/seeds/feed-log-factory'
+import { FeedLogFactory } from 'prisma/seeds/feed-log-factory'
 import { describe, expect, test } from 'vitest'
 
 describe('enqueuePendingFeedLogHandler', () => {
   test('wait, error状態のフィードログがキューに投入されること', async () => {
     const analyzeFeedLogQueue = new AnalyzeFeedQueueStub()
 
-    const waitingFeedLog = await feedLogFactory.create({
+    const waitingFeedLog = await FeedLogFactory.create({
       status: FEED_LOG_STATUS_VALUE_MAP.WAIT,
     })
-    await feedLogFactory.create({
+    await FeedLogFactory.create({
       status: FEED_LOG_STATUS_VALUE_MAP.DONE,
     })
-    await feedLogFactory.create({
+    await FeedLogFactory.create({
       status: FEED_LOG_STATUS_VALUE_MAP.failed,
     })
-    const erroredFeedLog = await feedLogFactory.create({
+    const erroredFeedLog = await FeedLogFactory.create({
       status: FEED_LOG_STATUS_VALUE_MAP.ERROR,
     })
 

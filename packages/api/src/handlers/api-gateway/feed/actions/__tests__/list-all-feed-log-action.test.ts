@@ -7,7 +7,7 @@ import type { OpenAPIHono } from '@hono/zod-openapi'
 import type { FeedLog } from '@prisma/client'
 import dayjs from 'dayjs'
 import { FeedFactory } from 'prisma/seeds/feed-factory'
-import { feedLogFactory } from 'prisma/seeds/feed-log-factory'
+import { FeedLogFactory } from 'prisma/seeds/feed-log-factory'
 import { UserFactory } from 'prisma/seeds/user-factory'
 import { beforeEach, describe, expect, test } from 'vitest'
 
@@ -30,7 +30,7 @@ describe('listAllFeedLogAction', () => {
     const feedLogs: FeedLog[] = []
     for (let i = 1; i <= 10; i++) {
       feedLogs.push(
-        await feedLogFactory.create({
+        await FeedLogFactory.create({
           date: dayjs().add(i, 'day').toDate(),
           feed: {
             connect: {
