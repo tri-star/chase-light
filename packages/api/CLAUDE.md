@@ -59,6 +59,12 @@
 
 ## 詳細な方針
 
+### Domain層
+
+- packages/api/src/features/<feature>/domainフォルダ配下にはドメインに関する型(type, zodスキーマ)や定数の他、
+  ドメイン固有のロジックを持つ関数を宣言します。
+  - ここで定義するロジックで「Featureテストではテストし難い」パターンがあるものについては、**tests**フォルダの下にテストを作成してください。
+
 ### Repositoryクラス
 
 - 基本的には以下のような実装を目指します。
@@ -75,6 +81,7 @@
 ### Controllerロジック
 
 - packages/api/src/handlers配下にあるコードはController的なものとして考えます。
+  - ControllerはFeatureTestの実装を必須としています。以下のフォルダのコードに対しては**tests**フォルダの下にテストを作るようにしてください
 - Hono+OpenAPIでLambdaのハンドラを記述することから、API定義部分が長くなることがありますが、
   アプリケーションのロジック(DB問い合わせやJSON整形)が100行など長くなることは避けるべきです。
   アプリケーションコードが長くなる場合、packages/api/src/<feature>/usecases配下にロジックを移動することを提案してください。

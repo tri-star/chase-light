@@ -53,6 +53,9 @@
 - **単一ファイルのテストの実行**: `pnpm test path/to/test.ts` or `pnpm test -t "test description"`
 - **Linting**: `pnpm lint` (runs eslint, type checking, and biome)
 - **Formatting**: `pnpm format` (API) or `pnpm format:biome && pnpm format:prettier` (App)
+- **APIクライアントの更新**
+  - `cd /workspace/packages/api && pnpm dev` (このコマンドは実行後常駐します。これによりAPIサーバーが起動します)
+  - `cd /workspace/packages/app && pnpm build-api-client` (APIサーバーからOPEN API Specを取得し、zodiosのAPIクライアントを生成します)
 
 ## フォルダ構成
 
