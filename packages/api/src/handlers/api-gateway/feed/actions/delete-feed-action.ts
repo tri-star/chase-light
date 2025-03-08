@@ -86,7 +86,7 @@ export class DeleteFeedAction extends ActionDefinition<AppContext> {
         const feedId = params.feedId
 
         const feedRepository = new FeedRepository()
-        
+
         try {
           const result = await feedRepository.deleteFeed(feedId, user.id)
           return c.json({ success: result }, 200)

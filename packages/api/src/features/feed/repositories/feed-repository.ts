@@ -139,7 +139,7 @@ export class FeedRepository {
       },
     })
   }
-  
+
   async deleteFeed(feedId: string, userId: string): Promise<boolean> {
     const prisma = getPrismaClientInstance()
 

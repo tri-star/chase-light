@@ -53,7 +53,7 @@ describe('DeleteFeedAction', () => {
         'Content-Type': 'application/json',
       },
     })
-    const resultJson = await result.json() as { success: boolean }
+    const resultJson = (await result.json()) as { success: boolean }
     expect(result.status).toBe(200)
     expect(resultJson.success).toBe(true)
 
@@ -91,7 +91,7 @@ describe('DeleteFeedAction', () => {
         'Content-Type': 'application/json',
       },
     })
-    const resultJson = await result.json() as { error: string }
+    const resultJson = (await result.json()) as { error: string }
     expect(result.status).toBe(404)
     expect(resultJson).toHaveProperty('error')
   })
@@ -118,7 +118,7 @@ describe('DeleteFeedAction', () => {
         'Content-Type': 'application/json',
       },
     })
-    const resultJson = await result.json() as { error: string }
+    const resultJson = (await result.json()) as { error: string }
     expect(result.status).toBe(404)
     expect(resultJson).toHaveProperty('error')
 
