@@ -21,6 +21,8 @@ const sideMenuClasses = tv({
     'p-2',
     'tramsition-all',
     'duration-300',
+    'hidden',
+    'md:block',
   ],
   variants: {
     expanded: {
