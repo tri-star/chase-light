@@ -14,7 +14,9 @@ pnpm dev
 
 ## 開発サーバー起動(スマホ実機確認用)
 
-VSCodeのポートフォワーディングを利用して公開
+- VSCodeのポートフォワーディングを利用してlocalhost:3000を公開
+- packages/app/.envのURLをVSCodeが発行したURLに置き換え
+- Auth0の開発アプリにVSCodeが発行したURLを登録
 
 ```bash
 export AWS_PROFILE=xxx
