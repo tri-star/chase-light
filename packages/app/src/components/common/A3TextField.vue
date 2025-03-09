@@ -35,8 +35,7 @@ const classes = tv({
       'focus-within:outline-double',
     ],
     input: [
-      'flex',
-      'flex-1',
+      'w-full',
       'font-label',
       'text-size-m',
       'rounded-md',

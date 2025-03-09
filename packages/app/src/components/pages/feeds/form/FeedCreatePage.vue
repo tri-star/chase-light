@@ -60,7 +60,7 @@ function handleCancelClick() {
 
 <template>
   <div
-    class="bg-default flex flex-col rounded-2xl p-4 md:w-[600px] lg:w-[800px]"
+    class="bg-default flex w-full flex-col rounded-2xl p-4 md:w-[600px] lg:w-[800px]"
   >
     <div class="flex flex-col gap-6">
       <h1 class="flex-1">フィード登録</h1>
@@ -84,7 +84,7 @@ function handleCancelClick() {
           >
             <template #default="{ field }">
               <div class="flex flex-col gap-1">
-                <div class="flex items-center gap-2">
+                <div class="flex flex-col gap-2 md:flex-row md:items-center">
                   <A3TextField
                     class="flex-1"
                     :name="field.name"
