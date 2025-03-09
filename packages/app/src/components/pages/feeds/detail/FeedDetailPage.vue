@@ -77,7 +77,7 @@ const handleDeleteClick = async () => {
 
 // 戻るボタンのクリックハンドラ
 const handleBackClick = () => {
-  router.push('/feeds')
+  router.back()
 }
 
 // フィードの種類は現在は固定
