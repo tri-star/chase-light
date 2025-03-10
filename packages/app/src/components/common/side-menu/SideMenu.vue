@@ -8,27 +8,43 @@ import {
 
 const route = useRoute()
 
-const isExpanded = ref(true)
+const { isExpanded } = storeToRefs(useSideMenuStore())
 
-const sideMenuClasses = tv({
-  base: [
-    'group',
-    'bg-side-menu',
-    'sticky',
-    'top-0',
-    'z-50',
-    'h-screen',
-    'p-2',
-    'tramsition-all',
-    'duration-300',
-  ],
-  variants: {
-    expanded: {
-      true: ['w-72'],
-      false: ['w-[72px]'],
+const sideMenuClasses = tv(
+  {
+    base: [
+      'group',
+      'bg-side-menu',
+      'sticky',
+      'top-0',
+      'z-50',
+      'h-screen',
+      'p-2',
+      'tramsition-all',
+      'duration-300',
+    ],
+    variants: {
+      expanded: {
+        true: ['w-72'],
+        false: ['w-[72px]'],
+      },
+      appearance: {
+        phone: ['fixed'],
+        desktop: ['block'],
+      },
     },
+    compoundVariants: [
+      {
+        expanded: false,
+        appearance: 'phone',
+        class: ['w-0', 'opacity-0'],
+      },
+    ],
   },
-})
+  {
+    responsiveVariants: true,
+  }
+)
 
 const logoClasses = tv({
   base: ['h-14', 'tramsition-left', 'duration-300'],
@@ -51,7 +67,14 @@ function isActive(sideMenuId: SideMenuItemId) {
 </script>
 
 <template>
-  <aside :class="sideMenuClasses({ expanded: isExpanded })">
+  <aside
+    :class="
+      sideMenuClasses({
+        expanded: isExpanded,
+        appearance: { initial: 'phone', md: 'desktop' },
+      })
+    "
+  >
     <div class="relative flex">
       <div class="flex-1">
         <img

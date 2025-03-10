@@ -17,15 +17,15 @@ defineProps<{
         >{{ feed.name }}</NuxtLink
       >
     </td>
-    <td class="w-36 p-3 text-center">
+    <td class="hidden w-36 p-3 text-center md:table-cell">
       <p class="text-disabled">N/A</p>
     </td>
-    <td class="w-36 p-3 text-center">
+    <td class="hidden w-36 p-3 text-center md:table-cell">
       <p class="text-nowrap">
         {{ toDateTimeString(feed.updatedAt) }}
       </p>
     </td>
-    <td class="w-36 p-3 text-center">
+    <td class="hidden w-36 p-3 text-center md:table-cell">
       <p class="text-nowrap">{{ toDateTimeString(feed.createdAt) }}</p>
     </td>
   </tr>
