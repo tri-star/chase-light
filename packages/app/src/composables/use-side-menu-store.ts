@@ -1,4 +1,4 @@
-export const useSideMenuStore = defineStore('SIdeMenuStore', () => {
+export const useSideMenuStore = defineStore('SideMenuStore', () => {
   const isExpanded = ref(true)
 
   return {
