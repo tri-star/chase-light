@@ -41,7 +41,7 @@
     "pinia": "^2.2.4",
     "serverless-s3-sync": "^3.4.0",
     "tailwind-merge": "^2.5.4",
-    "tailwind-variants": "^0.3.0",
+    "tailwind-variants": "^0.3.1",
     "tailwindcss": "^3.4.14",
     "vue": "latest",
     "vue-router": "latest",
