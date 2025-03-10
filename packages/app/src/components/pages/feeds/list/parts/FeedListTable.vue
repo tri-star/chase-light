@@ -13,9 +13,9 @@ defineProps<{
       <tr class="border-menu bg-list border-b">
         <th class="w-10"></th>
         <th class="p-3 text-left">名前</th>
-        <th class="w-36 p-3">最新ログ日付</th>
-        <th class="w-36 p-3">更新日時</th>
-        <th class="w-36 p-3">登録日時</th>
+        <th class="hidden w-36 p-3 md:table-cell">最新ログ日付</th>
+        <th class="hidden w-36 p-3 md:table-cell">更新日時</th>
+        <th class="hidden w-36 p-3 md:table-cell">登録日時</th>
       </tr>
     </thead>
     <tbody>

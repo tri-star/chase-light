@@ -3,9 +3,9 @@ import type { A3MenuItemData } from '~/components/common/a3-menu-item'
 import A3Button from '~/components/common/A3Button.vue'
 import A3DropDown from '~/components/common/A3DropDown.vue'
 import A3TextField from '~/components/common/A3TextField.vue'
-import FeedListTable from './parts/FeedListTable.vue'
 import type { ApiQueryParametersByAlias } from '~/lib/api/client'
-import { feedSearchFormSchema } from '../../domain/feed'
+import { feedSearchFormSchema } from '~/features/feed/domain/feed'
+import FeedListTable from './parts/FeedListTable.vue'
 import FeedListEmpty from './parts/FeedListEmpty.vue'
 
 const props = defineProps<{
@@ -73,10 +73,10 @@ async function handleReloadList() {
 
 <template>
   <div
-    class="bg-default flex flex-col rounded-2xl p-4 md:w-[800px] lg:w-[1000px]"
+    class="bg-default flex w-full flex-col rounded-2xl p-4 md:w-[800px] lg:w-[1000px]"
   >
     <div class="flex flex-col gap-6">
-      <div class="flex items-center">
+      <div class="flex flex-col items-center gap-4 md:flex-row">
         <h1 class="flex-1">フィード一覧</h1>
         <A3Button
           label="フィード登録"

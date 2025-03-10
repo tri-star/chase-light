@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { SIDE_MENU_ITEM_MAP } from '~/components/common/side-menu/side-menu'
-import FeedListPage from '~/features/feed/pages/feed-list/FeedListPage.vue'
+import FeedListPage from '~/components/pages/feeds/list/FeedListPage.vue'
 
 definePageMeta({
   allowGuest: false,
