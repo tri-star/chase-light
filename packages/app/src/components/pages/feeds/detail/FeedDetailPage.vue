@@ -112,12 +112,12 @@ const feedType = computed(() => 'GitHubリリース')
           <!-- ロード完了 -->
           <div v-else-if="feed" class="grid grid-cols-1 gap-4">
             <div class="flex">
-              <div class="w-40 font-bold">フィード名:</div>
+              <div class="w-40 flex-shrink-0 font-bold">フィード名:</div>
               <div>{{ feed.name }}</div>
             </div>
 
             <div class="flex">
-              <div class="w-40 font-bold">URL:</div>
+              <div class="w-40 flex-shrink-0 font-bold">URL:</div>
               <div class="break-all">
                 <a
                   :href="feed.url"
@@ -156,7 +156,7 @@ const feedType = computed(() => 'GitHubリリース')
           </div>
         </div>
       </div>
-      <div class="flex">
+      <div class="flex flex-col-reverse gap-4 md:flex-row">
         <div class="flex flex-1 justify-center gap-8">
           <A3Button
             label="編集"
@@ -171,7 +171,7 @@ const feedType = computed(() => 'GitHubリリース')
             @click="handleBackClick"
           />
         </div>
-        <div>
+        <div class="flex justify-end">
           <A3Button label="削除" type="default" @click="handleDeleteClick" />
         </div>
       </div>
