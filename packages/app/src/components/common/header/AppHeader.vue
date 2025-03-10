@@ -5,8 +5,13 @@ import type { A3MenuItemData } from '~/components/common/a3-menu-item'
 
 const showUserMenu = ref(false)
 const userIconRef = ref<HTMLElement | null>(null)
+const { isExpanded: isSideMenuExpanded } = storeToRefs(useSideMenuStore())
 
 const menuItems: A3MenuItemData[] = [{ value: 'logout', label: 'ログアウト' }]
+
+function toggleSideMenu() {
+  isSideMenuExpanded.value = true
+}
 
 function toggleUserMenu() {
   showUserMenu.value = !showUserMenu.value
@@ -44,10 +49,17 @@ function handleMenuCancel() {
 
 <template>
   <header
-    class="header bg-header sticky top-0 z-50 flex h-16 gap-4 p-2 shadow-md backdrop-blur-md"
+    class="header bg-header sticky top-0 z-40 flex h-16 gap-4 p-2 shadow-md backdrop-blur-md"
   >
-    <div class="flex flex-1"></div>
-    <div class="relative flex">
+    <div class="flex flex-1 items-center">
+      <Icon
+        name="mdi:menu"
+        size="40"
+        class="md:hidden"
+        @click="toggleSideMenu"
+      />
+    </div>
+    <div class="relative flex items-center">
       <div ref="userIconRef">
         <AppHeaderIcon icon="mdi:account" @click="toggleUserMenu" />
       </div>
