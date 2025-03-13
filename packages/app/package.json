@@ -4,7 +4,7 @@
   "type": "module",
   "scripts": {
     "build": "nuxt build",
-    "dev": "nuxt dev",
+    "dev": "nuxt dev --host=127.0.0.1",
     "generate": "nuxt generate",
     "preview": "nuxt preview",
     "build-api-client": "openapi-zod-client http://localhost:3001/local/openapi.json -o ./src/lib/api/client.generated.ts --all-readonly --strict-objects",
