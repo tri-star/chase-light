@@ -19,7 +19,7 @@ const sideMenuClasses = tv({
     'top-16', // ヘッダーの高さ
     'h-screen',
     'p-2',
-    'tramsition-all',
+    'transition-all',
     'duration-300',
   ],
   variants: {
