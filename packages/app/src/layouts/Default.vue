@@ -8,11 +8,12 @@ const { toasts } = storeToRefs(toastStore)
 </script>
 
 <template>
-  <div class="root flex h-full min-h-screen">
-    <SideMenu />
-    <div class="flex w-full flex-col">
-      <AppHeader />
-      <main class="flex h-full justify-center p-4">
+  <div class="root flex h-full min-h-screen flex-col">
+    <AppHeader />
+
+    <div class="relative flex w-full">
+      <SideMenu />
+      <main class="flex h-full flex-1 justify-center p-4">
         <NuxtLoadingIndicator />
         <slot />
         <div>

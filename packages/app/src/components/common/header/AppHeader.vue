@@ -10,7 +10,7 @@ const { isExpanded: isSideMenuExpanded } = storeToRefs(useSideMenuStore())
 const menuItems: A3MenuItemData[] = [{ value: 'logout', label: 'ログアウト' }]
 
 function toggleSideMenu() {
-  isSideMenuExpanded.value = true
+  isSideMenuExpanded.value = !isSideMenuExpanded.value
 }
 
 function toggleUserMenu() {
@@ -49,13 +49,13 @@ function handleMenuCancel() {
 
 <template>
   <header
-    class="header bg-header sticky top-0 z-40 flex h-16 gap-4 p-2 shadow-md backdrop-blur-md"
+    class="header bg-header z-header sticky top-0 flex h-16 w-full gap-4 p-2 shadow-md backdrop-blur-md"
   >
     <div class="flex flex-1 items-center">
       <Icon
         name="mdi:menu"
         size="40"
-        class="md:hidden"
+        class="cursor-pointer"
         @click="toggleSideMenu"
       />
     </div>
