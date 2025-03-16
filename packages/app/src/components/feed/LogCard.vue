@@ -52,7 +52,9 @@ defineProps<{
         class="flex list-inside list-disc flex-col gap-1 break-words px-2 pb-4"
       >
         <li v-for="item of feedLog.items" :key="item.id" class="list-item">
-          <p class="inline whitespace-pre-line">{{ item.summary }}</p>
+          <p class="inline whitespace-pre-line break-all">
+            {{ item.summary }}
+          </p>
           <p v-if="item.link" class="inline">
             (<NuxtLink
               :to="{ path: item.link.url }"
