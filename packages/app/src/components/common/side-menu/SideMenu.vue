@@ -9,7 +9,8 @@ import {
 const route = useRoute()
 
 const { isExpanded } = storeToRefs(useSideMenuStore())
-const { breakPoint, isMobile } = useScreenBreakPoint()
+const screenBreakPointStore = useScreenBreakPointStore()
+const { breakPoint, isMobile } = storeToRefs(screenBreakPointStore)
 
 const sideMenuClasses = tv({
   base: [
@@ -54,23 +55,24 @@ function handleBackdropClick() {
 }
 
 function handleMenuItemClick() {
-  if (isMobile()) {
+  if (isMobile.value) {
     isExpanded.value = false
   }
 }
 </script>
 
 <template>
-  <aside
-    :class="
-      sideMenuClasses({
-        expanded: isExpanded,
-        appearance: breakPoint,
-      })
-    "
-  >
-    <div class="relative flex">
-      <!-- <div class="flex-1">
+  <ClientOnly>
+    <aside
+      :class="
+        sideMenuClasses({
+          expanded: isExpanded,
+          appearance: breakPoint,
+        })
+      "
+    >
+      <div class="relative flex">
+        <!-- <div class="flex-1">
         <img
           src="~/assets/chase-light-logo-s.svg"
           :class="logoClasses({ expanded: isExpanded })"
@@ -81,24 +83,25 @@ function handleMenuItemClick() {
         <Icon name="mdi:menu" size="40" class="text-side-menu-text" />
       </button>
        -->
-    </div>
-    <ul class="flex flex-col gap-2">
-      <template v-for="menu in sideMenuItems" :key="menu.id">
-        <SideMenuItem
-          :icon="menu.icon"
-          :title="menu.title"
-          :to="{ path: menu.path }"
-          :is-active="isActive(menu.id)"
-          @click="handleMenuItemClick"
-        />
-      </template>
-    </ul>
-  </aside>
-  <div
-    v-if="isMobile() && isExpanded"
-    class="z-side-menu-backdrop bg-side-menu-backdrop fixed left-0 top-0 h-full w-full"
-    @click="handleBackdropClick"
-  ></div>
+      </div>
+      <ul class="flex flex-col gap-2">
+        <template v-for="menu in sideMenuItems" :key="menu.id">
+          <SideMenuItem
+            :icon="menu.icon"
+            :title="menu.title"
+            :to="{ path: menu.path }"
+            :is-active="isActive(menu.id)"
+            @click="handleMenuItemClick"
+          />
+        </template>
+      </ul>
+    </aside>
+    <div
+      v-if="isMobile && isExpanded"
+      class="z-side-menu-backdrop bg-side-menu-backdrop fixed left-0 top-0 h-full w-full"
+      @click="handleBackdropClick"
+    ></div>
+  </ClientOnly>
 </template>
 
 <style scoped></style>
