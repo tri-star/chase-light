@@ -18,7 +18,7 @@ const sideMenuClasses = tv({
     'bg-side-menu',
     'sticky',
     'top-16', // ヘッダーの高さ
-    'h-screen',
+    'h-[calc(100vh-4rem)]', // h-screenからh-16(4rem)を引いた高さ
     'p-2',
     'transition-all',
     'duration-300',
