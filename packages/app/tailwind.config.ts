@@ -29,6 +29,7 @@ export default (<Partial<Config>>{
         'menu-item-hover': 'hsl(189deg 94% 43% / 10%)',
         list: colors.white,
         muted: colors.slate[300],
+        card: colors.white,
       },
       textColor: {
         primary: colors.slate[50],
