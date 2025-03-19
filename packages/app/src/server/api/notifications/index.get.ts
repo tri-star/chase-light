@@ -1,5 +1,5 @@
 import { z } from 'zod'
-import { notificationSchema } from '~/features/notification/notification'
+import { notificationSchema } from '~/features/notification/domain/notification'
 
 export default defineEventHandler(async (_event) => {
   await new Promise((resolve) => setTimeout(resolve, 1000))
