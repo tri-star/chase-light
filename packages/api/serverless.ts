@@ -8,6 +8,7 @@ import {
   feedAnalyzerStateMachine,
   feedAnalyzerHandlers,
 } from '@/handlers/step-functions/feed-analyzer'
+import { notificationApp } from '@/handlers/api-gateway/notification'
 
 function buildStateMachineHandlers(prefix: string, handlers: object) {
   return Object.entries(handlers).reduce((acc, [key, handler]) => {
@@ -134,6 +135,7 @@ const serverlessConfiguration: Serverless & { build: object } = {
   functions: {
     ...userApp.getLambdaDefinition(),
     ...feedApp.getLambdaDefinition(),
+    ...notificationApp.getLambdaDefinition(),
     ...scalerUiApp.getLambdaDefinition(),
     ...buildStateMachineHandlers('feedAnalyzer', feedAnalyzerHandlers),
   },
