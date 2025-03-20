@@ -12,3 +12,11 @@ export const notificationSchema = z.object({
   contents: z.array(notificationItemSchema),
 })
 export type Notification = z.infer<typeof notificationSchema>
+
+export const notificationSearchResultSchema = z.object({
+  result: z.array(notificationSchema),
+  total: z.number(),
+})
+export type NotificationSearchResult = z.infer<
+  typeof notificationSearchResultSchema
+>
