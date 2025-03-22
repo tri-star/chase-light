@@ -88,6 +88,7 @@ const serverlessConfiguration: Serverless & { build: object } = {
     memorySize: 512,
     environment: {
       STAGE: '${sls:stage}',
+      TZ: 'Asia/Tokyo',
       // AWS_LAMBDA_EXEC_WRAPPER: '/opt/otel-handler',
       NODE_OPTIONS: '--import=/opt/nodejs/otel-setup.mjs',
 

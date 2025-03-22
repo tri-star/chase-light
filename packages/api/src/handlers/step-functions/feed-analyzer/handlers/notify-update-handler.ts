@@ -3,7 +3,6 @@ import { createFeedLogNotification } from '@/features/notification/domain/notifi
 import { NotificationRepository } from '@/features/notification/repository/notification-repository'
 import { handlerPath } from '@/lib/hono/handler-resolver'
 import { getPrismaClientInstance } from '@/lib/prisma/app-prisma-client'
-import { getJstDate } from '@/lib/utils/date-utils'
 import { currentDirPath } from '@/lib/utils/path-utils'
 import dayjs from 'dayjs'
 import type { AwsFunctionHandler } from 'serverless/aws'
@@ -35,7 +34,7 @@ async function createNotification(userId: string) {
   const feedLogRepository = new FeedLogRepository()
 
   // JSTで今日の0時以降に作成されたFeedLogを集める
-  const dateFrom = dayjs(getJstDate(new Date())).startOf('day')
+  const dateFrom = dayjs().startOf('day')
   const feedLogs =
     await feedLogRepository.findFeedLogListItemModelsSinceDateByUserId(
       userId,
