@@ -54,3 +54,20 @@ export function convertDatesToISO8601<T>(obj: T): DateToString<T> {
 
   return obj as DateToString<T>
 }
+
+export function getUtcDate(date: Date | string) {
+  const d = new Date(date)
+  return new Date(
+    d.getUTCFullYear(),
+    d.getUTCMonth(),
+    d.getUTCDate(),
+    d.getUTCHours(),
+    d.getUTCMinutes(),
+    d.getUTCSeconds(),
+  )
+}
+
+export function getJstDate(date: string | Date) {
+  const utcDate = getUtcDate(date)
+  return new Date(utcDate.getTime() + 9 * 60 * 60 * 1000)
+}

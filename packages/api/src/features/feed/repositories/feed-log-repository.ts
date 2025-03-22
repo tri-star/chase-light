@@ -195,6 +195,63 @@ export class FeedLogRepository {
     }
   }
 
+  async findFeedLogListItemModelsSinceDateByUserId(
+    userId: string,
+    fromDate: Date,
+  ): Promise<FeedLogListItemModel[]> {
+    const prisma = getPrismaClientInstance()
+
+    const loadedFeedLogs = await prisma.feedLog.findMany({
+      where: {
+        feed: {
+          userId,
+        },
+        createdAt: {
+          gte: fromDate,
+        },
+      },
+      include: {
+        feed: {
+          include: {
+            dataSource: true,
+            user: true,
+          },
+        },
+        feedLogItems: true,
+      },
+      orderBy: {
+        date: 'desc',
+      },
+    })
+
+    const logs = loadedFeedLogs.map((loadedFeedLog) => {
+      return {
+        ...loadedFeedLog,
+        feed: {
+          id: loadedFeedLog.feed.id,
+          name: loadedFeedLog.feed.name,
+        },
+        items: loadedFeedLog.feedLogItems.map((item) => {
+          return feedLogItemModelSchema.parse({
+            id: item.id,
+            summary: item.summary,
+            feedLogId: item.feedLogId,
+            ...(item.link_url !== ''
+              ? {
+                  link: {
+                    title: item.link_title,
+                    url: item.link_url,
+                  },
+                }
+              : {}),
+            createdAt: new Date(item.createdAt),
+          } satisfies FeedLogItemModel)
+        }),
+      } satisfies FeedLogListItemModel
+    })
+    return z.array(feedLogListItemModelSchema).parse(logs)
+  }
+
   /**
    * 処理が完了していないFeedLogの一覧を返す
    */
