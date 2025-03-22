@@ -39,9 +39,9 @@ const frameClasses = tv({
     <div v-if="status === 'pending'" class="flex justify-center p-4">
       <A3Spinner color="gray" size-class="w-8 h-8" />
     </div>
-    <div v-else class="flex flex-col gap-3">
+    <div v-else-if="data != null" class="flex flex-col gap-3">
       <NotificationCard
-        v-for="notification of data"
+        v-for="notification of data.result"
         :key="notification.id"
         :notification="notification"
       />

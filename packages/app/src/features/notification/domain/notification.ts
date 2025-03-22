@@ -7,9 +7,9 @@ const notificationItemSchema = z.object({
 
 export const notificationSchema = z.object({
   id: z.string(),
-  date: z.string().or(z.date()),
+  createdAt: z.string().or(z.date()),
   title: z.string(),
-  contents: z.array(notificationItemSchema),
+  notificationItems: z.array(notificationItemSchema),
 })
 export type Notification = z.infer<typeof notificationSchema>
 
