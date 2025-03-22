@@ -42,6 +42,9 @@ async function createNotification(userId: string) {
       dateFrom.toDate(),
     )
 
+  if (feedLogs.length === 0) {
+    return
+  }
   const notification = createFeedLogNotification(userId, feedLogs)
   await notificationRepository.save(notification)
 
