@@ -37,9 +37,10 @@ async function createNotification(userId: string) {
   // JSTで今日の0時以降に作成されたFeedLogを集める
   const dateFrom = dayjs(getJstDate(new Date())).startOf('day')
   console.log(
+    '-----------------------------------------------------------------------',
+    new Date(),
     getJstDate(new Date()),
     dateFrom.toDate(),
-    '-----------------------------------------------------------------------',
   )
   const feedLogs =
     await feedLogRepository.findFeedLogListItemModelsSinceDateByUserId(

@@ -17,8 +17,8 @@ describe('NotifyUpdateHandler', () => {
 
     const user = await UserFactory.create()
     const testNow = new Date('2025-01-02T00:00:00+0900')
-    console.log('Test time set to:', testNow)
     vi.setSystemTime(testNow)
+    console.log('Test time set to:', new Date())
 
     // それぞれのFeedLogに別々のFeedを割り当てる
     for (let i = 0; i < 2; i++) {
