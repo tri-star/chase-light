@@ -1,11 +1,11 @@
-import { format } from 'date-fns'
+import dayjs from 'dayjs'
 
 export const toDbDateTime = (
   date: Date | undefined | null,
   fallback: string | null = null,
 ): string | null => {
   if (!date) return fallback
-  return format(date, "yyyy-MM-dd'T'HH:mm:ss.SSSXXX")
+  return dayjs(date).toISOString()
 }
 
 export function ToDbDateTimeStrict(date: Date | undefined | null): string {
@@ -17,5 +17,57 @@ export function ToDbDateTimeStrict(date: Date | undefined | null): string {
     throw new Error('Invalid date provided')
   }
 
-  return format(date, "yyyy-MM-dd'T'HH:mm:ss.SSSXXX")
+  return dayjs(date).toISOString()
+}
+
+type DateToString<T> = T extends Date
+  ? string
+  : T extends Array<infer U>
+    ? Array<DateToString<U>>
+    : T extends object
+      ? { [K in keyof T]: DateToString<T[K]> }
+      : T
+export function convertDatesToISO8601<T>(obj: T): DateToString<T> {
+  if (obj === null || obj === undefined) {
+    return obj as DateToString<T>
+  }
+
+  if (obj instanceof Date) {
+    return toDbDateTime(obj) as DateToString<T>
+  }
+
+  if (Array.isArray(obj)) {
+    return obj.map(convertDatesToISO8601) as DateToString<T>
+  }
+
+  if (typeof obj === 'object') {
+    const result: Record<string, unknown> = {}
+
+    for (const key in obj) {
+      if (Object.prototype.hasOwnProperty.call(obj, key)) {
+        result[key] = convertDatesToISO8601(obj[key])
+      }
+    }
+
+    return result as DateToString<T>
+  }
+
+  return obj as DateToString<T>
+}
+
+export function getUtcDate(date: Date | string) {
+  const d = new Date(date)
+  return new Date(
+    d.getUTCFullYear(),
+    d.getUTCMonth(),
+    d.getUTCDate(),
+    d.getUTCHours(),
+    d.getUTCMinutes(),
+    d.getUTCSeconds(),
+  )
+}
+
+export function getJstDate(date: string | Date) {
+  const utcDate = getUtcDate(date)
+  return new Date(utcDate.getTime() + 9 * 60 * 60 * 1000)
 }

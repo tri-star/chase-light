@@ -41,15 +41,26 @@ model User {
 }
 
 model Notification {
-  id        String   @id @db.Uuid
-  user      User     @relation(fields: [userId], references: [id])
-  userId    String   @map("user_id") @db.Uuid
-  title     String   @db.VarChar(255)
-  body      String   @db.Text
-  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz
-  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz
+  id                String             @id @db.Uuid
+  user              User               @relation(fields: [userId], references: [id])
+  userId            String             @map("user_id") @db.Uuid
+  title             String             @db.VarChar(255)
+  read              Boolean            @db.Boolean
+  notificationItems NotificationItem[]
+  createdAt         DateTime           @default(now()) @map("created_at") @db.Timestamptz
 
+  @@index([createdAt])
   @@map("notifications")
+}
+
+model NotificationItem {
+  id             String        @id @db.Uuid
+  feedLogId      String        @map("feed_log_id") @db.Uuid
+  title          String        @db.VarChar(255)
+  Notification   Notification? @relation(fields: [notificationId], references: [id])
+  notificationId String        @map("notification_id") @db.Uuid
+
+  @@map("notification_items")
 }
 
 model Feed {

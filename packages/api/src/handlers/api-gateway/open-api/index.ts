@@ -1,5 +1,6 @@
 import { ChaseLightApp } from '@/handlers/api-gateway/app/chase-light-app'
 import { feedApp } from '@/handlers/api-gateway/feed'
+import { notificationApp } from '@/handlers/api-gateway/notification'
 import { userApp } from '@/handlers/api-gateway/user'
 import { handlerPath } from '@/lib/hono/handler-resolver'
 import { currentDirPath } from '@/lib/utils/path-utils'
@@ -44,6 +45,7 @@ const stage = process.env.STAGE || 'local'
 
 honoApp.route('/', userApp.getApp())
 honoApp.route('/', feedApp.getApp())
+honoApp.route('/', notificationApp.getApp())
 honoApp.doc('/openapi.json', {
   openapi: '3.0.0',
   servers: [

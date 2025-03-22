@@ -1,5 +1,6 @@
 import type { User } from "@prisma/client";
 import type { Notification } from "@prisma/client";
+import type { NotificationItem } from "@prisma/client";
 import type { Feed } from "@prisma/client";
 import type { FeedGitHubMeta } from "@prisma/client";
 import type { DataSource } from "@prisma/client";
@@ -75,10 +76,10 @@ type NotificationuserFactory = {
 type NotificationFactoryDefineInput = {
     id?: string;
     title?: string;
-    body?: string;
+    read?: boolean;
     createdAt?: Date;
-    updatedAt?: Date;
     user: NotificationuserFactory | Prisma.UserCreateNestedOneWithoutNotificationsInput;
+    notificationItems?: Prisma.NotificationItemCreateNestedManyWithoutNotificationInput;
 };
 type NotificationTransientFields = Record<string, unknown> & Partial<Record<keyof NotificationFactoryDefineInput, never>>;
 type NotificationFactoryTrait<TTransients extends Record<string, unknown>> = {
@@ -117,6 +118,53 @@ interface NotificationFactoryBuilder {
  * @returns factory {@link NotificationFactoryInterface}
  */
 export declare const defineNotificationFactory: NotificationFactoryBuilder;
+type NotificationItemNotificationFactory = {
+    _factoryFor: "Notification";
+    build: () => PromiseLike<Prisma.NotificationCreateNestedOneWithoutNotificationItemsInput["create"]>;
+};
+type NotificationItemFactoryDefineInput = {
+    id?: string;
+    feedLogId?: string;
+    title?: string;
+    Notification?: NotificationItemNotificationFactory | Prisma.NotificationCreateNestedOneWithoutNotificationItemsInput;
+};
+type NotificationItemTransientFields = Record<string, unknown> & Partial<Record<keyof NotificationItemFactoryDefineInput, never>>;
+type NotificationItemFactoryTrait<TTransients extends Record<string, unknown>> = {
+    data?: Resolver<Partial<NotificationItemFactoryDefineInput>, BuildDataOptions<TTransients>>;
+} & CallbackDefineOptions<NotificationItem, Prisma.NotificationItemCreateInput, TTransients>;
+type NotificationItemFactoryDefineOptions<TTransients extends Record<string, unknown> = Record<string, unknown>> = {
+    defaultData?: Resolver<NotificationItemFactoryDefineInput, BuildDataOptions<TTransients>>;
+    traits?: {
+        [traitName: TraitName]: NotificationItemFactoryTrait<TTransients>;
+    };
+} & CallbackDefineOptions<NotificationItem, Prisma.NotificationItemCreateInput, TTransients>;
+type NotificationItemTraitKeys<TOptions extends NotificationItemFactoryDefineOptions<any>> = Exclude<keyof TOptions["traits"], number>;
+export interface NotificationItemFactoryInterfaceWithoutTraits<TTransients extends Record<string, unknown>> {
+    readonly _factoryFor: "NotificationItem";
+    build(inputData?: Partial<Prisma.NotificationItemCreateInput & TTransients>): PromiseLike<Prisma.NotificationItemCreateInput>;
+    buildCreateInput(inputData?: Partial<Prisma.NotificationItemCreateInput & TTransients>): PromiseLike<Prisma.NotificationItemCreateInput>;
+    buildList(list: readonly Partial<Prisma.NotificationItemCreateInput & TTransients>[]): PromiseLike<Prisma.NotificationItemCreateInput[]>;
+    buildList(count: number, item?: Partial<Prisma.NotificationItemCreateInput & TTransients>): PromiseLike<Prisma.NotificationItemCreateInput[]>;
+    pickForConnect(inputData: NotificationItem): Pick<NotificationItem, "id">;
+    create(inputData?: Partial<Prisma.NotificationItemCreateInput & TTransients>): PromiseLike<NotificationItem>;
+    createList(list: readonly Partial<Prisma.NotificationItemCreateInput & TTransients>[]): PromiseLike<NotificationItem[]>;
+    createList(count: number, item?: Partial<Prisma.NotificationItemCreateInput & TTransients>): PromiseLike<NotificationItem[]>;
+    createForConnect(inputData?: Partial<Prisma.NotificationItemCreateInput & TTransients>): PromiseLike<Pick<NotificationItem, "id">>;
+}
+export interface NotificationItemFactoryInterface<TTransients extends Record<string, unknown> = Record<string, unknown>, TTraitName extends TraitName = TraitName> extends NotificationItemFactoryInterfaceWithoutTraits<TTransients> {
+    use(name: TTraitName, ...names: readonly TTraitName[]): NotificationItemFactoryInterfaceWithoutTraits<TTransients>;
+}
+interface NotificationItemFactoryBuilder {
+    <TOptions extends NotificationItemFactoryDefineOptions>(options?: TOptions): NotificationItemFactoryInterface<{}, NotificationItemTraitKeys<TOptions>>;
+    withTransientFields: <TTransients extends NotificationItemTransientFields>(defaultTransientFieldValues: TTransients) => <TOptions extends NotificationItemFactoryDefineOptions<TTransients>>(options?: TOptions) => NotificationItemFactoryInterface<TTransients, NotificationItemTraitKeys<TOptions>>;
+}
+/**
+ * Define factory for {@link NotificationItem} model.
+ *
+ * @param options
+ * @returns factory {@link NotificationItemFactoryInterface}
+ */
+export declare const defineNotificationItemFactory: NotificationItemFactoryBuilder;
 type FeeduserFactory = {
     _factoryFor: "User";
     build: () => PromiseLike<Prisma.UserCreateNestedOneWithoutFeedInput["create"]>;

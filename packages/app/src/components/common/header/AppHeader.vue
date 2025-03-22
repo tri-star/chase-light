@@ -2,10 +2,12 @@
 import AppHeaderIcon from './AppHeaderIcon.vue'
 import A3PopupMenuList from '~/components/common/A3PopupMenuList.vue'
 import type { A3MenuItemData } from '~/components/common/a3-menu-item'
+import NotificationListBox from '~/components/common/notification/NotificationListBox.vue'
 
 const showUserMenu = ref(false)
 const userIconRef = ref<HTMLElement | null>(null)
 const { isExpanded: isSideMenuExpanded } = storeToRefs(useSideMenuStore())
+const isNotificationBoxOpen = ref(false)
 
 const menuItems: A3MenuItemData[] = [{ value: 'logout', label: 'ログアウト' }]
 
@@ -15,6 +17,14 @@ function toggleSideMenu() {
 
 function toggleUserMenu() {
   showUserMenu.value = !showUserMenu.value
+}
+
+function showNotificationBox() {
+  isNotificationBoxOpen.value = true
+}
+
+function closeNotificationBox() {
+  isNotificationBoxOpen.value = false
 }
 
 async function handleMenuItemClick(value: string) {
@@ -59,7 +69,8 @@ function handleMenuCancel() {
         @click="toggleSideMenu"
       />
     </div>
-    <div class="relative flex items-center">
+    <div class="relative flex items-center gap-4">
+      <AppHeaderIcon icon="mdi:bell" @click="showNotificationBox" />
       <div ref="userIconRef">
         <AppHeaderIcon icon="mdi:account" @click="toggleUserMenu" />
       </div>
@@ -71,7 +82,31 @@ function handleMenuCancel() {
         @cancel="handleMenuCancel"
       />
     </div>
+    <ClientOnly>
+      <Teleport to="body">
+        <Transition name="fade">
+          <NotificationListBox
+            v-if="isNotificationBoxOpen"
+            @close="closeNotificationBox"
+          />
+        </Transition>
+      </Teleport>
+    </ClientOnly>
   </header>
 </template>
 
-<style scoped></style>
+<style scoped>
+.fade-enter-active,
+.fade-leave-active {
+  transition:
+    opacity 0.3s ease,
+    right 0.3s ease;
+  opacity: 1;
+}
+
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
+  right: -400px;
+}
+</style>

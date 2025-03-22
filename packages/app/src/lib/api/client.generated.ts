@@ -505,6 +505,53 @@ const endpoints = makeApi([
   },
   {
     method: "get",
+    path: "/notifications",
+    alias: "getNotifications",
+    requestFormat: "json",
+    response: z
+      .object({
+        result: z
+          .array(
+            z
+              .object({
+                id: z.string(),
+                title: z.string(),
+                read: z.boolean(),
+                createdAt: z.string(),
+              })
+              .strict()
+              .passthrough()
+              .readonly()
+          )
+          .readonly(),
+        total: z.number(),
+      })
+      .strict()
+      .passthrough()
+      .readonly(),
+    errors: [
+      {
+        status: 401,
+        description: `認証エラー`,
+        schema: z
+          .object({ error: z.string() })
+          .strict()
+          .passthrough()
+          .readonly(),
+      },
+      {
+        status: 500,
+        description: `予期しないエラー`,
+        schema: z
+          .object({ error: z.string() })
+          .strict()
+          .passthrough()
+          .readonly(),
+      },
+    ],
+  },
+  {
+    method: "get",
     path: "/users/self",
     alias: "getUsersself",
     requestFormat: "json",
