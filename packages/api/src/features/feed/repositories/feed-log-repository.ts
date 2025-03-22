@@ -306,6 +306,7 @@ export class FeedLogRepository {
         summary: '',
         body: feedLog.body ?? null,
         status: feedLog.status,
+        createdAt: new Date(),
       },
       update: {
         key: feedLog.key,
