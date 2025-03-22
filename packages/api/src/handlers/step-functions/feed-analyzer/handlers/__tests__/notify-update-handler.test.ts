@@ -1,15 +1,22 @@
 import { FeedFactory } from 'prisma/seeds/feed-factory'
 import { FeedLogFactory } from 'prisma/seeds/feed-log-factory'
 import { UserFactory } from 'prisma/seeds/user-factory'
-import { vi, describe, expect, test } from 'vitest'
+import { vi, describe, expect, test, beforeEach, afterEach } from 'vitest'
 import { handler } from '../notify-update-handler'
 import { getPrismaClientInstance } from '@/lib/prisma/app-prisma-client'
 
 describe('NotifyUpdateHandler', () => {
   test('日本時間で当日に作成されたFeedLogに対する通知を作成すること', async () => {
+    beforeEach(() => {
+      vi.useFakeTimers()
+    })
+
+    afterEach(() => {
+      vi.useRealTimers()
+    })
+
     const user = await UserFactory.create()
     const testNow = new Date('2025-01-02T00:00:00+0900')
-    vi.useFakeTimers()
     vi.setSystemTime(testNow)
 
     // それぞれのFeedLogに別々のFeedを割り当てる
