@@ -9,6 +9,7 @@ import type { AwsFunctionHandler } from 'serverless/aws'
 
 export const notifyUpdateHandler: AwsFunctionHandler = {
   handler: `${handlerPath(currentDirPath(import.meta.url))}/notify-update-handler.handler`,
+  timeout: 60,
 }
 
 export async function handler(_event: unknown) {
