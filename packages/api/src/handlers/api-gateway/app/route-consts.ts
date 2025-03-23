@@ -36,4 +36,9 @@ export const ROUTES = {
       DEFINITION: '/feeds/validate-url',
     },
   },
+  NOTIFICATIONS: {
+    LIST: {
+      DEFINITION: '/notifications',
+    },
+  },
 } as const

@@ -30,6 +30,7 @@ const { toasts } = storeToRefs(toastStore)
         </div>
       </main>
     </div>
+    <div id="notification-box"></div>
   </div>
 </template>
 

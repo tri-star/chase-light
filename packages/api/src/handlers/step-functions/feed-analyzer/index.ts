@@ -3,6 +3,7 @@ import { listFeedHandler } from '@/handlers/step-functions/feed-analyzer/handler
 import { createFeedLogsHandler } from '@/handlers/step-functions/feed-analyzer/handlers/create-feed-logs'
 import { enqueuePendingFeedLogHandler } from '@/handlers/step-functions/feed-analyzer/handlers/enqueue-pending-feed-log-handler'
 import { analyzeFeedLogHandler } from '@/handlers/step-functions/feed-analyzer/handlers/analyze-feed-log-handler'
+import { notifyUpdateHandler } from '@/handlers/step-functions/feed-analyzer/handlers/notify-update-handler'
 
 export const feedAnalyzerStateMachine: StateMachine['stateMachines'][number] = {
   tracingConfig: {
@@ -64,6 +65,13 @@ export const feedAnalyzerStateMachine: StateMachine['stateMachines'][number] = {
         Resource: {
           'Fn::GetAtt': ['feedAnalyzer-enqueuePendingFeedLogHandler', 'Arn'],
         },
+        Next: 'NotifyUpdate',
+      },
+      NotifyUpdate: {
+        Type: 'Task',
+        Resource: {
+          'Fn::GetAtt': ['feedAnalyzer-notifyUpdateHandler', 'Arn'],
+        },
         End: true,
       },
     },
@@ -75,4 +83,5 @@ export const feedAnalyzerHandlers = {
   createFeedLogsHandler,
   enqueuePendingFeedLogHandler,
   analyzeFeedLogHandler,
+  notifyUpdateHandler,
 }

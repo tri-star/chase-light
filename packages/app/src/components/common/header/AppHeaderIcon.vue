@@ -28,6 +28,7 @@ const menuClasses = tv({
 
 const iconClasses = tv({
   base: [
+    'p-1',
     'text-header-icon',
     'group-hover:text-header-icon-hover',
     'transition-all',
