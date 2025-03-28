@@ -15,7 +15,7 @@ type Story = StoryObj<typeof meta>
 
 export const ColorPaletteStory: Story = {
   name: 'カラーパレット',
-  render: (args) => ({
+  render: (args: unknown) => ({
     components: { ColorPalette },
     setup() {
       return { args }

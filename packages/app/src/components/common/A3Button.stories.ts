@@ -29,7 +29,7 @@ export const A3DropDownPlaygroundStory: Story = {
       control: { type: 'select' },
     },
   },
-  render: (args) => ({
+  render: (args: unknown) => ({
     components: { A3Button },
     setup() {
       return { args }
