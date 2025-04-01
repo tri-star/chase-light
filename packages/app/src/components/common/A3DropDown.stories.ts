@@ -35,7 +35,7 @@ export const A3DropDownPlaygroundStory: Story = {
     ],
     disabled: false,
   },
-  render: (args) => ({
+  render: (args: unknown) => ({
     components: { A3DropDown },
     setup() {
       return { args }

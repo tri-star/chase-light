@@ -26,7 +26,7 @@ export const A3TextFieldPlaygroundStory: Story = {
     error: false,
     loading: false,
   },
-  render: (args) => ({
+  render: (args: unknown) => ({
     components: { A3TextField },
     setup() {
       return { args }
@@ -51,7 +51,7 @@ export const A3TextFieldTailIconStory: Story = {
       },
     },
   },
-  render: (args) => ({
+  render: (args: unknown) => ({
     components: { A3TextField, A3TextFieldIcon },
     setup() {
       return { args }
