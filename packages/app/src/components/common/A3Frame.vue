@@ -1,10 +1,15 @@
 <script setup lang="ts">
 import { tv } from 'tailwind-variants'
 
-defineProps<{
-  title: string
-  type: 'default' | 'alert'
-}>()
+withDefaults(
+  defineProps<{
+    title: string
+    type?: 'default' | 'alert'
+  }>(),
+  {
+    type: 'default',
+  }
+)
 
 const classes = tv({
   slots: {
