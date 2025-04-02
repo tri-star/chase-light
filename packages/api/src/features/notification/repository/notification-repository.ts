@@ -25,4 +25,19 @@ export class NotificationRepository {
       },
     })
   }
+
+  async markAsRead(userId: string, notificationIds: string[]) {
+    const prisma = getPrismaClientInstance()
+    return prisma.notification.updateMany({
+      where: {
+        userId,
+        id: {
+          in: notificationIds,
+        },
+      },
+      data: {
+        read: true,
+      },
+    })
+  }
 }
