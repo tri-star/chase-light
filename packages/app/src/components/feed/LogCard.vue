@@ -41,13 +41,15 @@ defineProps<{
         </div>
       </div>
 
-      <NuxtLink
-        :to="{ path: feedLog.url }"
-        :external="true"
-        target="_blank"
-        class="cursor-pointer underline"
-        ><h5>{{ feedLog.title }}</h5></NuxtLink
-      >
+      <p>
+        <NuxtLink
+          :to="{ path: feedLog.url }"
+          :external="true"
+          target="_blank"
+          class="cursor-pointer underline"
+          ><h5 class="inline">{{ feedLog.title }}</h5></NuxtLink
+        >
+      </p>
       <ul
         class="flex list-inside list-disc flex-col gap-1 break-words px-2 pb-4"
       >
