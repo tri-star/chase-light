@@ -10,6 +10,7 @@ const emit = defineEmits<{
 const frameRef = ref<HTMLElement | null>(null)
 
 const { data, status, refresh } = useA3Fetch('/api/notifications')
+const toastStore = useToastStore()
 
 useClickOutside(frameRef, () => {
   emit('close')
@@ -54,6 +55,10 @@ const markAsRead = async () => {
       // データを更新
       refresh()
     } catch (error) {
+      toastStore.createToast({
+        message: 'お知らせの既読状態の更新に失敗しました',
+        type: 'alert',
+      })
       console.error('Failed to mark notifications as read:', error)
     }
   }
