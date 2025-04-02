@@ -2,15 +2,27 @@
 import type { Notification } from '~/features/notification/domain/notification'
 import dayjs from 'dayjs'
 import { toDateTimeString } from '~/lib/utils/date-utils'
+import { tv } from 'tailwind-variants'
 
 defineProps<{
   notification: Notification
 }>()
+
+// カードのスタイル
+const cardClasses = tv({
+  base: 'bg-card flex w-full flex-col gap-2 rounded-md p-2 drop-shadow-sm transition-opacity',
+  variants: {
+    read: {
+      true: 'opacity-50',
+      false: 'opacity-100',
+    },
+  },
+})
 </script>
 
 <template>
   <article
-    class="bg-card flex w-full flex-col gap-2 rounded-md p-2 drop-shadow-sm"
+    :class="cardClasses({ read: notification.read })"
   >
     <time
       :datetime="dayjs(notification.createdAt).format()"

@@ -15,10 +15,16 @@ const postFeeds_Body = z
   .strict()
   .passthrough()
   .readonly();
+const postNotificationsmarkAsRead_Body = z
+  .object({ notificationIds: z.array(z.string()).readonly() })
+  .strict()
+  .passthrough()
+  .readonly();
 
 export const schemas = {
   postUserssignupViaProvider_Body,
   postFeeds_Body,
+  postNotificationsmarkAsRead_Body,
 };
 
 const endpoints = makeApi([
@@ -517,6 +523,20 @@ const endpoints = makeApi([
                 id: z.string(),
                 title: z.string(),
                 read: z.boolean(),
+                userId: z.string(),
+                notificationItems: z
+                  .array(
+                    z
+                      .object({
+                        id: z.string(),
+                        title: z.string(),
+                        feedLogId: z.string(),
+                      })
+                      .strict()
+                      .passthrough()
+                      .readonly()
+                  )
+                  .readonly(),
                 createdAt: z.string(),
               })
               .strict()
@@ -530,6 +550,53 @@ const endpoints = makeApi([
       .passthrough()
       .readonly(),
     errors: [
+      {
+        status: 401,
+        description: `認証エラー`,
+        schema: z
+          .object({ error: z.string() })
+          .strict()
+          .passthrough()
+          .readonly(),
+      },
+      {
+        status: 500,
+        description: `予期しないエラー`,
+        schema: z
+          .object({ error: z.string() })
+          .strict()
+          .passthrough()
+          .readonly(),
+      },
+    ],
+  },
+  {
+    method: "post",
+    path: "/notifications/mark-as-read",
+    alias: "postNotificationsmarkAsRead",
+    requestFormat: "json",
+    parameters: [
+      {
+        name: "body",
+        type: "Body",
+        schema: postNotificationsmarkAsRead_Body,
+      },
+    ],
+    response: z
+      .object({ success: z.boolean() })
+      .strict()
+      .passthrough()
+      .readonly(),
+    errors: [
+      {
+        status: 400,
+        description: `バリデーションエラー`,
+        schema: z
+          .object({ error: z.string() })
+          .strict()
+          .passthrough()
+          .readonly(),
+      },
       {
         status: 401,
         description: `認証エラー`,

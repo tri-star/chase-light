@@ -1,3 +1,4 @@
+import { DbPersistentFailureError } from '@/errors/db-persistent-failure'
 import type { Notification } from '@/features/notification/domain/notification'
 import { getPrismaClientInstance } from '@/lib/prisma/app-prisma-client'
 
@@ -24,5 +25,28 @@ export class NotificationRepository {
         createdAt: notification.createdAt,
       },
     })
+  }
+
+  async markAsRead(userId: string, notificationIds: string[]) {
+    const prisma = getPrismaClientInstance()
+    try {
+      return prisma.notification.updateMany({
+        where: {
+          userId,
+          id: {
+            in: notificationIds,
+          },
+        },
+        data: {
+          read: true,
+        },
+      })
+    } catch (error: unknown) {
+      console.error(error)
+      throw new DbPersistentFailureError(
+        'notification',
+        'お知らせの既読状態の更新に失敗しました',
+      )
+    }
   }
 }

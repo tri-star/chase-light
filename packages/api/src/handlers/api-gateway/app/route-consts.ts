@@ -40,5 +40,8 @@ export const ROUTES = {
     LIST: {
       DEFINITION: '/notifications',
     },
+    MARK_AS_READ: {
+      DEFINITION: '/notifications/mark-as-read',
+    },
   },
 } as const

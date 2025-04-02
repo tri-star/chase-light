@@ -1,5 +1,6 @@
 import { ChaseLightApp } from '@/handlers/api-gateway/app/chase-light-app'
 import { ListNotificationAction } from '@/handlers/api-gateway/notification/actions/list-notification-action'
+import { MarkAsReadAction } from '@/handlers/api-gateway/notification/actions/mark-as-read-action'
 import { handlerPath } from '@/lib/hono/handler-resolver'
 import { currentDirPath } from '@/lib/utils/path-utils'
 import {
@@ -31,7 +32,10 @@ notificationApp.defineLambdaDefinition({
     ],
   },
 })
-notificationApp.importActions([new ListNotificationAction()])
+notificationApp.importActions([
+  new ListNotificationAction(),
+  new MarkAsReadAction(),
+])
 
 export const handler: (
   event: LambdaEvent,
