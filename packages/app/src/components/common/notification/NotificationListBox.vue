@@ -9,10 +9,9 @@ const emit = defineEmits<{
 
 const frameRef = ref<HTMLElement | null>(null)
 
-const { data, status } = useA3Fetch('/api/notifications')
+const { data, status, refresh } = useA3Fetch('/api/notifications')
 
 useClickOutside(frameRef, () => {
-  console.log('close event')
   emit('close')
 })
 
@@ -31,6 +30,50 @@ const frameClasses = tv({
     'drop-shadow-lg',
     'overflow-hidden',
   ],
+})
+
+// 既読処理
+const markAsRead = async () => {
+  if (data.value?.result && data.value.result.length > 0) {
+    const unreadNotifications = data.value.result.filter(
+      (notification) => !notification.read
+    )
+    if (unreadNotifications.length === 0) return
+
+    const notificationIds = unreadNotifications.map(
+      (notification) => notification.id
+    )
+
+    try {
+      await $fetch('/api/notifications/mark-as-read', {
+        method: 'POST',
+        body: {
+          notificationIds,
+        },
+      })
+      // データを更新
+      refresh()
+    } catch (error) {
+      console.error('Failed to mark notifications as read:', error)
+    }
+  }
+}
+
+// コンポーネントが表示されたとき
+onMounted(() => {
+  // ステータスがdoneになったら（データロード完了）、既読処理を実行
+  watch(
+    () => status.value,
+    (newStatus) => {
+      if (newStatus === 'success') {
+        // 少し時間を空けて既読にする
+        setTimeout(() => {
+          markAsRead()
+        }, 500)
+      }
+    },
+    { immediate: true }
+  )
 })
 </script>
 
