@@ -6,6 +6,7 @@ import type { FeedGitHubMeta } from "@prisma/client";
 import type { DataSource } from "@prisma/client";
 import type { FeedLog } from "@prisma/client";
 import type { FeedLogItem } from "@prisma/client";
+import type { SystemSetting } from "@prisma/client";
 import type { FeedLogStatus } from "@prisma/client";
 import type { Prisma } from "@prisma/client";
 import type { Resolver } from "@quramy/prisma-fabbrica/lib/internal";
@@ -423,3 +424,46 @@ interface FeedLogItemFactoryBuilder {
  * @returns factory {@link FeedLogItemFactoryInterface}
  */
 export declare const defineFeedLogItemFactory: FeedLogItemFactoryBuilder;
+type SystemSettingFactoryDefineInput = {
+    id?: string;
+    lastNotificationRunDate?: Date | null;
+    createdAt?: Date;
+    updatedAt?: Date;
+};
+type SystemSettingTransientFields = Record<string, unknown> & Partial<Record<keyof SystemSettingFactoryDefineInput, never>>;
+type SystemSettingFactoryTrait<TTransients extends Record<string, unknown>> = {
+    data?: Resolver<Partial<SystemSettingFactoryDefineInput>, BuildDataOptions<TTransients>>;
+} & CallbackDefineOptions<SystemSetting, Prisma.SystemSettingCreateInput, TTransients>;
+type SystemSettingFactoryDefineOptions<TTransients extends Record<string, unknown> = Record<string, unknown>> = {
+    defaultData?: Resolver<SystemSettingFactoryDefineInput, BuildDataOptions<TTransients>>;
+    traits?: {
+        [traitName: TraitName]: SystemSettingFactoryTrait<TTransients>;
+    };
+} & CallbackDefineOptions<SystemSetting, Prisma.SystemSettingCreateInput, TTransients>;
+type SystemSettingTraitKeys<TOptions extends SystemSettingFactoryDefineOptions<any>> = Exclude<keyof TOptions["traits"], number>;
+export interface SystemSettingFactoryInterfaceWithoutTraits<TTransients extends Record<string, unknown>> {
+    readonly _factoryFor: "SystemSetting";
+    build(inputData?: Partial<Prisma.SystemSettingCreateInput & TTransients>): PromiseLike<Prisma.SystemSettingCreateInput>;
+    buildCreateInput(inputData?: Partial<Prisma.SystemSettingCreateInput & TTransients>): PromiseLike<Prisma.SystemSettingCreateInput>;
+    buildList(list: readonly Partial<Prisma.SystemSettingCreateInput & TTransients>[]): PromiseLike<Prisma.SystemSettingCreateInput[]>;
+    buildList(count: number, item?: Partial<Prisma.SystemSettingCreateInput & TTransients>): PromiseLike<Prisma.SystemSettingCreateInput[]>;
+    pickForConnect(inputData: SystemSetting): Pick<SystemSetting, "id">;
+    create(inputData?: Partial<Prisma.SystemSettingCreateInput & TTransients>): PromiseLike<SystemSetting>;
+    createList(list: readonly Partial<Prisma.SystemSettingCreateInput & TTransients>[]): PromiseLike<SystemSetting[]>;
+    createList(count: number, item?: Partial<Prisma.SystemSettingCreateInput & TTransients>): PromiseLike<SystemSetting[]>;
+    createForConnect(inputData?: Partial<Prisma.SystemSettingCreateInput & TTransients>): PromiseLike<Pick<SystemSetting, "id">>;
+}
+export interface SystemSettingFactoryInterface<TTransients extends Record<string, unknown> = Record<string, unknown>, TTraitName extends TraitName = TraitName> extends SystemSettingFactoryInterfaceWithoutTraits<TTransients> {
+    use(name: TTraitName, ...names: readonly TTraitName[]): SystemSettingFactoryInterfaceWithoutTraits<TTransients>;
+}
+interface SystemSettingFactoryBuilder {
+    <TOptions extends SystemSettingFactoryDefineOptions>(options?: TOptions): SystemSettingFactoryInterface<{}, SystemSettingTraitKeys<TOptions>>;
+    withTransientFields: <TTransients extends SystemSettingTransientFields>(defaultTransientFieldValues: TTransients) => <TOptions extends SystemSettingFactoryDefineOptions<TTransients>>(options?: TOptions) => SystemSettingFactoryInterface<TTransients, SystemSettingTraitKeys<TOptions>>;
+}
+/**
+ * Define factory for {@link SystemSetting} model.
+ *
+ * @param options
+ * @returns factory {@link SystemSettingFactoryInterface}
+ */
+export declare const defineSystemSettingFactory: SystemSettingFactoryBuilder;
