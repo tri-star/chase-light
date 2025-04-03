@@ -85,7 +85,7 @@ const serverlessConfiguration: Serverless & { build: object } = {
     stage: '${opt:stage, "local"}',
     runtime: 'nodejs20.x',
     region: 'ap-northeast-1',
-    memorySize: 512,
+    memorySize: 1024,
     environment: {
       STAGE: '${sls:stage}',
       TZ: 'Asia/Tokyo',
