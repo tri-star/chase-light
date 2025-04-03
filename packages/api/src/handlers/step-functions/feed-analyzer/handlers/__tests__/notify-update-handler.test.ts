@@ -6,7 +6,7 @@ import { handler } from '../notify-update-handler'
 import { getPrismaClientInstance } from '@/lib/prisma/app-prisma-client'
 
 describe('NotifyUpdateHandler', () => {
-  test('日本時間で当日に作成されたFeedLogに対する通知を作成すること', async () => {
+  test('初回は24時間以内に作成されたFeedLogを対象とすること', async () => {
     beforeEach(() => {
       vi.useFakeTimers()
     })
@@ -34,13 +34,12 @@ describe('NotifyUpdateHandler', () => {
             id: feed.id,
           },
         },
-        createdAt: testNow,
+        createdAt: new Date('2025-01-01 00:00:00+0900'), // ギリギリ24時間以内
       })
     }
 
-    // 1日前のFeedLogを作成
-    const yesterday = new Date('2025-01-01 23:59:59+0900')
-    const feed = await FeedFactory.create({
+    // 24時間以上前のFeedLogを作成
+    const oldFeed = await FeedFactory.create({
       user: {
         connect: {
           id: user.id,
@@ -50,10 +49,10 @@ describe('NotifyUpdateHandler', () => {
     await FeedLogFactory.create({
       feed: {
         connect: {
-          id: feed.id,
+          id: oldFeed.id,
         },
       },
-      createdAt: yesterday,
+      createdAt: new Date('2024-12-31 23:59:59+0900'),
     })
 
     // 通知作成処理の実行
@@ -74,5 +73,74 @@ describe('NotifyUpdateHandler', () => {
       notifications[0].notificationItems.length,
       'お知らせの内容は今日作成されたFeedLogであること',
     ).toBe(2)
+  })
+
+  test('2回目は1回目以降に作成されたFeedLogを対象とすること', async () => {
+    beforeEach(() => {
+      vi.useFakeTimers()
+    })
+
+    afterEach(() => {
+      vi.useRealTimers()
+    })
+
+    const user = await UserFactory.create()
+    const testNow = new Date('2025-01-02T00:00:00+0900')
+    vi.setSystemTime(testNow)
+
+    const feed = await FeedFactory.create({
+      user: {
+        connect: {
+          id: user.id,
+        },
+      },
+    })
+    for (let i = 0; i < 2; i++) {
+      await FeedLogFactory.create({
+        feed: {
+          connect: {
+            id: feed.id,
+          },
+        },
+        createdAt: new Date('2025-01-01 15:00:00+0900'),
+      })
+    }
+
+    // 1回目の実行。
+    await handler({})
+
+    // 時間を少し進めてフィードログを作成
+    vi.setSystemTime('2025-01-02T10:00:00+0900')
+
+    await FeedLogFactory.create({
+      feed: {
+        connect: {
+          id: feed.id,
+        },
+      },
+      createdAt: new Date(),
+    })
+
+    // 2回目の実行
+    await handler({})
+
+    // 最後に作成されたお知らせを1件取得
+    const prisma = getPrismaClientInstance()
+    const latestNotification = await prisma.notification.findFirst({
+      where: {
+        userId: user.id,
+      },
+      include: {
+        notificationItems: true,
+      },
+      orderBy: {
+        createdAt: 'desc',
+      },
+    })
+
+    expect(
+      latestNotification?.notificationItems.length,
+      '最新のお知らせの内容は1回目の後で作成されたFeedLogであること',
+    ).toBe(1)
   })
 })

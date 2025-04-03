@@ -148,3 +148,12 @@ model FeedLogItem {
   @@index([feedLogId])
   @@map("feed_log_items")
 }
+
+model SystemSetting {
+  id                    String    @id @db.Uuid
+  lastNotificationRunDate DateTime? @map("last_notification_run_date") @db.Timestamptz
+  createdAt             DateTime  @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt             DateTime  @updatedAt @map("updated_at") @db.Timestamptz
+
+  @@map("system_settings")
+}

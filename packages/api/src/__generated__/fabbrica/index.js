@@ -83,6 +83,9 @@ const modelFieldDefinitions = [{
                 type: "FeedLog",
                 relationName: "FeedLogToFeedLogItem"
             }]
+    }, {
+        name: "SystemSetting",
+        fields: []
     }];
 function autoGenerateUserScalarsOrEnums({ seq }) {
     return {
@@ -844,3 +847,89 @@ export const defineFeedLogItemFactory = ((options) => {
     return defineFeedLogItemFactoryInternal(options, {});
 });
 defineFeedLogItemFactory.withTransientFields = defaultTransientFieldValues => options => defineFeedLogItemFactoryInternal(options, defaultTransientFieldValues);
+function autoGenerateSystemSettingScalarsOrEnums({ seq }) {
+    return {
+        id: getScalarFieldValueGenerator().String({ modelName: "SystemSetting", fieldName: "id", isId: true, isUnique: false, seq })
+    };
+}
+function defineSystemSettingFactoryInternal({ defaultData: defaultDataResolver, onAfterBuild, onBeforeCreate, onAfterCreate, traits: traitsDefs = {} }, defaultTransientFieldValues) {
+    const getFactoryWithTraits = (traitKeys = []) => {
+        const seqKey = {};
+        const getSeq = () => getSequenceCounter(seqKey);
+        const screen = createScreener("SystemSetting", modelFieldDefinitions);
+        const handleAfterBuild = createCallbackChain([
+            onAfterBuild,
+            ...traitKeys.map(traitKey => traitsDefs[traitKey]?.onAfterBuild),
+        ]);
+        const handleBeforeCreate = createCallbackChain([
+            ...traitKeys.slice().reverse().map(traitKey => traitsDefs[traitKey]?.onBeforeCreate),
+            onBeforeCreate,
+        ]);
+        const handleAfterCreate = createCallbackChain([
+            onAfterCreate,
+            ...traitKeys.map(traitKey => traitsDefs[traitKey]?.onAfterCreate),
+        ]);
+        const build = async (inputData = {}) => {
+            const seq = getSeq();
+            const requiredScalarData = autoGenerateSystemSettingScalarsOrEnums({ seq });
+            const resolveValue = normalizeResolver(defaultDataResolver ?? {});
+            const [transientFields, filteredInputData] = destructure(defaultTransientFieldValues, inputData);
+            const resolverInput = { seq, ...transientFields };
+            const defaultData = await traitKeys.reduce(async (queue, traitKey) => {
+                const acc = await queue;
+                const resolveTraitValue = normalizeResolver(traitsDefs[traitKey]?.data ?? {});
+                const traitData = await resolveTraitValue(resolverInput);
+                return {
+                    ...acc,
+                    ...traitData,
+                };
+            }, resolveValue(resolverInput));
+            const defaultAssociations = {};
+            const data = { ...requiredScalarData, ...defaultData, ...defaultAssociations, ...filteredInputData };
+            await handleAfterBuild(data, transientFields);
+            return data;
+        };
+        const buildList = (...args) => Promise.all(normalizeList(...args).map(data => build(data)));
+        const pickForConnect = (inputData) => ({
+            id: inputData.id
+        });
+        const create = async (inputData = {}) => {
+            const [transientFields] = destructure(defaultTransientFieldValues, inputData);
+            const data = await build(inputData).then(screen);
+            await handleBeforeCreate(data, transientFields);
+            const createdData = await getClient().systemSetting.create({ data });
+            await handleAfterCreate(createdData, transientFields);
+            return createdData;
+        };
+        const createList = (...args) => Promise.all(normalizeList(...args).map(data => create(data)));
+        const createForConnect = (inputData = {}) => create(inputData).then(pickForConnect);
+        return {
+            _factoryFor: "SystemSetting",
+            build,
+            buildList,
+            buildCreateInput: build,
+            pickForConnect,
+            create,
+            createList,
+            createForConnect,
+        };
+    };
+    const factory = getFactoryWithTraits();
+    const useTraits = (name, ...names) => {
+        return getFactoryWithTraits([name, ...names]);
+    };
+    return {
+        ...factory,
+        use: useTraits,
+    };
+}
+/**
+ * Define factory for {@link SystemSetting} model.
+ *
+ * @param options
+ * @returns factory {@link SystemSettingFactoryInterface}
+ */
+export const defineSystemSettingFactory = ((options) => {
+    return defineSystemSettingFactoryInternal(options ?? {}, {});
+});
+defineSystemSettingFactory.withTransientFields = defaultTransientFieldValues => options => defineSystemSettingFactoryInternal(options ?? {}, defaultTransientFieldValues);
