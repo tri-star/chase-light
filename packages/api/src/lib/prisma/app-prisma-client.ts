@@ -16,6 +16,7 @@ export function getPrismaClientInstance() {
   return prismaClient
 }
 
+//FIXME: この関数は利用していないため、削除したい
 export function swapPrismaClientForTest(newPrismaClient: PrismaClient) {
   prismaClient = newPrismaClient
 }
