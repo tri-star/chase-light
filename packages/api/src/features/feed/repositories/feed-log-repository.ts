@@ -11,7 +11,7 @@ import {
   type FeedLogItemModel,
   type NewFeedLogItemModel,
 } from '@/features/feed/domain/feed-log-item'
-import { getPrismaClientInstance } from '@/lib/prisma/app-prisma-client'
+import { getTransactionManager } from '@/lib/prisma/transaction-manager'
 import type { CycleValue } from 'core/features/feed/feed'
 import { FEED_LOG_STATUS_VALUE_MAP } from 'core/features/feed/feed-logs'
 import { z } from 'zod'
@@ -21,7 +21,8 @@ export class FeedLogRepository {
    * 指定したIDのFeedLogを返す
    */
   async findById(feedLogId: string): Promise<FeedLogDetailModel> {
-    const prisma = getPrismaClientInstance()
+    const transactionManager = getTransactionManager()
+    const prisma = transactionManager.getActivePrisma()
 
     const loadedFeedLog = await prisma.feedLog.findFirst({
       where: {
@@ -76,7 +77,8 @@ export class FeedLogRepository {
   async findFeedLogsListItemModelsByFeedId(
     feedId: string,
   ): Promise<FeedLogListItemModel[]> {
-    const prisma = getPrismaClientInstance()
+    const transactionManager = getTransactionManager()
+    const prisma = transactionManager.getActivePrisma()
 
     const loadedFeedLogs = await prisma.feedLog.findMany({
       where: {
@@ -132,7 +134,8 @@ export class FeedLogRepository {
     pageSize: number,
     page = 1,
   ): Promise<{ count: number; items: FeedLogListItemModel[] }> {
-    const prisma = getPrismaClientInstance()
+    const transactionManager = getTransactionManager()
+    const prisma = transactionManager.getActivePrisma()
 
     const loadedFeedLogs = await prisma.feedLog.findMany({
       where: {
@@ -199,7 +202,8 @@ export class FeedLogRepository {
     userId: string,
     fromDate: Date,
   ): Promise<FeedLogListItemModel[]> {
-    const prisma = getPrismaClientInstance()
+    const transactionManager = getTransactionManager()
+    const prisma = transactionManager.getActivePrisma()
 
     const loadedFeedLogs = await prisma.feedLog.findMany({
       where: {
@@ -256,7 +260,8 @@ export class FeedLogRepository {
    * 処理が完了していないFeedLogの一覧を返す
    */
   async findPendingFeedLogs(): Promise<FeedLogListItemModel[]> {
-    const prisma = getPrismaClientInstance()
+    const transactionManager = getTransactionManager()
+    const prisma = transactionManager.getActivePrisma()
 
     const loadedFeedLogs = await prisma.feedLog.findMany({
       where: {
@@ -286,7 +291,8 @@ export class FeedLogRepository {
   }
 
   async save(feedLog: FeedLogDetailModel): Promise<void> {
-    const prisma = getPrismaClientInstance()
+    const transactionManager = getTransactionManager()
+    const prisma = transactionManager.getActivePrisma()
 
     await prisma.feedLog.upsert({
       where: {
@@ -320,7 +326,8 @@ export class FeedLogRepository {
   }
 
   async clearFeedLogItems(feedLogId: string): Promise<void> {
-    const prisma = getPrismaClientInstance()
+    const transactionManager = getTransactionManager()
+    const prisma = transactionManager.getActivePrisma()
 
     await prisma.feedLogItem.deleteMany({
       where: {
@@ -330,7 +337,8 @@ export class FeedLogRepository {
   }
 
   async saveFeedLogItems(items: NewFeedLogItemModel[]): Promise<void> {
-    const prisma = getPrismaClientInstance()
+    const transactionManager = getTransactionManager()
+    const prisma = transactionManager.getActivePrisma()
 
     const feedLogItemsPromises = items.map((item) =>
       prisma.feedLogItem.create({
