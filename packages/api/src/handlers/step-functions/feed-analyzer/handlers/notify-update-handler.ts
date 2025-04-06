@@ -7,6 +7,7 @@ import { getPrismaClientInstance } from '@/lib/prisma/app-prisma-client'
 import { currentDirPath } from '@/lib/utils/path-utils'
 import dayjs from 'dayjs'
 import type { AwsFunctionHandler } from 'serverless/aws'
+import { runWithTransactionManager } from '@/lib/prisma/transaction-manager'
 
 export const notifyUpdateHandler: AwsFunctionHandler = {
   handler: `${handlerPath(currentDirPath(import.meta.url))}/notify-update-handler.handler`,
@@ -14,6 +15,12 @@ export const notifyUpdateHandler: AwsFunctionHandler = {
 }
 
 export async function handler(_event: unknown) {
+  return await runWithTransactionManager(async () => {
+    await handleEvent()
+  })
+}
+
+async function handleEvent() {
   // ユーザーの一覧を集める
   // ユーザー毎に前回バッチ実行以降に作成されたFeedLogの一覧を集める
   // Notificationを作成、保存する

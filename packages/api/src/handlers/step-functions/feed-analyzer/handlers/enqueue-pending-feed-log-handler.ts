@@ -4,6 +4,7 @@ import type { Context } from 'aws-lambda'
 import type { AwsFunctionHandler } from 'serverless/aws'
 import { getAnalyzeFeedLogQueue } from '@/features/feed/services/analyze-feed-log-queue'
 import { FeedLogRepository } from '@/features/feed/repositories/feed-log-repository'
+import { runWithTransactionManager } from '@/lib/prisma/transaction-manager'
 
 export const enqueuePendingFeedLogHandler: AwsFunctionHandler = {
   handler: `${handlerPath(currentDirPath(import.meta.url))}/enqueue-pending-feed-log-handler.handler`,
@@ -14,6 +15,12 @@ export async function handler(
   _event: unknown,
   _context: Context,
 ): Promise<void> {
+  await runWithTransactionManager(async () => {
+    await handleEvent()
+  })
+}
+
+async function handleEvent() {
   const feedLogRepository = new FeedLogRepository()
   const pendingFeedLogs = await feedLogRepository.findPendingFeedLogs()
 

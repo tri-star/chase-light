@@ -11,6 +11,7 @@ import { FEED_LOG_STATUS_VALUE_MAP } from 'core/features/feed/feed-logs'
 import type { AwsFunctionHandler } from 'serverless/aws'
 import z from 'zod'
 import { v7 as uuidv7 } from 'uuid'
+import { runWithTransactionManager } from '@/lib/prisma/transaction-manager'
 
 export const analyzeFeedRequestSchema = z.object({
   feedLogId: z.string(),
@@ -40,9 +41,11 @@ export const analyzeFeedLogHandler: AwsFunctionHandler = {
 }
 
 export async function handler(event: SQSEvent, _context: Context) {
-  for (const record of event.Records) {
-    await handleEvent(record.receiptHandle, JSON.parse(record.body))
-  }
+  await runWithTransactionManager(async () => {
+    for (const record of event.Records) {
+      await handleEvent(record.receiptHandle, JSON.parse(record.body))
+    }
+  })
 }
 
 async function handleEvent(receiptHandle: string, request: AnalyzeFeedRequest) {

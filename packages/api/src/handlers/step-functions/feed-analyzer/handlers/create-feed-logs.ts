@@ -5,6 +5,7 @@ import type { AwsFunctionHandler } from 'serverless/aws'
 import { z } from 'zod'
 import { CreateFeedLogUseCase } from '@/features/feed/usecases/create-feed-logs-usecase'
 import dayjs from 'dayjs'
+import { runWithTransactionManager } from '@/lib/prisma/transaction-manager'
 
 const createFeedLogsRequestSchema = z.string()
 type CreateFeedLogRequest = z.infer<typeof createFeedLogsRequestSchema>
@@ -25,8 +26,13 @@ export async function handler(
   event: CreateFeedLogRequest,
   _context: Context,
 ): Promise<CreateFeedLogResponse> {
-  const feedId = createFeedLogsRequestSchema.parse(event)
+  return await runWithTransactionManager(async () => {
+    const feedId = createFeedLogsRequestSchema.parse(event)
+    return await handleEvent(feedId)
+  })
+}
 
+async function handleEvent(feedId: string) {
   const createFeedLogsUseCase = new CreateFeedLogUseCase()
   const feedLogs = await createFeedLogsUseCase.execute(feedId)
 
