@@ -7,6 +7,7 @@ import {
   feedLogSearchResultModelSchema,
 } from '@/features/feed/domain/feed-log'
 import { FeedLogRepository } from '@/features/feed/repositories/feed-log-repository'
+import { getTransactionManager } from '@/lib/prisma/transaction-manager'
 
 export class ListUserFeedLogAction extends ActionDefinition<AppContext> {
   buildOpenApiAppRoute(parentApp: OpenAPIHono<AppContext>): void {
@@ -79,13 +80,16 @@ export class ListUserFeedLogAction extends ActionDefinition<AppContext> {
           return c.json({ error: 'Invalid page size' }, 400)
         }
 
-        const feedLogRepository = new FeedLogRepository()
+        const transactionManager = getTransactionManager()
         const { count, items: feedLogList } =
-          await feedLogRepository.findFeedLogsListItemModelsByUserId(
-            user.id,
-            pageSize,
-            currentPage,
-          )
+          await transactionManager.transaction(async () => {
+            const feedLogRepository = new FeedLogRepository()
+            return await feedLogRepository.findFeedLogsListItemModelsByUserId(
+              user.id,
+              pageSize,
+              currentPage,
+            )
+          })
 
         return c.json(
           feedLogSearchResultModelSchema.parse({
