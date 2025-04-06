@@ -9,7 +9,7 @@ const emit = defineEmits<{
 
 const frameRef = ref<HTMLElement | null>(null)
 
-const { data, status, refresh } = useA3Fetch('/api/notifications')
+const { data, status } = useA3Fetch('/api/notifications')
 const toastStore = useToastStore()
 
 useClickOutside(frameRef, () => {
@@ -52,8 +52,6 @@ const markAsRead = async () => {
           notificationIds,
         },
       })
-      // データを更新
-      refresh()
     } catch (error) {
       toastStore.createToast({
         message: 'お知らせの既読状態の更新に失敗しました',
