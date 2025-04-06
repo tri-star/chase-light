@@ -3,6 +3,7 @@ import type { User } from '@/features/user/domain/user'
 import { HonoOpenApiApp } from '@/lib/hono/hono-openapi-app'
 import { cors } from 'hono/cors'
 import { otlpMiddleware } from '@/handlers/api-gateway/app/middlewares/otlp-middleware'
+import { transactionMiddleware } from '@/handlers/api-gateway/app/middlewares/transaction-middleware'
 
 export type AppContext = {
   Variables: {
@@ -34,6 +35,9 @@ export class ChaseLightApp extends HonoOpenApiApp<AppContext> {
     )
 
     this.app.use(otlpMiddleware)
+    // トランザクション管理のためのミドルウェアを追加
+    // 認証ミドルウェアより前に配置し、すべてのリクエストでトランザクション管理ができるようにする
+    this.app.use(transactionMiddleware)
     this.app.use(authMiddleware)
   }
 }

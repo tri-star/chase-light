@@ -15,7 +15,3 @@ export function getPrismaClientInstance() {
   }
   return prismaClient
 }
-
-export function swapPrismaClientForTest(newPrismaClient: PrismaClient) {
-  prismaClient = newPrismaClient
-}
