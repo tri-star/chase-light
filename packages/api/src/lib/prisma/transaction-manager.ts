@@ -33,13 +33,17 @@ export class TransactionManager {
   ): Promise<T> {
     // すでにトランザクション内の場合は、ネストせずに既存のトランザクションを使用
     if (this.transactionPrisma) {
-      return fn(this.transactionPrisma)
+      return await fn(this.transactionPrisma)
     }
 
     // 新しいトランザクションを開始
     return this.defaultPrisma.$transaction(async (prisma) => {
       this.transactionPrisma = prisma
-      return fn(prisma)
+      try {
+        return await fn(prisma)
+      } finally {
+        this.transactionPrisma = undefined
+      }
     })
   }
 
