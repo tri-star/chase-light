@@ -20,5 +20,16 @@
     // "tv\\(([^)(]*(?:\\([^)(]*(?:\\([^)(]*(?:\\([^)(]*\\)[^)(]*)*\\)[^)(]*)*\\)[^)(]*)*)\\)"
     // https://www.tailwind-variants.org/docs/getting-started#intellisense-setup-optional
     "([\"'`][^\"'`]*.*?[\"'`])", "[\"'`]([^\"'`]*).*?[\"'`]",
+  ],
+  "github.copilot.chat.codeGeneration.instructions": [
+   {
+    "file": "CLAUDE.md"
+   },
+   {
+    "file": "packages/api/CLAUDE.md"
+   },
+   {
+    "file": "packages/app/CLAUDE.md"
+   },
   ]
 }
