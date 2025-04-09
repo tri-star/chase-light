@@ -135,9 +135,7 @@ export function isSupportedDataSource(url: string) {
     ) {
       return false
     }
-    console.log(`owner:${ownerName}, repo:${repoName}`)
-  } catch (e: unknown) {
-    console.debug(`isSupportedDataSource: ${e}`)
+  } catch (_e: unknown) {
     return false
   }
 
@@ -176,8 +174,7 @@ export function extractDataSourceUrl(url: string) {
 export function tryExtractDataSourceUrl(url: string) {
   try {
     return extractDataSourceUrl(url)
-  } catch (e: unknown) {
-    console.debug(`tryExtractDataSourceUrl: ${e}`)
+  } catch (_e: unknown) {
     return undefined
   }
 }
