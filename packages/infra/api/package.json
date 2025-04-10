@@ -1,0 +1,35 @@
+{
+  "name": "@chase-light/infra-api",
+  "version": "1.0.0",
+  "description": "CDK Infrastructure for Chase Light API",
+  "main": "lib/index.js",
+  "types": "lib/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "watch": "tsc -w",
+    "cdk": "cdk",
+    "bootstrap": "cdk bootstrap",
+    "deploy": "cdk deploy",
+    "destroy": "cdk destroy",
+    "synth": "cdk synth",
+    "sam:synth": "cdk synth --no-staging > template.yaml",
+    "sam:local:start-api": "npm run sam:synth && sam local start-api --warm-containers EAGER",
+    "sam:local:invoke": "npm run sam:synth && sam local invoke -t template.yaml"
+  },
+  "keywords": [
+    "cdk",
+    "aws"
+  ],
+  "author": "",
+  "license": "UNLICENSED",
+  "devDependencies": {
+    "@types/node": "^22.7.5",
+    "aws-cdk": "^2.126.0",
+    "esbuild": "^0.19.12",
+    "typescript": "^5.6.3"
+  },
+  "dependencies": {
+    "aws-cdk-lib": "^2.126.0",
+    "constructs": "^10.3.0"
+  }
+}
