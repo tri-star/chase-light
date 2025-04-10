@@ -7,7 +7,10 @@
   "scripts": {
     "dev": "concurrently -n api,app -c green,blue \"pnpm dev:api\" \"pnpm dev:app\"",
     "dev:api": "cd packages/api && docker compose up -d && pnpm dev",
-    "dev:app": "cd packages/app && pnpm dev"
+    "dev:app": "cd packages/app && pnpm dev",
+    "sam:synth": "cd packages/infra/api && pnpm sam:synth",
+    "sam:local:start-api": "cd packages/infra/api && pnpm sam:local:start-api",
+    "sam:local:invoke": "cd packages/infra/api && pnpm sam:local:invoke"
   },
   "keywords": [],
   "author": "",

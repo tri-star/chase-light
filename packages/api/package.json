@@ -11,7 +11,9 @@
     "lint:eslint": "eslint .",
     "lint:tsc": "tsc --noEmit",
     "lint:biome": "biome check --organize-imports-enabled=false prisma src serverless.ts eslint.config.mjs",
-    "lint": "npm-run-all2 lint:eslint lint:tsc lint:biome"
+    "lint": "npm-run-all2 lint:eslint lint:tsc lint:biome",
+    "sam:local:start-api": "cd ../infra/api && pnpm sam:local:start-api",
+    "sam:local:invoke": "cd ../infra/api && pnpm sam:local:invoke"
   },
   "keywords": [],
   "author": "",
