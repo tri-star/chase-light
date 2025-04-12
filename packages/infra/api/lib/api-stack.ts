@@ -113,7 +113,7 @@ export class ApiStack extends cdk.Stack {
     }
 
     // Common Lambda function props
-    const commonLambdaProps = {
+    const commonLambdaProps: cdk.aws_lambda.FunctionProps = {
       runtime: lambda.Runtime.NODEJS_20_X,
       memorySize: 1024,
       environment: commonEnvironment,
@@ -128,8 +128,8 @@ export class ApiStack extends cdk.Stack {
         commonLayer,
       ],
       bundling: {
-        minify: false,
-        sourceMap: true,
+        minify: true,
+        SourceMap: true,
         externalModules: [
           'aws-lambda',
           '@prisma/client',
@@ -175,7 +175,7 @@ export class ApiStack extends cdk.Stack {
       handler: 'src/handlers/api-gateway/feed/index.handler',
       code: lambda.Code.fromAsset(path.resolve(__dirname, '../../../api')),
       description: 'Feed API Lambda function',
-      layers: [...commonLambdaProps.layers, openaiLayer],
+      layers: [...commonLambdaProps.layers!, openaiLayer],
     })
 
     const feedApiResource = api.root.addResource('feed')
