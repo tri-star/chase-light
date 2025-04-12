@@ -91,7 +91,7 @@ export class ApiStack extends cdk.Stack {
     lambdaRole.addToPolicy(
       new iam.PolicyStatement({
         effect: iam.Effect.ALLOW,
-        actions: ['sqs:SendMessage'],
+        actions: ['sqs:SendMessage', 'sqs:GetQueueUrl', 'sqs:GetQueueAttributes'],
         resources: [feedAnalyzeQueue.queueArn],
       }),
     )
@@ -218,87 +218,128 @@ export class ApiStack extends cdk.Stack {
     })
 
     // Step Functions Handlers
-    const analyzeRequestHandler = new lambda.Function(
-      this,
-      'AnalyzeRequestHandler',
-      {
-        ...commonLambdaProps,
-        functionName: `chase-light-api-feedAnalyzer-analyzeRequest-${stage}`,
-        handler:
-          'src/handlers/step-functions/feed-analyzer/analyze-request.handler',
-        code: lambda.Code.fromAsset(path.resolve(__dirname, '../../../api')),
-        description: 'Feed Analyzer Request Handler',
-        layers: [...commonLambdaProps.layers, openaiLayer],
-      },
-    )
-
-    const summarizeHandler = new lambda.Function(this, 'SummarizeHandler', {
+    const listFeedHandler = new lambda.Function(this, 'listFeedHandler', {
       ...commonLambdaProps,
-      functionName: `chase-light-api-feedAnalyzer-summarize-${stage}`,
-      handler: 'src/handlers/step-functions/feed-analyzer/summarize.handler',
+      functionName: `chase-light-api-feedAnalyzer-listFeedHandler-${stage}`,
+      handler: 'src/handlers/step-functions/feed-analyzer/handlers/list-feed-handler.handler',
       code: lambda.Code.fromAsset(path.resolve(__dirname, '../../../api')),
-      description: 'Feed Analyzer Summarize Handler',
-      layers: [...commonLambdaProps.layers, openaiLayer],
+      description: 'List Feed Handler Lambda function',
     })
 
-    const updateFeedLogHandler = new lambda.Function(
-      this,
-      'UpdateFeedLogHandler',
-      {
-        ...commonLambdaProps,
-        functionName: `chase-light-api-feedAnalyzer-updateFeedLog-${stage}`,
-        handler:
-          'src/handlers/step-functions/feed-analyzer/update-feed-log.handler',
-        code: lambda.Code.fromAsset(path.resolve(__dirname, '../../../api')),
-        description: 'Feed Analyzer Update Feed Log Handler',
-      },
-    )
+    const createFeedLogsHandler = new lambda.Function(this, 'createFeedLogsHandler', {
+      ...commonLambdaProps,
+      functionName: `chase-light-api-feedAnalyzer-createFeedLogsHandler-${stage}`,
+      handler: 'src/handlers/step-functions/feed-analyzer/handlers/create-feed-logs.handler',
+      code: lambda.Code.fromAsset(path.resolve(__dirname, '../../../api')),
+      description: 'Create Feed Logs Handler Lambda function',
+      timeout: cdk.Duration.seconds(300),
+    })
+
+    const enqueuePendingFeedLogHandler = new lambda.Function(this, 'enqueuePendingFeedLogHandler', {
+      ...commonLambdaProps,
+      functionName: `chase-light-api-feedAnalyzer-enqueuePendingFeedLogHandler-${stage}`,
+      handler: 'src/handlers/step-functions/feed-analyzer/handlers/enqueue-pending-feed-log-handler.handler',
+      code: lambda.Code.fromAsset(path.resolve(__dirname, '../../../api')),
+      description: 'Enqueue Pending Feed Log Handler Lambda function',
+      timeout: cdk.Duration.seconds(300),
+    })
+
+    const analyzeFeedLogHandler = new lambda.Function(this, 'analyzeFeedLogHandler', {
+      ...commonLambdaProps,
+      functionName: `chase-light-api-feedAnalyzer-analyzeFeedLogHandler-${stage}`,
+      handler: 'src/handlers/step-functions/feed-analyzer/handlers/analyze-feed-log-handler.handler',
+      code: lambda.Code.fromAsset(path.resolve(__dirname, '../../../api')),
+      description: 'Analyze Feed Log Handler Lambda function',
+      timeout: cdk.Duration.seconds(300),
+    })
+
+    const notifyUpdateHandler = new lambda.Function(this, 'notifyUpdateHandler', {
+      ...commonLambdaProps,
+      functionName: `chase-light-api-feedAnalyzer-notifyUpdateHandler-${stage}`,
+      handler: 'src/handlers/step-functions/feed-analyzer/handlers/notify-update-handler.handler',
+      code: lambda.Code.fromAsset(path.resolve(__dirname, '../../../api')),
+      description: 'Notify Update Handler Lambda function',
+    })
 
     // Step Functions State Machine
-    const feedAnalyzerStateMachineDefinition = new sfn.Pass(this, 'Start')
-      .next(
-        new sfn.Task(this, 'AnalyzeRequest', {
-          task: new sfn.LambdaInvoke(this, 'AnalyzeRequestTask', {
-            lambdaFunction: analyzeRequestHandler,
-          }),
-          resultPath: '$.analyzeResult',
-        }),
-      )
-      .next(
-        new sfn.Task(this, 'Summarize', {
-          task: new sfn.LambdaInvoke(this, 'SummarizeTask', {
-            lambdaFunction: summarizeHandler,
-          }),
-          resultPath: '$.summaryResult',
-        }),
-      )
-      .next(
-        new sfn.Task(this, 'UpdateFeedLog', {
-          task: new sfn.LambdaInvoke(this, 'UpdateFeedLogTask', {
-            lambdaFunction: updateFeedLogHandler,
-          }),
-          resultPath: '$.updateFeedLogResult',
-        }),
-      )
-      .next(new sfn.Pass(this, 'Complete'))
-
-    const feedAnalyzerStateMachine = new sfn.StateMachine(
-      this,
-      'FeedAnalyzerStateMachine',
-      {
-        stateMachineName: `FeedAnalyzer-${stage}`,
-        definition: feedAnalyzerStateMachineDefinition,
-        timeout: cdk.Duration.minutes(5),
-        tracingEnabled: true,
-        logs: {
-          destination: new logs.LogGroup(this, 'FeedAnalyzerLogs', {
-            logGroupName: `/aws/states/FeedAnalyzer-${stage}`,
-            retention: logs.RetentionDays.ONE_WEEK,
-          }),
-          level: sfn.LogLevel.ALL,
+    const feedAnalyzerStateMachine = new sfn.StateMachine(this, 'FeedAnalyzer', {
+      stateMachineName: `chase-light-FeedAnalyzer-${stage}`,
+      definitionBody: sfn.DefinitionBody.fromObject({
+        StartAt: 'ListFeeds',
+        QueryLanguage: 'JSONata',
+        States: {
+          ListFeeds: {
+            Type: 'Task',
+            Resource: listFeedHandler.functionArn,
+            Assign: {
+              feedIdList: '{% $states.result.feedIds %}',
+            },
+            Next: 'CreateFeedLogCollections',
+          },
+          CreateFeedLogCollections: {
+            Type: 'Map',
+            Items: '{% $feedIdList %}',
+            MaxConcurrency: 3,
+            ItemProcessor: {
+              StartAt: 'CreateFeedLogs',
+              States: {
+                CreateFeedLogs: {
+                  Type: 'Task',
+                  Resource: createFeedLogsHandler.functionArn,
+                  Assign: {
+                    feedLogs: '{% $states.result %}',
+                  },
+                  Catch: [
+                    {
+                      ErrorEquals: ['States.ALL'],
+                      Assign: {
+                        errorDetail: '{% $states.errorOutput %}',
+                      },
+                      Next: 'Error',
+                    },
+                  ],
+                  End: true,
+                },
+                Error: {
+                  Type: 'Pass',
+                  Output: {
+                    error: '{% $errorDetail %}',
+                  },
+                  End: true,
+                },
+              },
+            },
+            Next: 'EnqueuePendingFeedLog',
+          },
+          EnqueuePendingFeedLog: {
+            Type: 'Task',
+            Resource: enqueuePendingFeedLogHandler.functionArn,
+            Next: 'NotifyUpdate',
+          },
+          NotifyUpdate: {
+            Type: 'Task',
+            Resource: notifyUpdateHandler.functionArn,
+            End: true,
+          },
         },
+      }),
+      tracingEnabled: true,
+      logs: {
+        destination: new logs.LogGroup(this, 'FeedAnalyzerLogGroup', {
+          logGroupName: `/aws/states/chase-light-FeedAnalyzer-${stage}`,
+          retention: logs.RetentionDays.TWO_WEEKS,
+          removalPolicy: cdk.RemovalPolicy.DESTROY,
+        }),
+        level: sfn.LogLevel.ALL,
       },
-    )
+    })
+
+    // Grant permissions to invoke Lambda functions
+    listFeedHandler.grantInvoke(feedAnalyzerStateMachine.role);
+    createFeedLogsHandler.grantInvoke(feedAnalyzerStateMachine.role);
+    enqueuePendingFeedLogHandler.grantInvoke(feedAnalyzerStateMachine.role);
+    analyzeFeedLogHandler.grantInvoke(feedAnalyzerStateMachine.role);
+    notifyUpdateHandler.grantInvoke(feedAnalyzerStateMachine.role);
 
     // Outputs
     new cdk.CfnOutput(this, 'ApiEndpoint', {
