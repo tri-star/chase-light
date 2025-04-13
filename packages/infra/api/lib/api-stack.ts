@@ -44,13 +44,17 @@ export class ApiStack extends cdk.Stack {
     const apiGateway = new ApiGatewayResources(this, 'ApiGateway', {
       stage,
       commonLambdaProps: lambdaCommon.commonLambdaProps,
+      commonNodejsProps: lambdaCommon.commonNodejsProps,
       openaiLayer: lambdaLayers.openaiLayer,
+      apiBasePath: lambdaCommon.apiBasePath,
     })
 
     // Step Functions と関連するLambda関数
     const stepFunctions = new StepFunctionResources(this, 'StepFunctions', {
       stage,
       commonLambdaProps: lambdaCommon.commonLambdaProps,
+      commonNodejsProps: lambdaCommon.commonNodejsProps,
+      apiBasePath: lambdaCommon.apiBasePath,
     })
 
     // 出力

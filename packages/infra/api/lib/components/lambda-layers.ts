@@ -6,7 +6,7 @@ import * as path from 'path'
 export class LambdaLayers extends Construct {
   public readonly commonLayer: lambda.LayerVersion
   public readonly openaiLayer: lambda.LayerVersion
-  public readonly otelLayer: lambda.LayerVersion
+  public readonly otelLayer: lambda.ILayerVersion
 
   constructor(scope: Construct, id: string) {
     super(scope, id)
@@ -30,12 +30,14 @@ export class LambdaLayers extends Construct {
     })
 
     // OpenTelemetry Layer (参照のみ)
-    this.otelLayer = lambda.LayerVersion.fromLayerVersionArn(
+    this.otelLayer = lambda.LayerVersion.fromLayerVersionAttributes(
       this,
       'OtelLayer',
-      `arn:aws:lambda:${cdk.Stack.of(this).region}:${
-        cdk.Stack.of(this).account
-      }:layer:otel-collector:7`,
+      {
+        layerVersionArn: `arn:aws:lambda:${cdk.Stack.of(this).region}:${
+          cdk.Stack.of(this).account
+        }:layer:otel-collector:7`,
+      }
     )
   }
 }

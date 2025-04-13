@@ -2,24 +2,31 @@ import * as cdk from 'aws-cdk-lib'
 import * as lambda from 'aws-cdk-lib/aws-lambda'
 import * as iam from 'aws-cdk-lib/aws-iam'
 import * as sqs from 'aws-cdk-lib/aws-sqs'
+import { NodejsFunction, NodejsFunctionProps } from 'aws-cdk-lib/aws-lambda-nodejs'
 import { Construct } from 'constructs'
+import * as path from 'path'
 
 export interface LambdaCommonProps {
   stage: string
   lambdaRole: iam.Role
-  commonLayer: lambda.LayerVersion
-  otelLayer: lambda.LayerVersion
+  commonLayer: lambda.ILayerVersion
+  otelLayer: lambda.ILayerVersion
   feedAnalyzeQueue: sqs.Queue
 }
 
 export class LambdaCommon extends Construct {
   public readonly commonEnvironment: Record<string, string>
-  public readonly commonLambdaProps: cdk.aws_lambda.FunctionProps
+  public readonly commonLambdaProps: Omit<cdk.aws_lambda.FunctionProps, 'code' | 'handler'>
+  public readonly commonNodejsProps: Omit<NodejsFunctionProps, 'entry' | 'handler'>
+  public readonly apiBasePath: string
 
   constructor(scope: Construct, id: string, props: LambdaCommonProps) {
     super(scope, id)
 
     const { stage, lambdaRole, commonLayer, otelLayer, feedAnalyzeQueue } = props
+
+    // API基本パス
+    this.apiBasePath = path.resolve(__dirname, '../../../../api')
 
     // 共通の環境変数
     this.commonEnvironment = {
@@ -45,9 +52,19 @@ export class LambdaCommon extends Construct {
       tracing: lambda.Tracing.ACTIVE,
       role: lambdaRole,
       layers: [otelLayer, commonLayer],
+    }
+
+    // NodejsFunction用の共通プロパティ
+    this.commonNodejsProps = {
+      runtime: lambda.Runtime.NODEJS_20_X,
+      memorySize: 1024,
+      environment: this.commonEnvironment,
+      tracing: lambda.Tracing.ACTIVE,
+      role: lambdaRole,
+      layers: [otelLayer, commonLayer],
       bundling: {
         minify: true,
-        SourceMap: true,
+        sourceMap: true,
         externalModules: [
           'aws-lambda',
           '@prisma/client',

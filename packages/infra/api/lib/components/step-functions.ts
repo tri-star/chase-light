@@ -2,12 +2,15 @@ import * as cdk from 'aws-cdk-lib'
 import * as lambda from 'aws-cdk-lib/aws-lambda'
 import * as sfn from 'aws-cdk-lib/aws-stepfunctions'
 import * as logs from 'aws-cdk-lib/aws-logs'
+import { NodejsFunction, NodejsFunctionProps } from 'aws-cdk-lib/aws-lambda-nodejs'
 import { Construct } from 'constructs'
 import * as path from 'path'
 
 export interface StepFunctionsProps {
   stage: string
-  commonLambdaProps: cdk.aws_lambda.FunctionProps
+  commonLambdaProps: Omit<cdk.aws_lambda.FunctionProps, 'code' | 'handler'>
+  commonNodejsProps: Omit<NodejsFunctionProps, 'entry' | 'handler'>
+  apiBasePath: string
 }
 
 export class StepFunctionResources extends Construct {
@@ -21,69 +24,64 @@ export class StepFunctionResources extends Construct {
   constructor(scope: Construct, id: string, props: StepFunctionsProps) {
     super(scope, id)
 
-    const { stage, commonLambdaProps } = props
+    const { stage, commonLambdaProps, commonNodejsProps, apiBasePath } = props
 
     // Lambda関数の作成
-    this.listFeedHandler = new lambda.Function(this, 'listFeedHandler', {
-      ...commonLambdaProps,
+    this.listFeedHandler = new NodejsFunction(this, 'listFeedHandler', {
+      ...commonNodejsProps,
       functionName: `chase-light-${stage}-api-feedAnalyzer-listFeedHandler`,
-      handler:
-        'src/handlers/step-functions/feed-analyzer/handlers/list-feed-handler.handler',
-      code: lambda.Code.fromAsset(path.resolve(__dirname, '../../../../api')),
+      entry: path.join(apiBasePath, 'src/handlers/step-functions/feed-analyzer/handlers/list-feed-handler.ts'),
+      handler: 'handler',
       description: 'List Feed Handler Lambda function',
     })
 
-    this.createFeedLogsHandler = new lambda.Function(
+    this.createFeedLogsHandler = new NodejsFunction(
       this,
       'createFeedLogsHandler',
       {
-        ...commonLambdaProps,
+        ...commonNodejsProps,
         functionName: `chase-light-${stage}-api-feedAnalyzer-createFeedLogsHandler`,
-        handler:
-          'src/handlers/step-functions/feed-analyzer/handlers/create-feed-logs.handler',
-        code: lambda.Code.fromAsset(path.resolve(__dirname, '../../../../api')),
+        entry: path.join(apiBasePath, 'src/handlers/step-functions/feed-analyzer/handlers/create-feed-logs.ts'),
+        handler: 'handler',
         description: 'Create Feed Logs Handler Lambda function',
         timeout: cdk.Duration.seconds(300),
       },
     )
 
-    this.enqueuePendingFeedLogHandler = new lambda.Function(
+    this.enqueuePendingFeedLogHandler = new NodejsFunction(
       this,
       'enqueuePendingFeedLogHandler',
       {
-        ...commonLambdaProps,
+        ...commonNodejsProps,
         functionName: `chase-light-${stage}-api-feedAnalyzer-enqueuePendingFeedLogHandler`,
-        handler:
-          'src/handlers/step-functions/feed-analyzer/handlers/enqueue-pending-feed-log-handler.handler',
-        code: lambda.Code.fromAsset(path.resolve(__dirname, '../../../../api')),
+        entry: path.join(apiBasePath, 'src/handlers/step-functions/feed-analyzer/handlers/enqueue-pending-feed-log-handler.ts'),
+        handler: 'handler',
         description: 'Enqueue Pending Feed Log Handler Lambda function',
         timeout: cdk.Duration.seconds(300),
       },
     )
 
-    this.analyzeFeedLogHandler = new lambda.Function(
+    this.analyzeFeedLogHandler = new NodejsFunction(
       this,
       'analyzeFeedLogHandler',
       {
-        ...commonLambdaProps,
+        ...commonNodejsProps,
         functionName: `chase-light-${stage}-api-feedAnalyzer-analyzeFeedLogHandler`,
-        handler:
-          'src/handlers/step-functions/feed-analyzer/handlers/analyze-feed-log-handler.handler',
-        code: lambda.Code.fromAsset(path.resolve(__dirname, '../../../../api')),
+        entry: path.join(apiBasePath, 'src/handlers/step-functions/feed-analyzer/handlers/analyze-feed-log-handler.ts'),
+        handler: 'handler',
         description: 'Analyze Feed Log Handler Lambda function',
         timeout: cdk.Duration.seconds(300),
       },
     )
 
-    this.notifyUpdateHandler = new lambda.Function(
+    this.notifyUpdateHandler = new NodejsFunction(
       this,
       'notifyUpdateHandler',
       {
-        ...commonLambdaProps,
+        ...commonNodejsProps,
         functionName: `chase-light-${stage}-api-feedAnalyzer-notifyUpdateHandler`,
-        handler:
-          'src/handlers/step-functions/feed-analyzer/handlers/notify-update-handler.handler',
-        code: lambda.Code.fromAsset(path.resolve(__dirname, '../../../../api')),
+        entry: path.join(apiBasePath, 'src/handlers/step-functions/feed-analyzer/handlers/notify-update-handler.ts'),
+        handler: 'handler',
         description: 'Notify Update Handler Lambda function',
       },
     )
@@ -94,7 +92,7 @@ export class StepFunctionResources extends Construct {
       'FeedAnalyzer',
       {
         stateMachineName: `chase-light-${stage}-FeedAnalyzer`,
-        definitionBody: sfn.DefinitionBody.fromObject({
+        definitionBody: sfn.DefinitionBody.fromString(JSON.stringify({
           StartAt: 'ListFeeds',
           QueryLanguage: 'JSONata',
           States: {
@@ -152,7 +150,7 @@ export class StepFunctionResources extends Construct {
               End: true,
             },
           },
-        }),
+        })),
         tracingEnabled: true,
         logs: {
           destination: new logs.LogGroup(this, 'FeedAnalyzerLogGroup', {

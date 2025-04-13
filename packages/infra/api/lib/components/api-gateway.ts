@@ -1,13 +1,16 @@
 import * as cdk from 'aws-cdk-lib'
 import * as lambda from 'aws-cdk-lib/aws-lambda'
 import * as apigateway from 'aws-cdk-lib/aws-apigateway'
+import { NodejsFunction, NodejsFunctionProps } from 'aws-cdk-lib/aws-lambda-nodejs'
 import { Construct } from 'constructs'
 import * as path from 'path'
 
 export interface ApiGatewayProps {
   stage: string
-  commonLambdaProps: cdk.aws_lambda.FunctionProps
+  commonLambdaProps: Omit<cdk.aws_lambda.FunctionProps, 'code' | 'handler'>
+  commonNodejsProps: Omit<NodejsFunctionProps, 'entry' | 'handler'>
   openaiLayer: lambda.LayerVersion
+  apiBasePath: string
 }
 
 export class ApiGatewayResources extends Construct {
@@ -20,7 +23,7 @@ export class ApiGatewayResources extends Construct {
   constructor(scope: Construct, id: string, props: ApiGatewayProps) {
     super(scope, id)
 
-    const { stage, commonLambdaProps, openaiLayer } = props
+    const { stage, commonLambdaProps, commonNodejsProps, openaiLayer, apiBasePath } = props
 
     // API Gatewayの作成
     this.api = new apigateway.RestApi(this, 'ChaseLight-api', {
@@ -36,11 +39,11 @@ export class ApiGatewayResources extends Construct {
     })
 
     // ユーザーAPI
-    this.userApiLambda = new lambda.Function(this, 'UserApiFunction', {
-      ...commonLambdaProps,
+    this.userApiLambda = new NodejsFunction(this, 'UserApiFunction', {
+      ...commonNodejsProps,
       functionName: `chase-light-${stage}-api-user`,
-      handler: 'src/handlers/api-gateway/user/index.handler',
-      code: lambda.Code.fromAsset(path.resolve(__dirname, '../../../../api')),
+      entry: path.join(apiBasePath, 'src/handlers/api-gateway/user/index.ts'),
+      handler: 'handler',
       description: 'User API Lambda function',
     })
 
@@ -50,13 +53,13 @@ export class ApiGatewayResources extends Construct {
     })
 
     // フィードAPI
-    this.feedApiLambda = new lambda.Function(this, 'FeedApiFunction', {
-      ...commonLambdaProps,
+    this.feedApiLambda = new NodejsFunction(this, 'FeedApiFunction', {
+      ...commonNodejsProps,
       functionName: `chase-light-${stage}-api-feed`,
-      handler: 'src/handlers/api-gateway/feed/index.handler',
-      code: lambda.Code.fromAsset(path.resolve(__dirname, '../../../../api')),
+      entry: path.join(apiBasePath, 'src/handlers/api-gateway/feed/index.ts'),
+      handler: 'handler',
       description: 'Feed API Lambda function',
-      layers: [...commonLambdaProps.layers!, openaiLayer],
+      layers: [...commonNodejsProps.layers!, openaiLayer],
     })
 
     const feedApiResource = this.api.root.addResource('feed')
@@ -65,14 +68,14 @@ export class ApiGatewayResources extends Construct {
     })
 
     // 通知API
-    this.notificationApiLambda = new lambda.Function(
+    this.notificationApiLambda = new NodejsFunction(
       this,
       'NotificationApiFunction',
       {
-        ...commonLambdaProps,
+        ...commonNodejsProps,
         functionName: `chase-light-${stage}-api-notification`,
-        handler: 'src/handlers/api-gateway/notification/index.handler',
-        code: lambda.Code.fromAsset(path.resolve(__dirname, '../../../../api')),
+        entry: path.join(apiBasePath, 'src/handlers/api-gateway/notification/index.ts'),
+        handler: 'handler',
         description: 'Notification API Lambda function',
       },
     )
@@ -85,11 +88,11 @@ export class ApiGatewayResources extends Construct {
     })
 
     // OpenAPI UI
-    this.openApiLambda = new lambda.Function(this, 'OpenApiFunction', {
-      ...commonLambdaProps,
+    this.openApiLambda = new NodejsFunction(this, 'OpenApiFunction', {
+      ...commonNodejsProps,
       functionName: `chase-light-${stage}-api-openapi`,
-      handler: 'src/handlers/api-gateway/open-api/index.handler',
-      code: lambda.Code.fromAsset(path.resolve(__dirname, '../../../../api')),
+      entry: path.join(apiBasePath, 'src/handlers/api-gateway/open-api/index.ts'),
+      handler: 'handler',
       description: 'OpenAPI UI Lambda function',
     })
 
