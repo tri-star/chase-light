@@ -23,7 +23,8 @@ export class LambdaCommon extends Construct {
   constructor(scope: Construct, id: string, props: LambdaCommonProps) {
     super(scope, id)
 
-    const { stage, lambdaRole, commonLayer, otelLayer, feedAnalyzeQueue } = props
+    const { stage, lambdaRole, commonLayer, otelLayer, feedAnalyzeQueue } =
+      props
 
     // API基本パス
     this.apiBasePath = path.resolve(__dirname, '../../../../api')
