@@ -2,7 +2,10 @@ import * as cdk from 'aws-cdk-lib'
 import * as lambda from 'aws-cdk-lib/aws-lambda'
 import * as iam from 'aws-cdk-lib/aws-iam'
 import * as sqs from 'aws-cdk-lib/aws-sqs'
-import { NodejsFunction, NodejsFunctionProps } from 'aws-cdk-lib/aws-lambda-nodejs'
+import {
+  NodejsFunction,
+  NodejsFunctionProps,
+} from 'aws-cdk-lib/aws-lambda-nodejs'
 import { Construct } from 'constructs'
 import * as path from 'path'
 
@@ -16,8 +19,14 @@ export interface LambdaCommonProps {
 
 export class LambdaCommon extends Construct {
   public readonly commonEnvironment: Record<string, string>
-  public readonly commonLambdaProps: Omit<cdk.aws_lambda.FunctionProps, 'code' | 'handler'>
-  public readonly commonNodejsProps: Omit<NodejsFunctionProps, 'entry' | 'handler'>
+  public readonly commonLambdaProps: Omit<
+    cdk.aws_lambda.FunctionProps,
+    'code' | 'handler'
+  >
+  public readonly commonNodejsProps: Omit<
+    NodejsFunctionProps,
+    'entry' | 'handler'
+  >
   public readonly apiBasePath: string
 
   constructor(scope: Construct, id: string, props: LambdaCommonProps) {

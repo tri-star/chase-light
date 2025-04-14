@@ -1,7 +1,10 @@
 import * as cdk from 'aws-cdk-lib'
 import * as lambda from 'aws-cdk-lib/aws-lambda'
 import * as apigateway from 'aws-cdk-lib/aws-apigateway'
-import { NodejsFunction, NodejsFunctionProps } from 'aws-cdk-lib/aws-lambda-nodejs'
+import {
+  NodejsFunction,
+  NodejsFunctionProps,
+} from 'aws-cdk-lib/aws-lambda-nodejs'
 import { Construct } from 'constructs'
 import * as path from 'path'
 
@@ -23,7 +26,13 @@ export class ApiGatewayResources extends Construct {
   constructor(scope: Construct, id: string, props: ApiGatewayProps) {
     super(scope, id)
 
-    const { stage, commonLambdaProps, commonNodejsProps, openaiLayer, apiBasePath } = props
+    const {
+      stage,
+      commonLambdaProps,
+      commonNodejsProps,
+      openaiLayer,
+      apiBasePath,
+    } = props
 
     // API Gatewayの作成
     this.api = new apigateway.RestApi(this, 'ChaseLight-api', {
@@ -74,7 +83,10 @@ export class ApiGatewayResources extends Construct {
       {
         ...commonNodejsProps,
         functionName: `chase-light-${stage}-api-notification`,
-        entry: path.join(apiBasePath, 'src/handlers/api-gateway/notification/index.ts'),
+        entry: path.join(
+          apiBasePath,
+          'src/handlers/api-gateway/notification/index.ts',
+        ),
         handler: 'handler',
         description: 'Notification API Lambda function',
       },
@@ -91,7 +103,10 @@ export class ApiGatewayResources extends Construct {
     this.openApiLambda = new NodejsFunction(this, 'OpenApiFunction', {
       ...commonNodejsProps,
       functionName: `chase-light-${stage}-api-openapi`,
-      entry: path.join(apiBasePath, 'src/handlers/api-gateway/open-api/index.ts'),
+      entry: path.join(
+        apiBasePath,
+        'src/handlers/api-gateway/open-api/index.ts',
+      ),
       handler: 'handler',
       description: 'OpenAPI UI Lambda function',
     })

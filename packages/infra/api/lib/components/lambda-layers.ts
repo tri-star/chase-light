@@ -37,7 +37,7 @@ export class LambdaLayers extends Construct {
         layerVersionArn: `arn:aws:lambda:${cdk.Stack.of(this).region}:${
           cdk.Stack.of(this).account
         }:layer:otel-collector:7`,
-      }
+      },
     )
   }
 }
