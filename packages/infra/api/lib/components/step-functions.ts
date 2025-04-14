@@ -8,6 +8,7 @@ import {
 } from 'aws-cdk-lib/aws-lambda-nodejs'
 import { Construct } from 'constructs'
 import * as path from 'path'
+import * as fs from 'fs'
 
 export interface StepFunctionsProps {
   stage: string
@@ -100,70 +101,28 @@ export class StepFunctionResources extends Construct {
       description: 'Notify Update Handler Lambda function',
     })
 
+    // ASLファイルを読み込み、Lambda関数のARNを置換
+    const aslFilePath = path.join(__dirname, '../feed-analyzer.asl.json')
+    const aslTemplate = fs.readFileSync(aslFilePath, 'utf8')
+    const aslDefinition = aslTemplate
+      .replace('${listFeedHandlerArn}', this.listFeedHandler.functionArn)
+      .replace(
+        '${createFeedLogsHandlerArn}',
+        this.createFeedLogsHandler.functionArn,
+      )
+      .replace(
+        '${enqueuePendingFeedLogHandlerArn}',
+        this.enqueuePendingFeedLogHandler.functionArn,
+      )
+      .replace(
+        '${notifyUpdateHandlerArn}',
+        this.notifyUpdateHandler.functionArn,
+      )
+
     // Step Functions State Machine
     this.feedAnalyzerStateMachine = new sfn.StateMachine(this, 'FeedAnalyzer', {
       stateMachineName: `chase-light-${stage}-FeedAnalyzer`,
-      definitionBody: sfn.DefinitionBody.fromString(
-        JSON.stringify({
-          StartAt: 'ListFeeds',
-          QueryLanguage: 'JSONata',
-          States: {
-            ListFeeds: {
-              Type: 'Task',
-              Resource: this.listFeedHandler.functionArn,
-              Assign: {
-                feedIdList: '{% $states.result.feedIds %}',
-              },
-              Next: 'CreateFeedLogCollections',
-            },
-            CreateFeedLogCollections: {
-              Type: 'Map',
-              Items: '{% $feedIdList %}',
-              MaxConcurrency: 3,
-              ItemProcessor: {
-                StartAt: 'CreateFeedLogs',
-                States: {
-                  CreateFeedLogs: {
-                    Type: 'Task',
-                    Resource: this.createFeedLogsHandler.functionArn,
-                    Assign: {
-                      feedLogs: '{% $states.result %}',
-                    },
-                    Catch: [
-                      {
-                        ErrorEquals: ['States.ALL'],
-                        Assign: {
-                          errorDetail: '{% $states.errorOutput %}',
-                        },
-                        Next: 'Error',
-                      },
-                    ],
-                    End: true,
-                  },
-                  Error: {
-                    Type: 'Pass',
-                    Output: {
-                      error: '{% $errorDetail %}',
-                    },
-                    End: true,
-                  },
-                },
-              },
-              Next: 'EnqueuePendingFeedLog',
-            },
-            EnqueuePendingFeedLog: {
-              Type: 'Task',
-              Resource: this.enqueuePendingFeedLogHandler.functionArn,
-              Next: 'NotifyUpdate',
-            },
-            NotifyUpdate: {
-              Type: 'Task',
-              Resource: this.notifyUpdateHandler.functionArn,
-              End: true,
-            },
-          },
-        }),
-      ),
+      definitionBody: sfn.DefinitionBody.fromString(aslDefinition),
       tracingEnabled: true,
       logs: {
         destination: new logs.LogGroup(this, 'FeedAnalyzerLogGroup', {

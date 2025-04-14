@@ -1,0 +1,59 @@
+{
+  "StartAt": "ListFeeds",
+  "QueryLanguage": "JSONata",
+  "States": {
+    "ListFeeds": {
+      "Type": "Task",
+      "Resource": "${listFeedHandlerArn}",
+      "Assign": {
+        "feedIdList": "{% $states.result.feedIds %}"
+      },
+      "Next": "CreateFeedLogCollections"
+    },
+    "CreateFeedLogCollections": {
+      "Type": "Map",
+      "Items": "{% $feedIdList %}",
+      "MaxConcurrency": 3,
+      "ItemProcessor": {
+        "StartAt": "CreateFeedLogs",
+        "States": {
+          "CreateFeedLogs": {
+            "Type": "Task",
+            "Resource": "${createFeedLogsHandlerArn}",
+            "Assign": {
+              "feedLogs": "{% $states.result %}"
+            },
+            "Catch": [
+              {
+                "ErrorEquals": ["States.ALL"],
+                "Assign": {
+                  "errorDetail": "{% $states.errorOutput %}"
+                },
+                "Next": "Error"
+              }
+            ],
+            "End": true
+          },
+          "Error": {
+            "Type": "Pass",
+            "Output": {
+              "error": "{% $errorDetail %}"
+            },
+            "End": true
+          }
+        }
+      },
+      "Next": "EnqueuePendingFeedLog"
+    },
+    "EnqueuePendingFeedLog": {
+      "Type": "Task",
+      "Resource": "${enqueuePendingFeedLogHandlerArn}",
+      "Next": "NotifyUpdate"
+    },
+    "NotifyUpdate": {
+      "Type": "Task",
+      "Resource": "${notifyUpdateHandlerArn}",
+      "End": true
+    }
+  }
+}
