@@ -26,6 +26,7 @@
     "@types/node": "^22.7.5",
     "aws-cdk": "^2.126.0",
     "esbuild": "^0.19.12",
+    "tsx": "^4.19.1",
     "typescript": "^5.6.3"
   },
   "dependencies": {
