@@ -46,11 +46,10 @@ export class LambdaCommon extends Construct {
       NODE_OPTIONS: '--import=/opt/nodejs/otel-setup.mjs',
       API_URL: process.env.API_URL || '',
       DATABASE_URL:
-        process.env.DATABASE_URL ||
-        `{{resolve:secretsmanager:${stage}/supabase/db_url}}`,
+        process.env.DATABASE_URL || `{{resolve:ssm:/${stage}/supabase/db_url}}`,
       OPENAI_API_KEY:
         process.env.OPENAI_API_KEY ||
-        '{{resolve:secretsmanager:openai:api_key}}',
+        `{{resolve:ssm:/${stage}/openai/api_key}}`,
       AUTH0_DOMAIN: process.env.AUTH0_DOMAIN || '',
       ANALYZE_FEED_LOG_QUEUE_URL: feedAnalyzeQueue.queueUrl,
     }
