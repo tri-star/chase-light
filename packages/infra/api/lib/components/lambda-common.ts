@@ -5,6 +5,7 @@ import * as sqs from 'aws-cdk-lib/aws-sqs'
 import {
   NodejsFunction,
   NodejsFunctionProps,
+  OutputFormat,
 } from 'aws-cdk-lib/aws-lambda-nodejs'
 import { Construct } from 'constructs'
 import * as path from 'path'
@@ -75,6 +76,7 @@ export class LambdaCommon extends Construct {
       bundling: {
         minify: true,
         sourceMap: true,
+        format: OutputFormat.ESM,
         externalModules: [
           'aws-lambda',
           '@prisma/client',

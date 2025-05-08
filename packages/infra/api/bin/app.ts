@@ -4,7 +4,7 @@ import * as cdk from 'aws-cdk-lib'
 import { ApiStack } from '../lib/api-stack'
 
 const app = new cdk.App()
-const env = {
+const env: cdk.Environment = {
   account: process.env.CDK_DEFAULT_ACCOUNT || process.env.AWS_ACCOUNT,
   region:
     process.env.CDK_DEFAULT_REGION ||
