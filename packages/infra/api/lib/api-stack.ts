@@ -10,7 +10,7 @@ import { ApiGatewayResources } from './components/api-gateway'
 import { StepFunctionResources } from './components/step-functions'
 
 interface ApiStackProps extends cdk.StackProps {
-  stage: string
+  stage: 'dev' | 'stg' | 'prod'
 }
 
 export class ApiStack extends cdk.Stack {
@@ -50,12 +50,12 @@ export class ApiStack extends cdk.Stack {
     })
 
     // Step Functions と関連するLambda関数
-    const stepFunctions = new StepFunctionResources(this, 'StepFunctions', {
-      stage,
-      commonLambdaProps: lambdaCommon.commonLambdaProps,
-      commonNodejsProps: lambdaCommon.commonNodejsProps,
-      apiBasePath: lambdaCommon.apiBasePath,
-    })
+    // const stepFunctions = new StepFunctionResources(this, 'StepFunctions', {
+    //   stage,
+    //   commonLambdaProps: lambdaCommon.commonLambdaProps,
+    //   commonNodejsProps: lambdaCommon.commonNodejsProps,
+    //   apiBasePath: lambdaCommon.apiBasePath,
+    // })
 
     // 出力
     new cdk.CfnOutput(this, 'ApiEndpoint', {
@@ -68,9 +68,9 @@ export class ApiStack extends cdk.Stack {
       description: 'Feed Analyze Queue URL',
     })
 
-    new cdk.CfnOutput(this, 'FeedAnalyzerStateMachineArn', {
-      value: stepFunctions.feedAnalyzerStateMachine.stateMachineArn,
-      description: 'Feed Analyzer State Machine ARN',
-    })
+    // new cdk.CfnOutput(this, 'FeedAnalyzerStateMachineArn', {
+    //   value: stepFunctions.feedAnalyzerStateMachine.stateMachineArn,
+    //   description: 'Feed Analyzer State Machine ARN',
+    // })
   }
 }

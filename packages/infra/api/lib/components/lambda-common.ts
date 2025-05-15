@@ -9,9 +9,10 @@ import {
 } from 'aws-cdk-lib/aws-lambda-nodejs'
 import { Construct } from 'constructs'
 import * as path from 'path'
+import { Stage, loadConfig } from 'config/config'
 
 export interface LambdaCommonProps {
-  stage: string
+  stage: Stage
   lambdaRole: iam.Role
   commonLayer: lambda.ILayerVersion
   otelLayer: lambda.ILayerVersion
@@ -36,6 +37,8 @@ export class LambdaCommon extends Construct {
     const { stage, lambdaRole, commonLayer, otelLayer, feedAnalyzeQueue } =
       props
 
+    const config = loadConfig(stage)
+
     // API基本パス
     this.apiBasePath = path.resolve(__dirname, '../../../../api')
 
@@ -44,13 +47,12 @@ export class LambdaCommon extends Construct {
       STAGE: stage,
       TZ: 'Asia/Tokyo',
       NODE_OPTIONS: '--import=/opt/nodejs/otel-setup.mjs',
-      API_URL: process.env.API_URL || '',
+      API_URL: config.apiUrl || '',
       DATABASE_URL:
-        process.env.DATABASE_URL || `{{resolve:ssm:/${stage}/supabase/db_url}}`,
+        config.databaseUrl || `{{resolve:ssm:/${stage}/supabase/db_url}}`,
       OPENAI_API_KEY:
-        process.env.OPENAI_API_KEY ||
-        `{{resolve:ssm:/${stage}/openai/api_key}}`,
-      AUTH0_DOMAIN: process.env.AUTH0_DOMAIN || '',
+        config.openAiApiKey || `{{resolve:ssm:/${stage}/openai/api_key}}`,
+      AUTH0_DOMAIN: config.auth0Domain || '',
       ANALYZE_FEED_LOG_QUEUE_URL: feedAnalyzeQueue.queueUrl,
     }
 
