@@ -1,0 +1,21 @@
+{
+  "name": "chase-light-api-sam",
+  "version": "1.0.0",
+  "description": "Chase Light API - SAM deployment configuration",
+  "scripts": {
+    "build": "sam build",
+    "build:watch": "sam build --watch",
+    "deploy:local": "sam deploy --config-env default",
+    "deploy:dev": "sam deploy --config-env dev",
+    "deploy:staging": "sam deploy --config-env staging",
+    "deploy:prod": "sam deploy --config-env prod",
+    "start:local": "sam local start-api --port 3001",
+    "start:lambda": "sam local start-lambda",
+    "validate": "sam validate",
+    "logs:user": "sam logs --name UserFunction --tail",
+    "delete:local": "sam delete --config-env default",
+    "delete:dev": "sam delete --config-env dev",
+    "delete:staging": "sam delete --config-env staging",
+    "delete:prod": "sam delete --config-env prod"
+  }
+}

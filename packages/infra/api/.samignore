@@ -1,0 +1,24 @@
+# SAM build ignore patterns
+
+node_modules/
+.git/
+.gitignore
+README.md
+_.md
+.DS_Store
+.vscode/
+.idea/
+_.log
+coverage/
+.nyc_output/
+test/
+tests/
+spec/
+_.test.js
+_.test.ts
+_.spec.js
+_.spec.ts
+jest.config.js
+vitest.config.ts
+eslint.config.mjs
+tsconfig.json
