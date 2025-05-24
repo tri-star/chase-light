@@ -1,0 +1,131 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: Chase Light API - SAM Template (Migrated from Serverless Framework)
+
+Parameters:
+  Stage:
+    Type: String
+    Default: local
+    Description: Stage name (e.g., local, dev, staging, prod)
+
+  DatabaseUrl:
+    Type: String
+    Description: Database connection URL from SSM Parameter Store
+    Default: '{{resolve:secretsmanager:${Stage}/supabase/db_url}}'
+
+  OpenAiApiKey:
+    Type: String
+    Description: OpenAI API Key from SSM Parameter Store
+    Default: '{{resolve:secretsmanager:openai:api_key}}'
+
+  Auth0Domain:
+    Type: String
+    Description: Auth0 Domain
+    Default: ''
+
+  ApiUrl:
+    Type: String
+    Description: API URL
+    Default: ''
+
+Globals:
+  Function:
+    Runtime: nodejs20.x
+    MemorySize: 1024
+    Timeout: 15
+    Environment:
+      Variables:
+        STAGE: !Ref Stage
+        TZ: 'Asia/Tokyo'
+        NODE_OPTIONS: '--import=/opt/nodejs/otel-setup.mjs'
+        DATABASE_URL: !Ref DatabaseUrl
+        OPENAI_API_KEY: !Ref OpenAiApiKey
+        AUTH0_DOMAIN: !Ref Auth0Domain
+        API_URL: !Ref ApiUrl
+        ANALYZE_FEED_LOG_QUEUE_URL: !Ref FeedAnalyzeQueue
+    Layers:
+      - !Sub 'arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:layer:otel-collector:7'
+      - !Sub 'arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:layer:common:27'
+    Tracing: Active
+
+Resources:
+  # API Gateway
+  ChaseLightApi:
+    Type: AWS::Serverless::Api
+    Properties:
+      Name: !Sub 'chase-light-${Stage}-api-gateway'
+      StageName: !Ref Stage
+      MinimumCompressionSize: 1024
+      TracingEnabled: true
+      EndpointConfiguration:
+        Type: REGIONAL
+
+  # User Lambda Function
+  UserFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub 'chase-light-${Stage}-api-user-handler'
+      CodeUri: ../../api/src/handlers/api-gateway/user/
+      Handler: index.handler
+      Environment:
+        Variables:
+          NODE_ENV: production
+      Events:
+        UserApiAny:
+          Type: Api
+          Properties:
+            RestApiId: !Ref ChaseLightApi
+            Path: /users/{proxy+}
+            Method: ANY
+        UserApiRoot:
+          Type: Api
+          Properties:
+            RestApiId: !Ref ChaseLightApi
+            Path: /users
+            Method: ANY
+      Policies:
+        - Version: '2012-10-17'
+          Statement:
+            - Effect: Allow
+              Action:
+                - secretsmanager:GetSecretValue
+                - secretsmanager:DescribeSecret
+              Resource: !Sub 'arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:${Stage}/supabase/db_url*'
+            - Effect: Allow
+              Action:
+                - xray:PutTraceSegments
+                - xray:PutTelemetryRecords
+              Resource: '*'
+            - Effect: Allow
+              Action:
+                - sqs:SendMessage
+              Resource: !GetAtt FeedAnalyzeQueue.Arn
+
+  # SQS Queue for Feed Analysis
+  FeedAnalyzeDlq:
+    Type: AWS::SQS::Queue
+    Properties:
+      QueueName: !Sub 'chase-light-${Stage}-api-feed-analyze-dlq'
+      MessageRetentionPeriod: 1209600
+
+  FeedAnalyzeQueue:
+    Type: AWS::SQS::Queue
+    Properties:
+      QueueName: !Sub 'chase-light-${Stage}-api-feed-analyze-queue'
+      VisibilityTimeout: 300
+      RedrivePolicy:
+        deadLetterTargetArn: !GetAtt FeedAnalyzeDlq.Arn
+        maxReceiveCount: 5
+
+Outputs:
+  ChaseLightApi:
+    Description: API Gateway endpoint URL
+    Value: !Sub 'https://${ChaseLightApi}.execute-api.${AWS::Region}.amazonaws.com/${Stage}/'
+    Export:
+      Name: !Sub '${AWS::StackName}-api-url'
+
+  UserFunctionArn:
+    Description: User Lambda Function ARN
+    Value: !GetAtt UserFunction.Arn
+    Export:
+      Name: !Sub '${AWS::StackName}-user-function-arn'
