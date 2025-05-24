@@ -29,23 +29,23 @@ export class IamRoles extends Construct {
     )
 
     // Secrets Managerの権限
-    this.lambdaRole.addToPolicy(
-      new iam.PolicyStatement({
-        effect: iam.Effect.ALLOW,
-        actions: [
-          'secretsmanager:GetSecretValue',
-          'secretsmanager:DescribeSecret',
-        ],
-        resources: [
-          `arn:aws:secretsmanager:${cdk.Stack.of(this).region}:${
-            cdk.Stack.of(this).account
-          }:secret:${stage}/supabase/db_url*`,
-          `arn:aws:secretsmanager:${cdk.Stack.of(this).region}:${
-            cdk.Stack.of(this).account
-          }:secret:openai*`,
-        ],
-      }),
-    )
+    // this.lambdaRole.addToPolicy(
+    //   new iam.PolicyStatement({
+    //     effect: iam.Effect.ALLOW,
+    //     actions: [
+    //       'secretsmanager:GetSecretValue',
+    //       'secretsmanager:DescribeSecret',
+    //     ],
+    //     resources: [
+    //       `arn:aws:secretsmanager:${cdk.Stack.of(this).region}:${
+    //         cdk.Stack.of(this).account
+    //       }:secret:${stage}/supabase/db_url*`,
+    //       `arn:aws:secretsmanager:${cdk.Stack.of(this).region}:${
+    //         cdk.Stack.of(this).account
+    //       }:secret:openai*`,
+    //     ],
+    //   }),
+    // )
 
     // X-Rayの権限
     this.lambdaRole.addToPolicy(

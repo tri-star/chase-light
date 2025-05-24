@@ -38,13 +38,42 @@ export class ApiGatewayResources extends Construct {
     this.api = new apigateway.RestApi(this, 'ChaseLight-api', {
       restApiName: `chase-light-${stage}-api`,
       description: `Chase Light API - ${stage}`,
+      policy: undefined,
       deployOptions: {
         stageName: stage,
         tracingEnabled: true,
         metricsEnabled: true,
         loggingLevel: apigateway.MethodLoggingLevel.INFO,
       },
-      minCompressionSize: cdk.Size.kibibytes(1),
+      defaultMethodOptions: {
+        authorizationType: apigateway.AuthorizationType.NONE,
+      },
+
+      defaultIntegration: new apigateway.LambdaIntegration(
+        new lambda.Function(this, 'DefaultLambda', {
+          code: lambda.Code.fromAsset(path.join(apiBasePath, 'src')),
+          handler: 'index.handler',
+          runtime: lambda.Runtime.NODEJS_18_X,
+          environment: {
+            STAGE: stage,
+          },
+        }),
+      ),
+      defaultCorsPreflightOptions: {
+        allowOrigins: apigateway.Cors.ALL_ORIGINS,
+        allowMethods: [
+          'OPTIONS',
+          'GET',
+          'POST',
+          'PUT',
+          'DELETE',
+          'PATCH',
+          'HEAD',
+        ],
+        allowHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
+        allowCredentials: false,
+      },
+      // minCompressionSize: cdk.Size.kibibytes(1),
     })
 
     // ユーザーAPI
@@ -56,7 +85,11 @@ export class ApiGatewayResources extends Construct {
       description: 'User API Lambda function',
     })
 
-    const userApiResource = this.api.root.addResource('user')
+    const userApiResource = this.api.root.addResource('users', {
+      defaultMethodOptions: {
+        authorizationType: apigateway.AuthorizationType.NONE,
+      },
+    })
     userApiResource.addProxy({
       defaultIntegration: new apigateway.LambdaIntegration(this.userApiLambda),
     })
@@ -71,7 +104,11 @@ export class ApiGatewayResources extends Construct {
       layers: [...commonNodejsProps.layers!, openaiLayer],
     })
 
-    const feedApiResource = this.api.root.addResource('feed')
+    const feedApiResource = this.api.root.addResource('feeds', {
+      defaultMethodOptions: {
+        authorizationType: apigateway.AuthorizationType.NONE,
+      },
+    })
     feedApiResource.addProxy({
       defaultIntegration: new apigateway.LambdaIntegration(this.feedApiLambda),
     })
@@ -92,7 +129,7 @@ export class ApiGatewayResources extends Construct {
       },
     )
 
-    const notificationApiResource = this.api.root.addResource('notification')
+    const notificationApiResource = this.api.root.addResource('notifications')
     notificationApiResource.addProxy({
       defaultIntegration: new apigateway.LambdaIntegration(
         this.notificationApiLambda,
@@ -111,7 +148,7 @@ export class ApiGatewayResources extends Construct {
       description: 'OpenAPI UI Lambda function',
     })
 
-    const openApiResource = this.api.root.addResource('api')
+    const openApiResource = this.api.root.addResource('docs')
     openApiResource.addProxy({
       defaultIntegration: new apigateway.LambdaIntegration(this.openApiLambda),
     })

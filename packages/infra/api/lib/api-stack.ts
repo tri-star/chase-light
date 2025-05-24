@@ -23,7 +23,9 @@ export class ApiStack extends cdk.Stack {
     const lambdaLayers = new LambdaLayers(this, 'LambdaLayers')
 
     // SQS Queues
-    const queues = new Queues(this, 'Queues')
+    const queues = new Queues(this, 'Queues', {
+      stage,
+    })
 
     // IAM Roles and Policies
     const iamRoles = new IamRoles(this, 'IamRoles', {
@@ -50,12 +52,12 @@ export class ApiStack extends cdk.Stack {
     })
 
     // Step Functions と関連するLambda関数
-    // const stepFunctions = new StepFunctionResources(this, 'StepFunctions', {
-    //   stage,
-    //   commonLambdaProps: lambdaCommon.commonLambdaProps,
-    //   commonNodejsProps: lambdaCommon.commonNodejsProps,
-    //   apiBasePath: lambdaCommon.apiBasePath,
-    // })
+    const stepFunctions = new StepFunctionResources(this, 'StepFunctions', {
+      stage,
+      commonLambdaProps: lambdaCommon.commonLambdaProps,
+      commonNodejsProps: lambdaCommon.commonNodejsProps,
+      apiBasePath: lambdaCommon.apiBasePath,
+    })
 
     // 出力
     new cdk.CfnOutput(this, 'ApiEndpoint', {
@@ -68,9 +70,9 @@ export class ApiStack extends cdk.Stack {
       description: 'Feed Analyze Queue URL',
     })
 
-    // new cdk.CfnOutput(this, 'FeedAnalyzerStateMachineArn', {
-    //   value: stepFunctions.feedAnalyzerStateMachine.stateMachineArn,
-    //   description: 'Feed Analyzer State Machine ARN',
-    // })
+    new cdk.CfnOutput(this, 'FeedAnalyzerStateMachineArn', {
+      value: stepFunctions.feedAnalyzerStateMachine.stateMachineArn,
+      description: 'Feed Analyzer State Machine ARN',
+    })
   }
 }
