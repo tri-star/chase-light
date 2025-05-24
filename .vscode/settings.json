@@ -22,14 +22,5 @@
     "([\"'`][^\"'`]*.*?[\"'`])", "[\"'`]([^\"'`]*).*?[\"'`]",
   ],
   "github.copilot.chat.codeGeneration.instructions": [
-   {
-    "file": "CLAUDE.md"
-   },
-   {
-    "file": "packages/api/CLAUDE.md"
-   },
-   {
-    "file": "packages/app/CLAUDE.md"
-   },
   ]
 }
