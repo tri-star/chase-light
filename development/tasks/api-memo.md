@@ -101,12 +101,15 @@ Policies:
 
 #### コミット時の設定
 
+コミット前に env | grep "GIT\_" を実行し、以下の環境変数が設定されていることを確認
+
 ```bash
-export GIT_COMMITTER_NAME="GitHub Copilot"
-export GIT_COMMITTER_EMAIL="copilot@github.com"
+GIT_AUTHOR_NAME="GitHub Copilot"
+GIT_AUTHOR_EMAIL="copilot@github.com"
+GIT_COMMITTER_NAME="GitHub Copilot"
+GIT_COMMITTER_EMAIL="copilot@github.com"
 ```
 
-- **注意**: `git config user.name`は著者情報も変えてしまうので使わない
 - **目的**: コミッターとしてGitHub Copilotを識別
 
 ### 段階的移行戦略
