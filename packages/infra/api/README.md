@@ -5,20 +5,23 @@ This directory contains the AWS SAM (Serverless Application Model) infrastructur
 ## Migration Progress
 
 This is a partial migration focusing on:
--  API Gateway configuration 
+
+-  API Gateway configuration
 -  User Lambda handler function
 -  SQS queues (Feed Analyze Queue and DLQ)
-- ó Other Lambda functions (to be migrated in future tasks)
-- ó Step Functions (to be migrated in future tasks)
+- ï¿½ Other Lambda functions (to be migrated in future tasks)
+- ï¿½ Step Functions (to be migrated in future tasks)
 
 ## Naming Convention
 
 All AWS resources follow the naming pattern:
+
 ```
 chase-light-[stage]-api-[resource-name]
 ```
 
 Examples:
+
 - API Gateway: `chase-light-dev-api-gateway`
 - Lambda Function: `chase-light-dev-api-user-handler`
 - SQS Queue: `chase-light-dev-api-feed-analyze-queue`
@@ -28,6 +31,39 @@ Examples:
 1. AWS CLI configured
 2. AWS SAM CLI installed
 3. Node.js 20.x runtime
+
+## Local Development Setup
+
+For local development, create a local environment configuration file with your sensitive values:
+
+```bash
+# Copy the environment template
+cp env.local.json env.local.json.example
+
+# Edit env.local.json with your actual values:
+# - DATABASE_URL: Your local PostgreSQL connection string
+# - OPENAI_API_KEY: Your OpenAI API key
+# - AUTH0_DOMAIN: Your Auth0 domain
+```
+
+**Note**: `env.local.json` is gitignored to prevent committing sensitive data.
+
+### Running Locally
+
+```bash
+# Start local API server (uses env.local.json)
+npm run local:start-api
+
+# Start local Lambda function (uses env.local.json)
+npm run local:start-lambda
+
+# Invoke specific function locally
+npm run local:invoke -- UserHandlerFunction
+
+# Or use SAM CLI directly
+sam local start-api --env-vars env.local.json
+sam local invoke UserHandlerFunction --env-vars env.local.json
+```
 
 ## Deployment Commands
 

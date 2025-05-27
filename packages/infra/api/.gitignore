@@ -1,0 +1,14 @@
+# SAM build artifacts
+.aws-sam/
+
+# Environment files
+.env
+.env.local
+.env.*.local
+env.local.json
+
+# Dependencies
+node_modules/
+
+# Logs
+*.log

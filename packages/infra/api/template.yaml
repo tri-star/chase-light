@@ -7,26 +7,26 @@ Parameters:
     Type: String
     Default: dev
     Description: Deployment stage (dev, staging, prod)
-  
+
   OpenAiApiKey:
     Type: String
     Description: OpenAI API Key from SSM Parameter Store
-    Default: '{{resolve:secretsmanager:openai:SecretString:api_key}}'
-  
+    Default: !Sub '{{resolve:ssm:/${Stage}/openai/api_key}}'
+
   DatabaseUrl:
     Type: String
     Description: Database URL from SSM Parameter Store
-    Default: '{{resolve:secretsmanager:dev/supabase/db_url}}'
-  
+    Default: !Sub '{{resolve:ssm:/${Stage}/supabase/db_url}}'
+
   ApiUrl:
     Type: String
     Description: API URL
     Default: ''
-  
+
   Auth0Domain:
     Type: String
     Description: Auth0 Domain
-    Default: ''
+    Default: !Sub '{{resolve:ssm:/${Stage}/auth0/domain}}'
 
 Globals:
   Function:
@@ -80,14 +80,16 @@ Resources:
             Path: /users
             Method: ANY
       Policies:
-        - SecretsManagerReadWrite
         - Version: '2012-10-17'
           Statement:
             - Effect: Allow
               Action:
-                - secretsmanager:GetSecretValue
-                - secretsmanager:DescribeSecret
-              Resource: !Sub 'arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:${Stage}/supabase/db_url'
+                - ssm:GetParameter
+                - ssm:GetParameters
+              Resource:
+                - !Sub 'arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/${Stage}/supabase/db_url'
+                - !Sub 'arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/${Stage}/openai/api_key'
+                - !Sub 'arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/${Stage}/auth0/domain'
             - Effect: Allow
               Action:
                 - xray:PutTraceSegments
@@ -120,7 +122,7 @@ Outputs:
     Value: !Sub 'https://${ChaseLight}.execute-api.${AWS::Region}.amazonaws.com/${Stage}/'
     Export:
       Name: !Sub '${AWS::StackName}-ApiGatewayUrl'
-  
+
   UserHandlerFunctionArn:
     Description: User Handler Lambda Function ARN
     Value: !GetAtt UserHandlerFunction.Arn

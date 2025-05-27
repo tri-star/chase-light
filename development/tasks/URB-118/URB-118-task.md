@@ -78,7 +78,7 @@ packages/infra/api/
 
 #### IAM権限
 
-- Secrets Manager読み取り権限
+- SSM Parameter Store読み取り権限（SecretsManagerから変更）
 - X-Rayトレーシング権限
 - SQS送信権限
 
@@ -88,6 +88,21 @@ packages/infra/api/
 
 - `otel-collector:7`
 - `common:27`
+
+#### シークレット管理の変更
+
+費用削減のため、SecretsManagerからSSM Parameter Storeに移行：
+
+- `secret:${Stage}/supabase/db_url` → `/${Stage}/supabase/db_url`
+- `openai:SecretString:api_key` → `/${Stage}/openai/api_key`
+- 新規追加: `Auth0Domain` → `/${Stage}/auth0/domain`
+
+#### ローカル開発環境
+
+SAMローカル実行用の環境設定：
+
+- `env.local.json` - ローカル開発用環境変数（gitignore対象）
+- `env.local.json.example` - 設定テンプレート（バージョン管理対象）
 
 ## 主要な技術的変更点
 
@@ -125,6 +140,8 @@ packages/infra/api/
 8. **API Gateway設定移行** - `serverless.ts`のprovider.apiGateway設定を移行、圧縮設定とトレーシングを維持
 9. **IAM権限設定** - Secrets Manager、X-Ray、SQSへのアクセス権限を複製
 10. **環境変数設定** - アプリケーション互換性のため全環境変数を維持
+11. **SecretsManagerからParameter Storeへの移行** - 費用削減のためシークレット管理方法を変更
+12. **ローカル開発環境設定** - `env.local.json`を使用したローカル実行環境構築
 
 ### 🔄 次のステップ（他タスクで実施予定）
 
@@ -141,8 +158,15 @@ packages/infra/api/
 
 ```bash
 cd packages/infra/api
+
+# 本番デプロイ
 npm run build     # SAMビルド
 npm run deploy    # デプロイ実行
+
+# ローカル開発
+cp env.local.json.example env.local.json
+# env.local.jsonを編集して実際の値を設定
+npm run local:start-api  # ローカルAPI起動
 ```
 
 ## 検証ポイント
@@ -152,12 +176,14 @@ npm run deploy    # デプロイ実行
 - [ ] API Gateway経由でUser endpointにアクセス可能
 - [ ] Lambda関数が正常に実行される
 - [ ] 環境変数が正しく設定されている
+- [ ] SSM Parameter Storeから設定値が正常に取得される
 - [ ] SQSキューが既存Step Functionsと連携可能
 - [ ] X-Rayトレーシングが動作する
 - [ ] IAM権限で必要なAWSサービスにアクセス可能
 - [ ] Lambda関数ハンドラーパスが元の`index.handler`と一致
 - [ ] API Gatewayイベントが保持されている（`ANY /users`および`ANY /users/{proxy+}`）
 - [ ] SQSキュー名が既存Step Functionsとの統合を保持
+- [ ] ローカル開発環境で`env.local.json`が正常に動作する
 
 ## 技術的留意事項
 
@@ -175,6 +201,57 @@ npm run deploy    # デプロイ実行
 - 新旧システムは異なるステージで共存可能
 - 段階的な切り替えが可能
 - ロールバック対応可能
+
+## 作業詳細: SecretsManagerからParameter Storeへの移行
+
+### 実施内容
+
+費用削減を目的として、機密情報の管理方法をAWS Secrets ManagerからSSM Parameter Storeに変更しました。
+
+#### 変更対象
+
+**packages/infra/api/template.yaml**：
+
+1. **パラメータ参照方法の変更**：
+
+   - `DatabaseUrl`: `{{resolve:secretsmanager:dev/supabase/db_url}}` → `{{resolve:ssm:/${Stage}/supabase/db_url}}`
+   - `OpenAiApiKey`: `{{resolve:secretsmanager:openai:SecretString:api_key}}` → `{{resolve:ssm:/${Stage}/openai/api_key}}`
+
+2. **新規パラメータの追加**：
+
+   - `Auth0Domain`: `{{resolve:ssm:/${Stage}/auth0/domain}}`
+
+3. **IAMポリシーの変更**：
+   - SecretsManager権限からSSM Parameter Store読み取り権限に変更
+   - 対象リソースを具体的に指定してセキュリティを向上
+
+#### ローカル開発環境の構築
+
+バージョン管理にコミットしない機密情報でローカル実行を可能にする設定を追加：
+
+1. **env.local.json** - ローカル開発用環境変数ファイル（gitignore対象）
+2. **env.local.json.example** - 設定テンプレートファイル（バージョン管理対象）
+3. **package.jsonスクリプト更新** - `--env-vars env.local.json`オプション追加
+
+#### 使用方法
+
+```bash
+# ローカル開発環境のセットアップ
+cp env.local.json.example env.local.json
+# env.local.jsonを編集して実際の値を設定
+
+# ローカル実行
+npm run local:start-api
+npm run local:start-lambda
+npm run local:invoke -- UserHandlerFunction
+```
+
+### 費用削減効果
+
+- **Secrets Manager**: $0.40/secret/month + API呼び出し料金
+- **Parameter Store**: 無料枠4,000リクエスト/月、Standard parameterは無料
+
+年間コスト削減見込み: 約$14.4/年（3シークレット × $0.40 × 12ヶ月）
 
 ## 作業時間・コスト
 
