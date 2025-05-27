@@ -142,6 +142,7 @@ SAMローカル実行用の環境設定：
 10. **環境変数設定** - アプリケーション互換性のため全環境変数を維持
 11. **SecretsManagerからParameter Storeへの移行** - 費用削減のためシークレット管理方法を変更
 12. **ローカル開発環境設定** - `env.local.json`を使用したローカル実行環境構築
+13. **Lambda関数ビルド設定** - TypeScript→JavaScript変換のためesbuildビルド設定を追加
 
 ### 🔄 次のステップ（他タスクで実施予定）
 
@@ -252,6 +253,69 @@ npm run local:invoke -- UserHandlerFunction
 - **Parameter Store**: 無料枠4,000リクエスト/月、Standard parameterは無料
 
 年間コスト削減見込み: 約$14.4/年（3シークレット × $0.40 × 12ヶ月）
+
+## 作業詳細: Lambda関数ビルド設定の追加
+
+### 問題の発見
+
+AWS SAMでのデプロイ検証中に、以下の問題が発生：
+
+1. **sam build実行時の問題**：
+   - TypeScriptファイル（index.ts）がそのままコピーされる
+   - TypeScript → JavaScript変換が実行されない
+
+2. **Lambda関数実行時の問題**：
+   - TypeScriptファイルを直接実行しようとしてエラーになる
+   - プロジェクトが`"type": "module"`でESM使用のため、適切なビルドプロセスが必要
+
+### 解決方法の選択
+
+2つの解決方法が検討され、**方法2**を採用：
+
+**方法1**: Lambda関数ディレクトリにpackage.jsonを追加
+```json
+{
+  "scripts": {
+    "build": "esbuild index.ts --bundle --platform=node --target=node20 --outfile=index.js"
+  }
+}
+```
+
+**方法2**: template.yamlでビルド設定を追加（採用）
+```yaml
+UserHandlerFunction:
+  Type: AWS::Serverless::Function
+  Metadata:
+    BuildMethod: esbuild
+    BuildProperties:
+      Minify: true
+      Target: es2020
+      Sourcemap: true
+      EntryPoints:
+        - index.ts
+```
+
+### 実施内容
+
+**packages/infra/api/template.yaml:65-72** に以下のビルド設定を追加：
+
+```yaml
+Metadata:
+  BuildMethod: esbuild
+  BuildProperties:
+    Minify: true
+    Target: es2020
+    Sourcemap: true
+    EntryPoints:
+      - index.ts
+```
+
+### 効果
+
+- TypeScriptファイルが適切にJavaScriptに変換される
+- ESMプロジェクトでもLambda関数が正常に実行される
+- ビルド時の最適化（ミニファイ化）が有効
+- デバッグ用のソースマップが生成される
 
 ## 作業時間・コスト
 
