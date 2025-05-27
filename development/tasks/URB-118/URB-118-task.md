@@ -89,6 +89,28 @@ packages/infra/api/
 - `otel-collector:7`
 - `common:27`
 
+## 主要な技術的変更点
+
+### 設定形式の変更
+
+- **移行前**: TypeScript設定（`serverless.ts`）
+- **移行後**: YAML CloudFormationテンプレート（`template.yaml`）
+
+### Lambda Layerの参照方法
+
+- **移行前**: `serverless.ts`内でのローカルレイヤー定義
+- **移行後**: ARN参照（既存レイヤーとの互換性維持）
+
+### 環境変数の管理方法
+
+- **移行前**: カスタム変数と`${env:}`構文
+- **移行後**: CloudFormationパラメータとSSM参照
+
+### リソース管理アプローチ
+
+- **移行前**: Serverless Frameworkの抽象化
+- **移行後**: 直接的なCloudFormationリソース定義
+
 ## 進捗状況
 
 ### ✅ 完了項目
@@ -100,14 +122,18 @@ packages/infra/api/
 5. **ビルドスクリプト** - `package.json`にSAM関連コマンド追加
 6. **命名規則適用** - 全リソースに新命名規則を適用
 7. **ドキュメント作成** - README、移行サマリー作成
+8. **API Gateway設定移行** - `serverless.ts`のprovider.apiGateway設定を移行、圧縮設定とトレーシングを維持
+9. **IAM権限設定** - Secrets Manager、X-Ray、SQSへのアクセス権限を複製
+10. **環境変数設定** - アプリケーション互換性のため全環境変数を維持
 
 ### 🔄 次のステップ（他タスクで実施予定）
 
-1. Feed Lambda関数の移行
-2. Notification Lambda関数の移行
-3. Step Functions state machineの移行
-4. Lambda Layersの移行
-5. 既存Serverless Framework設定の段階的廃止
+1. Feed Lambda関数の移行（`feedApp.getLambdaDefinition()`）
+2. Notification Lambda関数の移行（`notificationApp.getLambdaDefinition()`）
+3. Scaler UI Lambda関数の移行（`scalerUiApp.getLambdaDefinition()`）
+4. Step Functions state machineの移行（`feedAnalyzerStateMachine`）
+5. Lambda Layersの移行
+6. 既存Serverless Framework設定の段階的廃止
 
 ## デプロイ準備状況
 
@@ -129,6 +155,9 @@ npm run deploy    # デプロイ実行
 - [ ] SQSキューが既存Step Functionsと連携可能
 - [ ] X-Rayトレーシングが動作する
 - [ ] IAM権限で必要なAWSサービスにアクセス可能
+- [ ] Lambda関数ハンドラーパスが元の`index.handler`と一致
+- [ ] API Gatewayイベントが保持されている（`ANY /users`および`ANY /users/{proxy+}`）
+- [ ] SQSキュー名が既存Step Functionsとの統合を保持
 
 ## 技術的留意事項
 
@@ -138,6 +167,8 @@ npm run deploy    # デプロイ実行
 - API Gateway のパスとメソッドは既存と同一
 - SQSキュー名は既存Step Functionsとの互換性を保持
 - 環境変数は既存アプリケーションコードとの互換性を保持
+- Lambda関数ハンドラーパスは元の設定と一致
+- IAM権限は元の設定から複製
 
 ### 移行期の運用
 
