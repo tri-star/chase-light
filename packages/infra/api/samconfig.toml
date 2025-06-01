@@ -23,7 +23,7 @@ lint = true
 [default.deploy.parameters]
 guided = false
 parameter_overrides = [
-    "Stage=dev"
+    "Stage=stg"
 ]
 
 [default.package.parameters]

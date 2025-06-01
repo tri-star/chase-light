@@ -11,7 +11,8 @@
     "lint:eslint": "eslint .",
     "lint:tsc": "tsc --noEmit",
     "lint:biome": "biome check --organize-imports-enabled=false prisma src serverless.ts eslint.config.mjs",
-    "lint": "npm-run-all2 lint:eslint lint:tsc lint:biome"
+    "lint": "npm-run-all2 lint:eslint lint:tsc lint:biome",
+    "build:sam": "tsx scripts/sam/build.ts"
   },
   "keywords": [],
   "author": "",
