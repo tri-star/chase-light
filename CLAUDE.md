@@ -35,3 +35,4 @@
 # Git コミット時の注意点
 
 GIT_COMMIT_AUTHOR_NAME, GIT_COMMIT_AUTHOR_EMAIL, GIT_COMMIT_COMMITTER_NAME, GIT_COMMIT_COMMITTER_EMAIL を Claude Code としてコミットしてください。
+また、日本語でコミットメッセージを書いてください。
