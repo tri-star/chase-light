@@ -1,6 +1,12 @@
 // @ts-check
-import withNuxt from './.nuxt/eslint.config.mjs'
+import withNuxt from './.nuxt/eslint.config.mjs';
 
 export default withNuxt(
-  // Your custom configs here
-)
+  // Prettier config will disable conflicting ESLint rules
+  {
+    rules: {
+      // Disable ESLint formatting rules that conflict with Prettier
+      'prettier/prettier': 'off',
+    },
+  }
+);

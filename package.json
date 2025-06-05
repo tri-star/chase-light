@@ -3,9 +3,26 @@
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
-  "tyoe": "module",
+  "type": "module",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "lint": "pnpm --filter frontend lint && pnpm --filter backend lint && pnpm --filter shared lint",
+    "lint:fix": "pnpm --filter frontend format && pnpm --filter backend format && pnpm --filter shared format",
+    "format": "biome format packages/backend packages/shared --write && prettier packages/frontend --write",
+    "format:check": "biome format packages/backend packages/shared && prettier packages/frontend --check",
+    "dev:frontend": "pnpm --filter frontend dev",
+    "dev:backend": "pnpm --filter backend dev",
+    "build": "pnpm -r build"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "^1.9.4",
+    "@typescript-eslint/eslint-plugin": "^8.15.0",
+    "@typescript-eslint/parser": "^8.15.0",
+    "eslint": "^9.15.0",
+    "eslint-config-prettier": "^9.1.0",
+    "eslint-plugin-prettier": "^5.2.1",
+    "prettier": "^3.3.3",
+    "typescript": "^5.7.2"
   },
   "keywords": [],
   "author": "",
