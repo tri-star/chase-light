@@ -11,13 +11,20 @@
   },
   "devDependencies": {
     "@eslint/js": "^9.15.0",
+    "@types/pg": "^8.15.4",
     "@typescript-eslint/eslint-plugin": "^8.15.0",
     "@typescript-eslint/parser": "^8.15.0",
-    "eslint": "^9.15.0",
     "esbuild": "^0.21.4",
-    "npm-run-all2": "^6.2.0"
+    "eslint": "^9.15.0",
+    "npm-run-all2": "^6.2.0",
+    "vitest": "^3.2.2"
   },
   "dependencies": {
-    "hono": "^4.7.11"
+    "@hono/node-server": "^1.14.3",
+    "dotenv": "^16.5.0",
+    "drizzle-orm": "^0.44.2",
+    "hono": "^4.7.11",
+    "pg": "^8.16.0",
+    "zod": "^3.25.51"
   }
 }
