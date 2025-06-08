@@ -11,4 +11,11 @@ export default defineNuxtConfig({
     'nuxt-auth-utils',
     '@nuxtjs/storybook',
   ],
+  runtimeConfig: {
+    // Public keys (exposed to client-side)
+    public: {
+      auth0Domain: process.env.NUXT_AUTH0_DOMAIN,
+      auth0ClientId: process.env.NUXT_AUTH0_CLIENT_ID,
+    }
+  }
 });
