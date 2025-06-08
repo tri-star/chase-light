@@ -1,4 +1,4 @@
-import type { StorybookConfig } from '@storybook-vue/nuxt'
+import type { StorybookConfig } from '@storybook-vue/nuxt';
 
 const config: StorybookConfig = {
   stories: [
@@ -10,5 +10,5 @@ const config: StorybookConfig = {
     name: '@storybook-vue/nuxt',
     options: {},
   },
-}
-export default config
+};
+export default config;
