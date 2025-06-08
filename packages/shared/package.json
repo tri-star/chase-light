@@ -7,6 +7,7 @@
     "build": "tsc",
     "dev": "tsc --watch",
     "lint": "eslint src/",
+    "lint:type": "tsc --noEmit",
     "format": "eslint src/ --fix && biome format src/ --write"
   },
   "devDependencies": {

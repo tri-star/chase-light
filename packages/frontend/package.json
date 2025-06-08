@@ -9,6 +9,7 @@
     "preview": "nuxt preview",
     "postinstall": "nuxt prepare",
     "lint": "eslint . && prettier . --check",
+    "lint:type": "nuxt typecheck",
     "format": "eslint . --fix && prettier . --write",
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build"

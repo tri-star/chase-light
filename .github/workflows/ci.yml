@@ -31,7 +31,7 @@ jobs:
         run: pnpm run lint
 
       - name: Type check
-        run: pnpm run typecheck
+        run: pnpm run lint:type
 
       - name: Test
         run: pnpm run test
