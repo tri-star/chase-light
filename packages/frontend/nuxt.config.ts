@@ -20,13 +20,13 @@ export default defineNuxtConfig({
     databaseUrl: process.env.DATABASE_URL,
     // Public keys (exposed to the client-side)
     public: {
-      baseUrl: process.env.NUXT_PUBLIC_BASE_URL || 'http://localhost:3000'
-    }
+      baseUrl: process.env.NUXT_PUBLIC_BASE_URL || 'http://localhost:3000',
+    },
   },
   ssr: true, // SSR認証のために必須
   nitro: {
     experimental: {
-      wasm: true
-    }
-  }
+      wasm: true,
+    },
+  },
 });

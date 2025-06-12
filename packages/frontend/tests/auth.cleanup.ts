@@ -1,10 +1,10 @@
-import { test as cleanup } from '@playwright/test'
+import { test as cleanup } from '@playwright/test';
 
 cleanup('clear test sessions', async ({ request }) => {
   // テスト用セッションをクリア
   try {
-    await request.post('/api/auth/test-logout')
-  } catch (error) {
+    await request.post('/api/auth/test-logout');
+  } catch (_error) {
     // クリーンアップの失敗は無視（セッションが存在しない場合もある）
   }
-})
+});

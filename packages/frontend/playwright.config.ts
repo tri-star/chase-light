@@ -1,4 +1,4 @@
-import { defineConfig, devices } from '@playwright/test'
+import { defineConfig, devices } from '@playwright/test';
 
 /**
  * @see https://playwright.dev/docs/test-configuration
@@ -29,13 +29,13 @@ export default defineConfig({
   /* Configure projects for major browsers */
   projects: [
     // Setup project
-    { 
-      name: 'setup', 
+    {
+      name: 'setup',
       testMatch: /.*\.setup\.ts/,
       // teardown: 'cleanup',
     },
 
-    // Cleanup project  
+    // Cleanup project
     // {
     //   name: 'cleanup',
     //   testMatch: /.*\.cleanup\.ts/,
@@ -44,7 +44,7 @@ export default defineConfig({
     // Tests that require authentication
     {
       name: 'chromium-authenticated',
-      use: { 
+      use: {
         ...devices['Desktop Chrome'],
         // Use prepared auth state
         storageState: 'playwright/.auth/user.json',
@@ -64,7 +64,7 @@ export default defineConfig({
     // Tests for unauthenticated API access
     // {
     //   name: 'chromium-unauthenticated',
-    //   use: { 
+    //   use: {
     //     ...devices['Desktop Chrome'],
     //     // 明示的に認証状態をクリア
     //     storageState: { cookies: [], origins: [] }
@@ -75,7 +75,7 @@ export default defineConfig({
     // Mobile tests (optional)
     // {
     //   name: 'mobile-chrome',
-    //   use: { 
+    //   use: {
     //     ...devices['Pixel 5'],
     //     storageState: 'playwright/.auth/user.json',
     //   },
@@ -91,4 +91,4 @@ export default defineConfig({
     reuseExistingServer: !process.env.CI,
     timeout: 120 * 1000,
   },
-})
+});

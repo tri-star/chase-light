@@ -7,11 +7,13 @@ This directory contains end-to-end tests for the Chase Light frontend applicatio
 ### Test Categories
 
 1. **Public Tests** (`*.public.spec.ts`)
+
    - Tests for pages that don't require authentication
    - Homepage functionality
    - Public API endpoints
 
 2. **Authenticated Tests** (`*.authenticated.spec.ts`)
+
    - Tests for protected pages and features
    - Dashboard, profile pages
    - Protected API endpoints
@@ -47,11 +49,13 @@ We use a **test-specific authentication endpoint** (`/api/auth/test-login`) that
 ### Prerequisites
 
 1. Install Playwright browsers:
+
 ```bash
 pnpm test:e2e:install
 ```
 
 2. Start the development server:
+
 ```bash
 pnpm dev
 ```
@@ -89,7 +93,7 @@ The authentication setup creates a test user with:
 ```json
 {
   "userId": "playwright-test-user",
-  "email": "playwright-test@example.com", 
+  "email": "playwright-test@example.com",
   "name": "Playwright Test User",
   "avatar": "https://github.com/playwright-test.png",
   "provider": "github"
@@ -118,11 +122,13 @@ For CI environments:
 ### Common Issues
 
 1. **Tests fail with authentication errors**
+
    - Ensure PostgreSQL is running
    - Check DATABASE_URL configuration
    - Verify NUXT_SESSION_SECRET is set
 
 2. **Tests timeout**
+
    - Increase timeout in playwright.config.ts
    - Check if development server is running
    - Verify baseURL in config
@@ -145,11 +151,13 @@ This opens the Playwright Inspector for interactive debugging.
 ## Future Enhancements
 
 1. **Phase 2: Auth0 M2M Authentication**
+
    - Implement Machine-to-Machine authentication
    - More realistic authentication testing
    - Better production parity
 
 2. **Visual Testing**
+
    - Screenshot comparisons
    - Cross-browser visual regression testing
 

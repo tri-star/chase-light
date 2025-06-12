@@ -3,23 +3,23 @@ export default defineEventHandler(async (event) => {
   if (process.env.NODE_ENV === 'production') {
     throw createError({
       statusCode: 404,
-      statusMessage: 'Not Found'
-    })
+      statusMessage: 'Not Found',
+    });
   }
 
   try {
     // セッションをクリア
-    const cleared = await clearUserSession(event)
-    
+    const cleared = await clearUserSession(event);
+
     return {
       success: true,
       message: 'Test session cleared successfully',
-      cleared
-    }
+      cleared,
+    };
   } catch (error) {
     throw createError({
       statusCode: 500,
-      statusMessage: `Failed to clear test session: ${error}`
-    })
+      statusMessage: `Failed to clear test session: ${error}`,
+    });
   }
-})
+});

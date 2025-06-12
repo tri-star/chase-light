@@ -9,6 +9,17 @@ export default withNuxt(
     rules: {
       // Disable ESLint formatting rules that conflict with Prettier
       'prettier/prettier': 'off',
+      // Add or modify @typescript-eslint/no-unused-vars rule
+      '@typescript-eslint/no-unused-vars': [
+        'error',
+        {
+          argsIgnorePattern: '^_',
+          varsIgnorePattern: '^_',
+          caughtErrorsIgnorePattern: '^_',
+        },
+      ],
+      // Prettierが自動的に閉じタグを挿入するため、Vueの自動閉じタグルールを無効化
+      'vue/html-self-closing': ['off'],
     },
   }
 );

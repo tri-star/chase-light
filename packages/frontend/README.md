@@ -16,18 +16,20 @@ This is the frontend application for Chase Light, built with Nuxt.js and impleme
 
 ## Prerequisites
 
-- Node.js 18+ 
+- Node.js 18+
 - PostgreSQL database
 - Auth0 account and application setup
 
 ## Environment Setup
 
 1. Copy the environment file:
+
 ```bash
 cp .env.example .env
 ```
 
 2. Configure the following environment variables:
+
 ```env
 # Auth0 Configuration
 AUTH0_DOMAIN=your-auth0-domain.auth0.com
@@ -84,12 +86,14 @@ pnpm dev
 ## API Endpoints
 
 ### Authentication
+
 - `GET /api/auth/login` - Initiate Auth0 login
 - `GET /api/auth/callback` - Handle Auth0 callback
 - `POST /api/auth/logout` - Logout and clear session
 - `GET /api/auth/session` - Get current session info
 
 ### Protected APIs
+
 - `GET /api/protected/test` - Test protected endpoint
 - `GET /api/github/user` - Get GitHub user info (proxied)
 - `GET /api/github/repos` - Get GitHub repositories (proxied)
