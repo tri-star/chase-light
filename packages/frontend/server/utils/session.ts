@@ -1,4 +1,4 @@
-import { H3Event } from 'h3'
+import { H3Event, getCookie, setCookie } from 'h3'
 import { Pool } from 'pg'
 import crypto from 'crypto'
 
@@ -7,8 +7,9 @@ let pool: Pool | null = null
 
 function getPool(): Pool {
   if (!pool) {
+    const config = useRuntimeConfig()
     pool = new Pool({
-      connectionString: process.env.DATABASE_URL,
+      connectionString: config.databaseUrl,
       ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false
     })
   }
@@ -52,10 +53,16 @@ function generateSessionId(): string {
  * セッションを暗号化する
  */
 function encryptSession(sessionId: string): string {
-  const cipher = crypto.createCipher('aes-256-cbc', process.env.NUXT_SESSION_SECRET!)
+  const config = useRuntimeConfig()
+  const algorithm = 'aes-256-cbc'
+  const key = crypto.scryptSync(config.sessionSecret!, 'salt', 32)
+  const iv = crypto.randomBytes(16)
+  
+  const cipher = crypto.createCipheriv(algorithm, key, iv)
   let encrypted = cipher.update(sessionId, 'utf8', 'hex')
   encrypted += cipher.final('hex')
-  return encrypted
+  
+  return iv.toString('hex') + ':' + encrypted
 }
 
 /**
@@ -63,9 +70,22 @@ function encryptSession(sessionId: string): string {
  */
 function decryptSession(encryptedSessionId: string): string {
   try {
-    const decipher = crypto.createDecipher('aes-256-cbc', process.env.NUXT_SESSION_SECRET!)
-    let decrypted = decipher.update(encryptedSessionId, 'hex', 'utf8')
+    const config = useRuntimeConfig()
+    const algorithm = 'aes-256-cbc'
+    const key = crypto.scryptSync(config.sessionSecret!, 'salt', 32)
+    
+    const parts = encryptedSessionId.split(':')
+    if (parts.length !== 2) {
+      throw new Error('Invalid encrypted session format')
+    }
+    
+    const iv = Buffer.from(parts[0], 'hex')
+    const encrypted = parts[1]
+    
+    const decipher = crypto.createDecipheriv(algorithm, key, iv)
+    let decrypted = decipher.update(encrypted, 'hex', 'utf8')
     decrypted += decipher.final('utf8')
+    
     return decrypted
   } catch {
     throw new Error('Invalid session token')

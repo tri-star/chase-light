@@ -1,13 +1,18 @@
 import { H3Event } from 'h3'
 
-// Auth0設定
-const auth0Config = {
-  domain: process.env.AUTH0_DOMAIN!,
-  clientId: process.env.AUTH0_CLIENT_ID!,
-  clientSecret: process.env.AUTH0_CLIENT_SECRET!,
-  audience: process.env.AUTH0_AUDIENCE!,
-  scope: 'openid profile email',
-  redirectUri: `${process.env.NUXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/api/auth/callback`
+/**
+ * Auth0設定を取得する
+ */
+function getAuth0Config() {
+  const config = useRuntimeConfig()
+  return {
+    domain: config.auth0Domain!,
+    clientId: config.auth0ClientId!,
+    clientSecret: config.auth0ClientSecret!,
+    audience: config.auth0Audience!,
+    scope: 'openid profile email',
+    redirectUri: `${config.public.baseUrl}/api/auth/callback`
+  }
 }
 
 // Auth0ユーザー情報の型定義
@@ -36,6 +41,7 @@ export interface Auth0TokenResponse {
  * Auth0認証URLを生成する
  */
 export function generateAuth0AuthUrl(state?: string): string {
+  const auth0Config = getAuth0Config()
   const params = new URLSearchParams({
     response_type: 'code',
     client_id: auth0Config.clientId,
@@ -55,6 +61,7 @@ export function generateAuth0AuthUrl(state?: string): string {
  * 認可コードをアクセストークンに交換する
  */
 export async function exchangeCodeForTokens(code: string): Promise<Auth0TokenResponse> {
+  const auth0Config = getAuth0Config()
   const response = await fetch(`https://${auth0Config.domain}/oauth/token`, {
     method: 'POST',
     headers: {
@@ -81,6 +88,7 @@ export async function exchangeCodeForTokens(code: string): Promise<Auth0TokenRes
  * アクセストークンからユーザー情報を取得する
  */
 export async function getUserInfo(accessToken: string): Promise<Auth0User> {
+  const auth0Config = getAuth0Config()
   const response = await fetch(`https://${auth0Config.domain}/userinfo`, {
     headers: {
       'Authorization': `Bearer ${accessToken}`
@@ -99,6 +107,7 @@ export async function getUserInfo(accessToken: string): Promise<Auth0User> {
  * リフレッシュトークンで新しいアクセストークンを取得する
  */
 export async function refreshAccessToken(refreshToken: string): Promise<Auth0TokenResponse> {
+  const auth0Config = getAuth0Config()
   const response = await fetch(`https://${auth0Config.domain}/oauth/token`, {
     method: 'POST',
     headers: {
@@ -124,6 +133,7 @@ export async function refreshAccessToken(refreshToken: string): Promise<Auth0Tok
  * Auth0ログアウトURLを生成する
  */
 export function generateAuth0LogoutUrl(returnTo?: string): string {
+  const auth0Config = getAuth0Config()
   const params = new URLSearchParams({
     client_id: auth0Config.clientId
   })
@@ -131,7 +141,7 @@ export function generateAuth0LogoutUrl(returnTo?: string): string {
   if (returnTo) {
     params.append('returnTo', returnTo)
   } else {
-    params.append('returnTo', process.env.NUXT_PUBLIC_BASE_URL || 'http://localhost:3000')
+    params.append('returnTo', useRuntimeConfig().public.baseUrl)
   }
 
   return `https://${auth0Config.domain}/v2/logout?${params.toString()}`
@@ -142,6 +152,7 @@ export function generateAuth0LogoutUrl(returnTo?: string): string {
  */
 export function validateIdToken(idToken: string): any {
   try {
+    const auth0Config = getAuth0Config()
     // JWT の payload 部分をデコード（本番環境では適切な検証が必要）
     const [, payload] = idToken.split('.')
     const decoded = JSON.parse(Buffer.from(payload, 'base64').toString())

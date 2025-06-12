@@ -1,3 +1,4 @@
+import crypto from 'crypto'
 import { generateAuth0AuthUrl } from '~/server/utils/auth0'
 
 export default defineEventHandler(async (event) => {

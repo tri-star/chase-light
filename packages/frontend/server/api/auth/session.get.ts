@@ -6,8 +6,7 @@ export default defineEventHandler(async (event) => {
     
     if (!session) {
       return {
-        user: null,
-        loggedIn: false
+        data: null
       }
     }
     
@@ -15,25 +14,21 @@ export default defineEventHandler(async (event) => {
     const { accessToken, refreshToken, ...safeSession } = session
     
     return {
-      user: {
-        id: safeSession.userId,
-        email: safeSession.email,
-        name: safeSession.name,
-        avatar: safeSession.avatar,
-        provider: safeSession.provider
-      },
-      session: {
-        id: safeSession.id,
-        loggedInAt: safeSession.loggedInAt,
-        expiresAt: safeSession.expiresAt
-      },
-      loggedIn: true
+      data: {
+        user: {
+          id: safeSession.userId,
+          email: safeSession.email,
+          name: safeSession.name,
+          avatar: safeSession.avatar,
+          provider: safeSession.provider
+        },
+        loggedInAt: safeSession.loggedInAt?.toISOString() || new Date().toISOString()
+      }
     }
   } catch (err) {
     console.error('Session fetch error:', err)
     return {
-      user: null,
-      loggedIn: false
+      data: null
     }
   }
 })
