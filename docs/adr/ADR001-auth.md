@@ -136,17 +136,97 @@ Nuxt.jsではセッション情報をRedisやDBに記録する機能は直接は
 トランザクション中にセッション情報を更新するとデッドロックの懸念があるため、
 セッション情報の更新はトランザクション外で行う等注意が必要です。
 
+## テスト戦略
+
+### E2Eテストにおける認証処理
+
+**決定：** Auth0 Machine-to-Machine (M2M) 認証とテスト専用エンドポイントのハイブリッドアプローチ
+
+#### 選択理由
+
+Auth0公式ドキュメントではM2M認証がPlaywright E2Eテストの推奨アプローチとして示されているが、開発初期段階では以下の段階的実装を採用：
+
+1. **Phase 1: テスト専用エンドポイント** （即座に実装可能）
+   - 開発・テスト環境でのみ有効な認証バイパス
+   - 基本的なE2Eテストの迅速な実装
+   - 実装コストが最小
+
+2. **Phase 2: Auth0 M2M認証** （本格運用向け）
+   - Auth0でM2Mアプリケーションを作成
+   - より本番環境に近い認証フロー
+   - セキュリティベストプラクティスに準拠
+
+3. **Phase 3: 完全な認証フローテスト** （将来的）
+   - 実際のAuth0ログインフローをテスト
+   - エラーケースとセッション管理のテスト
+
+#### メリット
+
+**テスト専用エンドポイント:**
+- 開発速度の向上（認証設定なしでテスト実行可能）
+- Auth0設定の複雑さを回避
+- CIでの安定性（外部依存の削減）
+- テストデータの一貫性
+
+**M2M認証:**
+- Auth0公式推奨のベストプラクティス
+- 本番環境により近いテスト条件
+- セキュリティ面での堅牢性
+- 実際の認証フローの検証
+
+#### 実装方針
+
+```typescript
+// server/api/auth/test-login.post.ts
+// 開発・テスト環境でのみ有効な認証バイパス
+export default defineEventHandler(async (event) => {
+  if (process.env.NODE_ENV === 'production') {
+    throw createError({
+      statusCode: 404,
+      statusMessage: 'Not Found'
+    })
+  }
+  // テスト用セッション作成ロジック
+})
+```
+
+この段階的アプローチにより、開発効率を維持しながら長期的なテスト品質を確保する。
+
 ## 結果・影響
 
-<!--
-TODO:
-- この決定がシステムや開発に与える影響
-- 今後の対応や残課題
--->
+### 実装への影響
+
+**ポジティブな影響:**
+- セキュリティリスクの最小化（トークンのクライアント露出回避）
+- 一貫した認証状態管理（SSR/SPA間）
+- 保守性の向上（自社制御可能な実装）
+- 開発効率の向上（テスト専用エンドポイントによる）
+
+**考慮事項:**
+- 初期実装コストの増加（自前実装のため）
+- サーバーサイド経由のAPIアクセスによるレイテンシー
+- セッション管理の実装・運用複雑性
+
+### 今後の対応
+
+1. **短期（実装フェーズ）:**
+   - テスト専用エンドポイントの実装
+   - 基本的なE2Eテストスイートの構築
+   - セッション管理の監視体制整備
+
+2. **中期（運用フェーズ）:**
+   - Auth0 M2M認証への移行
+   - パフォーマンス監視と最適化
+   - セキュリティ監査の実施
+
+3. **長期（スケール対応）:**
+   - セッションストレージの最適化
+   - 認証フローの更なる改善
+   - 多要素認証の検討
 
 ## 参考資料
 
-<!--
-TODO:
-- 関連ドキュメントや外部リンク
--->
+- [Auth0 Testing Guide](https://auth0.com/docs/test)
+- [Playwright Authentication Testing](https://playwright.dev/docs/auth)
+- [Auth0 Machine-to-Machine Applications](https://auth0.com/docs/get-started/applications/machine-to-machine-applications)
+- [Nuxt.js Authentication Best Practices](https://nuxt.com/docs/guide/directory-structure/middleware#authentication)

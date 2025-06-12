@@ -43,6 +43,22 @@ jobs:
     runs-on: ubuntu-latest
     needs: test
 
+    services:
+      postgres:
+        image: public.ecr.aws/docker/library/postgres:15-bookworm
+        env:
+          POSTGRES_DB: chase_light
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: password
+          POSTGRES_HOST_AUTH_METHOD: md5
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -60,6 +76,12 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
+      - name: Initialize database
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y postgresql-client
+          PGPASSWORD=password psql -h localhost -U postgres -d chase_light -f database/init/01-create-sessions-table.sql
+
       - name: Install Playwright browsers
         run: pnpm --filter frontend test:e2e:install
 
@@ -69,11 +91,12 @@ jobs:
       - name: Start frontend
         run: pnpm --filter frontend preview &
         env:
-          AUTH0_SECRET: ${{ secrets.AUTH0_SECRET }}
+          AUTH0_SECRET: test-secret
           AUTH0_BASE_URL: http://localhost:3000
-          AUTH0_ISSUER_BASE_URL: ${{ secrets.AUTH0_ISSUER_BASE_URL }}
-          AUTH0_CLIENT_ID: ${{ secrets.AUTH0_CLIENT_ID }}
-          AUTH0_CLIENT_SECRET: ${{ secrets.AUTH0_CLIENT_SECRET }}
+          AUTH0_ISSUER_BASE_URL: ""
+          AUTH0_CLIENT_ID: ""
+          AUTH0_CLIENT_SECRET: ""
+          DATABASE_URL: postgresql://postgres:password@localhost:5432/chase_light
 
       - name: Wait for frontend to be ready
         run: |
@@ -82,11 +105,12 @@ jobs:
       - name: Run E2E tests
         run: pnpm --filter frontend test:e2e
         env:
-          AUTH0_SECRET: ${{ secrets.AUTH0_SECRET }}
+          AUTH0_SECRET: test-secret
           AUTH0_BASE_URL: http://localhost:3000
-          AUTH0_ISSUER_BASE_URL: ${{ secrets.AUTH0_ISSUER_BASE_URL }}
-          AUTH0_CLIENT_ID: ${{ secrets.AUTH0_CLIENT_ID }}
-          AUTH0_CLIENT_SECRET: ${{ secrets.AUTH0_CLIENT_SECRET }}
+          AUTH0_ISSUER_BASE_URL: ""
+          AUTH0_CLIENT_ID: ""
+          AUTH0_CLIENT_SECRET: ""
+          DATABASE_URL: postgresql://postgres:password@localhost:5432/chase_light
 
       - name: Upload Playwright report
         uses: actions/upload-artifact@v4
