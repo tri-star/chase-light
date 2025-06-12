@@ -38,3 +38,60 @@ jobs:
 
       - name: Build
         run: pnpm run build
+
+  e2e:
+    runs-on: ubuntu-latest
+    needs: test
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v3
+        with:
+          version: 9
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Install Playwright browsers
+        run: pnpm --filter frontend test:e2e:install
+
+      - name: Build frontend
+        run: pnpm --filter frontend build
+
+      - name: Start frontend
+        run: pnpm --filter frontend preview &
+        env:
+          AUTH0_SECRET: ${{ secrets.AUTH0_SECRET }}
+          AUTH0_BASE_URL: http://localhost:3000
+          AUTH0_ISSUER_BASE_URL: ${{ secrets.AUTH0_ISSUER_BASE_URL }}
+          AUTH0_CLIENT_ID: ${{ secrets.AUTH0_CLIENT_ID }}
+          AUTH0_CLIENT_SECRET: ${{ secrets.AUTH0_CLIENT_SECRET }}
+
+      - name: Wait for frontend to be ready
+        run: |
+          timeout 30 bash -c 'until curl -f http://localhost:3000; do sleep 1; done'
+
+      - name: Run E2E tests
+        run: pnpm --filter frontend test:e2e
+        env:
+          AUTH0_SECRET: ${{ secrets.AUTH0_SECRET }}
+          AUTH0_BASE_URL: http://localhost:3000
+          AUTH0_ISSUER_BASE_URL: ${{ secrets.AUTH0_ISSUER_BASE_URL }}
+          AUTH0_CLIENT_ID: ${{ secrets.AUTH0_CLIENT_ID }}
+          AUTH0_CLIENT_SECRET: ${{ secrets.AUTH0_CLIENT_SECRET }}
+
+      - name: Upload Playwright report
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: playwright-report
+          path: packages/frontend/playwright-report/
+          retention-days: 30
