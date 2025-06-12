@@ -9,7 +9,6 @@ export default withNuxt(
     rules: {
       // Disable ESLint formatting rules that conflict with Prettier
       'prettier/prettier': 'off',
-      // Add or modify @typescript-eslint/no-unused-vars rule
       '@typescript-eslint/no-unused-vars': [
         'error',
         {
