@@ -3,30 +3,14 @@ import { test as setup, expect } from '@playwright/test';
 const authFile = 'playwright/.auth/user.json';
 
 setup('authenticate', async ({ page }) => {
-  // ホームページに移動
-  await page.goto('/');
+  // テスト専用ログインページに移動してセッションを作成
+  await page.goto('/auth/test-login');
 
-  // テスト専用ログインエンドポイントをページコンテキストで呼び出し
-  const response = await page.request.post('/api/auth/test-login', {
-    data: {
-      userId: 'playwright-test-user',
-      email: 'playwright-test@example.com',
-      name: 'Playwright Test User',
-      avatar: 'https://github.com/playwright-test.png',
-      provider: 'github',
-    },
-  });
+  // リダイレクトでダッシュボードに移動するのを待つ
+  await page.waitForURL('/dashboard', { timeout: 10000 });
 
-  expect(response.ok()).toBeTruthy();
-  const result = await response.json();
-  expect(result.success).toBe(true);
-
-  // ページをリロードしてセッション情報を反映
-  await page.reload();
-  await page.waitForTimeout(2000);
-
-  // ログイン状態であることを確認（ダッシュボードリンクが表示される）
-  await expect(page.locator('text=Go to Dashboard')).toBeVisible({
+  // ログイン状態であることを確認（ダッシュボードページが表示される）
+  await expect(page.locator('h1')).toContainText('Dashboard', {
     timeout: 10000,
   });
 

@@ -8,9 +8,7 @@ test.describe('Authenticated Dashboard', () => {
     await expect(page.locator('h1')).toContainText('Dashboard');
 
     // ユーザー情報が表示されることを確認
-    await expect(
-      page.locator('text=Welcome, Playwright Test User')
-    ).toBeVisible();
+    await expect(page.locator('text=Welcome, Test User')).toBeVisible();
     await expect(page.locator('text=Logout')).toBeVisible();
   });
 
@@ -23,12 +21,10 @@ test.describe('Authenticated Dashboard', () => {
     await expect(page.locator('text=User Information')).toBeVisible();
 
     // テストユーザーの詳細情報を確認
-    await expect(page.locator('text=playwright-test-user')).toBeVisible();
+    await expect(page.locator('text=test-user-123')).toBeVisible();
+    await expect(page.locator('text=test@example.com')).toBeVisible();
     await expect(
-      page.locator('text=playwright-test@example.com')
-    ).toBeVisible();
-    await expect(
-      page.locator('dd').filter({ hasText: 'Playwright Test User' })
+      page.locator('dd').filter({ hasText: 'Test User' })
     ).toBeVisible();
     await expect(page.locator('text=github')).toBeVisible();
   });
@@ -80,7 +76,7 @@ test.describe('Authenticated Dashboard', () => {
         expect(apiResponse).toContain(
           'Protected API endpoint accessed successfully'
         );
-        expect(apiResponse).toContain('playwright-test-user');
+        expect(apiResponse).toContain('test-user-123');
       }
     } else {
       // APIが応答しなかった場合でも、テストとして処理する

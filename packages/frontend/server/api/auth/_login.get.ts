@@ -8,7 +8,7 @@ export default defineEventHandler(async (event) => {
   // State をセッションに保存（一時的にクッキーに保存）
   setCookie(event, 'auth-state', state, {
     httpOnly: true,
-    secure: process.env.NODE_ENV === 'production',
+    secure: process.env.APP_STAGE === 'production',
     maxAge: 600, // 10分
     sameSite: 'lax',
   });

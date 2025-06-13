@@ -30,12 +30,13 @@ This directory contains end-to-end tests for the Chase Light frontend applicatio
 
 ## Authentication Strategy
 
-We use a **test-specific authentication endpoint** (`/api/auth/test-login`) that:
+We use a **test-specific authentication page** (`/auth/test-login`) that:
 
 - Only works in development/test environments
 - Creates a valid PostgreSQL session for testing
 - Bypasses the actual Auth0 flow for faster, more reliable tests
 - Provides consistent test data
+- Automatically redirects to the dashboard after session creation
 
 ### Benefits
 
@@ -92,9 +93,9 @@ The authentication setup creates a test user with:
 
 ```json
 {
-  "userId": "playwright-test-user",
-  "email": "playwright-test@example.com",
-  "name": "Playwright Test User",
+  "userId": "test-user-123",
+  "email": "test@example.com",
+  "name": "Test User",
   "avatar": "https://github.com/playwright-test.png",
   "provider": "github"
 }

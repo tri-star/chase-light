@@ -15,11 +15,11 @@ export default defineNuxtRouteMiddleware(async (_to, _from) => {
 
       // セッションが存在しない場合はログインページにリダイレクト
       if (!response?.data) {
-        return navigateTo('/api/auth/login');
+        return navigateTo('/auth/login', { external: true });
       }
     } catch (_error) {
       // 認証エラーの場合、ログインページにリダイレクト
-      return navigateTo('/api/auth/login');
+      return navigateTo('/auth/login', { external: true });
     }
   }
 
@@ -28,7 +28,7 @@ export default defineNuxtRouteMiddleware(async (_to, _from) => {
     const { data: session } = await useFetch('/api/auth/session');
 
     if (!session.value) {
-      return navigateTo('/api/auth/login');
+      return navigateTo('/auth/login', { external: true });
     }
   }
 });

@@ -19,11 +19,9 @@ test.describe('Authenticated Profile Page', () => {
     await page.goto('/profile');
 
     // プロファイル情報の表示を確認
-    await expect(page.locator('text=Playwright Test User')).toBeVisible();
-    await expect(
-      page.locator('text=playwright-test@example.com')
-    ).toBeVisible();
-    await expect(page.locator('text=playwright-test-user')).toBeVisible();
+    await expect(page.locator('text=Test User')).toBeVisible();
+    await expect(page.locator('text=test@example.com')).toBeVisible();
+    await expect(page.locator('text=test-user-123')).toBeVisible();
     await expect(page.locator('[data-testid="auth-provider"]')).toContainText(
       'github'
     );

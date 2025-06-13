@@ -104,10 +104,12 @@ jobs:
           AUTH0_SECRET: test-secret
           AUTH0_BASE_URL: http://localhost:3000
           AUTH0_ISSUER_BASE_URL: ""
-          AUTH0_CLIENT_ID: ""
-          AUTH0_CLIENT_SECRET: ""
+          AUTH0_CLIENT_ID: "abcdefgh"
+          AUTH0_CLIENT_SECRET: "testtestabcd"
+          NUXT_SESSION_SECRET: "re12IqWHwRISPJ3rLEZxLB+0UvD2hV+ANJjPWF0V+eQ="
           DATABASE_URL: postgresql://postgres:password@localhost:5432/chase_light?sslmode=disable
-          NODE_ENV: development
+          NUXT_PUBLIC_BASE_URL: http://localhost:3000
+          APP_STAGE: development
 
       - name: Wait for frontend to be ready
         run: |
@@ -120,10 +122,12 @@ jobs:
           AUTH0_SECRET: test-secret
           AUTH0_BASE_URL: http://localhost:3000
           AUTH0_ISSUER_BASE_URL: ""
-          AUTH0_CLIENT_ID: ""
-          AUTH0_CLIENT_SECRET: ""
+          AUTH0_CLIENT_ID: "abcdefgh"
+          AUTH0_CLIENT_SECRET: "testtestabcd"
+          NUXT_SESSION_SECRET: "re12IqWHwRISPJ3rLEZxLB+0UvD2hV+ANJjPWF0V+eQ="
           DATABASE_URL: postgresql://postgres:password@localhost:5432/chase_light?sslmode=disable
-          NODE_ENV: development
+          NUXT_PUBLIC_BASE_URL: http://localhost:3000
+          APP_STAGE: development
 
       - name: Upload Playwright report
         uses: actions/upload-artifact@v4

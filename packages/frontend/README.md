@@ -82,12 +82,13 @@ pnpm dev
 - `/` - Public home page
 - `/dashboard` - Protected dashboard (requires authentication)
 - `/profile` - Protected user profile page (requires authentication)
+- `/auth/login` - Initiate Auth0 login flow
+- `/auth/test-login` - Test login page (development only) - automatically creates session and redirects to dashboard
 
 ## API Endpoints
 
 ### Authentication
 
-- `GET /api/auth/login` - Initiate Auth0 login
 - `GET /api/auth/callback` - Handle Auth0 callback
 - `POST /api/auth/logout` - Logout and clear session
 - `GET /api/auth/session` - Get current session info

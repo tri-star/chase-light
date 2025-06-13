@@ -12,7 +12,7 @@ function getPool(): Pool {
     pool = new Pool({
       connectionString: config.databaseUrl,
       ssl:
-        process.env.NODE_ENV === 'production'
+        process.env.APP_STAGE === 'production'
           ? { rejectUnauthorized: false }
           : false,
     });
@@ -41,7 +41,7 @@ export interface UserSession {
 const SESSION_CONFIG = {
   cookieName: 'nuxt-session',
   maxAge: 60 * 60 * 24 * 7, // 7 days
-  secure: process.env.NODE_ENV === 'production',
+  secure: process.env.APP_STAGE === 'production',
   httpOnly: true,
   sameSite: 'lax' as const,
 };

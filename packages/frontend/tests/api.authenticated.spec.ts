@@ -11,8 +11,8 @@ test.describe('Protected API Endpoints', () => {
 
     const data = await response.json();
     expect(data.message).toBe('Protected API endpoint accessed successfully');
-    expect(data.user.id).toBe('playwright-test-user');
-    expect(data.user.email).toBe('playwright-test@example.com');
+    expect(data.user.id).toBe('test-user-123');
+    expect(data.user.email).toBe('test@example.com');
     expect(data.sessionInfo).toBeDefined();
   });
 
@@ -22,9 +22,9 @@ test.describe('Protected API Endpoints', () => {
     expect(response.ok()).toBeTruthy();
 
     const data = await response.json();
-    expect(data.data.user.id).toBe('playwright-test-user');
-    expect(data.data.user.email).toBe('playwright-test@example.com');
-    expect(data.data.user.name).toBe('Playwright Test User');
+    expect(data.data.user.id).toBe('test-user-123');
+    expect(data.data.user.email).toBe('test@example.com');
+    expect(data.data.user.name).toBe('Test User');
   });
 
   test('should access GitHub user API (expect error with test token)', async ({
@@ -63,21 +63,14 @@ test.describe('Protected API Endpoints', () => {
   // await context.close()
   // })
 
-  // test('should handle test login endpoint', async ({ request }) => {
-  //   // テストログインエンドポイントの動作確認
-  //   const response = await request.post('/api/auth/test-login', {
-  //     data: {
-  //       userId: 'api-test-user',
-  //       email: 'api-test@example.com',
-  //       name: 'API Test User'
-  //     }
-  //   })
-
-  //   expect(response.ok()).toBeTruthy()
-
-  //   const data = await response.json()
-  //   expect(data.success).toBe(true)
-  //   expect(data.user.id).toBe('api-test-user')
+  // test('should handle test login page', async ({ page }) => {
+  //   // テストログインページの動作確認
+  //   await page.goto('/auth/test-login')
+  //
+  //   // ダッシュボードにリダイレクトされることを確認
+  //   await page.waitForURL('/dashboard')
+  //   await expect(page.locator('h1')).toContainText('Dashboard')
+  // })
   //   expect(data.user.email).toBe('api-test@example.com')
   // })
 

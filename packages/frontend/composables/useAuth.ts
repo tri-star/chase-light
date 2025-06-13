@@ -40,7 +40,7 @@ export const useAuth = () => {
 
   // ログイン
   const login = async () => {
-    await navigateTo('/api/auth/login');
+    navigateTo('/auth/login', { external: true });
   };
 
   // ログアウト

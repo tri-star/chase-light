@@ -1,6 +1,6 @@
 export default defineEventHandler(async (event) => {
   // 本番環境では無効化
-  if (process.env.NODE_ENV === 'production') {
+  if (process.env.APP_STAGE === 'production') {
     throw createError({
       statusCode: 404,
       statusMessage: 'Not Found',
