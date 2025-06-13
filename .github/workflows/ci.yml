@@ -7,22 +7,23 @@ on:
     branches: [main, develop]
 
 jobs:
-  test:
+  lint:
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          run_install: false
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: "20"
-
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v3
-        with:
-          version: 9
+          node-version: "24"
+          cache: "pnpm"
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
@@ -33,6 +34,27 @@ jobs:
       - name: Type check
         run: pnpm run lint:type
 
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          run_install: false
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+          cache: "pnpm"
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
       - name: Test
         run: pnpm run test
 
@@ -41,7 +63,7 @@ jobs:
 
   e2e:
     runs-on: ubuntu-latest
-    # needs: test
+    needs: test
 
     services:
       postgres:
@@ -63,15 +85,16 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          run_install: false
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: "20"
-
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v3
-        with:
-          version: 9
+          node-version: "24"
+          cache: "pnpm"
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
@@ -81,14 +104,17 @@ jobs:
         id: playwright-cache
         with:
           path: ~/.cache/ms-playwright
-          key: ${{ runner.os }}-playwright-${{ hashFiles('**/pnpm-lock.yaml') }}
+          key: ${{ runner.os }}-playwright-${{ hashFiles('packages/frontend/pnpm-lock.yaml') }}
           restore-keys: |
             ${{ runner.os }}-playwright-
 
+      - name: Install PostgreSQL Client
+        uses: Eeems-Org/apt-cache-action@v1
+        with:
+          packages: postgresql-client
+
       - name: Initialize database
         run: |
-          sudo apt-get update
-          sudo apt-get install -y postgresql-client
           PGPASSWORD=password psql -h localhost -U postgres -d chase_light -f database/init/01-create-sessions-table.sql
 
       - name: Install Playwright browsers
@@ -101,12 +127,12 @@ jobs:
       - name: Start frontend
         run: pnpm --filter frontend preview > nuxt_preview.log 2>&1 &
         env:
-          AUTH0_SECRET: test-secret
+          AUTH0_SECRET: dummy
           AUTH0_BASE_URL: http://localhost:3000
           AUTH0_ISSUER_BASE_URL: ""
-          AUTH0_CLIENT_ID: "abcdefgh"
-          AUTH0_CLIENT_SECRET: "testtestabcd"
-          NUXT_SESSION_SECRET: "re12IqWHwRISPJ3rLEZxLB+0UvD2hV+ANJjPWF0V+eQ="
+          AUTH0_CLIENT_ID: "clientid"
+          AUTH0_CLIENT_SECRET: "dummy"
+          NUXT_SESSION_SECRET: "dummy"
           DATABASE_URL: postgresql://postgres:password@localhost:5432/chase_light?sslmode=disable
           NUXT_PUBLIC_BASE_URL: http://localhost:3000
           APP_STAGE: development
@@ -114,17 +140,16 @@ jobs:
       - name: Wait for frontend to be ready
         run: |
           timeout 30 bash -c 'until curl -f http://localhost:3000; do sleep 1; done'
-          sleep 10
 
       - name: Run E2E tests
         run: pnpm --filter frontend test:e2e
         env:
-          AUTH0_SECRET: test-secret
+          AUTH0_SECRET: dummy
           AUTH0_BASE_URL: http://localhost:3000
           AUTH0_ISSUER_BASE_URL: ""
-          AUTH0_CLIENT_ID: "abcdefgh"
-          AUTH0_CLIENT_SECRET: "testtestabcd"
-          NUXT_SESSION_SECRET: "re12IqWHwRISPJ3rLEZxLB+0UvD2hV+ANJjPWF0V+eQ="
+          AUTH0_CLIENT_ID: "dummy"
+          AUTH0_CLIENT_SECRET: "dummy"
+          NUXT_SESSION_SECRET: "dummy"
           DATABASE_URL: postgresql://postgres:password@localhost:5432/chase_light?sslmode=disable
           NUXT_PUBLIC_BASE_URL: http://localhost:3000
           APP_STAGE: development
