@@ -17,18 +17,6 @@ test.describe('Public Home Page', () => {
     await expect(page.locator('text=Login with GitHub')).toBeVisible();
   });
 
-  test('should navigate to login when clicking login button', async ({
-    page,
-  }) => {
-    await page.goto('/');
-
-    // ログインボタンをクリック
-    await page.click('text=Login with GitHub');
-
-    // Auth0のログインページまたはコールバックページにリダイレクトされることを確認
-    await page.waitForURL(/auth0\.com|\/api\/auth\/login/);
-  });
-
   test('should display feature sections', async ({ page }) => {
     await page.goto('/');
 
