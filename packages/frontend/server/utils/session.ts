@@ -8,13 +8,21 @@ let pool: Pool | null = null;
 
 function getPool(): Pool {
   if (!pool) {
-    const config = useRuntimeConfig();
+    const dbUrl = process.env.DATABASE_URL;
+
+    if (!dbUrl) {
+      throw new Error('DATABASE_URL is not configured');
+    }
+
     pool = new Pool({
-      connectionString: config.databaseUrl,
+      connectionString: dbUrl,
       ssl:
         process.env.APP_STAGE === 'production'
           ? { rejectUnauthorized: false }
           : false,
+      // SCRAM認証の問題を回避するための明示的な設定
+      connectionTimeoutMillis: 30000,
+      idleTimeoutMillis: 30000,
     });
   }
   return pool;
