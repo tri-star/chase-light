@@ -13,6 +13,7 @@
     "format": "eslint . --fix && prettier --write .",
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build",
+    "test": "vitest run --reporter=verbose --watch=false",
     "test:e2e": "playwright test",
     "test:e2e:ui": "playwright test --ui",
     "test:e2e:debug": "playwright test --debug",
