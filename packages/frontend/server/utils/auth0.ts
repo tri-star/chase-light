@@ -1,3 +1,7 @@
+import jwt from 'jsonwebtoken';
+import type { JwtHeader, SigningKeyCallback } from 'jsonwebtoken';
+import jwksClient from 'jwks-rsa';
+
 /**
  * Auth0設定を取得する
  */
@@ -150,30 +154,40 @@ export function generateAuth0LogoutUrl(returnTo?: string): string {
 }
 
 /**
- * IDトークンを検証する（簡易版）
+ * IDトークンを検証する（厳密版・RS256署名検証）
  */
-export function validateIdToken(idToken: string): unknown {
-  try {
-    const auth0Config = getAuth0Config();
-    // JWT の payload 部分をデコード（本番環境では適切な検証が必要）
-    const [, payload] = idToken.split('.');
-    const decoded = JSON.parse(Buffer.from(payload, 'base64').toString());
+export async function validateIdToken(idToken: string): Promise<unknown> {
+  const auth0Config = getAuth0Config();
+  const client = jwksClient({
+    jwksUri: `https://${auth0Config.domain}/.well-known/jwks.json`,
+  });
 
-    // 基本的な検証
-    if (decoded.iss !== `https://${auth0Config.domain}/`) {
-      throw new Error('Invalid issuer');
+  function getKey(header: JwtHeader, callback: SigningKeyCallback) {
+    if (!header.kid) {
+      return callback(new Error('No kid found in token header'));
     }
-
-    if (decoded.aud !== auth0Config.clientId) {
-      throw new Error('Invalid audience');
-    }
-
-    if (decoded.exp < Date.now() / 1000) {
-      throw new Error('Token expired');
-    }
-
-    return decoded;
-  } catch (error) {
-    throw new Error(`Invalid ID token: ${error}`);
+    client.getSigningKey(header.kid, function (err, key) {
+      if (err) return callback(err);
+      const signingKey = key?.getPublicKey();
+      callback(null, signingKey);
+    });
   }
+
+  return new Promise((resolve, reject) => {
+    jwt.verify(
+      idToken,
+      getKey,
+      {
+        algorithms: ['RS256'],
+        issuer: `https://${auth0Config.domain}/`,
+        audience: auth0Config.clientId,
+      },
+      (err: jwt.VerifyErrors | null, decoded: unknown) => {
+        if (err) {
+          return reject(new Error(`Invalid ID token: ${err}`));
+        }
+        resolve(decoded);
+      }
+    );
+  });
 }
