@@ -10,19 +10,25 @@
     "postinstall": "nuxt prepare",
     "lint": "eslint . && prettier . --check",
     "lint:type": "nuxt typecheck",
-    "format": "eslint . --fix && prettier . --write",
+    "format": "eslint . --fix && prettier --write .",
     "storybook": "storybook dev -p 6006",
-    "build-storybook": "storybook build"
+    "build-storybook": "storybook build",
+    "test:e2e": "playwright test",
+    "test:e2e:ui": "playwright test --ui",
+    "test:e2e:debug": "playwright test --debug",
+    "test:e2e:report": "playwright show-report",
+    "test:e2e:install": "playwright install"
   },
   "dependencies": {
     "@nuxt/eslint": "1.4.1",
     "@nuxt/icon": "1.13.0",
     "@nuxtjs/storybook": "8.3.5",
     "@storybook/addon-docs": "9.0.5",
-    "storybook": "9.0.5",
     "eslint": "^9.28.0",
     "nuxt": "^3.17.5",
     "nuxt-auth-utils": "0.5.20",
+    "pg": "^8.16.0",
+    "storybook": "9.0.5",
     "tailwindcss": "^4.1.8",
     "vue": "^3.5.16",
     "vue-router": "^4.5.1"
@@ -30,6 +36,8 @@
   "devDependencies": {
     "@nuxt/test-utils": "3.19.1",
     "@nuxtjs/tailwindcss": "7.0.0-beta.0",
+    "@playwright/test": "^1.52.0",
+    "@types/pg": "^8.15.4",
     "@vue/test-utils": "^2.4.6",
     "eslint-config-prettier": "^9.1.0",
     "eslint-plugin-storybook": "^9",
