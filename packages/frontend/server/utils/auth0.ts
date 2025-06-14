@@ -153,14 +153,19 @@ export function generateAuth0LogoutUrl(returnTo?: string): string {
   return `https://${auth0Config.domain}/v2/logout?${params.toString()}`;
 }
 
+// Auth0ドメインを使ってグローバルにjwksClientインスタンスをキャッシュ
+const auth0Domain = useRuntimeConfig().auth0Domain!;
+const globalJwksClient = jwksClient({
+  jwksUri: `https://${auth0Domain}/.well-known/jwks.json`,
+});
+
 /**
  * IDトークンを検証する（厳密版・RS256署名検証）
  */
 export async function validateIdToken(idToken: string): Promise<unknown> {
   const auth0Config = getAuth0Config();
-  const client = jwksClient({
-    jwksUri: `https://${auth0Config.domain}/.well-known/jwks.json`,
-  });
+  // グローバルなclientを利用
+  const client = globalJwksClient;
 
   function getKey(header: JwtHeader, callback: SigningKeyCallback) {
     if (!header.kid) {
