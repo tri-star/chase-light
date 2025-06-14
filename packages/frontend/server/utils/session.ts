@@ -18,7 +18,7 @@ function getPool(): Pool {
       connectionString: dbUrl,
       ssl:
         process.env.APP_STAGE === 'production'
-          ? { rejectUnauthorized: false }
+          ? { rejectUnauthorized: true }
           : false,
       // SCRAM認証の問題を回避するための明示的な設定
       connectionTimeoutMillis: 30000,
