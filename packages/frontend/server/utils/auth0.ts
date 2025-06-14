@@ -153,19 +153,34 @@ export function generateAuth0LogoutUrl(returnTo?: string): string {
   return `https://${auth0Config.domain}/v2/logout?${params.toString()}`;
 }
 
-// Auth0ドメインを使ってグローバルにjwksClientインスタンスをキャッシュ
-const auth0Domain = useRuntimeConfig().auth0Domain!;
-const globalJwksClient = jwksClient({
-  jwksUri: `https://${auth0Domain}/.well-known/jwks.json`,
-});
+// jwksClientの遅延初期化用のグローバル変数
+let globalJwksClient: ReturnType<typeof jwksClient> | null = null;
+let cachedAuth0Domain: string | null = null;
+
+/**
+ * jwksClientインスタンスを取得（遅延初期化）
+ */
+function getJwksClient(): ReturnType<typeof jwksClient> {
+  const auth0Config = getAuth0Config();
+  
+  // ドメインが変わった場合は再初期化
+  if (!globalJwksClient || cachedAuth0Domain !== auth0Config.domain) {
+    globalJwksClient = jwksClient({
+      jwksUri: `https://${auth0Config.domain}/.well-known/jwks.json`,
+    });
+    cachedAuth0Domain = auth0Config.domain;
+  }
+  
+  return globalJwksClient;
+}
 
 /**
  * IDトークンを検証する（厳密版・RS256署名検証）
  */
 export async function validateIdToken(idToken: string): Promise<unknown> {
   const auth0Config = getAuth0Config();
-  // グローバルなclientを利用
-  const client = globalJwksClient;
+  // 遅延初期化されたclientを利用
+  const client = getJwksClient();
 
   function getKey(header: JwtHeader, callback: SigningKeyCallback) {
     if (!header.kid) {
