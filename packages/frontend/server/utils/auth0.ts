@@ -162,7 +162,7 @@ let cachedAuth0Domain: string | null = null;
  */
 function getJwksClient(): ReturnType<typeof jwksClient> {
   const auth0Config = getAuth0Config();
-  
+
   // ドメインが変わった場合は再初期化
   if (!globalJwksClient || cachedAuth0Domain !== auth0Config.domain) {
     globalJwksClient = jwksClient({
@@ -170,7 +170,7 @@ function getJwksClient(): ReturnType<typeof jwksClient> {
     });
     cachedAuth0Domain = auth0Config.domain;
   }
-  
+
   return globalJwksClient;
 }
 

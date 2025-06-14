@@ -10,15 +10,20 @@ describe('auth0 validateIdToken with Nuxt environment', () => {
 
   it('should reject invalid JWT format in Nuxt environment', async () => {
     const invalidToken = 'invalid.token.format';
-    
-    await expect(validateIdToken(invalidToken)).rejects.toThrow('Invalid ID token');
+
+    await expect(validateIdToken(invalidToken)).rejects.toThrow(
+      'Invalid ID token'
+    );
   });
 
   it('should reject token with wrong issuer in Nuxt environment', async () => {
     // 実際のAuth0設定を使ってテスト
-    const wrongIssuerToken = 'eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJodHRwczovL3dyb25nLWRvbWFpbi5hdXRoMC5jb20vIiwiYXVkIjoidGVzdC1jbGllbnQtaWQiLCJzdWIiOiJ0ZXN0LXVzZXIiLCJleHAiOjk5OTk5OTk5OTksImlhdCI6MTYwMDAwMDAwMH0.invalid-signature';
-    
-    await expect(validateIdToken(wrongIssuerToken)).rejects.toThrow('Invalid ID token');
+    const wrongIssuerToken =
+      'eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJodHRwczovL3dyb25nLWRvbWFpbi5hdXRoMC5jb20vIiwiYXVkIjoidGVzdC1jbGllbnQtaWQiLCJzdWIiOiJ0ZXN0LXVzZXIiLCJleHAiOjk5OTk5OTk5OTksImlhdCI6MTYwMDAwMDAwMH0.invalid-signature';
+
+    await expect(validateIdToken(wrongIssuerToken)).rejects.toThrow(
+      'Invalid ID token'
+    );
   });
 
   it('should reject expired token in Nuxt environment', async () => {
@@ -31,10 +36,14 @@ describe('auth0 validateIdToken with Nuxt environment', () => {
       iat: Math.floor(Date.now() / 1000) - 7200, // 2時間前に発行
     };
 
-    const encodedPayload = Buffer.from(JSON.stringify(expiredPayload)).toString('base64');
+    const encodedPayload = Buffer.from(JSON.stringify(expiredPayload)).toString(
+      'base64'
+    );
     const expiredToken = `eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.${encodedPayload}.invalid-signature`;
-    
-    await expect(validateIdToken(expiredToken)).rejects.toThrow('Invalid ID token');
+
+    await expect(validateIdToken(expiredToken)).rejects.toThrow(
+      'Invalid ID token'
+    );
   });
 
   it('should reject token with wrong audience in Nuxt environment', async () => {
@@ -47,24 +56,31 @@ describe('auth0 validateIdToken with Nuxt environment', () => {
       iat: Math.floor(Date.now() / 1000),
     };
 
-    const encodedPayload = Buffer.from(JSON.stringify(wrongAudPayload)).toString('base64');
+    const encodedPayload = Buffer.from(
+      JSON.stringify(wrongAudPayload)
+    ).toString('base64');
     const wrongAudToken = `eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.${encodedPayload}.invalid-signature`;
-    
-    await expect(validateIdToken(wrongAudToken)).rejects.toThrow('Invalid ID token');
+
+    await expect(validateIdToken(wrongAudToken)).rejects.toThrow(
+      'Invalid ID token'
+    );
   });
 
   it('should handle JWKS endpoint errors gracefully in Nuxt environment', async () => {
     // 実際のAuth0ドメイン設定を使用してJWKS取得エラーをテスト
-    const validFormatToken = 'eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6InRlc3Qta2lkIn0.eyJpc3MiOiJodHRwczovL3Rlc3QtZG9tYWluLmF1dGgwLmNvbS8iLCJhdWQiOiJ0ZXN0LWNsaWVudC1pZCIsInN1YiI6InRlc3QtdXNlciIsImV4cCI6OTk5OTk5OTk5OSwiaWF0IjoxNjAwMDAwMDAwfQ.invalid-signature';
-    
-    await expect(validateIdToken(validFormatToken)).rejects.toThrow('Invalid ID token');
+    const validFormatToken =
+      'eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6InRlc3Qta2lkIn0.eyJpc3MiOiJodHRwczovL3Rlc3QtZG9tYWluLmF1dGgwLmNvbS8iLCJhdWQiOiJ0ZXN0LWNsaWVudC1pZCIsInN1YiI6InRlc3QtdXNlciIsImV4cCI6OTk5OTk5OTk5OSwiaWF0IjoxNjAwMDAwMDAwfQ.invalid-signature';
+
+    await expect(validateIdToken(validFormatToken)).rejects.toThrow(
+      'Invalid ID token'
+    );
   });
 
   it('should handle missing kid in JWT header in Nuxt environment', async () => {
     // kidなしのJWTヘッダー
     const headerWithoutKid = {
       alg: 'RS256',
-      typ: 'JWT'
+      typ: 'JWT',
       // kidフィールドなし
     };
 
@@ -76,20 +92,27 @@ describe('auth0 validateIdToken with Nuxt environment', () => {
       iat: Math.floor(Date.now() / 1000),
     };
 
-    const encodedHeader = Buffer.from(JSON.stringify(headerWithoutKid)).toString('base64');
-    const encodedPayload = Buffer.from(JSON.stringify(payload)).toString('base64');
+    const encodedHeader = Buffer.from(
+      JSON.stringify(headerWithoutKid)
+    ).toString('base64');
+    const encodedPayload = Buffer.from(JSON.stringify(payload)).toString(
+      'base64'
+    );
     const tokenWithoutKid = `${encodedHeader}.${encodedPayload}.invalid-signature`;
-    
-    await expect(validateIdToken(tokenWithoutKid)).rejects.toThrow('Invalid ID token');
+
+    await expect(validateIdToken(tokenWithoutKid)).rejects.toThrow(
+      'Invalid ID token'
+    );
   });
 
   it('should cache jwksClient properly in Nuxt environment', async () => {
     // jwksClientのキャッシュ動作をテスト
-    const token = 'eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6InRlc3Qta2lkIn0.eyJpc3MiOiJodHRwczovL3Rlc3QtZG9tYWluLmF1dGgwLmNvbS8iLCJhdWQiOiJ0ZXN0LWNsaWVudC1pZCIsInN1YiI6InRlc3QtdXNlciIsImV4cCI6OTk5OTk5OTk5OSwiaWF0IjoxNjAwMDAwMDAwfQ.invalid-signature';
-    
+    const token =
+      'eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6InRlc3Qta2lkIn0.eyJpc3MiOiJodHRwczovL3Rlc3QtZG9tYWluLmF1dGgwLmNvbS8iLCJhdWQiOiJ0ZXN0LWNsaWVudC1pZCIsInN1YiI6InRlc3QtdXNlciIsImV4cCI6OTk5OTk5OTk5OSwiaWF0IjoxNjAwMDAwMDAwfQ.invalid-signature';
+
     // 複数回呼び出してキャッシュが機能することを確認
     const results = [];
-    
+
     try {
       await validateIdToken(token);
     } catch (_error) {
@@ -109,12 +132,13 @@ describe('auth0 validateIdToken with Nuxt environment', () => {
   it('should work with actual Nuxt runtime config values', async () => {
     // Nuxt環境でuseRuntimeConfigが正常に動作することを確認
     // この段階でruntime configの値が.env.testから正しく読み込まれている
-    
-    const token = 'eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6InRlc3Qta2lkIn0.eyJpc3MiOiJodHRwczovL3Rlc3QtZG9tYWluLmF1dGgwLmNvbS8iLCJhdWQiOiJ0ZXN0LWNsaWVudC1pZCIsInN1YiI6InRlc3QtdXNlciIsImV4cCI6OTk5OTk5OTk5OSwiaWF0IjoxNjAwMDAwMDAwfQ.invalid-signature';
-    
+
+    const token =
+      'eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6InRlc3Qta2lkIn0.eyJpc3MiOiJodHRwczovL3Rlc3QtZG9tYWluLmF1dGgwLmNvbS8iLCJhdWQiOiJ0ZXN0LWNsaWVudC1pZCIsInN1YiI6InRlc3QtdXNlciIsImV4cCI6OTk5OTk5OTk5OSwiaWF0IjoxNjAwMDAwMDAwfQ.invalid-signature';
+
     // 実際のruntime configの値を使った検証が実行される
     await expect(validateIdToken(token)).rejects.toThrow('Invalid ID token');
-    
+
     // エラーが発生すれば、useRuntimeConfigが正常に動作していることを示す
     expect(true).toBe(true);
   });
