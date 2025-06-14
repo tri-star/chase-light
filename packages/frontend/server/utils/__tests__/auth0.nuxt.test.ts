@@ -1,14 +1,14 @@
 // Nuxt環境でのテスト（useRuntimeConfigが利用可能）
-import { describe, it, expect, beforeEach } from 'vitest';
+import { describe, test, expect, beforeEach } from 'vitest';
 import { validateIdToken } from '../auth0';
 
-describe('auth0 validateIdToken with Nuxt environment', () => {
+describe('Auth0 IDトークン検証（Nuxt環境）', () => {
   beforeEach(() => {
     // Nuxt環境なので実際のuseRuntimeConfigを使用可能
     // テスト用の環境変数は.env.testファイルで管理
   });
 
-  it('should reject invalid JWT format in Nuxt environment', async () => {
+  test('無効なJWT形式を拒否する', async () => {
     const invalidToken = 'invalid.token.format';
 
     await expect(validateIdToken(invalidToken)).rejects.toThrow(
@@ -16,7 +16,7 @@ describe('auth0 validateIdToken with Nuxt environment', () => {
     );
   });
 
-  it('should reject token with wrong issuer in Nuxt environment', async () => {
+  test('間違ったissuerのトークンを拒否する', async () => {
     // 実際のAuth0設定を使ってテスト
     const wrongIssuerToken =
       'eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJodHRwczovL3dyb25nLWRvbWFpbi5hdXRoMC5jb20vIiwiYXVkIjoidGVzdC1jbGllbnQtaWQiLCJzdWIiOiJ0ZXN0LXVzZXIiLCJleHAiOjk5OTk5OTk5OTksImlhdCI6MTYwMDAwMDAwMH0.invalid-signature';
@@ -26,7 +26,7 @@ describe('auth0 validateIdToken with Nuxt environment', () => {
     );
   });
 
-  it('should reject expired token in Nuxt environment', async () => {
+  test('期限切れトークンを拒否する', async () => {
     // 期限切れトークンのテスト
     const expiredPayload = {
       iss: 'https://test-domain.auth0.com/',
@@ -46,7 +46,7 @@ describe('auth0 validateIdToken with Nuxt environment', () => {
     );
   });
 
-  it('should reject token with wrong audience in Nuxt environment', async () => {
+  test('間違ったaudienceのトークンを拒否する', async () => {
     // 間違ったaudienceを持つトークン
     const wrongAudPayload = {
       iss: 'https://test-domain.auth0.com/',
@@ -66,7 +66,7 @@ describe('auth0 validateIdToken with Nuxt environment', () => {
     );
   });
 
-  it('should handle JWKS endpoint errors gracefully in Nuxt environment', async () => {
+  test('JWKSエンドポイントエラーを適切に処理する', async () => {
     // 実際のAuth0ドメイン設定を使用してJWKS取得エラーをテスト
     const validFormatToken =
       'eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6InRlc3Qta2lkIn0.eyJpc3MiOiJodHRwczovL3Rlc3QtZG9tYWluLmF1dGgwLmNvbS8iLCJhdWQiOiJ0ZXN0LWNsaWVudC1pZCIsInN1YiI6InRlc3QtdXNlciIsImV4cCI6OTk5OTk5OTk5OSwiaWF0IjoxNjAwMDAwMDAwfQ.invalid-signature';
@@ -76,7 +76,7 @@ describe('auth0 validateIdToken with Nuxt environment', () => {
     );
   });
 
-  it('should handle missing kid in JWT header in Nuxt environment', async () => {
+  test('JWTヘッダーにkidが不足している場合を処理する', async () => {
     // kidなしのJWTヘッダー
     const headerWithoutKid = {
       alg: 'RS256',
@@ -105,7 +105,7 @@ describe('auth0 validateIdToken with Nuxt environment', () => {
     );
   });
 
-  it('should cache jwksClient properly in Nuxt environment', async () => {
+  test('jwksClientが適切にキャッシュされる', async () => {
     // jwksClientのキャッシュ動作をテスト
     const token =
       'eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6InRlc3Qta2lkIn0.eyJpc3MiOiJodHRwczovL3Rlc3QtZG9tYWluLmF1dGgwLmNvbS8iLCJhdWQiOiJ0ZXN0LWNsaWVudC1pZCIsInN1YiI6InRlc3QtdXNlciIsImV4cCI6OTk5OTk5OTk5OSwiaWF0IjoxNjAwMDAwMDAwfQ.invalid-signature';
@@ -129,7 +129,7 @@ describe('auth0 validateIdToken with Nuxt environment', () => {
     expect(results).toHaveLength(2);
   });
 
-  it('should work with actual Nuxt runtime config values', async () => {
+  test('実際のNuxt runtime configが正常に動作する', async () => {
     // Nuxt環境でuseRuntimeConfigが正常に動作することを確認
     // この段階でruntime configの値が.env.testから正しく読み込まれている
 
