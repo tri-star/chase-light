@@ -1,3 +1,7 @@
+import jwt from 'jsonwebtoken';
+import type { JwtHeader, SigningKeyCallback } from 'jsonwebtoken';
+import jwksClient from 'jwks-rsa';
+
 /**
  * Auth0設定を取得する
  */
@@ -149,31 +153,61 @@ export function generateAuth0LogoutUrl(returnTo?: string): string {
   return `https://${auth0Config.domain}/v2/logout?${params.toString()}`;
 }
 
+// jwksClientの遅延初期化用のグローバル変数
+let globalJwksClient: ReturnType<typeof jwksClient> | null = null;
+let cachedAuth0Domain: string | null = null;
+
 /**
- * IDトークンを検証する（簡易版）
+ * jwksClientインスタンスを取得（遅延初期化）
  */
-export function validateIdToken(idToken: string): unknown {
-  try {
-    const auth0Config = getAuth0Config();
-    // JWT の payload 部分をデコード（本番環境では適切な検証が必要）
-    const [, payload] = idToken.split('.');
-    const decoded = JSON.parse(Buffer.from(payload, 'base64').toString());
+function getJwksClient(): ReturnType<typeof jwksClient> {
+  const auth0Config = getAuth0Config();
 
-    // 基本的な検証
-    if (decoded.iss !== `https://${auth0Config.domain}/`) {
-      throw new Error('Invalid issuer');
-    }
-
-    if (decoded.aud !== auth0Config.clientId) {
-      throw new Error('Invalid audience');
-    }
-
-    if (decoded.exp < Date.now() / 1000) {
-      throw new Error('Token expired');
-    }
-
-    return decoded;
-  } catch (error) {
-    throw new Error(`Invalid ID token: ${error}`);
+  // ドメインが変わった場合は再初期化
+  if (!globalJwksClient || cachedAuth0Domain !== auth0Config.domain) {
+    globalJwksClient = jwksClient({
+      jwksUri: `https://${auth0Config.domain}/.well-known/jwks.json`,
+    });
+    cachedAuth0Domain = auth0Config.domain;
   }
+
+  return globalJwksClient;
+}
+
+/**
+ * IDトークンを検証する（厳密版・RS256署名検証）
+ */
+export async function validateIdToken(idToken: string): Promise<unknown> {
+  const auth0Config = getAuth0Config();
+  // 遅延初期化されたclientを利用
+  const client = getJwksClient();
+
+  function getKey(header: JwtHeader, callback: SigningKeyCallback) {
+    if (!header.kid) {
+      return callback(new Error('No kid found in token header'));
+    }
+    client.getSigningKey(header.kid, function (err, key) {
+      if (err) return callback(err);
+      const signingKey = key?.getPublicKey();
+      callback(null, signingKey);
+    });
+  }
+
+  return new Promise((resolve, reject) => {
+    jwt.verify(
+      idToken,
+      getKey,
+      {
+        algorithms: ['RS256'],
+        issuer: `https://${auth0Config.domain}/`,
+        audience: auth0Config.clientId,
+      },
+      (err: jwt.VerifyErrors | null, decoded: unknown) => {
+        if (err) {
+          return reject(new Error(`Invalid ID token: ${err}`));
+        }
+        resolve(decoded);
+      }
+    );
+  });
 }
