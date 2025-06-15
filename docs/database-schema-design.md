@@ -3,54 +3,65 @@
 ## エンティティ概要
 
 ### 1. Users（ユーザー）
+
 既存のsessionsテーブルの情報を基に、ユーザー情報を管理
 
 ### 2. Data_Sources（データソース）
+
 監視対象のデータソース（GitHub）の種別管理
 ※将来的にNPM等も対応予定
 
 ### 3. Repositories（リポジトリ）
+
 GitHubリポジトリ情報（data_sources経由で管理）
 
 ### 4. User_Watches（ユーザー監視設定）
+
 ユーザーが監視している対象の管理（多対多の関係）
 
 ### 5. Events（イベント）
+
 各データソースで発生したイベント（リリース、PR、Issue等）
 
 ### 6. User_Preferences（ユーザー設定）
+
 通知設定、言語設定等のユーザー固有設定
 
 ### 7. Bookmarks（ブックマーク）
+
 ユーザーがブックマークしたイベントやデータソース
 
 ### 8. Notifications（通知）
+
 ユーザーへの通知履歴
 
 ## 将来の拡張計画
 
 ### NPM対応（将来実装予定）
+
 - Packages（パッケージ）テーブル
 - NPM固有のイベント種別
 
 ## 詳細テーブル設計
 
 ### users
+
 ```sql
 CREATE TABLE users (
     id UUID PRIMARY KEY,                             -- UUIDv7をアプリケーション側で生成
     auth0_user_id VARCHAR(255) UNIQUE NOT NULL,     -- Auth0のuser_id
     email VARCHAR(255) UNIQUE NOT NULL,
-    name VARCHAR(255) DEFAULT '',
-    avatar_url TEXT DEFAULT '',
-    github_username VARCHAR(255) DEFAULT '',        -- GitHubユーザー名
-    timezone VARCHAR(50) DEFAULT '',
+    name VARCHAR(255) NOT NULL,
+    avatar_url TEXT NOT NULL,
+    github_username VARCHAR(255) NOT NULL,        -- GitHubユーザー名
+    timezone VARCHAR(50) NOT NULL,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 ```
 
 ### data_sources
+
 ```sql
 CREATE TABLE data_sources (
     id UUID PRIMARY KEY,                             -- UUIDv7をアプリケーション側で生成
@@ -68,6 +79,7 @@ CREATE TABLE data_sources (
 ```
 
 ### repositories
+
 ```sql
 CREATE TABLE repositories (
     id UUID PRIMARY KEY,                             -- UUIDv7をアプリケーション側で生成
@@ -88,6 +100,7 @@ CREATE TABLE repositories (
 ```
 
 ### user_watches
+
 ```sql
 CREATE TABLE user_watches (
     id UUID PRIMARY KEY,                             -- UUIDv7をアプリケーション側で生成
@@ -105,6 +118,7 @@ CREATE TABLE user_watches (
 ```
 
 ### events
+
 ```sql
 CREATE TABLE events (
     id UUID PRIMARY KEY,                             -- UUIDv7をアプリケーション側で生成
@@ -125,6 +139,7 @@ CREATE TABLE events (
 ```
 
 ### user_preferences
+
 ```sql
 CREATE TABLE user_preferences (
     id UUID PRIMARY KEY,                             -- UUIDv7をアプリケーション側で生成
@@ -141,6 +156,7 @@ CREATE TABLE user_preferences (
 ```
 
 ### bookmarks
+
 ```sql
 CREATE TABLE bookmarks (
     id UUID PRIMARY KEY,                             -- UUIDv7をアプリケーション側で生成
@@ -154,6 +170,7 @@ CREATE TABLE bookmarks (
 ```
 
 ### notifications
+
 ```sql
 CREATE TABLE notifications (
     id UUID PRIMARY KEY,                             -- UUIDv7をアプリケーション側で生成
@@ -171,6 +188,7 @@ CREATE TABLE notifications (
 ## インデックス設計
 
 ### パフォーマンス最適化のためのインデックス
+
 ```sql
 -- users
 CREATE INDEX idx_users_auth0_user_id ON users(auth0_user_id);
@@ -211,10 +229,12 @@ CREATE INDEX idx_bookmarks_type_target ON bookmarks(bookmark_type, target_id);
 ## 関係性
 
 ### 1対1の関係
+
 - data_sources ↔ repositories (1データソースは1つのGitHubリポジトリ)
 - users ↔ user_preferences (1ユーザーは1つの設定)
 
 ### 1対多の関係
+
 - data_sources → user_watches (1データソースは複数のユーザーに監視される)
 - data_sources → events (1データソースは複数のイベントを持つ)
 - users → user_watches (1ユーザーは複数のデータソースを監視)
@@ -222,6 +242,7 @@ CREATE INDEX idx_bookmarks_type_target ON bookmarks(bookmark_type, target_id);
 - events → notifications (1イベントは複数の通知を生成可能)
 
 ### 多対多の関係
+
 - users ↔ data_sources (user_watchesテーブル経由)
 
 ## データ整合性制約
@@ -250,6 +271,7 @@ CREATE INDEX idx_bookmarks_type_target ON bookmarks(bookmark_type, target_id);
 ## データソース別の特徴
 
 ### GitHub Repository（現在実装対象）
+
 - source_type: 'github_repository'
 - source_id: 'owner/repo'
 - repositories テーブルに詳細情報を格納
@@ -258,12 +280,14 @@ CREATE INDEX idx_bookmarks_type_target ON bookmarks(bookmark_type, target_id);
 ### 将来の拡張候補
 
 #### NPM Package（将来実装予定）
-- source_type: 'npm_package'  
+
+- source_type: 'npm_package'
 - source_id: 'package-name'
 - packages テーブルに詳細情報を格納
 - イベント: npm_publish, security_alert
 
 #### その他の検討候補
+
 - Docker Hub
 - PyPI
 - Rust Crates
