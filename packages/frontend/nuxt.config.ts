@@ -29,4 +29,8 @@ export default defineNuxtConfig({
       wasm: true,
     },
   },
+  typescript: {
+    typeCheck: false, // ビルド時の型チェックを無効化（lintで実行）
+    strict: true,
+  },
 });
