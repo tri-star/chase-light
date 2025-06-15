@@ -1,6 +1,24 @@
 import jwt from 'jsonwebtoken';
-import type { JwtHeader, SigningKeyCallback } from 'jsonwebtoken';
+import type {
+  JwtHeader,
+  SigningKeyCallback,
+  TokenExpiredError,
+  NotBeforeError,
+} from 'jsonwebtoken';
 import jwksClient from 'jwks-rsa';
+
+/**
+ * Auth0ユーティリティ
+ *
+ * 環境変数設定：
+ * - AUTH_LOG_LEVEL: ログレベル (error/warn/info/debug) - デフォルト: info
+ * - AUTH_DEBUG_SENSITIVE: センシティブ情報のログ出力 (true/false) - デフォルト: false
+ *   ※本番環境では自動的に無効になります
+ *
+ * デバッグ時の推奨設定：
+ * - 開発環境: AUTH_LOG_LEVEL=debug
+ * - トラブルシューティング: AUTH_LOG_LEVEL=debug AUTH_DEBUG_SENSITIVE=true
+ */
 
 /**
  * Auth0設定を取得する
@@ -17,6 +35,149 @@ function getAuth0Config() {
   };
 }
 
+/**
+ * デバッグログの設定を取得する
+ */
+function getDebugLogConfig() {
+  return {
+    // 本番環境以外でのみ詳細ログを有効にする
+    isDetailedLoggingEnabled: process.env.NODE_ENV !== 'production',
+    // ログレベル設定（環境変数で制御）
+    logLevel: (process.env.AUTH_LOG_LEVEL || 'info').toLowerCase(),
+    // センシティブ情報のログ出力制御
+    enableSensitiveLogging:
+      process.env.AUTH_DEBUG_SENSITIVE === 'true' &&
+      process.env.NODE_ENV !== 'production',
+  };
+}
+
+/**
+ * トークンの一部をマスクする（デバッグ用）
+ */
+function maskToken(token: string): string {
+  if (!token || token.length < 20) {
+    return '***';
+  }
+  // JWT形式の場合は各部分の最初と最後を少し表示
+  const parts = token.split('.');
+  if (parts.length === 3) {
+    return parts
+      .map((part) =>
+        part.length > 8 ? `${part.slice(0, 4)}...${part.slice(-4)}` : '***'
+      )
+      .join('.');
+  }
+  // 通常のトークンの場合
+  return `${token.slice(0, 8)}...${token.slice(-8)}`;
+}
+
+/**
+ * JWTトークンのペイロードを安全にデバッグ表示する
+ */
+function getTokenDebugInfo(token: string): object {
+  try {
+    const decoded = jwt.decode(token, { complete: true });
+    if (!decoded || typeof decoded === 'string') {
+      return { error: 'Unable to decode token' };
+    }
+
+    const { header, payload } = decoded;
+
+    // payloadがstringの場合の処理
+    if (typeof payload === 'string') {
+      return {
+        header: {
+          alg: header.alg,
+          typ: header.typ,
+          kid: header.kid ? `${header.kid.slice(0, 8)}...` : undefined,
+        },
+        payload: { type: 'string', length: payload.length },
+      };
+    }
+
+    return {
+      header: {
+        alg: header.alg,
+        typ: header.typ,
+        kid: header.kid ? `${header.kid.slice(0, 8)}...` : undefined,
+      },
+      payload: {
+        iss: payload.iss,
+        aud: Array.isArray(payload.aud)
+          ? payload.aud
+          : payload.aud
+            ? [payload.aud]
+            : undefined,
+        sub:
+          payload.sub && typeof payload.sub === 'string'
+            ? `${payload.sub.slice(0, 8)}...`
+            : undefined,
+        exp: payload.exp
+          ? new Date(payload.exp * 1000).toISOString()
+          : undefined,
+        iat: payload.iat
+          ? new Date(payload.iat * 1000).toISOString()
+          : undefined,
+        nbf: payload.nbf
+          ? new Date(payload.nbf * 1000).toISOString()
+          : undefined,
+      },
+    };
+  } catch (_err) {
+    return { error: 'Failed to decode token for debug info' };
+  }
+}
+
+/**
+ * セキュアなログ出力機能
+ */
+function secureLog(
+  level: 'info' | 'warn' | 'error' | 'debug',
+  message: string,
+  data?: Record<string, unknown>,
+  token?: string
+) {
+  const debugConfig = getDebugLogConfig();
+
+  // ログレベルチェック
+  const levels = { error: 0, warn: 1, info: 2, debug: 3 };
+  const currentLevel = levels[debugConfig.logLevel as keyof typeof levels] ?? 2;
+  const messageLevel = levels[level];
+
+  if (messageLevel > currentLevel) {
+    return;
+  }
+
+  const logData: Record<string, unknown> = {
+    timestamp: new Date().toISOString(),
+    level,
+    message,
+    ...data,
+  };
+
+  // 詳細ログが有効かつトークンが提供されている場合
+  if (debugConfig.isDetailedLoggingEnabled && token) {
+    if (debugConfig.enableSensitiveLogging) {
+      // センシティブログが有効な場合：マスクされたトークンを含める
+      logData.tokenMasked = maskToken(token);
+    }
+
+    // トークンのデバッグ情報を常に含める（センシティブ情報は除く）
+    logData.tokenDebugInfo = getTokenDebugInfo(token);
+  }
+
+  // 環境に応じたログ出力
+  if (level === 'error') {
+    console.error('AUTH_ERROR:', logData);
+  } else if (level === 'warn') {
+    console.warn('AUTH_WARN:', logData);
+  } else if (level === 'debug' && debugConfig.isDetailedLoggingEnabled) {
+    console.debug('AUTH_DEBUG:', logData);
+  } else {
+    console.log('AUTH_INFO:', logData);
+  }
+}
+
 // Auth0ユーザー情報の型定義
 export interface Auth0User {
   sub: string;
@@ -27,6 +188,35 @@ export interface Auth0User {
   picture: string;
   updated_at: string;
   [key: string]: unknown;
+}
+
+// トークン検証エラーの型定義
+export type TokenValidationErrorCode =
+  | 'token_expired'
+  | 'invalid_signature'
+  | 'invalid_audience'
+  | 'invalid_issuer'
+  | 'malformed_token'
+  | 'missing_claims'
+  | 'invalid_algorithm'
+  | 'token_not_active'
+  | 'validation_error';
+
+export interface TokenValidationError {
+  code: TokenValidationErrorCode;
+  message: string;
+  details?: {
+    expiredAt?: Date;
+    notActiveBefore?: Date;
+    expected?: string;
+    actual?: string;
+  };
+}
+
+export interface TokenValidationResult {
+  valid: boolean;
+  error?: TokenValidationError;
+  payload?: unknown;
 }
 
 // Auth0トークンレスポンスの型定義
@@ -177,7 +367,9 @@ function getJwksClient(): ReturnType<typeof jwksClient> {
 /**
  * IDトークンを検証する（厳密版・RS256署名検証）
  */
-export async function validateIdToken(idToken: string): Promise<unknown> {
+export async function validateIdToken(
+  idToken: string
+): Promise<TokenValidationResult> {
   const auth0Config = getAuth0Config();
   // 遅延初期化されたclientを利用
   const client = getJwksClient();
@@ -193,7 +385,7 @@ export async function validateIdToken(idToken: string): Promise<unknown> {
     });
   }
 
-  return new Promise((resolve, reject) => {
+  return new Promise((resolve) => {
     jwt.verify(
       idToken,
       getKey,
@@ -204,10 +396,149 @@ export async function validateIdToken(idToken: string): Promise<unknown> {
       },
       (err: jwt.VerifyErrors | null, decoded: unknown) => {
         if (err) {
-          return reject(new Error(`Invalid ID token: ${err}`));
+          const error = mapJwtErrorToValidationError(err, auth0Config);
+
+          // セキュアログでエラー詳細を出力
+          secureLog(
+            'error',
+            'ID token validation failed',
+            {
+              errorCode: error.code,
+              errorMessage: error.message,
+              errorDetails: error.details,
+              jwtErrorName: err.name,
+              jwtErrorMessage: err.message,
+            },
+            idToken
+          );
+
+          return resolve({
+            valid: false,
+            error,
+          });
         }
-        resolve(decoded);
+
+        // 成功時のデバッグログ
+        secureLog(
+          'debug',
+          'ID token validation successful',
+          {
+            payloadType: typeof decoded,
+            hasPayload: !!decoded,
+          },
+          idToken
+        );
+
+        resolve({
+          valid: true,
+          payload: decoded,
+        });
       }
     );
   });
+}
+
+/**
+ * JWT検証エラーを詳細なエラー情報にマッピングする
+ */
+function mapJwtErrorToValidationError(
+  err: jwt.VerifyErrors,
+  auth0Config?: ReturnType<typeof getAuth0Config>
+): TokenValidationError {
+  // TokenExpiredErrorの場合
+  if (err.name === 'TokenExpiredError') {
+    const tokenExpiredError = err as TokenExpiredError;
+    return {
+      code: 'token_expired',
+      message: 'IDトークンの有効期限が切れています',
+      details: {
+        expiredAt: tokenExpiredError.expiredAt,
+      },
+    };
+  }
+
+  // NotBeforeErrorの場合
+  if (err.name === 'NotBeforeError') {
+    const notBeforeError = err as NotBeforeError;
+    return {
+      code: 'token_not_active',
+      message: 'IDトークンはまだ有効になっていません',
+      details: {
+        notActiveBefore: notBeforeError.date,
+      },
+    };
+  }
+
+  // JsonWebTokenErrorの場合 - メッセージ内容で詳細分類
+  if (err.name === 'JsonWebTokenError') {
+    const message = err.message.toLowerCase();
+
+    // 署名エラー
+    if (message.includes('invalid signature')) {
+      return {
+        code: 'invalid_signature',
+        message: 'IDトークンの署名が不正です',
+      };
+    }
+
+    // オーディエンス不一致
+    if (message.includes('audience invalid')) {
+      return {
+        code: 'invalid_audience',
+        message: 'IDトークンのオーディエンスが不正です',
+        details: {
+          expected:
+            auth0Config?.clientId ||
+            (message.includes('expected:')
+              ? message.split('expected:')[1]?.trim()
+              : undefined),
+        },
+      };
+    }
+
+    // 発行者不一致
+    if (message.includes('issuer invalid')) {
+      return {
+        code: 'invalid_issuer',
+        message: 'IDトークンの発行者が不正です',
+        details: {
+          expected: auth0Config
+            ? `https://${auth0Config.domain}/`
+            : message.includes('expected:')
+              ? message.split('expected:')[1]?.trim()
+              : undefined,
+        },
+      };
+    }
+
+    // アルゴリズム不正
+    if (message.includes('invalid algorithm')) {
+      return {
+        code: 'invalid_algorithm',
+        message: 'IDトークンの署名アルゴリズムが不正です',
+      };
+    }
+
+    // トークン形式不正
+    if (message.includes('malformed') || message.includes('invalid token')) {
+      return {
+        code: 'malformed_token',
+        message: 'IDトークンの形式が不正です',
+      };
+    }
+
+    // 必須クレーム不足
+    if (message.includes('required') || message.includes('missing')) {
+      return {
+        code: 'missing_claims',
+        message: 'IDトークンに必須のクレームが不足しています',
+      };
+    }
+  }
+
+  // その他のエラー
+  return {
+    code: 'validation_error',
+    message: `IDトークンの検証に失敗しました: ${err.message}`,
+  };
 }

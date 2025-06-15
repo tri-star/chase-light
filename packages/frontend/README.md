@@ -45,6 +45,10 @@ DATABASE_URL=postgresql://username:password@localhost:5432/database_name
 
 # Application URL
 NUXT_PUBLIC_BASE_URL=http://localhost:3000
+
+# Authentication Logging (Optional - for debugging)
+AUTH_LOG_LEVEL=info                # error/warn/info/debug
+AUTH_DEBUG_SENSITIVE=false         # Enable sensitive info logging (dev only)
 ```
 
 ## Installation
