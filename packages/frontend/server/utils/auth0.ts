@@ -202,6 +202,19 @@ export type TokenValidationErrorCode =
   | 'token_not_active'
   | 'validation_error';
 
+// 型安全なエラーコード定数を定義
+export const ERROR_CODES = {
+  TOKEN_EXPIRED: 'token_expired',
+  INVALID_SIGNATURE: 'invalid_signature',
+  INVALID_AUDIENCE: 'invalid_audience',
+  INVALID_ISSUER: 'invalid_issuer',
+  MALFORMED_TOKEN: 'malformed_token',
+  MISSING_CLAIMS: 'missing_claims',
+  INVALID_ALGORITHM: 'invalid_algorithm',
+  TOKEN_NOT_ACTIVE: 'token_not_active',
+  VALIDATION_ERROR: 'validation_error',
+} as const satisfies Record<string, TokenValidationErrorCode>;
+
 export interface TokenValidationError {
   code: TokenValidationErrorCode;
   message: string;

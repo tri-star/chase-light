@@ -1,6 +1,26 @@
 // Nuxt環境でのテスト（useRuntimeConfigが利用可能）
 import { describe, test, expect, beforeEach } from 'vitest';
-import { validateIdToken, type TokenValidationResult } from '../auth0';
+import {
+  validateIdToken,
+  ERROR_CODES,
+  type TokenValidationResult,
+  type TokenValidationErrorCode,
+} from '../auth0';
+
+// 型安全な正規表現パターンを生成
+const ERROR_CODE_PATTERN = new RegExp(
+  `^(${Object.values(ERROR_CODES).join('|')})$`
+);
+
+// コンパイル時型チェック: ERROR_CODESの値がTokenValidationErrorCodeと一致することを確認
+type _AssertErrorCodesValid =
+  (typeof ERROR_CODES)[keyof typeof ERROR_CODES] extends TokenValidationErrorCode
+    ? TokenValidationErrorCode extends (typeof ERROR_CODES)[keyof typeof ERROR_CODES]
+      ? true
+      : 'Missing error codes in ERROR_CODES'
+    : 'Invalid error codes in ERROR_CODES';
+
+const _typeCheck: _AssertErrorCodesValid = true;
 
 describe('Auth0 IDトークン検証（Nuxt環境）', () => {
   beforeEach(() => {
@@ -16,7 +36,7 @@ describe('Auth0 IDトークン検証（Nuxt環境）', () => {
     expect(result).toMatchObject({
       valid: false,
       error: {
-        code: 'malformed_token',
+        code: ERROR_CODES.MALFORMED_TOKEN,
         message: expect.stringContaining('IDトークンの形式が不正です'),
       },
     });
@@ -35,7 +55,7 @@ describe('Auth0 IDトークン検証（Nuxt環境）', () => {
     expect(result).toMatchObject({
       valid: false,
       error: {
-        code: 'validation_error',
+        code: ERROR_CODES.VALIDATION_ERROR,
         message: expect.stringContaining('IDトークンの検証に失敗しました'),
       },
     });
@@ -62,7 +82,7 @@ describe('Auth0 IDトークン検証（Nuxt環境）', () => {
     expect(result).toMatchObject({
       valid: false,
       error: {
-        code: 'malformed_token',
+        code: ERROR_CODES.MALFORMED_TOKEN,
         message: expect.stringContaining('IDトークンの形式が不正です'),
       },
     });
@@ -89,7 +109,7 @@ describe('Auth0 IDトークン検証（Nuxt環境）', () => {
     expect(result).toMatchObject({
       valid: false,
       error: {
-        code: 'malformed_token',
+        code: ERROR_CODES.MALFORMED_TOKEN,
         message: expect.stringContaining('IDトークンの形式が不正です'),
       },
     });
@@ -143,7 +163,7 @@ describe('Auth0 IDトークン検証（Nuxt環境）', () => {
     expect(result).toMatchObject({
       valid: false,
       error: {
-        code: 'malformed_token',
+        code: ERROR_CODES.MALFORMED_TOKEN,
         message: expect.stringContaining('IDトークンの形式が不正です'),
       },
     });
@@ -219,9 +239,7 @@ describe('Auth0 IDトークン検証（Nuxt環境）', () => {
     expect(result).toEqual({
       valid: false,
       error: {
-        code: expect.stringMatching(
-          /^(token_expired|invalid_signature|invalid_audience|invalid_issuer|malformed_token|missing_claims|invalid_algorithm|token_not_active|validation_error)$/
-        ),
+        code: expect.stringMatching(ERROR_CODE_PATTERN),
         message: expect.any(String),
       },
     });
