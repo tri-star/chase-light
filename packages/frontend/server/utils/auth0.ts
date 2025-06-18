@@ -54,8 +54,9 @@ function getDebugLogConfig() {
 /**
  * トークンの一部をマスクする（デバッグ用）
  */
+const MIN_TOKEN_LENGTH_FOR_MASKING = 20; // Minimum token length required for masking logic
 function maskToken(token: string): string {
-  if (!token || token.length < 20) {
+  if (!token || token.length < MIN_TOKEN_LENGTH_FOR_MASKING) {
     return '***';
   }
   // JWT形式の場合は各部分の最初と最後を少し表示
