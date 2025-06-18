@@ -30,7 +30,7 @@ export default defineNuxtConfig({
     },
   },
   typescript: {
-    typeCheck: false, // ビルド時の型チェックを無効化（lintで実行）
+    typeCheck: true, // ビルド時の型チェックを有効化
     strict: true,
   },
 });
