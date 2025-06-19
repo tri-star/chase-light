@@ -64,10 +64,17 @@ export class UserRepository extends DrizzleBaseRepository<User> {
     filters?: Record<string, unknown>,
     options?: QueryOptions,
   ): Promise<User[]> {
-    let query = db.select().from(users)
+    // Context7のDrizzle ORM推奨パターン: .$dynamic()を使用
+    let query = db.select().from(users).$dynamic()
 
+    // フィルタの適用
     if (filters?.timezone) {
       query = query.where(eq(users.timezone, filters.timezone as string))
+    }
+
+    // オプションの適用
+    if (options?.orderBy === "createdAt") {
+      query = query.orderBy(users.createdAt)
     }
 
     if (options?.limit) {
@@ -78,8 +85,7 @@ export class UserRepository extends DrizzleBaseRepository<User> {
       query = query.offset(options.offset)
     }
 
-    const result = await query
-    return result
+    return await query
   }
 
   async update(id: string, data: Partial<User>): Promise<User | null> {

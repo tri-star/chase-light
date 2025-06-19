@@ -64,66 +64,40 @@ export class DataSourceRepository extends DrizzleBaseRepository<DataSource> {
     filters?: Record<string, unknown>,
     options?: QueryOptions,
   ): Promise<DataSource[]> {
-    // Build separate queries based on filters and options
-    if (filters?.sourceType && filters?.isPrivate !== undefined) {
-      let query = db
-        .select()
-        .from(dataSources)
-        .where(
-          and(
-            eq(dataSources.sourceType, filters.sourceType as string),
-            eq(dataSources.isPrivate, filters.isPrivate as boolean),
-          ),
-        )
+    // Context7のDrizzle ORM推奨パターン: .$dynamic()を使用
+    let query = db.select().from(dataSources).$dynamic()
 
-      if (options?.limit && options?.offset) {
-        return await query.limit(options.limit).offset(options.offset)
-      } else if (options?.limit) {
-        return await query.limit(options.limit)
-      } else if (options?.offset) {
-        return await query.offset(options.offset)
-      }
-      return await query
-    } else if (filters?.sourceType) {
-      let query = db
-        .select()
-        .from(dataSources)
-        .where(eq(dataSources.sourceType, filters.sourceType as string))
-
-      if (options?.limit && options?.offset) {
-        return await query.limit(options.limit).offset(options.offset)
-      } else if (options?.limit) {
-        return await query.limit(options.limit)
-      } else if (options?.offset) {
-        return await query.offset(options.offset)
-      }
-      return await query
-    } else if (filters?.isPrivate !== undefined) {
-      let query = db
-        .select()
-        .from(dataSources)
-        .where(eq(dataSources.isPrivate, filters.isPrivate as boolean))
-
-      if (options?.limit && options?.offset) {
-        return await query.limit(options.limit).offset(options.offset)
-      } else if (options?.limit) {
-        return await query.limit(options.limit)
-      } else if (options?.offset) {
-        return await query.offset(options.offset)
-      }
-      return await query
-    } else {
-      let query = db.select().from(dataSources)
-
-      if (options?.limit && options?.offset) {
-        return await query.limit(options.limit).offset(options.offset)
-      } else if (options?.limit) {
-        return await query.limit(options.limit)
-      } else if (options?.offset) {
-        return await query.offset(options.offset)
-      }
-      return await query
+    // 複数フィルタの適用
+    const whereConditions = []
+    if (filters?.sourceType) {
+      whereConditions.push(
+        eq(dataSources.sourceType, filters.sourceType as string),
+      )
     }
+    if (filters?.isPrivate !== undefined) {
+      whereConditions.push(
+        eq(dataSources.isPrivate, filters.isPrivate as boolean),
+      )
+    }
+
+    if (whereConditions.length > 0) {
+      query = query.where(and(...whereConditions))
+    }
+
+    // オプションの適用
+    if (options?.orderBy === "createdAt") {
+      query = query.orderBy(dataSources.createdAt)
+    }
+
+    if (options?.limit) {
+      query = query.limit(options.limit)
+    }
+
+    if (options?.offset) {
+      query = query.offset(options.offset)
+    }
+
+    return await query
   }
 
   async update(
