@@ -1,10 +1,11 @@
-import { Hono } from "hono"
 import { handle } from "hono/aws-lambda"
+import { createApp } from "./app"
 
-const app = new Hono()
-
-app.get("/", (c) => {
-  return c.text("Hello Hono!")
-})
+/**
+ * AWS Lambda Handler
+ *
+ * OpenAPI対応のHonoアプリケーションをLambda環境で実行
+ */
+const app = createApp()
 
 export const handler = handle(app)

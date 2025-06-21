@@ -1,10 +1,11 @@
-import { z } from "zod/v4"
+import { z } from "@hono/zod-openapi"
 import type {
   GitHubApiOptions,
   GitHubPullRequestOptions,
   GitHubIssueOptions,
 } from "../types/api-options"
 import { GITHUB_USERNAME, GITHUB_REPOSITORY, PAGINATION } from "../constants"
+import { repositorySchema } from "../schemas/repository.schema"
 
 /**
  * DataSource Presentation Schemas
@@ -28,55 +29,91 @@ export const dataSourceSchemas = {
   }),
 
   // リポジトリパラメータ（オーナー/リポジトリ名）
-  repositoryParams: z.object({
-    owner: z
-      .string()
-      .min(GITHUB_USERNAME.MIN_LENGTH, "オーナー名は必須です")
-      .max(
-        GITHUB_USERNAME.MAX_LENGTH,
-        `GitHubオーナー名は${GITHUB_USERNAME.MAX_LENGTH}文字以下である必要があります`,
-      )
-      .regex(
-        GITHUB_USERNAME.PATTERN,
-        "有効なGitHubオーナー名を指定してください",
-      ),
-    repo: z
-      .string()
-      .min(GITHUB_REPOSITORY.MIN_LENGTH, "リポジトリ名は必須です")
-      .max(
-        GITHUB_REPOSITORY.MAX_LENGTH,
-        `GitHubリポジトリ名は${GITHUB_REPOSITORY.MAX_LENGTH}文字以下である必要があります`,
-      )
-      .regex(GITHUB_REPOSITORY.PATTERN, GITHUB_REPOSITORY.ERROR_MESSAGE),
-  }),
+  repositoryParams: z
+    .object({
+      owner: z
+        .string()
+        .min(GITHUB_USERNAME.MIN_LENGTH, "オーナー名は必須です")
+        .max(
+          GITHUB_USERNAME.MAX_LENGTH,
+          `GitHubオーナー名は${GITHUB_USERNAME.MAX_LENGTH}文字以下である必要があります`,
+        )
+        .regex(
+          GITHUB_USERNAME.PATTERN,
+          "有効なGitHubオーナー名を指定してください",
+        )
+        .openapi({
+          param: {
+            name: "owner",
+            in: "path",
+          },
+          example: "facebook",
+          description: "GitHubリポジトリのオーナー名（ユーザー名または組織名）",
+        }),
+      repo: z
+        .string()
+        .min(GITHUB_REPOSITORY.MIN_LENGTH, "リポジトリ名は必須です")
+        .max(
+          GITHUB_REPOSITORY.MAX_LENGTH,
+          `GitHubリポジトリ名は${GITHUB_REPOSITORY.MAX_LENGTH}文字以下である必要があります`,
+        )
+        .regex(GITHUB_REPOSITORY.PATTERN, GITHUB_REPOSITORY.ERROR_MESSAGE)
+        .openapi({
+          param: {
+            name: "repo",
+            in: "path",
+          },
+          example: "react",
+          description: "GitHubリポジトリ名",
+        }),
+    })
+    .openapi("RepositoryParams"),
 
   /**
    * Query Parameters
    */
   // 基本的なページングクエリ
-  basicPaginationQuery: z.object({
-    page: z
-      .string()
-      .optional()
-      .transform((val) => (val ? Number(val) : PAGINATION.MIN_PAGE))
-      .refine(
-        (val) => val >= PAGINATION.MIN_PAGE,
-        `ページ番号は${PAGINATION.MIN_PAGE}以上である必要があります`,
-      )
-      .refine(
-        (val) => val <= PAGINATION.MAX_PAGE,
-        `ページ番号は${PAGINATION.MAX_PAGE}以下である必要があります`,
-      ),
-    perPage: z
-      .string()
-      .optional()
-      .transform((val) => (val ? Number(val) : PAGINATION.DEFAULT_PER_PAGE))
-      .refine(
-        (val) =>
-          val >= PAGINATION.MIN_PER_PAGE && val <= PAGINATION.MAX_PER_PAGE,
-        `1ページあたりの件数は${PAGINATION.MIN_PER_PAGE}から${PAGINATION.MAX_PER_PAGE}の間で指定してください`,
-      ),
-  }),
+  basicPaginationQuery: z
+    .object({
+      page: z
+        .string()
+        .optional()
+        .transform((val) => (val ? Number(val) : PAGINATION.MIN_PAGE))
+        .refine(
+          (val) => val >= PAGINATION.MIN_PAGE,
+          `ページ番号は${PAGINATION.MIN_PAGE}以上である必要があります`,
+        )
+        .refine(
+          (val) => val <= PAGINATION.MAX_PAGE,
+          `ページ番号は${PAGINATION.MAX_PAGE}以下である必要があります`,
+        )
+        .openapi({
+          param: {
+            name: "page",
+            in: "query",
+          },
+          example: 1,
+          description: `ページ番号（${PAGINATION.MIN_PAGE}-${PAGINATION.MAX_PAGE}）`,
+        }),
+      perPage: z
+        .string()
+        .optional()
+        .transform((val) => (val ? Number(val) : PAGINATION.DEFAULT_PER_PAGE))
+        .refine(
+          (val) =>
+            val >= PAGINATION.MIN_PER_PAGE && val <= PAGINATION.MAX_PER_PAGE,
+          `1ページあたりの件数は${PAGINATION.MIN_PER_PAGE}から${PAGINATION.MAX_PER_PAGE}の間で指定してください`,
+        )
+        .openapi({
+          param: {
+            name: "perPage",
+            in: "query",
+          },
+          example: PAGINATION.DEFAULT_PER_PAGE,
+          description: `1ページあたりの件数（${PAGINATION.MIN_PER_PAGE}-${PAGINATION.MAX_PER_PAGE}）`,
+        }),
+    })
+    .openapi("BasicPaginationQuery"),
 
   // Pull Request用クエリパラメータ
   pullRequestQuery: z.object({
@@ -175,28 +212,119 @@ export const dataSourceSchemas = {
   // API レスポンス共通フォーマット
   apiResponse: <T>(dataSchema: z.ZodType<T>) =>
     z.object({
-      success: z.boolean(),
+      success: z.boolean().openapi({
+        example: true,
+        description: "API呼び出しの成功・失敗を示すフラグ",
+      }),
       data: dataSchema,
       meta: z
         .object({
-          page: z.number().optional(),
-          perPage: z.number().optional(),
-          total: z.number().optional(),
-          hasNext: z.boolean().optional(),
-          hasPrev: z.boolean().optional(),
+          page: z.number().optional().openapi({
+            example: 1,
+            description: "現在のページ番号",
+          }),
+          perPage: z.number().optional().openapi({
+            example: 30,
+            description: "1ページあたりの件数",
+          }),
+          total: z.number().optional().openapi({
+            example: 150,
+            description: "総件数",
+          }),
+          hasNext: z.boolean().optional().openapi({
+            example: true,
+            description: "次のページが存在するかどうか",
+          }),
+          hasPrev: z.boolean().optional().openapi({
+            example: false,
+            description: "前のページが存在するかどうか",
+          }),
         })
-        .optional(),
+        .optional()
+        .openapi({
+          description: "ページネーション情報",
+        }),
     }),
 
   // エラーレスポンス
-  errorResponse: z.object({
-    success: z.literal(false),
-    error: z.object({
-      code: z.string(),
-      message: z.string(),
-      details: z.any().optional(),
-    }),
-  }),
+  errorResponse: z
+    .object({
+      success: z.literal(false).openapi({
+        example: false,
+        description: "エラー時は常にfalse",
+      }),
+      error: z
+        .object({
+          code: z.string().openapi({
+            example: "GITHUB_API_ERROR",
+            description: "エラーコード",
+          }),
+          message: z.string().openapi({
+            example: "GitHub APIエラーが発生しました",
+            description: "エラーメッセージ",
+          }),
+          details: z.any().optional().openapi({
+            description: "エラーの詳細情報",
+          }),
+        })
+        .openapi({
+          description: "エラー情報",
+        }),
+    })
+    .openapi("ErrorResponse"),
+
+  /**
+   * データ型別レスポンススキーマ
+   */
+  // リポジトリ一覧レスポンス
+  repositoriesResponse: z
+    .object({
+      success: z.boolean().openapi({
+        example: true,
+        description: "API呼び出しの成功・失敗を示すフラグ",
+      }),
+      data: z.array(repositorySchema).openapi({
+        description: "GitHubリポジトリのリスト",
+      }),
+      meta: z
+        .object({
+          page: z.number().openapi({
+            example: 1,
+            description: "現在のページ番号",
+          }),
+          perPage: z.number().openapi({
+            example: 30,
+            description: "1ページあたりの件数",
+          }),
+          total: z.number().openapi({
+            example: 150,
+            description: "総件数",
+          }),
+          hasNext: z.boolean().openapi({
+            example: true,
+            description: "次のページが存在するかどうか",
+          }),
+          hasPrev: z.boolean().openapi({
+            example: false,
+            description: "前のページが存在するかどうか",
+          }),
+        })
+        .openapi({
+          description: "ページネーション情報",
+        }),
+    })
+    .openapi("RepositoriesResponse"),
+
+  // 単一リポジトリレスポンス
+  repositoryResponse: z
+    .object({
+      success: z.boolean().openapi({
+        example: true,
+        description: "API呼び出しの成功・失敗を示すフラグ",
+      }),
+      data: repositorySchema,
+    })
+    .openapi("RepositoryResponse"),
 }
 
 // 型推論用のエクスポート

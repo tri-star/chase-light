@@ -364,7 +364,7 @@ describe("GitHubRepoService", () => {
       [undefined, "undefinedユーザー名での呼び出し"],
       ["", "空文字ユーザー名での呼び出し"],
       ["user-with-special-chars!@#", "特殊文字を含むユーザー名での呼び出し"],
-    ])("getWatchedRepositories: %s - %s", async (username, _description) => {
+    ])("getWatchedRepositories: %s - %s", async (_username, _description) => {
       // Note: _description parameter is used only for test case naming
       // Arrange
       stubService.setWatchedRepositories([])
