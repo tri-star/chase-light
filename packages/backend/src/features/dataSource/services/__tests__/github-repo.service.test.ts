@@ -36,11 +36,7 @@ describe("GitHubRepoService", () => {
         await githubService.getWatchedRepositories("testuser")
 
       // Assert
-      expect(repositories).toHaveLength(3)
       expect(repositories).toEqual(expectedRepositories)
-      expect(repositories[0].name).toBe("repo-1")
-      expect(repositories[1].name).toBe("repo-2")
-      expect(repositories[2].name).toBe("repo-3")
     })
 
     test("空のリポジトリリストを正常に処理できる", async () => {
@@ -67,8 +63,13 @@ describe("GitHubRepoService", () => {
 
       // Assert
       expect(repositories).toHaveLength(100)
-      expect(repositories[0].id).toBe(1)
-      expect(repositories[99].id).toBe(100)
+      expect({
+        firstId: repositories[0].id,
+        lastId: repositories[99].id,
+      }).toEqual({
+        firstId: 1,
+        lastId: 100,
+      })
     })
 
     test.each([
@@ -112,8 +113,6 @@ describe("GitHubRepoService", () => {
 
       // Assert
       expect(repository).toEqual(expectedRepository)
-      expect(repository.name).toBe("specific-repo")
-      expect(repository.description).toBe("A specific repository for testing")
     })
 
     test("存在しないリポジトリの場合はエラーをスローする", async () => {
@@ -140,9 +139,15 @@ describe("GitHubRepoService", () => {
       const repository = await githubService.getRepositoryDetails(owner, repo)
 
       // Assert
-      expect(repository.name).toBe(repo)
-      expect(repository.fullName).toBe(`${owner}/${repo}`)
-      expect(repository.owner.login).toBe(owner)
+      expect({
+        name: repository.name,
+        fullName: repository.fullName,
+        ownerLogin: repository.owner.login,
+      }).toEqual({
+        name: repo,
+        fullName: `${owner}/${repo}`,
+        ownerLogin: owner,
+      })
     })
   })
 
@@ -163,11 +168,7 @@ describe("GitHubRepoService", () => {
       )
 
       // Assert
-      expect(releases).toHaveLength(3)
       expect(releases).toEqual(expectedReleases)
-      expect(releases[0].tagName).toBe("v1.0.0")
-      expect(releases[1].tagName).toBe("v1.1.0")
-      expect(releases[2].tagName).toBe("v1.2.0")
     })
 
     test("リリースが存在しないリポジトリでは空配列を返す", async () => {
@@ -233,10 +234,7 @@ describe("GitHubRepoService", () => {
       )
 
       // Assert
-      expect(pullRequests).toHaveLength(2)
       expect(pullRequests).toEqual(expectedPullRequests)
-      expect(pullRequests[0].number).toBe(1)
-      expect(pullRequests[1].number).toBe(2)
     })
 
     test.each([
@@ -294,10 +292,7 @@ describe("GitHubRepoService", () => {
       )
 
       // Assert
-      expect(issues).toHaveLength(2)
       expect(issues).toEqual(expectedIssues)
-      expect(issues[0].number).toBe(1)
-      expect(issues[1].number).toBe(2)
     })
 
     test.each([
@@ -481,10 +476,15 @@ describe("GitHubRepoService", () => {
       const summary = stubService.getSetupSummary()
 
       // Assert
-      expect(summary.watchedRepositoriesCount).toBe(2)
-      expect(summary.releasesCount).toBe(1)
-      expect(summary.errorMethods).toContain("getRepositoryDetails")
-      expect(summary.executionDelay).toBe(50)
+      expect(summary).toEqual({
+        watchedRepositoriesCount: 2,
+        repositoryDetailsCount: 0,
+        releasesCount: 1,
+        pullRequestsCount: 0,
+        issuesCount: 0,
+        errorMethods: ["getRepositoryDetails"],
+        executionDelay: 50,
+      })
     })
 
     test("リセット後は全ての設定がクリアされる", () => {
@@ -499,10 +499,15 @@ describe("GitHubRepoService", () => {
       const summary = stubService.getSetupSummary()
 
       // Assert: 全てがクリアされている
-      expect(summary.watchedRepositoriesCount).toBe(0)
-      expect(summary.releasesCount).toBe(0)
-      expect(summary.errorMethods).toHaveLength(0)
-      expect(summary.executionDelay).toBe(0)
+      expect(summary).toEqual({
+        watchedRepositoriesCount: 0,
+        repositoryDetailsCount: 0,
+        releasesCount: 0,
+        pullRequestsCount: 0,
+        issuesCount: 0,
+        errorMethods: [],
+        executionDelay: 0,
+      })
     })
   })
 })
