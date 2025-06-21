@@ -13,6 +13,7 @@ import {
   GitHubAuthenticationError,
 } from "../errors/github-api.error"
 import { GitHubApiParseError } from "../errors/github-parse.error"
+import { paginate } from "../../../shared/utils/pagination"
 
 /**
  * DataSource Routes (GitHub API Integration)
@@ -38,21 +39,17 @@ export const createDataSourceRoutes = (githubService: IGitHubRepoService) => {
         const repositories =
           await githubService.getWatchedRepositories(username)
 
-        // シンプルなクライアントサイドページング（GitHub APIの制限に合わせて）
-        const startIndex = (query.page - 1) * query.perPage
-        const endIndex = startIndex + query.perPage
-        const paginatedRepositories = repositories.slice(startIndex, endIndex)
+        // Use shared pagination helper
+        const { paginatedItems, meta } = paginate(
+          repositories,
+          query.page,
+          query.perPage,
+        )
 
         return c.json({
           success: true,
-          data: paginatedRepositories,
-          meta: {
-            page: query.page,
-            perPage: query.perPage,
-            total: repositories.length,
-            hasNext: endIndex < repositories.length,
-            hasPrev: query.page > 1,
-          },
+          data: paginatedItems,
+          meta,
         })
       } catch (error) {
         return handleError(c, error)
