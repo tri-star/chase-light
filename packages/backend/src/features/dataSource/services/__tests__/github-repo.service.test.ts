@@ -32,8 +32,7 @@ describe("GitHubRepoService", () => {
       stubService.setWatchedRepositories(expectedRepositories)
 
       // Act
-      const repositories =
-        await githubService.getWatchedRepositories("testuser")
+      const repositories = await githubService.getWatchedRepositories()
 
       // Assert
       expect(repositories).toEqual(expectedRepositories)
@@ -44,8 +43,7 @@ describe("GitHubRepoService", () => {
       stubService.setWatchedRepositories([])
 
       // Act
-      const repositories =
-        await githubService.getWatchedRepositories("testuser")
+      const repositories = await githubService.getWatchedRepositories()
 
       // Assert
       expect(repositories).toHaveLength(0)
@@ -58,8 +56,7 @@ describe("GitHubRepoService", () => {
       stubService.setWatchedRepositories(largeRepositoryList)
 
       // Act
-      const repositories =
-        await githubService.getWatchedRepositories("testuser")
+      const repositories = await githubService.getWatchedRepositories()
 
       // Assert
       expect(repositories).toHaveLength(100)
@@ -85,9 +82,9 @@ describe("GitHubRepoService", () => {
       stubService.setErrorForMethod("getWatchedRepositories", error)
 
       // Act & Assert
-      await expect(
-        githubService.getWatchedRepositories("testuser"),
-      ).rejects.toThrow(error.message)
+      await expect(githubService.getWatchedRepositories()).rejects.toThrow(
+        error.message,
+      )
     })
   })
 
@@ -374,9 +371,7 @@ describe("GitHubRepoService", () => {
 
       // Act & Assert
       // null/undefinedの場合は実際の実装に依存するが、スタブでは文字列として処理
-      const result = await githubService.getWatchedRepositories(
-        username as string,
-      )
+      const result = await githubService.getWatchedRepositories()
       expect(result).toEqual([])
     })
 
@@ -413,9 +408,9 @@ describe("GitHubRepoService", () => {
       stubService.setErrorForMethod("getRepositoryReleases", apiError)
 
       // Act & Assert
-      await expect(
-        githubService.getWatchedRepositories("testuser"),
-      ).rejects.toThrow("Service unavailable")
+      await expect(githubService.getWatchedRepositories()).rejects.toThrow(
+        "Service unavailable",
+      )
       await expect(
         githubService.getRepositoryReleases("testuser", "test-repo"),
       ).rejects.toThrow("Service unavailable")
@@ -433,8 +428,7 @@ describe("GitHubRepoService", () => {
       )
 
       // Act & Assert: エラーが発生せずに正常動作
-      const repositories =
-        await githubService.getWatchedRepositories("testuser")
+      const repositories = await githubService.getWatchedRepositories()
       expect(repositories).toHaveLength(1)
     })
   })
@@ -447,7 +441,7 @@ describe("GitHubRepoService", () => {
 
       // Act
       const startTime = Date.now()
-      await githubService.getWatchedRepositories("testuser")
+      await githubService.getWatchedRepositories()
       const endTime = Date.now()
 
       // Assert: 遅延が適用されている

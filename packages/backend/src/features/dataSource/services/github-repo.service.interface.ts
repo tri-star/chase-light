@@ -11,11 +11,10 @@ import type { Issue } from "../schemas/issue.schema"
  */
 export interface IGitHubRepoService {
   /**
-   * ユーザーがwatch済みのリポジトリ一覧を取得
-   * @param username GitHubユーザー名
+   * 認証ユーザーがwatch済みのリポジトリ一覧を取得
    * @returns Repository配列
    */
-  getWatchedRepositories(username: string): Promise<Repository[]>
+  getWatchedRepositories(): Promise<Repository[]>
 
   /**
    * 指定リポジトリの詳細情報を取得

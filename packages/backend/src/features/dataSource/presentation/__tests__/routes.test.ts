@@ -21,8 +21,8 @@ describe("DataSource Routes", () => {
     )
   })
 
-  describe("GET /api/datasource/repositories/watched/:username", () => {
-    test("正常なリクエストでユーザーのwatch済みリポジトリ一覧を返す", async () => {
+  describe("GET /api/datasource/repositories/watched", () => {
+    test("正常なリクエストで認証ユーザーのwatch済みリポジトリ一覧を返す", async () => {
       const mockRepositories = [
         TestDataBuilder.createRepository(),
         TestDataBuilder.createRepository({
@@ -32,9 +32,7 @@ describe("DataSource Routes", () => {
       ]
       githubServiceStub.setWatchedRepositories(mockRepositories)
 
-      const res = await app.request(
-        "/api/datasource/repositories/watched/testuser",
-      )
+      const res = await app.request("/api/datasource/repositories/watched")
 
       expect(res.status).toBe(200)
       const json = await res.json()
@@ -92,9 +90,7 @@ describe("DataSource Routes", () => {
         new GitHubApiError("User not found", 404),
       )
 
-      const res = await app.request(
-        "/api/datasource/repositories/watched/nonexistentuser",
-      )
+      const res = await app.request("/api/datasource/repositories/watched")
 
       expect(res.status).toBe(404)
       const json = await res.json()
@@ -322,9 +318,7 @@ describe("DataSource Routes", () => {
         new GitHubAuthenticationError(),
       )
 
-      const res = await app.request(
-        "/api/datasource/repositories/watched/testuser",
-      )
+      const res = await app.request("/api/datasource/repositories/watched")
 
       expect(res.status).toBe(401)
       const json = await res.json()
@@ -342,9 +336,7 @@ describe("DataSource Routes", () => {
         ),
       )
 
-      const res = await app.request(
-        "/api/datasource/repositories/watched/testuser",
-      )
+      const res = await app.request("/api/datasource/repositories/watched")
 
       expect(res.status).toBe(429)
       const json = await res.json()
@@ -360,9 +352,7 @@ describe("DataSource Routes", () => {
         new Error("Unexpected error"),
       )
 
-      const res = await app.request(
-        "/api/datasource/repositories/watched/testuser",
-      )
+      const res = await app.request("/api/datasource/repositories/watched")
 
       expect(res.status).toBe(500)
       const json = await res.json()

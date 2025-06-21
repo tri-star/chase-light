@@ -31,7 +31,7 @@ export class GitHubRepoService implements IGitHubRepoService {
     })
   }
 
-  async getWatchedRepositories(_username: string): Promise<Repository[]> {
+  async getWatchedRepositories(): Promise<Repository[]> {
     try {
       const response =
         await this.octokit.rest.activity.listWatchedReposForAuthenticatedUser({

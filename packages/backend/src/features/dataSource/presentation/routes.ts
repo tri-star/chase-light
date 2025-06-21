@@ -24,20 +24,17 @@ export const createDataSourceRoutes = (githubService: IGitHubRepoService) => {
   const app = new Hono()
 
   /**
-   * GET /repositories/watched/:username
-   * ユーザーがwatch済みのリポジトリ一覧を取得
+   * GET /repositories/watched
+   * 認証ユーザーがwatch済みのリポジトリ一覧を取得
    */
   app.get(
-    "/repositories/watched/:username",
-    zValidator("param", dataSourceSchemas.usernameParams),
+    "/repositories/watched",
     zValidator("query", dataSourceSchemas.basicPaginationQuery),
     async (c) => {
       try {
-        const { username } = c.req.valid("param")
         const query = c.req.valid("query")
 
-        const repositories =
-          await githubService.getWatchedRepositories(username)
+        const repositories = await githubService.getWatchedRepositories()
 
         // Use shared pagination helper
         const { paginatedItems, meta } = paginate(

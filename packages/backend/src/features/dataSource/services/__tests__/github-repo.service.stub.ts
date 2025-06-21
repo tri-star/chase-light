@@ -101,7 +101,7 @@ export class GitHubRepoServiceStub implements IGitHubRepoService {
   /**
    * IGitHubRepoService インターフェース実装
    */
-  async getWatchedRepositories(_username: string): Promise<Repository[]> {
+  async getWatchedRepositories(): Promise<Repository[]> {
     await this.simulateDelay()
 
     const error = this.shouldThrowError["getWatchedRepositories"]
