@@ -4,6 +4,7 @@ import type {
   GitHubPullRequestOptions,
   GitHubIssueOptions,
 } from "../types/api-options"
+import { GITHUB_USERNAME, GITHUB_REPOSITORY, PAGINATION } from "../constants"
 
 /**
  * DataSource Presentation Schemas
@@ -18,29 +19,35 @@ export const dataSourceSchemas = {
   usernameParams: z.object({
     username: z
       .string()
-      .min(1, "ユーザー名は必須です")
-      .max(39, "GitHubユーザー名は39文字以下である必要があります")
-      .regex(
-        /^[a-zA-Z0-9]([a-zA-Z0-9]|-(?!-))*[a-zA-Z0-9]$|^[a-zA-Z0-9]$/,
-        "有効なGitHubユーザー名を指定してください",
-      ),
+      .min(GITHUB_USERNAME.MIN_LENGTH, "ユーザー名は必須です")
+      .max(
+        GITHUB_USERNAME.MAX_LENGTH,
+        `GitHubユーザー名は${GITHUB_USERNAME.MAX_LENGTH}文字以下である必要があります`,
+      )
+      .regex(GITHUB_USERNAME.PATTERN, GITHUB_USERNAME.ERROR_MESSAGE),
   }),
 
   // リポジトリパラメータ（オーナー/リポジトリ名）
   repositoryParams: z.object({
     owner: z
       .string()
-      .min(1, "オーナー名は必須です")
-      .max(39, "GitHubオーナー名は39文字以下である必要があります")
+      .min(GITHUB_USERNAME.MIN_LENGTH, "オーナー名は必須です")
+      .max(
+        GITHUB_USERNAME.MAX_LENGTH,
+        `GitHubオーナー名は${GITHUB_USERNAME.MAX_LENGTH}文字以下である必要があります`,
+      )
       .regex(
-        /^[a-zA-Z0-9]([a-zA-Z0-9]|-(?!-))*[a-zA-Z0-9]$|^[a-zA-Z0-9]$/,
+        GITHUB_USERNAME.PATTERN,
         "有効なGitHubオーナー名を指定してください",
       ),
     repo: z
       .string()
-      .min(1, "リポジトリ名は必須です")
-      .max(100, "GitHubリポジトリ名は100文字以下である必要があります")
-      .regex(/^[a-zA-Z0-9._-]+$/, "有効なGitHubリポジトリ名を指定してください"),
+      .min(GITHUB_REPOSITORY.MIN_LENGTH, "リポジトリ名は必須です")
+      .max(
+        GITHUB_REPOSITORY.MAX_LENGTH,
+        `GitHubリポジトリ名は${GITHUB_REPOSITORY.MAX_LENGTH}文字以下である必要があります`,
+      )
+      .regex(GITHUB_REPOSITORY.PATTERN, GITHUB_REPOSITORY.ERROR_MESSAGE),
   }),
 
   /**
@@ -51,16 +58,23 @@ export const dataSourceSchemas = {
     page: z
       .string()
       .optional()
-      .transform((val) => (val ? Number(val) : 1))
-      .refine((val) => val >= 1, "ページ番号は1以上である必要があります")
-      .refine((val) => val <= 100, "ページ番号は100以下である必要があります"),
+      .transform((val) => (val ? Number(val) : PAGINATION.MIN_PAGE))
+      .refine(
+        (val) => val >= PAGINATION.MIN_PAGE,
+        `ページ番号は${PAGINATION.MIN_PAGE}以上である必要があります`,
+      )
+      .refine(
+        (val) => val <= PAGINATION.MAX_PAGE,
+        `ページ番号は${PAGINATION.MAX_PAGE}以下である必要があります`,
+      ),
     perPage: z
       .string()
       .optional()
-      .transform((val) => (val ? Number(val) : 30))
+      .transform((val) => (val ? Number(val) : PAGINATION.DEFAULT_PER_PAGE))
       .refine(
-        (val) => val >= 1 && val <= 100,
-        "1ページあたりの件数は1から100の間で指定してください",
+        (val) =>
+          val >= PAGINATION.MIN_PER_PAGE && val <= PAGINATION.MAX_PER_PAGE,
+        `1ページあたりの件数は${PAGINATION.MIN_PER_PAGE}から${PAGINATION.MAX_PER_PAGE}の間で指定してください`,
       ),
   }),
 
@@ -69,16 +83,23 @@ export const dataSourceSchemas = {
     page: z
       .string()
       .optional()
-      .transform((val) => (val ? Number(val) : 1))
-      .refine((val) => val >= 1, "ページ番号は1以上である必要があります")
-      .refine((val) => val <= 100, "ページ番号は100以下である必要があります"),
+      .transform((val) => (val ? Number(val) : PAGINATION.MIN_PAGE))
+      .refine(
+        (val) => val >= PAGINATION.MIN_PAGE,
+        `ページ番号は${PAGINATION.MIN_PAGE}以上である必要があります`,
+      )
+      .refine(
+        (val) => val <= PAGINATION.MAX_PAGE,
+        `ページ番号は${PAGINATION.MAX_PAGE}以下である必要があります`,
+      ),
     perPage: z
       .string()
       .optional()
-      .transform((val) => (val ? Number(val) : 30))
+      .transform((val) => (val ? Number(val) : PAGINATION.DEFAULT_PER_PAGE))
       .refine(
-        (val) => val >= 1 && val <= 100,
-        "1ページあたりの件数は1から100の間で指定してください",
+        (val) =>
+          val >= PAGINATION.MIN_PER_PAGE && val <= PAGINATION.MAX_PER_PAGE,
+        `1ページあたりの件数は${PAGINATION.MIN_PER_PAGE}から${PAGINATION.MAX_PER_PAGE}の間で指定してください`,
       ),
     state: z
       .enum(
@@ -105,16 +126,23 @@ export const dataSourceSchemas = {
     page: z
       .string()
       .optional()
-      .transform((val) => (val ? Number(val) : 1))
-      .refine((val) => val >= 1, "ページ番号は1以上である必要があります")
-      .refine((val) => val <= 100, "ページ番号は100以下である必要があります"),
+      .transform((val) => (val ? Number(val) : PAGINATION.MIN_PAGE))
+      .refine(
+        (val) => val >= PAGINATION.MIN_PAGE,
+        `ページ番号は${PAGINATION.MIN_PAGE}以上である必要があります`,
+      )
+      .refine(
+        (val) => val <= PAGINATION.MAX_PAGE,
+        `ページ番号は${PAGINATION.MAX_PAGE}以下である必要があります`,
+      ),
     perPage: z
       .string()
       .optional()
-      .transform((val) => (val ? Number(val) : 30))
+      .transform((val) => (val ? Number(val) : PAGINATION.DEFAULT_PER_PAGE))
       .refine(
-        (val) => val >= 1 && val <= 100,
-        "1ページあたりの件数は1から100の間で指定してください",
+        (val) =>
+          val >= PAGINATION.MIN_PER_PAGE && val <= PAGINATION.MAX_PER_PAGE,
+        `1ページあたりの件数は${PAGINATION.MIN_PER_PAGE}から${PAGINATION.MAX_PER_PAGE}の間で指定してください`,
       ),
     state: z
       .enum(
