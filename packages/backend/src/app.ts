@@ -1,0 +1,73 @@
+import { OpenAPIHono } from "@hono/zod-openapi"
+import { cors } from "hono/cors"
+import { logger } from "hono/logger"
+import { Scalar } from "@scalar/hono-api-reference"
+import { createDataSourceRoutes } from "./features/dataSource/presentation/routes"
+import { GitHubRepoService } from "./features/dataSource/services/github-repo.service"
+
+/**
+ * Chase Light Backend Application
+ *
+ * OpenAPI/Swagger対応のHonoアプリケーション
+ * Scalarを使用したモダンなAPI仕様書UI
+ */
+export const createApp = () => {
+  const app = new OpenAPIHono()
+
+  // ミドルウェア設定
+  app.use("*", logger())
+  app.use(
+    "*",
+    cors({
+      origin: process.env.FRONTEND_URL?.split(",") || ["http://localhost:3000"],
+      credentials: true,
+    }),
+  )
+
+  // ヘルスチェックエンドポイント
+  app.get("/health", (c) =>
+    c.json({
+      status: "ok",
+      timestamp: new Date().toISOString(),
+      version: "1.0.0",
+    }),
+  )
+
+  // GitHub API サービス初期化（環境変数から）
+  const githubToken = process.env.GITHUB_TOKEN
+  if (!githubToken) {
+    throw new Error("GITHUB_TOKEN environment variable is required")
+  }
+  const githubService = new GitHubRepoService(githubToken)
+
+  // DataSource API routes
+  app.route("/api/datasource", createDataSourceRoutes(githubService))
+
+  // OpenAPI仕様書エンドポイント
+  app.doc("/doc", {
+    openapi: "3.0.0",
+    info: {
+      version: "1.0.0",
+      title: "Chase Light Data Source API",
+      description:
+        "GitHub リポジトリデータ取得API - TypeScript + Hono + Zod + OpenAPI",
+    },
+    servers: [
+      {
+        url: process.env.API_BASE_URL || "http://localhost:3000",
+        description: "Chase Light API Server",
+      },
+    ],
+  })
+
+  // Scalar API仕様書UI
+  app.get(
+    "/scalar",
+    Scalar({
+      url: "/doc",
+      theme: "alternate", // モダンなテーマ
+    }),
+  )
+
+  return app
+}
