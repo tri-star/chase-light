@@ -1,15 +1,14 @@
 import type {
   Repository,
-  Release,
-  PullRequest,
-  Issue,
   RepositoryOwner,
   License,
-  Label,
-  Milestone,
-  ReleaseAsset,
+} from "../../schemas/repository.schema"
+import type { Release, ReleaseAsset } from "../../schemas/release.schema"
+import type {
+  PullRequest,
   PullRequestBranch,
-} from "../../types"
+} from "../../schemas/pull-request.schema"
+import type { Issue, Label, Milestone } from "../../schemas/issue.schema"
 
 /**
  * Test Data Builder

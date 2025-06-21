@@ -6,8 +6,8 @@ import {
   GitHubApiError,
   GitHubRateLimitError,
   GitHubAuthenticationError,
-  GitHubIssueOptions,
-} from "../../types"
+} from "../../errors/github-api.error"
+import type { GitHubIssueOptions } from "../../types/api-options"
 
 /**
  * GitHubRepoService Unit Tests

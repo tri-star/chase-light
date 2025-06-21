@@ -1,4 +1,7 @@
-import type { Repository, Release, PullRequest, Issue } from "../types"
+import type { Repository } from "../schemas/repository.schema"
+import type { Release } from "../schemas/release.schema"
+import type { PullRequest } from "../schemas/pull-request.schema"
+import type { Issue } from "../schemas/issue.schema"
 
 /**
  * GitHub Repository Service Interface

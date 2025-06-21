@@ -1,12 +1,12 @@
 import type { IGitHubRepoService } from "../github-repo.service.interface"
+import type { Repository } from "../../schemas/repository.schema"
+import type { Release } from "../../schemas/release.schema"
+import type { PullRequest } from "../../schemas/pull-request.schema"
+import type { Issue } from "../../schemas/issue.schema"
 import type {
-  Repository,
-  Release,
-  PullRequest,
-  Issue,
   GitHubPullRequestOptions,
   GitHubIssueOptions,
-} from "../../types"
+} from "../../types/api-options"
 
 /**
  * GitHub Repository Service Stub Implementation
