@@ -58,14 +58,13 @@ GET /api/datasource/repositories/{owner}/{repo}/issues
 src/
 ├── app.ts                    # アプリケーションエントリポイント
 ├── features/                 # 機能別実装
-│   └── dataSource/          # GitHub API統合
+│   └── [feature名]/         # GitHub API統合
 │       ├── presentation/    # HTTP層 (routes, schemas)
 │       ├── services/        # ビジネスロジック
 │       ├── repositories/    # データアクセス (未実装)
 │       ├── schemas/         # Zodスキーマ定義
 │       ├── parsers/         # データ変換処理
-│       ├── errors/          # カスタムエラークラス
-│       └── types/           # TypeScript型定義
+│       └── errors/          # カスタムエラークラス
 ├── shared/                  # 共通ユーティリティ
 │   └── utils/              # ヘルパー関数
 └── db/                     # データベース関連 (将来拡張)
@@ -95,17 +94,7 @@ pnpm test:coverage
 
 ### テスト構成
 
-- **ユニットテスト**: サービス層とパーサーのテスト
-- **統合テスト**: エンドポイント全体のテスト
-- **スタブ**: GitHubAPIを使わないテスト環境
-
-```
-__tests__/
-├── services/           # サービス層テスト
-├── presentation/       # エンドポイントテスト
-├── schemas/            # スキーマバリデーションテスト
-└── parsers/            # データ変換テスト
-```
+[ADR003-testing.md](docs/adr/ADR003-testing.md) 参照
 
 ## 🔧 開発
 
@@ -118,7 +107,7 @@ pnpm dev
 # TypeScript型チェック
 pnpm lint:type
 
-# ESLint実行
+# ESLint実行 + TypeScript型チェック
 pnpm lint
 
 # コードフォーマット (Biome)
@@ -156,7 +145,7 @@ pnpm start
 
    ```bash
    # 型チェック
-   pnpm lint:type
+   pnpm lint
 
    # テスト実行
    pnpm test
@@ -189,41 +178,6 @@ src/features/dataSource/presentation/routes/new-entity/
 src/features/dataSource/presentation/routes.ts  # route追加
 ```
 
-#### 2. 新機能の実装例
-
-```typescript
-// schemas/new-entity.schema.ts
-import { z } from "@hono/zod-openapi";
-
-export const newEntitySchema = z
-  .object({
-    id: z.number().int().positive(),
-    name: z.string().min(1),
-    // ... フィールド定義
-  })
-  .openapi("NewEntity");
-
-export type NewEntity = z.infer<typeof newEntitySchema>;
-```
-
-```typescript
-// services/github-repo.service.ts (メソッド追加)
-async getNewEntity(owner: string, repo: string): Promise<NewEntity[]> {
-  try {
-    const response = await this.octokit.rest.repos.getNewEntity({
-      owner,
-      repo
-    })
-
-    return response.data.map(item =>
-      GitHubApiParser.parseNewEntity(item)
-    )
-  } catch (error) {
-    this.handleGitHubError(error, 'getNewEntity')
-  }
-}
-```
-
 ## 🚀 デプロイ
 
 ### 環境別設定
@@ -248,7 +202,7 @@ GITHUB_TOKEN=your_production_token
 
 ```dockerfile
 # Dockerfile (例)
-FROM node:18-alpine
+FROM public.ecr.aws/docker/library/node:24-bookworm
 
 WORKDIR /app
 COPY package*.json ./
