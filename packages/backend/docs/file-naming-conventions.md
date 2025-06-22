@@ -193,6 +193,9 @@ Angular（2016年～）とNestJS（2017年～）が確立した命名規則で�
 | DTO        | `[用途].dto.ts`                  | `create-user.dto.ts`           |
 | Interface  | `[名前].interface.ts`            | `user-repository.interface.ts` |
 | Type       | `[用途].types.ts`                | `api.types.ts`                 |
+| Schema     | `[データ名].schema.ts`           | `repository.schema.ts`         |
+| Parser     | `[データソース名].parser.ts`     | `github-api.parser.ts`         |
+| Error      | `[用途].error.ts`                | `github-parse.error.ts`        |
 
 ### 機能名の命名規則
 
@@ -207,11 +210,101 @@ features/[機能名]/
 ├── services/          # ビジネスロジック
 ├── repositories/      # データアクセス
 ├── presentation/      # HTTP層
+├── schemas/          # Zodスキーマ定義
+├── parsers/          # データ変換処理
+├── errors/           # カスタムエラークラス
 ├── domain/           # ドメインモデル（必要に応じて）
 └── __tests__/        # テスト
     ├── services/
     ├── repositories/
+    ├── schemas/
+    ├── parsers/
     └── presentation/
+```
+
+### 新パターン: Zod v4 + Parser Architecture
+
+**背景**: 従来の`as`型キャストによる型安全性の問題を解決するため、Zod v4スキーマ + Parser クラスによるアーキテクチャを採用。
+
+#### スキーマ設計パターン
+
+```typescript
+// features/dataSource/schemas/repository.schema.ts
+// Core スキーマ（内部ドメインオブジェクト用）
+export const repositorySchema = z.object({
+  id: z.number().int().positive(),
+  name: z.string().min(1),
+  fullName: z.string().min(1),  // camelCase
+  // ...
+})
+
+// GitHub API スキーマ（外部API固有）
+export const githubRepositoryApiSchema = z.object({
+  id: z.number().int().positive(),
+  name: z.string().min(1),
+  full_name: z.string().min(1),  // snake_case
+  // ...
+})
+
+export type Repository = z.infer<typeof repositorySchema>
+```
+
+#### Parserクラス設計パターン
+
+```typescript
+// features/dataSource/parsers/github-api.parser.ts
+export class GitHubApiParser {
+  static parseRepository(apiData: unknown): Repository {
+    try {
+      // 1. GitHub APIスキーマでパース
+      const githubRepo = githubRepositoryApiSchema.parse(apiData)
+      
+      // 2. 内部オブジェクト形式に変換
+      const repository: Repository = {
+        id: githubRepo.id,
+        name: githubRepo.name,
+        fullName: githubRepo.full_name,  // field name conversion
+        // ...
+      }
+      
+      // 3. 内部スキーマで最終検証
+      return repositorySchema.parse(repository)
+    } catch (error) {
+      throw new GitHubApiParseError("Parse failed", error, apiData)
+    }
+  }
+}
+```
+
+#### 利点
+
+- **ランタイム型安全性**: `as`キャストを排除し、実行時型検証を実現
+- **データソース独立性**: GitHub API以外（DB、他API等）にも対応可能
+- **ビジネスルール検証**: Parser内で業務ルールを検証
+- **エラーハンドリング**: 構造化されたパースエラー情報
+- **テスタビリティ**: Parser単体でのテストが容易
+
+#### ファイル構成
+
+```
+features/dataSource/
+├── schemas/                # Zodスキーマ定義（Coreスキーマ + API固有スキーマ）
+│   ├── repository.schema.ts
+│   ├── pull-request.schema.ts
+│   ├── issue.schema.ts
+│   └── release.schema.ts
+├── parsers/                # データ変換クラス
+│   └── github-api.parser.ts
+├── errors/                 # カスタムエラークラス
+│   ├── github-parse.error.ts
+│   └── github-api.error.ts
+├── types/                  # 残存する型定義（API Options等）
+│   └── api-options.ts
+└── services/
+    └── github-repo.service.ts  # Parser使用例
+
+注意: features/<feature>/types.ts は削除済み
+→ z.infer<typeof schema> による型推論を使用
 ```
 
 ### ESLint設定例
@@ -221,7 +314,7 @@ features/[機能名]/
   "rules": {
     "filenames/match-regex": [
       "error",
-      "^[a-z]+(-[a-z]+)*\\.(service|repository|controller|middleware|entity|dto|interface|types)\\.(ts|js)$"
+      "^[a-z]+(-[a-z]+)*\\.(service|repository|controller|middleware|entity|dto|interface|types|schema|parser|error)\\.(ts|js)$"
     ]
   }
 }

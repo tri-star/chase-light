@@ -85,6 +85,7 @@
 - vitestのテストコードを記述する際、describe/testの名前は**日本語**で記述する
 - **Parameterized test**での記述が望ましい場合は積極的に利用する
 - `it('テスト名')` よりも `test('テスト名')` を利用する（日本語でテスト名を記述する場合testの方が自然なため）
+- **アサーションルーレット**（複数のアサーションを連続で実行すること）を避け、単一のアサーションで検証する
 
 #### テスト例
 
@@ -102,6 +103,99 @@ describe("formatDate", () => {
 
   test("不正な日付文字列の場合はエラーをスローする", () => {
     expect(() => formatDate("invalid-date", "YYYY/MM/DD")).toThrow();
+  });
+});
+```
+
+#### アサーションルーレットの回避
+
+**問題点**
+
+アサーションルーレット（Assertion Roulette）とは、1つのテストケースで複数の独立したアサーションを連続実行することです。これは以下の問題を引き起こします：
+
+- **失敗の原因特定が困難**: どのアサーションが失敗したかが分かりにくい
+- **テストの意図が不明確**: 何を検証したいのかが曖昧になる
+- **部分的な成功の隠蔽**: 最初のアサーションが失敗すると後続が実行されない
+
+**❌ 悪い例: アサーションルーレット**
+
+```typescript
+test("ユーザー情報が正常に取得できる", async () => {
+  const user = await userService.getUser("123");
+  
+  // 複数の独立したアサーションを連続実行
+  expect(user.id).toBe("123");
+  expect(user.name).toBe("田中太郎");  
+  expect(user.email).toBe("tanaka@example.com");
+  expect(user.createdAt).toBe("2024-01-01T00:00:00Z");
+  // → どのアサーションが失敗したか分かりにくい
+});
+
+test("リポジトリリストの検証", async () => {
+  const repositories = await githubService.getWatchedRepositories("user");
+  
+  // 同じ対象への複数アサーション
+  expect(repositories).toHaveLength(3);
+  expect(repositories).toEqual(expectedRepositories);  // ← これで十分
+  expect(repositories[0].name).toBe("repo-1");         // ← 冗長
+  expect(repositories[1].name).toBe("repo-2");         // ← 冗長  
+  expect(repositories[2].name).toBe("repo-3");         // ← 冗長
+});
+```
+
+**✅ 推奨: 単一アサーションによる包括的検証**
+
+```typescript
+test("ユーザー情報が正常に取得できる", async () => {
+  const user = await userService.getUser("123");
+  
+  // 1つのアサーションで全体を検証
+  expect(user).toEqual({
+    id: "123",
+    name: "田中太郎",
+    email: "tanaka@example.com", 
+    createdAt: "2024-01-01T00:00:00Z",
+  });
+});
+
+test("リポジトリリストの検証", async () => {
+  const repositories = await githubService.getWatchedRepositories("user");
+  
+  // 期待値との完全一致で検証（長さも内容も同時にチェック）
+  expect(repositories).toEqual(expectedRepositories);
+});
+
+test("特定プロパティのみの検証が必要な場合", async () => {
+  const repository = await githubService.getRepositoryDetails("owner", "repo");
+  
+  // 検証したいプロパティのみを抽出してオブジェクト化
+  expect({
+    name: repository.name,
+    fullName: repository.fullName,
+    ownerLogin: repository.owner.login,
+  }).toEqual({
+    name: "repo",
+    fullName: "owner/repo", 
+    ownerLogin: "owner",
+  });
+});
+```
+
+**例外的に複数アサーションが許容される場合**
+
+以下の場合は複数アサーションも検討可能ですが、可能な限り単一アサーションを目指します：
+
+```typescript
+test("大量データの境界値検証", async () => {
+  const repositories = await githubService.getWatchedRepositories("user");
+  
+  // 長さチェック（パフォーマンステスト的側面）
+  expect(repositories).toHaveLength(100);
+  
+  // 境界値の個別検証（長さとは独立した検証）
+  expect({ firstId: repositories[0].id, lastId: repositories[99].id }).toEqual({
+    firstId: 1,
+    lastId: 100,
   });
 });
 ```

@@ -13,12 +13,24 @@ export default [
         ecmaVersion: "latest",
         sourceType: "module",
       },
+      globals: {
+        console: "readonly",
+        process: "readonly",
+      },
     },
     plugins: {
       "@typescript-eslint": tsPlugin,
     },
     rules: {
       ...tsPlugin.configs.recommended.rules,
+      "@typescript-eslint/no-unused-vars": [
+        "error",
+        {
+          argsIgnorePattern: "^_",
+          varsIgnorePattern: "^_",
+          caughtErrorsIgnorePattern: "^_",
+        },
+      ],
     },
   },
   {
