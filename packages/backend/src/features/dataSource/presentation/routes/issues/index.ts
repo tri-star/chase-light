@@ -1,9 +1,6 @@
 import { OpenAPIHono, createRoute } from "@hono/zod-openapi"
 import { z } from "@hono/zod-openapi"
-import type {
-  IGitHubRepoService,
-  GitHubIssueOptions,
-} from "../../../services/github-repo.service.interface"
+import type { IGitHubRepoService } from "../../../services/github-repo.service.interface"
 import { issueSchema } from "../../../schemas/issue.schema"
 import { repositoryParams } from "../../shared/common-schemas"
 import { paginationMeta } from "../../shared/pagination"
@@ -85,13 +82,10 @@ const issuesResponse = z
 // API Optionsマッピング関数
 const mapToGitHubIssueOptions = (
   query: z.infer<typeof issueQuery>,
-): GitHubIssueOptions => ({
+) => ({
   page: query.page,
   perPage: query.perPage,
   state: query.state,
-  sort: query.sort,
-  direction: query.direction,
-  since: query.since,
 })
 
 // ルート定義

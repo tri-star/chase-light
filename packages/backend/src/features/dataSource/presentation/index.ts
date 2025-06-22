@@ -14,11 +14,14 @@ const dataSourceRoutes = createDataSourceRoutes(getGitHubRepoService())
 
 export default dataSourceRoutes
 export { createDataSourceRoutes } from "./routes"
-export { dataSourceSchemas } from "./schemas"
+
+// 共通スキーマは直接shared/から提供
+export {
+  repositoryParams,
+  basicPaginationQuery,
+  errorResponse,
+} from "./shared/common-schemas"
 export type {
-  UsernameParams,
   RepositoryParams,
   BasicPaginationQuery,
-  PullRequestQuery,
-  IssueQuery,
-} from "./schemas"
+} from "./shared/common-schemas"

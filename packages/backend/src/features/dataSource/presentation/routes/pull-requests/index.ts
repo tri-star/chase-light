@@ -1,9 +1,6 @@
 import { OpenAPIHono, createRoute } from "@hono/zod-openapi"
 import { z } from "@hono/zod-openapi"
-import type {
-  IGitHubRepoService,
-  GitHubPullRequestOptions,
-} from "../../../services/github-repo.service.interface"
+import type { IGitHubRepoService } from "../../../services/github-repo.service.interface"
 import { pullRequestSchema } from "../../../schemas/pull-request.schema"
 import { repositoryParams } from "../../shared/common-schemas"
 import { paginationMeta } from "../../shared/pagination"
@@ -80,12 +77,10 @@ const pullRequestsResponse = z
 // API Optionsマッピング関数
 const mapToGitHubPullRequestOptions = (
   query: z.infer<typeof pullRequestQuery>,
-): GitHubPullRequestOptions => ({
+) => ({
   page: query.page,
   perPage: query.perPage,
   state: query.state,
-  sort: query.sort,
-  direction: query.direction,
 })
 
 // ルート定義
