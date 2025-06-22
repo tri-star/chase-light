@@ -1,4 +1,4 @@
-import { OpenAPIHono, createRoute, type Context } from "@hono/zod-openapi"
+import { OpenAPIHono, createRoute } from "@hono/zod-openapi"
 import {
   dataSourceSchemas,
   // TODO: 他のエンドポイント移行時に再度有効化
@@ -14,6 +14,67 @@ import {
 } from "../errors/github-api.error"
 import { GitHubApiParseError } from "../errors/github-parse.error"
 import { paginate } from "../../../shared/utils/pagination"
+import { Context, TypedResponse } from "hono"
+
+type GitHubApiErrorResponse = {
+  success: boolean
+  error: {
+    code: string
+    message: string
+    details?: Record<string, unknown>
+  }
+}
+
+const githubErrorResponseSchemaDefinition = {
+  400: {
+    content: {
+      "application/json": {
+        schema: dataSourceSchemas.errorResponse,
+      },
+    },
+    description: "Bad Request",
+  },
+  401: {
+    content: {
+      "application/json": {
+        schema: dataSourceSchemas.errorResponse,
+      },
+    },
+    description: "認証エラー",
+  },
+  404: {
+    content: {
+      "application/json": {
+        schema: dataSourceSchemas.errorResponse,
+      },
+    },
+    description: "リソースが見つかりません",
+  },
+  422: {
+    content: {
+      "application/json": {
+        schema: dataSourceSchemas.errorResponse,
+      },
+    },
+    description: "認証エラー",
+  },
+  429: {
+    content: {
+      "application/json": {
+        schema: dataSourceSchemas.errorResponse,
+      },
+    },
+    description: "レート制限エラー",
+  },
+  500: {
+    content: {
+      "application/json": {
+        schema: dataSourceSchemas.errorResponse,
+      },
+    },
+    description: "内部サーバーエラー",
+  },
+}
 
 /**
  * DataSource Routes (GitHub API Integration)
@@ -40,30 +101,7 @@ const getWatchedRepositoriesRoute = createRoute({
       },
       description: "認証ユーザーがwatch済みのリポジトリ一覧",
     },
-    401: {
-      content: {
-        "application/json": {
-          schema: dataSourceSchemas.errorResponse,
-        },
-      },
-      description: "認証エラー",
-    },
-    429: {
-      content: {
-        "application/json": {
-          schema: dataSourceSchemas.errorResponse,
-        },
-      },
-      description: "レート制限エラー",
-    },
-    500: {
-      content: {
-        "application/json": {
-          schema: dataSourceSchemas.errorResponse,
-        },
-      },
-      description: "内部サーバーエラー",
-    },
+    ...githubErrorResponseSchemaDefinition,
   },
   tags: ["Repositories"],
   summary: "Watch済みリポジトリ一覧取得",
@@ -87,30 +125,7 @@ const getRepositoryDetailsRoute = createRoute({
       },
       description: "指定されたリポジトリの詳細情報",
     },
-    404: {
-      content: {
-        "application/json": {
-          schema: dataSourceSchemas.errorResponse,
-        },
-      },
-      description: "リポジトリが見つからない",
-    },
-    401: {
-      content: {
-        "application/json": {
-          schema: dataSourceSchemas.errorResponse,
-        },
-      },
-      description: "認証エラー",
-    },
-    500: {
-      content: {
-        "application/json": {
-          schema: dataSourceSchemas.errorResponse,
-        },
-      },
-      description: "内部サーバーエラー",
-    },
+    ...githubErrorResponseSchemaDefinition,
   },
   tags: ["Repositories"],
   summary: "リポジトリ詳細取得",
@@ -138,11 +153,14 @@ export const createDataSourceRoutes = (githubService: IGitHubRepoService) => {
         query.perPage,
       )
 
-      return c.json({
-        success: true,
-        data: paginatedItems,
-        meta,
-      })
+      return c.json(
+        {
+          success: true,
+          data: paginatedItems,
+          meta,
+        },
+        200,
+      )
     } catch (error) {
       return handleError(c, error)
     }
@@ -158,10 +176,13 @@ export const createDataSourceRoutes = (githubService: IGitHubRepoService) => {
 
       const repository = await githubService.getRepositoryDetails(owner, repo)
 
-      return c.json({
-        success: true,
-        data: repository,
-      })
+      return c.json(
+        {
+          success: true,
+          data: repository,
+        },
+        200,
+      )
     } catch (error) {
       return handleError(c, error)
     }
@@ -205,7 +226,10 @@ export const createDataSourceRoutes = (githubService: IGitHubRepoService) => {
  * エラーハンドリング関数
  * GitHub API特有のエラーを適切なHTTPステータスコードとレスポンスに変換
  */
-function handleError(c: Context, error: unknown) {
+function handleError<C extends Context>(
+  c: C,
+  error: unknown,
+): TypedResponse<GitHubApiErrorResponse, 400 | 401 | 404 | 422 | 429 | 500> {
   console.error("DataSource API Error:", error)
 
   // GitHub認証エラー
@@ -216,7 +240,9 @@ function handleError(c: Context, error: unknown) {
         error: {
           code: "GITHUB_AUTH_ERROR",
           message: "GitHub認証に失敗しました",
-          details: error.message,
+          details: {
+            message: error.message,
+          },
         },
       },
       401,

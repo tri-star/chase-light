@@ -249,7 +249,7 @@ export const dataSourceSchemas = {
   // エラーレスポンス
   errorResponse: z
     .object({
-      success: z.literal(false).openapi({
+      success: z.boolean().openapi({
         example: false,
         description: "エラー時は常にfalse",
       }),
