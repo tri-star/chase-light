@@ -20,6 +20,8 @@ pnpm install
 
 ### ステップ3: GitHub トークン設定
 
+TODO: OAuth経由で入手したユーザーのトークンを利用するようにする
+
 1. **GitHubトークン取得**:
 
    - https://github.com/settings/personal-access-tokens にアクセス
@@ -42,7 +44,16 @@ pnpm install
    echo "GITHUB_TOKEN=ghp_your_token_here" >> .env
    ```
 
-### ステップ4: サーバー起動
+### ステップ4: DBセットアップ
+
+```bash
+docker compose up -d
+
+cd packages/backend
+pnpm db:migrate
+```
+
+### ステップ5: サーバー起動
 
 ```bash
 # バックエンドサーバー起動 (別ターミナル)
@@ -52,246 +63,12 @@ pnpm dev:backend
 pnpm dev:frontend
 ```
 
-### ステップ5: APIテスト
+### ステップ6: ブラウザでアクセス
 
 ブラウザで以下にアクセス:
 
-- **API ドキュメント**: http://localhost:3001/scalar
 - **フロントエンド**: http://localhost:3000
-
-## 📋 基本的なAPI使用例
-
-### 1. Watch済みリポジトリ一覧取得
-
-```bash
-curl "http://localhost:3001/api/datasource/repositories/watched"
-```
-
-**レスポンス例**:
-
-```json
-{
-  "success": true,
-  "data": [
-    {
-      "id": 10270250,
-      "name": "react",
-      "fullName": "facebook/react",
-      "description": "The library for web and native user interfaces.",
-      "stargazersCount": 228000,
-      "forksCount": 46000,
-      "language": "JavaScript"
-    }
-  ],
-  "meta": {
-    "page": 1,
-    "perPage": 30,
-    "total": 42,
-    "hasNext": true
-  }
-}
-```
-
-### 2. 特定リポジトリの詳細取得
-
-```bash
-curl "http://localhost:3001/api/datasource/repositories/facebook/react"
-```
-
-### 3. プルリクエスト一覧取得
-
-```bash
-curl "http://localhost:3001/api/datasource/repositories/facebook/react/pulls?state=open&sort=updated"
-```
-
-## 🌐 JavaScript/TypeScriptでの使用例
-
-### 基本的なFetch使用例
-
-```typescript
-// Watch済みリポジトリを取得
-async function getWatchedRepositories() {
-  try {
-    const response = await fetch(
-      "http://localhost:3001/api/datasource/repositories/watched"
-    );
-    const result = await response.json();
-
-    if (result.success) {
-      console.log("リポジトリ一覧:", result.data);
-      return result.data;
-    } else {
-      console.error("エラー:", result.error.message);
-    }
-  } catch (error) {
-    console.error("ネットワークエラー:", error);
-  }
-}
-
-// 実行
-getWatchedRepositories();
-```
-
-### ページネーション付きの例
-
-```typescript
-async function getAllRepositories() {
-  const allRepos = [];
-  let page = 1;
-  let hasNext = true;
-
-  while (hasNext) {
-    const response = await fetch(
-      `http://localhost:3001/api/datasource/repositories/watched?page=${page}&perPage=50`
-    );
-    const result = await response.json();
-
-    if (result.success) {
-      allRepos.push(...result.data);
-      hasNext = result.meta.hasNext;
-      page++;
-    } else {
-      throw new Error(result.error.message);
-    }
-  }
-
-  return allRepos;
-}
-```
-
-### エラーハンドリング付きの例
-
-```typescript
-async function getRepositoryWithErrorHandling(owner: string, repo: string) {
-  try {
-    const response = await fetch(
-      `http://localhost:3001/api/datasource/repositories/${owner}/${repo}`
-    );
-    const result = await response.json();
-
-    if (!result.success) {
-      switch (result.error.code) {
-        case "GITHUB_AUTH_ERROR":
-          alert("GitHub認証が必要です");
-          break;
-        case "GITHUB_RATE_LIMIT":
-          const resetTime = new Date(result.error.details.resetTime);
-          alert(
-            `レート制限です。${resetTime.toLocaleTimeString()}に再試行してください。`
-          );
-          break;
-        case "GITHUB_API_ERROR":
-          alert(`GitHub APIエラー: ${result.error.message}`);
-          break;
-        default:
-          alert(`エラー: ${result.error.message}`);
-      }
-      return null;
-    }
-
-    return result.data;
-  } catch (error) {
-    console.error("予期しないエラー:", error);
-    alert("ネットワークエラーが発生しました");
-    return null;
-  }
-}
-```
-
-## 🎯 よく使うAPIパターン
-
-### パターン1: リポジトリ情報の一括取得
-
-```typescript
-async function getRepositorySummary(owner: string, repo: string) {
-  const [repository, releases, pulls, issues] = await Promise.all([
-    fetch(`/api/datasource/repositories/${owner}/${repo}`).then((r) =>
-      r.json()
-    ),
-    fetch(
-      `/api/datasource/repositories/${owner}/${repo}/releases?perPage=5`
-    ).then((r) => r.json()),
-    fetch(
-      `/api/datasource/repositories/${owner}/${repo}/pulls?state=open&perPage=10`
-    ).then((r) => r.json()),
-    fetch(
-      `/api/datasource/repositories/${owner}/${repo}/issues?state=open&perPage=10`
-    ).then((r) => r.json()),
-  ]);
-
-  return {
-    repository: repository.data,
-    latestReleases: releases.data,
-    openPulls: pulls.data,
-    openIssues: issues.data,
-  };
-}
-```
-
-### パターン2: 検索とフィルタリング
-
-```typescript
-async function searchRepositoryActivity(
-  owner: string,
-  repo: string,
-  since: Date
-) {
-  const sinceISOString = since.toISOString();
-
-  const [pulls, issues] = await Promise.all([
-    fetch(
-      `/api/datasource/repositories/${owner}/${repo}/pulls?state=all&sort=updated&since=${sinceISOString}`
-    ).then((r) => r.json()),
-    fetch(
-      `/api/datasource/repositories/${owner}/${repo}/issues?state=all&sort=updated&since=${sinceISOString}`
-    ).then((r) => r.json()),
-  ]);
-
-  return {
-    recentPulls: pulls.data,
-    recentIssues: issues.data,
-    totalActivity: pulls.data.length + issues.data.length,
-  };
-}
-```
-
-### パターン3: リアルタイム監視 (ポーリング)
-
-```typescript
-class RepositoryMonitor {
-  private intervalId: number | null = null;
-
-  startMonitoring(owner: string, repo: string, callback: (data: any) => void) {
-    this.intervalId = setInterval(async () => {
-      try {
-        const response = await fetch(
-          `/api/datasource/repositories/${owner}/${repo}`
-        );
-        const result = await response.json();
-
-        if (result.success) {
-          callback(result.data);
-        }
-      } catch (error) {
-        console.error("監視エラー:", error);
-      }
-    }, 30000); // 30秒間隔
-  }
-
-  stopMonitoring() {
-    if (this.intervalId) {
-      clearInterval(this.intervalId);
-      this.intervalId = null;
-    }
-  }
-}
-
-// 使用例
-const monitor = new RepositoryMonitor();
-monitor.startMonitoring("facebook", "react", (repo) => {
-  console.log(`${repo.fullName}: ${repo.stargazersCount} stars`);
-});
-```
+- **API ドキュメント**: http://localhost:3001/scalar
 
 ## 🔧 トラブルシューティング
 

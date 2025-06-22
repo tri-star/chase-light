@@ -4,19 +4,7 @@ Chase LightのバックエンドAPIサーバーです。Hono + TypeScript + Open
 
 ## 🚀 クイックスタート
 
-### 環境設定
-
-```bash
-# 依存関係のインストール
-pnpm install
-
-# 環境変数の設定
-cp .env.example .env
-# .envファイルを編集して必要な設定を追加
-
-# 開発サーバーの起動
-pnpm dev
-```
+![クイックスタート](../../docs/quickstart.md) 参照
 
 ### 必要な環境変数
 
