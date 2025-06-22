@@ -74,6 +74,27 @@ export class GitHubRepoServiceStub implements IGitHubRepoService {
     this.shouldThrowError[methodName] = error
   }
 
+  // 便利メソッド：特定のメソッド用エラー設定
+  setWatchedRepositoriesError(error: Error): void {
+    this.setErrorForMethod("getWatchedRepositories", error)
+  }
+
+  setRepositoryDetailsError(error: Error): void {
+    this.setErrorForMethod("getRepositoryDetails", error)
+  }
+
+  setRepositoryReleasesError(error: Error): void {
+    this.setErrorForMethod("getRepositoryReleases", error)
+  }
+
+  setRepositoryPullRequestsError(error: Error): void {
+    this.setErrorForMethod("getRepositoryPullRequests", error)
+  }
+
+  setRepositoryIssuesError(error: Error): void {
+    this.setErrorForMethod("getRepositoryIssues", error)
+  }
+
   clearErrors(): void {
     this.shouldThrowError = {}
   }
