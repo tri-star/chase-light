@@ -5,7 +5,7 @@
   "main": "index.js",
   "type": "module",
   "scripts": {
-    "test": "pnpm --filter frontend test ",
+    "test": "pnpm --filter frontend test && pnpm --filter backend test",
     "lint": "pnpm --filter frontend lint && pnpm --filter backend lint && pnpm --filter shared lint",
     "lint:type": "pnpm --filter frontend lint:type && pnpm --filter backend lint:type && pnpm --filter shared lint:type",
     "lint:fix": "pnpm --filter frontend format && pnpm --filter backend format && pnpm --filter shared format",
