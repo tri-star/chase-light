@@ -80,9 +80,7 @@ const issuesResponse = z
   .openapi("IssuesResponse")
 
 // API Optionsマッピング関数
-const mapToGitHubIssueOptions = (
-  query: z.infer<typeof issueQuery>,
-) => ({
+const mapToGitHubIssueOptions = (query: z.infer<typeof issueQuery>) => ({
   page: query.page,
   perPage: query.perPage,
   state: query.state,
