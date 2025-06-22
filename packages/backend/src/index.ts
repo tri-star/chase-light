@@ -1,3 +1,4 @@
+import "dotenv/config"
 import { handle } from "hono/aws-lambda"
 import { createApp } from "./app"
 

@@ -17,7 +17,13 @@ export const pullRequestBranchSchema = z.object({
     .string()
     .regex(/^[0-9a-fA-F]{40}$/, "SHAは40文字の16進数である必要があります"),
   label: z.string().min(1, "ブランチラベルは必須です"),
-  repo: z.lazy(() => repositorySchema).nullable(), // 循環参照対応
+  repo: z
+    .lazy(() => repositorySchema)
+    .nullable()
+    .openapi({
+      type: "object",
+      description: "Repository information for the branch",
+    }), // 循環参照対応
 })
 
 /**
@@ -30,7 +36,13 @@ export const githubPullRequestBranchApiSchema = z.object({
     .string()
     .regex(/^[0-9a-fA-F]{40}$/, "SHAは40文字の16進数である必要があります"),
   label: z.string().min(1, "ブランチラベルは必須です"),
-  repo: z.lazy(() => githubRepositoryApiSchema).nullable(), // GitHub API Repository参照
+  repo: z
+    .lazy(() => githubRepositoryApiSchema)
+    .nullable()
+    .openapi({
+      type: "object",
+      description: "GitHub API Repository reference",
+    }), // GitHub API Repository参照
 })
 
 /**
