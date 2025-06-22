@@ -53,14 +53,14 @@ GET /api/datasource/repositories/{owner}/{repo}
 # リリース一覧
 GET /api/datasource/repositories/{owner}/{repo}/releases
 
-# プルリクエスト一覧  
+# プルリクエスト一覧
 GET /api/datasource/repositories/{owner}/{repo}/pulls
 
 # イシュー一覧
 GET /api/datasource/repositories/{owner}/{repo}/issues
 ```
 
-詳細な仕様については [GitHub API統合ドキュメント](../../docs/api/github-integration.md) を参照してください。
+詳細な仕様については [Scaler](http://localhost:3001/scaler) を参照してください。
 
 ## 🏗️ アーキテクチャ
 
@@ -146,31 +146,33 @@ pnpm start
 ### 開発ワークフロー
 
 1. **機能開発**:
+
    ```bash
    # 機能ブランチ作成
    git checkout -b feature/your-feature-name
-   
+
    # コード実装
    # - スキーマ定義 (schemas/)
    # - パーサー実装 (parsers/)
    # - サービス実装 (services/)
    # - エンドポイント実装 (presentation/)
-   
+
    # テスト作成・実行
    pnpm test
-   
+
    # リント・フォーマット
    pnpm lint && pnpm format
    ```
 
 2. **コミット前チェック**:
+
    ```bash
    # 型チェック
    pnpm lint:type
-   
+
    # テスト実行
    pnpm test
-   
+
    # ビルド確認
    pnpm build
    ```
@@ -203,15 +205,17 @@ src/features/dataSource/presentation/routes.ts  # route追加
 
 ```typescript
 // schemas/new-entity.schema.ts
-import { z } from "@hono/zod-openapi"
+import { z } from "@hono/zod-openapi";
 
-export const newEntitySchema = z.object({
-  id: z.number().int().positive(),
-  name: z.string().min(1),
-  // ... フィールド定義
-}).openapi("NewEntity")
+export const newEntitySchema = z
+  .object({
+    id: z.number().int().positive(),
+    name: z.string().min(1),
+    // ... フィールド定義
+  })
+  .openapi("NewEntity");
 
-export type NewEntity = z.infer<typeof newEntitySchema>
+export type NewEntity = z.infer<typeof newEntitySchema>;
 ```
 
 ```typescript
@@ -222,8 +226,8 @@ async getNewEntity(owner: string, repo: string): Promise<NewEntity[]> {
       owner,
       repo
     })
-    
-    return response.data.map(item => 
+
+    return response.data.map(item =>
       GitHubApiParser.parseNewEntity(item)
     )
   } catch (error) {
@@ -237,6 +241,7 @@ async getNewEntity(owner: string, repo: string): Promise<NewEntity[]> {
 ### 環境別設定
 
 #### 開発環境
+
 ```bash
 NODE_ENV=development
 PORT=3001
@@ -244,6 +249,7 @@ GITHUB_TOKEN=your_development_token
 ```
 
 #### 本番環境
+
 ```bash
 NODE_ENV=production
 PORT=3000
@@ -300,75 +306,22 @@ GET /health
 }
 ```
 
-## 🔒 セキュリティ
-
-### セキュリティチェックリスト
-
-- [ ] 環境変数でのシークレット管理
-- [ ] 入力値バリデーション (Zod)
-- [ ] レート制限対応
-- [ ] CORS設定
-- [ ] セキュリティヘッダー設定
-- [ ] 機密情報のログ出力防止
-
-### セキュリティ設定例
-
-```typescript
-// CORS設定
-app.use('*', cors({
-  origin: process.env.FRONTEND_URL?.split(',') || ['http://localhost:3000'],
-  credentials: true
-}))
-
-// セキュリティヘッダー
-app.use('*', async (c, next) => {
-  c.header('X-Content-Type-Options', 'nosniff')
-  c.header('X-Frame-Options', 'DENY')
-  c.header('X-XSS-Protection', '1; mode=block')
-  await next()
-})
-```
-
 ## 🤝 コントリビューション
+
+以下はTBD
 
 ### 開発ガイドライン
 
-1. **コーディング規約**: [ファイル命名規則](./docs/file-naming-conventions.md) に従う
-2. **コミットメッセージ**: Conventional Commits形式を使用
-3. **テスト**: 新機能には必ずテストを追加
-4. **ドキュメント**: APIの変更時はドキュメントも更新
-
 ### プルリクエスト手順
-
-1. Issue作成（バグ報告・機能要望）
-2. 機能ブランチ作成
-3. 実装・テスト作成
-4. プルリクエスト作成
-5. コードレビュー
-6. マージ
 
 ## 📞 サポート
 
+以下はTBD
+
 ### 問題報告
 
-- **バグ報告**: GitHub Issues
-- **機能要望**: GitHub Issues
-- **質問**: GitHub Discussions
-
 ### よくある問題
-
-1. **認証エラー**: `GITHUB_TOKEN`の設定確認
-2. **レート制限**: GitHub APIの制限確認
-3. **型エラー**: TypeScriptの型定義確認
-
-詳細なトラブルシューティングは [GitHub API統合ドキュメント](../../docs/api/github-integration.md#トラブルシューティング) を参照してください。
 
 ## 📄 ライセンス
 
 このプロジェクトは MIT License の下で提供されています。
-
----
-
-**開発チーム**: Chase Light Development Team  
-**最終更新**: 2024年12月22日  
-**バージョン**: v1.0.0

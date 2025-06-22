@@ -21,6 +21,7 @@ pnpm install
 ### ステップ3: GitHub トークン設定
 
 1. **GitHubトークン取得**:
+
    - https://github.com/settings/personal-access-tokens にアクセス
    - "Generate new token (classic)" をクリック
    - 必要なスコープを選択:
@@ -29,13 +30,14 @@ pnpm install
    - トークンをコピー
 
 2. **環境変数設定**:
+
    ```bash
    # バックエンドディレクトリに移動
    cd packages/backend
-   
+
    # .env.exampleをコピー
    cp .env.example .env
-   
+
    # .envファイルを編集してトークンを設定
    echo "GITHUB_TOKEN=ghp_your_token_here" >> .env
    ```
@@ -46,7 +48,7 @@ pnpm install
 # バックエンドサーバー起動 (別ターミナル)
 pnpm dev:backend
 
-# フロントエンドサーバー起動 (別ターミナル)  
+# フロントエンドサーバー起動 (別ターミナル)
 pnpm dev:frontend
 ```
 
@@ -66,6 +68,7 @@ curl "http://localhost:3001/api/datasource/repositories/watched"
 ```
 
 **レスポンス例**:
+
 ```json
 {
   "success": true,
@@ -109,48 +112,50 @@ curl "http://localhost:3001/api/datasource/repositories/facebook/react/pulls?sta
 // Watch済みリポジトリを取得
 async function getWatchedRepositories() {
   try {
-    const response = await fetch('http://localhost:3001/api/datasource/repositories/watched')
-    const result = await response.json()
-    
+    const response = await fetch(
+      "http://localhost:3001/api/datasource/repositories/watched"
+    );
+    const result = await response.json();
+
     if (result.success) {
-      console.log('リポジトリ一覧:', result.data)
-      return result.data
+      console.log("リポジトリ一覧:", result.data);
+      return result.data;
     } else {
-      console.error('エラー:', result.error.message)
+      console.error("エラー:", result.error.message);
     }
   } catch (error) {
-    console.error('ネットワークエラー:', error)
+    console.error("ネットワークエラー:", error);
   }
 }
 
 // 実行
-getWatchedRepositories()
+getWatchedRepositories();
 ```
 
 ### ページネーション付きの例
 
 ```typescript
 async function getAllRepositories() {
-  const allRepos = []
-  let page = 1
-  let hasNext = true
-  
+  const allRepos = [];
+  let page = 1;
+  let hasNext = true;
+
   while (hasNext) {
     const response = await fetch(
       `http://localhost:3001/api/datasource/repositories/watched?page=${page}&perPage=50`
-    )
-    const result = await response.json()
-    
+    );
+    const result = await response.json();
+
     if (result.success) {
-      allRepos.push(...result.data)
-      hasNext = result.meta.hasNext
-      page++
+      allRepos.push(...result.data);
+      hasNext = result.meta.hasNext;
+      page++;
     } else {
-      throw new Error(result.error.message)
+      throw new Error(result.error.message);
     }
   }
-  
-  return allRepos
+
+  return allRepos;
 }
 ```
 
@@ -161,32 +166,34 @@ async function getRepositoryWithErrorHandling(owner: string, repo: string) {
   try {
     const response = await fetch(
       `http://localhost:3001/api/datasource/repositories/${owner}/${repo}`
-    )
-    const result = await response.json()
-    
+    );
+    const result = await response.json();
+
     if (!result.success) {
       switch (result.error.code) {
-        case 'GITHUB_AUTH_ERROR':
-          alert('GitHub認証が必要です')
-          break
-        case 'GITHUB_RATE_LIMIT':
-          const resetTime = new Date(result.error.details.resetTime)
-          alert(`レート制限です。${resetTime.toLocaleTimeString()}に再試行してください。`)
-          break
-        case 'GITHUB_API_ERROR':
-          alert(`GitHub APIエラー: ${result.error.message}`)
-          break
+        case "GITHUB_AUTH_ERROR":
+          alert("GitHub認証が必要です");
+          break;
+        case "GITHUB_RATE_LIMIT":
+          const resetTime = new Date(result.error.details.resetTime);
+          alert(
+            `レート制限です。${resetTime.toLocaleTimeString()}に再試行してください。`
+          );
+          break;
+        case "GITHUB_API_ERROR":
+          alert(`GitHub APIエラー: ${result.error.message}`);
+          break;
         default:
-          alert(`エラー: ${result.error.message}`)
+          alert(`エラー: ${result.error.message}`);
       }
-      return null
+      return null;
     }
-    
-    return result.data
+
+    return result.data;
   } catch (error) {
-    console.error('予期しないエラー:', error)
-    alert('ネットワークエラーが発生しました')
-    return null
+    console.error("予期しないエラー:", error);
+    alert("ネットワークエラーが発生しました");
+    return null;
   }
 }
 ```
@@ -198,37 +205,53 @@ async function getRepositoryWithErrorHandling(owner: string, repo: string) {
 ```typescript
 async function getRepositorySummary(owner: string, repo: string) {
   const [repository, releases, pulls, issues] = await Promise.all([
-    fetch(`/api/datasource/repositories/${owner}/${repo}`).then(r => r.json()),
-    fetch(`/api/datasource/repositories/${owner}/${repo}/releases?perPage=5`).then(r => r.json()),
-    fetch(`/api/datasource/repositories/${owner}/${repo}/pulls?state=open&perPage=10`).then(r => r.json()),
-    fetch(`/api/datasource/repositories/${owner}/${repo}/issues?state=open&perPage=10`).then(r => r.json())
-  ])
-  
+    fetch(`/api/datasource/repositories/${owner}/${repo}`).then((r) =>
+      r.json()
+    ),
+    fetch(
+      `/api/datasource/repositories/${owner}/${repo}/releases?perPage=5`
+    ).then((r) => r.json()),
+    fetch(
+      `/api/datasource/repositories/${owner}/${repo}/pulls?state=open&perPage=10`
+    ).then((r) => r.json()),
+    fetch(
+      `/api/datasource/repositories/${owner}/${repo}/issues?state=open&perPage=10`
+    ).then((r) => r.json()),
+  ]);
+
   return {
     repository: repository.data,
     latestReleases: releases.data,
     openPulls: pulls.data,
-    openIssues: issues.data
-  }
+    openIssues: issues.data,
+  };
 }
 ```
 
 ### パターン2: 検索とフィルタリング
 
 ```typescript
-async function searchRepositoryActivity(owner: string, repo: string, since: Date) {
-  const sinceISOString = since.toISOString()
-  
+async function searchRepositoryActivity(
+  owner: string,
+  repo: string,
+  since: Date
+) {
+  const sinceISOString = since.toISOString();
+
   const [pulls, issues] = await Promise.all([
-    fetch(`/api/datasource/repositories/${owner}/${repo}/pulls?state=all&sort=updated&since=${sinceISOString}`).then(r => r.json()),
-    fetch(`/api/datasource/repositories/${owner}/${repo}/issues?state=all&sort=updated&since=${sinceISOString}`).then(r => r.json())
-  ])
-  
+    fetch(
+      `/api/datasource/repositories/${owner}/${repo}/pulls?state=all&sort=updated&since=${sinceISOString}`
+    ).then((r) => r.json()),
+    fetch(
+      `/api/datasource/repositories/${owner}/${repo}/issues?state=all&sort=updated&since=${sinceISOString}`
+    ).then((r) => r.json()),
+  ]);
+
   return {
     recentPulls: pulls.data,
     recentIssues: issues.data,
-    totalActivity: pulls.data.length + issues.data.length
-  }
+    totalActivity: pulls.data.length + issues.data.length,
+  };
 }
 ```
 
@@ -236,36 +259,38 @@ async function searchRepositoryActivity(owner: string, repo: string, since: Date
 
 ```typescript
 class RepositoryMonitor {
-  private intervalId: number | null = null
-  
+  private intervalId: number | null = null;
+
   startMonitoring(owner: string, repo: string, callback: (data: any) => void) {
     this.intervalId = setInterval(async () => {
       try {
-        const response = await fetch(`/api/datasource/repositories/${owner}/${repo}`)
-        const result = await response.json()
-        
+        const response = await fetch(
+          `/api/datasource/repositories/${owner}/${repo}`
+        );
+        const result = await response.json();
+
         if (result.success) {
-          callback(result.data)
+          callback(result.data);
         }
       } catch (error) {
-        console.error('監視エラー:', error)
+        console.error("監視エラー:", error);
       }
-    }, 30000) // 30秒間隔
+    }, 30000); // 30秒間隔
   }
-  
+
   stopMonitoring() {
     if (this.intervalId) {
-      clearInterval(this.intervalId)
-      this.intervalId = null
+      clearInterval(this.intervalId);
+      this.intervalId = null;
     }
   }
 }
 
 // 使用例
-const monitor = new RepositoryMonitor()
-monitor.startMonitoring('facebook', 'react', (repo) => {
-  console.log(`${repo.fullName}: ${repo.stargazersCount} stars`)
-})
+const monitor = new RepositoryMonitor();
+monitor.startMonitoring("facebook", "react", (repo) => {
+  console.log(`${repo.fullName}: ${repo.stargazersCount} stars`);
+});
 ```
 
 ## 🔧 トラブルシューティング
@@ -275,17 +300,19 @@ monitor.startMonitoring('facebook', 'react', (repo) => {
 #### 1. 認証エラー (401)
 
 **エラー**: `GITHUB_AUTH_ERROR`
+
 ```json
 {
   "success": false,
   "error": {
-    "code": "GITHUB_AUTH_ERROR", 
+    "code": "GITHUB_AUTH_ERROR",
     "message": "GitHub authentication failed"
   }
 }
 ```
 
 **解決方法**:
+
 ```bash
 # 1. トークンが設定されているか確認
 cat packages/backend/.env | grep GITHUB_TOKEN
@@ -302,6 +329,7 @@ curl -H "Authorization: token YOUR_TOKEN" https://api.github.com/user
 **エラー**: `GITHUB_RATE_LIMIT`
 
 **解決方法**:
+
 - 認証済みトークンを使用する (制限が緩和される)
 - リクエスト頻度を調整する
 - エラーレスポンスの`resetTime`まで待機する
@@ -311,6 +339,7 @@ curl -H "Authorization: token YOUR_TOKEN" https://api.github.com/user
 **エラー**: `Error: listen EADDRINUSE: address already in use :::3001`
 
 **解決方法**:
+
 ```bash
 # ポートを使用しているプロセスを確認
 lsof -i :3001
@@ -327,6 +356,7 @@ PORT=3002 pnpm dev:backend
 **エラー**: `Access to fetch at 'http://localhost:3001' from origin 'http://localhost:3000' has been blocked by CORS policy`
 
 **解決方法**:
+
 ```bash
 # .envファイルでFRONTEND_URLを確認
 echo "FRONTEND_URL=http://localhost:3000" >> packages/backend/.env
@@ -336,10 +366,7 @@ echo "FRONTEND_URL=http://localhost:3000" >> packages/backend/.env
 
 基本的な使用方法を理解したら、以下のドキュメントを参照してください:
 
-1. **詳細なAPI仕様**: [GitHub API統合ドキュメント](./github-integration.md)
-2. **エラーハンドリング**: [GitHub API統合ドキュメント - エラーハンドリング](./github-integration.md#エラーハンドリング)
-3. **認証設定**: [GitHub API統合ドキュメント - 認証設定](./github-integration.md#認証設定)
-4. **パフォーマンス最適化**: [GitHub API統合ドキュメント - パフォーマンス最適化](./github-integration.md#パフォーマンス最適化)
+- [ファイル名命名規則](/packages/backend/docs/file-naming-conventions.md)
 
 ## 🆘 サポート
 
