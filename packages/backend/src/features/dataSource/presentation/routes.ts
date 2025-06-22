@@ -1,10 +1,9 @@
 import { OpenAPIHono, createRoute } from "@hono/zod-openapi"
 import {
   dataSourceSchemas,
-  // TODO: 他のエンドポイント移行時に再度有効化
-  // mapToGitHubApiOptions,
-  // mapToGitHubPullRequestOptions,
-  // mapToGitHubIssueOptions,
+  mapToGitHubApiOptions,
+  mapToGitHubPullRequestOptions,
+  mapToGitHubIssueOptions,
 } from "./schemas"
 import type { IGitHubRepoService } from "../services/github-repo.service.interface"
 import {
@@ -13,7 +12,10 @@ import {
   GitHubAuthenticationError,
 } from "../errors/github-api.error"
 import { GitHubApiParseError } from "../errors/github-parse.error"
-import { paginate } from "../../../shared/utils/pagination"
+import {
+  paginate,
+  createGitHubPaginationMeta,
+} from "../../../shared/utils/pagination"
 import { Context, TypedResponse } from "hono"
 
 type GitHubApiErrorResponse = {
@@ -133,6 +135,81 @@ const getRepositoryDetailsRoute = createRoute({
     "指定されたオーナー/リポジトリ名のGitHubリポジトリの詳細情報を取得します。",
 })
 
+// GET /repositories/:owner/:repo/releases
+const getRepositoryReleasesRoute = createRoute({
+  method: "get",
+  path: "/repositories/{owner}/{repo}/releases",
+  request: {
+    params: dataSourceSchemas.repositoryParams,
+    query: dataSourceSchemas.basicPaginationQuery,
+  },
+  responses: {
+    200: {
+      content: {
+        "application/json": {
+          schema: dataSourceSchemas.releasesResponse,
+        },
+      },
+      description: "指定されたリポジトリのリリース一覧",
+    },
+    ...githubErrorResponseSchemaDefinition,
+  },
+  tags: ["Repositories"],
+  summary: "リポジトリリリース一覧取得",
+  description:
+    "指定されたオーナー/リポジトリ名のGitHubリポジトリのリリース一覧を取得します。",
+})
+
+// GET /repositories/:owner/:repo/pulls
+const getRepositoryPullRequestsRoute = createRoute({
+  method: "get",
+  path: "/repositories/{owner}/{repo}/pulls",
+  request: {
+    params: dataSourceSchemas.repositoryParams,
+    query: dataSourceSchemas.pullRequestQuery,
+  },
+  responses: {
+    200: {
+      content: {
+        "application/json": {
+          schema: dataSourceSchemas.pullRequestsResponse,
+        },
+      },
+      description: "指定されたリポジトリのプルリクエスト一覧",
+    },
+    ...githubErrorResponseSchemaDefinition,
+  },
+  tags: ["Repositories"],
+  summary: "リポジトリプルリクエスト一覧取得",
+  description:
+    "指定されたオーナー/リポジトリ名のGitHubリポジトリのプルリクエスト一覧を取得します。",
+})
+
+// GET /repositories/:owner/:repo/issues
+const getRepositoryIssuesRoute = createRoute({
+  method: "get",
+  path: "/repositories/{owner}/{repo}/issues",
+  request: {
+    params: dataSourceSchemas.repositoryParams,
+    query: dataSourceSchemas.issueQuery,
+  },
+  responses: {
+    200: {
+      content: {
+        "application/json": {
+          schema: dataSourceSchemas.issuesResponse,
+        },
+      },
+      description: "指定されたリポジトリのイシュー一覧",
+    },
+    ...githubErrorResponseSchemaDefinition,
+  },
+  tags: ["Repositories"],
+  summary: "リポジトリイシュー一覧取得",
+  description:
+    "指定されたオーナー/リポジトリ名のGitHubリポジトリのイシュー一覧を取得します。",
+})
+
 export const createDataSourceRoutes = (githubService: IGitHubRepoService) => {
   const app = new OpenAPIHono()
 
@@ -188,36 +265,117 @@ export const createDataSourceRoutes = (githubService: IGitHubRepoService) => {
     }
   })
 
-  // TODO: 他のエンドポイントもOpenAPI対応に移行予定
-  // 一時的にコメントアウト
-  /*
-  app.get(
-    "/repositories/:owner/:repo/releases",
-    zValidator("param", dataSourceSchemas.repositoryParams),
-    zValidator("query", dataSourceSchemas.basicPaginationQuery),
-    async (c) => {
-      // 実装省略...
-    },
-  )
+  /**
+   * GET /repositories/:owner/:repo/releases
+   * 指定リポジトリのリリース一覧を取得
+   */
+  app.openapi(getRepositoryReleasesRoute, async (c) => {
+    try {
+      const { owner, repo } = c.req.valid("param")
+      const query = c.req.valid("query")
 
-  app.get(
-    "/repositories/:owner/:repo/pulls",
-    zValidator("param", dataSourceSchemas.repositoryParams),
-    zValidator("query", dataSourceSchemas.pullRequestQuery),
-    async (c) => {
-      // 実装省略...
-    },
-  )
+      const releases = await githubService.getRepositoryReleases(
+        owner,
+        repo,
+        mapToGitHubApiOptions(query),
+      )
 
-  app.get(
-    "/repositories/:owner/:repo/issues",
-    zValidator("param", dataSourceSchemas.repositoryParams),
-    zValidator("query", dataSourceSchemas.issueQuery),
-    async (c) => {
-      // 実装省略...
-    },
-  )
-  */
+      // Use GitHub-compatible pagination metadata
+      const { paginatedItems } = paginate(releases, query.page, query.perPage)
+      const meta = createGitHubPaginationMeta(
+        query.page,
+        query.perPage,
+        paginatedItems.length,
+      )
+
+      return c.json(
+        {
+          success: true,
+          data: paginatedItems,
+          meta,
+        },
+        200,
+      )
+    } catch (error) {
+      return handleError(c, error)
+    }
+  })
+
+  /**
+   * GET /repositories/:owner/:repo/pulls
+   * 指定リポジトリのプルリクエスト一覧を取得
+   */
+  app.openapi(getRepositoryPullRequestsRoute, async (c) => {
+    try {
+      const { owner, repo } = c.req.valid("param")
+      const query = c.req.valid("query")
+
+      const pullRequests = await githubService.getRepositoryPullRequests(
+        owner,
+        repo,
+        mapToGitHubPullRequestOptions(query),
+      )
+
+      // Use GitHub-compatible pagination metadata
+      const { paginatedItems } = paginate(
+        pullRequests,
+        query.page,
+        query.perPage,
+      )
+      const meta = createGitHubPaginationMeta(
+        query.page,
+        query.perPage,
+        paginatedItems.length,
+      )
+
+      return c.json(
+        {
+          success: true,
+          data: paginatedItems,
+          meta,
+        },
+        200,
+      )
+    } catch (error) {
+      return handleError(c, error)
+    }
+  })
+
+  /**
+   * GET /repositories/:owner/:repo/issues
+   * 指定リポジトリのイシュー一覧を取得
+   */
+  app.openapi(getRepositoryIssuesRoute, async (c) => {
+    try {
+      const { owner, repo } = c.req.valid("param")
+      const query = c.req.valid("query")
+
+      const issues = await githubService.getRepositoryIssues(
+        owner,
+        repo,
+        mapToGitHubIssueOptions(query),
+      )
+
+      // Use GitHub-compatible pagination metadata
+      const { paginatedItems } = paginate(issues, query.page, query.perPage)
+      const meta = createGitHubPaginationMeta(
+        query.page,
+        query.perPage,
+        paginatedItems.length,
+      )
+
+      return c.json(
+        {
+          success: true,
+          data: paginatedItems,
+          meta,
+        },
+        200,
+      )
+    } catch (error) {
+      return handleError(c, error)
+    }
+  })
 
   return app
 }

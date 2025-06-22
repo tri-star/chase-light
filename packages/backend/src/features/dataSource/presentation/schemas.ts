@@ -6,6 +6,9 @@ import type {
 } from "../types/api-options"
 import { GITHUB_USERNAME, GITHUB_REPOSITORY, PAGINATION } from "../constants"
 import { repositorySchema } from "../schemas/repository.schema"
+import { releaseSchema } from "../schemas/release.schema"
+import { pullRequestSchema } from "../schemas/pull-request.schema"
+import { issueSchema } from "../schemas/issue.schema"
 
 /**
  * DataSource Presentation Schemas
@@ -325,6 +328,111 @@ export const dataSourceSchemas = {
       data: repositorySchema,
     })
     .openapi("RepositoryResponse"),
+
+  // リリース一覧レスポンス
+  releasesResponse: z
+    .object({
+      success: z.boolean().openapi({
+        example: true,
+        description: "API呼び出しの成功・失敗を示すフラグ",
+      }),
+      data: z.array(releaseSchema).openapi({
+        description: "GitHubリリースのリスト",
+      }),
+      meta: z
+        .object({
+          page: z.number().openapi({
+            example: 1,
+            description: "現在のページ番号",
+          }),
+          perPage: z.number().openapi({
+            example: 30,
+            description: "1ページあたりの件数",
+          }),
+          hasNext: z.boolean().openapi({
+            example: true,
+            description: "次のページが存在するかどうか",
+          }),
+          hasPrev: z.boolean().openapi({
+            example: false,
+            description: "前のページが存在するかどうか",
+          }),
+        })
+        .openapi({
+          description: "ページネーション情報",
+        }),
+    })
+    .openapi("ReleasesResponse"),
+
+  // プルリクエスト一覧レスポンス
+  pullRequestsResponse: z
+    .object({
+      success: z.boolean().openapi({
+        example: true,
+        description: "API呼び出しの成功・失敗を示すフラグ",
+      }),
+      data: z.array(pullRequestSchema).openapi({
+        description: "GitHubプルリクエストのリスト",
+      }),
+      meta: z
+        .object({
+          page: z.number().openapi({
+            example: 1,
+            description: "現在のページ番号",
+          }),
+          perPage: z.number().openapi({
+            example: 30,
+            description: "1ページあたりの件数",
+          }),
+          hasNext: z.boolean().openapi({
+            example: true,
+            description: "次のページが存在するかどうか",
+          }),
+          hasPrev: z.boolean().openapi({
+            example: false,
+            description: "前のページが存在するかどうか",
+          }),
+        })
+        .openapi({
+          description: "ページネーション情報",
+        }),
+    })
+    .openapi("PullRequestsResponse"),
+
+  // イシュー一覧レスポンス
+  issuesResponse: z
+    .object({
+      success: z.boolean().openapi({
+        example: true,
+        description: "API呼び出しの成功・失敗を示すフラグ",
+      }),
+      data: z.array(issueSchema).openapi({
+        description: "GitHubイシューのリスト",
+      }),
+      meta: z
+        .object({
+          page: z.number().openapi({
+            example: 1,
+            description: "現在のページ番号",
+          }),
+          perPage: z.number().openapi({
+            example: 30,
+            description: "1ページあたりの件数",
+          }),
+          hasNext: z.boolean().openapi({
+            example: true,
+            description: "次のページが存在するかどうか",
+          }),
+          hasPrev: z.boolean().openapi({
+            example: false,
+            description: "前のページが存在するかどうか",
+          }),
+        })
+        .openapi({
+          description: "ページネーション情報",
+        }),
+    })
+    .openapi("IssuesResponse"),
 }
 
 // 型推論用のエクスポート

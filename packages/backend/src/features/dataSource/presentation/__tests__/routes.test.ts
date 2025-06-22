@@ -60,7 +60,7 @@ describe("DataSource Routes", () => {
       githubServiceStub.setWatchedRepositories(mockRepositories)
 
       const res = await app.request(
-        "/api/datasource/repositories/watched/testuser?page=2&perPage=10",
+        "/api/datasource/repositories/watched?page=2&perPage=10",
       )
 
       expect(res.status).toBe(200)
@@ -76,9 +76,9 @@ describe("DataSource Routes", () => {
       expect(json.data[0].name).toBe("repo-11") // 2ページ目の最初
     })
 
-    test("不正なユーザー名でバリデーションエラーを返す", async () => {
+    test("不正なページ番号でバリデーションエラーを返す", async () => {
       const res = await app.request(
-        "/api/datasource/repositories/watched/invalid-user-name!",
+        "/api/datasource/repositories/watched?page=0",
       )
 
       expect(res.status).toBe(400)
@@ -369,7 +369,7 @@ describe("DataSource Routes", () => {
       "不正なページ番号 %i でバリデーションエラーを返す",
       async (page, _expectedError) => {
         const res = await app.request(
-          `/api/datasource/repositories/watched/testuser?page=${page}`,
+          `/api/datasource/repositories/watched?page=${page}`,
         )
 
         expect(res.status).toBe(400)
@@ -383,7 +383,7 @@ describe("DataSource Routes", () => {
       "不正なperPage値 %i でバリデーションエラーを返す",
       async (perPage, _expectedError) => {
         const res = await app.request(
-          `/api/datasource/repositories/watched/testuser?perPage=${perPage}`,
+          `/api/datasource/repositories/watched?perPage=${perPage}`,
         )
 
         expect(res.status).toBe(400)
