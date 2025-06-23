@@ -1,0 +1,75 @@
+/**
+ * Authentication Types
+ *
+ * JWT認証とAuth0統合に関する型定義
+ */
+
+export interface JWTPayload {
+  /** Issuer - Auth0ドメイン */
+  iss: string
+  /** Subject - ユーザーID */
+  sub: string
+  /** Audience - APIのAudience */
+  aud: string | string[]
+  /** Issued At - 発行時刻 */
+  iat: number
+  /** Expiration Time - 有効期限 */
+  exp: number
+  /** Not Before - 有効開始時刻 */
+  nbf?: number
+  /** Authorized Party - 認可されたパーティ */
+  azp?: string
+  /** Scope - スコープ */
+  scope?: string
+  /** Custom claims */
+  [key: string]: unknown
+}
+
+export interface Auth0Config {
+  /** Auth0ドメイン */
+  domain: string
+  /** Auth0 Audience (API Identifier) */
+  audience: string
+  /** 発行者URL */
+  issuer: string
+  /** JWKS URI */
+  jwksUri: string
+  /** 許可されるアルゴリズム */
+  algorithms: string[]
+}
+
+export interface AuthenticatedUser {
+  /** ユーザーID (Auth0のsub) */
+  userId: string
+  /** Auth0のsub (元の形式) */
+  sub: string
+  /** JWTペイロード全体 */
+  payload: JWTPayload
+  /** アクセストークン */
+  accessToken: string
+}
+
+export interface TokenValidationResult {
+  /** バリデーション結果 */
+  valid: boolean
+  /** デコードされたペイロード */
+  payload?: JWTPayload
+  /** エラー情報 */
+  error?: string
+}
+
+export interface AuthContext {
+  /** 認証済みユーザー情報 */
+  user: AuthenticatedUser
+  /** アクセストークン */
+  token: string
+}
+
+/**
+ * Honoのコンテキストに追加される認証情報の型
+ */
+declare module "hono" {
+  interface ContextVariableMap {
+    auth?: AuthContext
+  }
+}
