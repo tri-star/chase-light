@@ -115,16 +115,15 @@ export function createJWTAuthMiddleware(options: JWTAuthOptions = {}) {
       }
 
       // 認証情報をコンテキストに設定
+      const cleanToken = token.replace(/^Bearer\s+/i, "").trim()
       const authenticatedUser: AuthenticatedUser = {
-        userId: validationResult.payload.sub,
         sub: validationResult.payload.sub,
         payload: validationResult.payload,
-        accessToken: token.replace(/^Bearer\s+/i, "").trim(),
+        accessToken: cleanToken,
       }
 
       const authContext: AuthContext = {
         user: authenticatedUser,
-        token: token.replace(/^Bearer\s+/i, "").trim(),
       }
 
       c.set("auth", authContext)

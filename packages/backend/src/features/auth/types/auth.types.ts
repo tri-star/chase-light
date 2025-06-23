@@ -39,9 +39,7 @@ export interface Auth0Config {
 }
 
 export interface AuthenticatedUser {
-  /** ユーザーID (Auth0のsub) */
-  userId: string
-  /** Auth0のsub (元の形式) */
+  /** Auth0のsub (ユーザーID) */
   sub: string
   /** JWTペイロード全体 */
   payload: JWTPayload
@@ -61,8 +59,6 @@ export interface TokenValidationResult {
 export interface AuthContext {
   /** 認証済みユーザー情報 */
   user: AuthenticatedUser
-  /** アクセストークン */
-  token: string
 }
 
 /**

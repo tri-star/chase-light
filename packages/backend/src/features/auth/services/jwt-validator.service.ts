@@ -95,7 +95,9 @@ export class JWTValidator {
       // 署名キーを取得する関数
       const getKey = (header: JwtHeader, callback: SigningKeyCallback) => {
         if (!header.kid) {
-          return callback(new Error("No kid found in token header"))
+          return callback(
+            AuthError.tokenInvalid("No kid found in token header"),
+          )
         }
 
         this.jwksClient.getSigningKey(header.kid, (err, key) => {
