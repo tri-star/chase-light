@@ -55,11 +55,41 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Test
-        run: pnpm run test
+      - name: Check whether backend files have changed
+        id: backend-file-changes
+        uses: tj-actions/changed-files@ed68ef82c095e0d48ec87eccea555d944a631a4c # v46.0.5
+        with:
+          files: |
+            pnpm-lock.yaml
+            packages/backend/**
+          files_ignore: |
+            packages/backend/docs/**
 
-      - name: Build
-        run: pnpm run build
+      - name: Check whether frontend files have changed
+        id: frontend-file-changes
+        uses: tj-actions/changed-files@ed68ef82c095e0d48ec87eccea555d944a631a4c # v46.0.5
+        with:
+          files: |
+            pnpm-lock.yaml
+            packages/frontend/**
+          files_ignore: |
+            packages/frontend/docs/**
+
+      - name: Backend test
+        if: steps.backend-file-changes.outputs.any_changed == 'true'
+        run: pnpm --filter backend test
+
+      - name: Frontend Test
+        if: steps.frontend-file-changes.outputs.any_changed == 'true'
+        run: pnpm --filter frontend test
+
+      - name: Backend Build
+        if: steps.backend-file-changes.outputs.any_changed == 'true'
+        run: pnpm --filter backend build
+
+      - name: Frontend Build
+        if: steps.frontend-file-changes.outputs.any_changed == 'true'
+        run: pnpm --filter frontend build
 
   e2e:
     runs-on: ubuntu-latest
@@ -84,6 +114,23 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+
+      - name: Check whether frontend/backend files have changed
+        id: related-file-changes
+        uses: tj-actions/changed-files@ed68ef82c095e0d48ec87eccea555d944a631a4c # v46.0.5
+        with:
+          files: |
+            pnpm-lock.yaml
+            packages/frontend/**
+            packages/backend/**
+            packages/shared/**
+          files_ignore: |
+            packages/frontend/docs/**
+            packages/backend/docs/**
+
+      - name: Skip E2E tests if no related files changed
+        if: steps.related-file-changes.outputs.any_changed != 'true'
+        run: echo "No related files changed, skipping E2E tests" && exit 0
 
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
