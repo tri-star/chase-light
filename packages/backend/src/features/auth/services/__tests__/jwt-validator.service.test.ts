@@ -2,8 +2,8 @@
  * JWT Validator Tests
  */
 import { describe, it, expect, beforeEach, vi } from "vitest"
-import { JWTValidator } from "../utils/jwt-validator.js"
-import type { Auth0Config } from "../types/auth.types.js"
+import { JWTValidator } from "../jwt-validator.service"
+import type { Auth0Config } from "../../types/auth.types"
 
 // モックの設定
 vi.mock("jwks-rsa", () => {

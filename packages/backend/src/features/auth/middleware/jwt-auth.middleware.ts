@@ -5,10 +5,10 @@
  */
 import { Context, Next } from "hono"
 import { HTTPException } from "hono/http-exception"
-import type { AuthenticatedUser, AuthContext } from "../types/auth.types.js"
-import { AuthError } from "../errors/auth.error.js"
-import { JWTValidator } from "../utils/jwt-validator.js"
-import { getAuth0Config, validateAuth0Config } from "../utils/auth-config.js"
+import type { AuthenticatedUser, AuthContext } from "../types/auth.types"
+import { AuthError } from "../errors/auth.error"
+import { JWTValidator } from "../services/jwt-validator.service"
+import { getAuth0Config, validateAuth0Config } from "../utils/auth-config"
 
 /**
  * JWT認証ミドルウェアのオプション

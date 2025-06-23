@@ -2,7 +2,7 @@
  * Auth Error Tests
  */
 import { describe, it, expect } from "vitest"
-import { AuthError, AuthErrorCode } from "../errors/auth.error.js"
+import { AuthError, AuthErrorCode } from "../auth.error"
 
 describe("AuthError", () => {
   describe("constructor", () => {

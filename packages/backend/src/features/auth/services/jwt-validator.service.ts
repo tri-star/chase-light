@@ -10,8 +10,8 @@ import type {
   JWTPayload,
   TokenValidationResult,
   Auth0Config,
-} from "../types/auth.types.js"
-import { AuthError } from "../errors/auth.error.js"
+} from "../types/auth.types"
+import { AuthError } from "../errors/auth.error"
 
 /**
  * JWT検証クラス

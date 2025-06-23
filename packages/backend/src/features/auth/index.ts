@@ -12,7 +12,7 @@ export {
   getAuthenticatedUser,
   requireAuth,
   type JWTAuthOptions,
-} from "./middleware/jwt-auth.middleware.js"
+} from "./middleware/jwt-auth.middleware"
 
 // Types
 export type {
@@ -21,19 +21,19 @@ export type {
   AuthenticatedUser,
   AuthContext,
   TokenValidationResult,
-} from "./types/auth.types.js"
+} from "./types/auth.types"
 
 // Errors
 export {
   AuthError,
   AuthErrorCode,
   type AuthErrorDetails,
-} from "./errors/auth.error.js"
+} from "./errors/auth.error"
 
 // Utils
 export {
   getAuth0Config,
   validateAuth0Config,
-} from "./utils/auth-config.js"
+} from "./utils/auth-config"
 
-export { JWTValidator } from "./utils/jwt-validator.js"
+export { JWTValidator } from "./services/jwt-validator.service"
