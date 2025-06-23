@@ -1,99 +1,15 @@
-name: CI
+name: E2E Tests
 
 on:
-  push:
-    branches: [main, develop]
-  pull_request:
+  workflow_run:
+    workflows: ["Test Frontend", "Test Backend"]
+    types: [completed]
     branches: [main, develop]
 
 jobs:
-  lint:
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v4
-        with:
-          run_install: false
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: "24"
-          cache: "pnpm"
-
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile
-
-      - name: Lint
-        run: pnpm run lint
-
-      - name: Type check
-        run: pnpm run lint:type
-
-  test:
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v4
-        with:
-          run_install: false
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: "24"
-          cache: "pnpm"
-
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile
-
-      - name: Check whether backend files have changed
-        id: backend-file-changes
-        uses: tj-actions/changed-files@ed68ef82c095e0d48ec87eccea555d944a631a4c # v46.0.5
-        with:
-          files: |
-            pnpm-lock.yaml
-            packages/backend/**
-          files_ignore: |
-            packages/backend/docs/**
-
-      - name: Check whether frontend files have changed
-        id: frontend-file-changes
-        uses: tj-actions/changed-files@ed68ef82c095e0d48ec87eccea555d944a631a4c # v46.0.5
-        with:
-          files: |
-            pnpm-lock.yaml
-            packages/frontend/**
-          files_ignore: |
-            packages/frontend/docs/**
-
-      - name: Backend test
-        if: steps.backend-file-changes.outputs.any_changed == 'true'
-        run: pnpm --filter backend test
-
-      - name: Frontend Test
-        if: steps.frontend-file-changes.outputs.any_changed == 'true'
-        run: pnpm --filter frontend test
-
-      - name: Backend Build
-        if: steps.backend-file-changes.outputs.any_changed == 'true'
-        run: pnpm --filter backend build
-
-      - name: Frontend Build
-        if: steps.frontend-file-changes.outputs.any_changed == 'true'
-        run: pnpm --filter frontend build
-
   e2e:
     runs-on: ubuntu-latest
-    needs: test
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
 
     services:
       postgres:
@@ -114,23 +30,6 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-
-      - name: Check whether frontend/backend files have changed
-        id: related-file-changes
-        uses: tj-actions/changed-files@ed68ef82c095e0d48ec87eccea555d944a631a4c # v46.0.5
-        with:
-          files: |
-            pnpm-lock.yaml
-            packages/frontend/**
-            packages/backend/**
-            packages/shared/**
-          files_ignore: |
-            packages/frontend/docs/**
-            packages/backend/docs/**
-
-      - name: Skip E2E tests if no related files changed
-        if: steps.related-file-changes.outputs.any_changed != 'true'
-        run: echo "No related files changed, skipping E2E tests" && exit 0
 
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
