@@ -40,6 +40,10 @@ user.controller.ts
 ```
 features/user/
 ├── services/
+|   |── __tests__/
+|   |   ├── user-profile.service.test.ts
+|   |   ├── auth-token.service.test.ts
+|   |   └── user-preference.service.test.ts
 │   ├── user-profile.service.ts
 │   ├── user-preference.service.ts
 │   └── user-notification.service.ts
@@ -49,10 +53,6 @@ features/user/
 ├── presentation/
 │   ├── routes.ts
 │   └── schemas.ts
-└── __tests__/
-    ├── services/
-    ├── repositories/
-    └── presentation/
 ```
 
 ### クラス名との対応関係
@@ -208,18 +208,13 @@ Angular（2016年～）とNestJS（2017年～）が確立した命名規則で�
 ```
 features/[機能名]/
 ├── services/          # ビジネスロジック
+|   └── __tests__/     # テスト(.tsファイルと同じ階層に__tests__フォルダを作成する)
 ├── repositories/      # データアクセス
 ├── presentation/      # HTTP層
 ├── schemas/          # Zodスキーマ定義
 ├── parsers/          # データ変換処理
 ├── errors/           # カスタムエラークラス
-├── domain/           # ドメインモデル（必要に応じて）
-└── __tests__/        # テスト
-    ├── services/
-    ├── repositories/
-    ├── schemas/
-    ├── parsers/
-    └── presentation/
+└── domain/           # ドメインモデル（必要に応じて）
 ```
 
 ### 新パターン: Zod v4 + Parser Architecture
@@ -234,19 +229,19 @@ features/[機能名]/
 export const repositorySchema = z.object({
   id: z.number().int().positive(),
   name: z.string().min(1),
-  fullName: z.string().min(1),  // camelCase
+  fullName: z.string().min(1), // camelCase
   // ...
-})
+});
 
 // GitHub API スキーマ（外部API固有）
 export const githubRepositoryApiSchema = z.object({
   id: z.number().int().positive(),
   name: z.string().min(1),
-  full_name: z.string().min(1),  // snake_case
+  full_name: z.string().min(1), // snake_case
   // ...
-})
+});
 
-export type Repository = z.infer<typeof repositorySchema>
+export type Repository = z.infer<typeof repositorySchema>;
 ```
 
 #### Parserクラス設計パターン
@@ -257,20 +252,20 @@ export class GitHubApiParser {
   static parseRepository(apiData: unknown): Repository {
     try {
       // 1. GitHub APIスキーマでパース
-      const githubRepo = githubRepositoryApiSchema.parse(apiData)
-      
+      const githubRepo = githubRepositoryApiSchema.parse(apiData);
+
       // 2. 内部オブジェクト形式に変換
       const repository: Repository = {
         id: githubRepo.id,
         name: githubRepo.name,
-        fullName: githubRepo.full_name,  // field name conversion
+        fullName: githubRepo.full_name, // field name conversion
         // ...
-      }
-      
+      };
+
       // 3. 内部スキーマで最終検証
-      return repositorySchema.parse(repository)
+      return repositorySchema.parse(repository);
     } catch (error) {
-      throw new GitHubApiParseError("Parse failed", error, apiData)
+      throw new GitHubApiParseError("Parse failed", error, apiData);
     }
   }
 }
@@ -301,6 +296,8 @@ features/dataSource/
 ├── types/                  # 残存する型定義（API Options等）
 │   └── api-options.ts
 └── services/
+    ├── __tests__/     # テスト(.tsファイルと同じ階層に__tests__フォルダを作成する)
+    │   └── github-repo.service.test.ts
     └── github-repo.service.ts  # Parser使用例
 
 注意: features/<feature>/types.ts は削除済み
