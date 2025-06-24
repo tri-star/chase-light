@@ -4,6 +4,7 @@ import { logger } from "hono/logger"
 import { Scalar } from "@scalar/hono-api-reference"
 import { createDataSourceRoutes } from "./features/dataSource/presentation/routes"
 import { GitHubRepoService } from "./features/dataSource/services/github-repo.service"
+import { globalJWTAuth } from "./features/auth"
 
 /**
  * Chase Light Backend Application
@@ -23,6 +24,9 @@ export const createApp = () => {
       credentials: true,
     }),
   )
+
+  // グローバルJWT認証（除外パス対応）
+  app.use("*", globalJWTAuth)
 
   // ヘルスチェックエンドポイント
   app.get("/health", (c) =>

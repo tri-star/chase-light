@@ -14,6 +14,21 @@ export {
   type JWTAuthOptions,
 } from "./middleware/jwt-auth.middleware"
 
+export {
+  createExclusiveJWTAuthMiddleware,
+  globalJWTAuth,
+  strictGlobalJWTAuth,
+  type ExclusiveJWTAuthOptions,
+} from "./middleware/exclusive-jwt-auth.middleware"
+
+export {
+  isPathExcluded,
+  isAuthDisabledForDevelopment,
+  getAuthExclusionsFromEnv,
+  DEFAULT_AUTH_EXCLUSIONS,
+  type AuthExclusionConfig,
+} from "./middleware/auth-exclusions"
+
 // Types
 export type {
   JWTPayload,
