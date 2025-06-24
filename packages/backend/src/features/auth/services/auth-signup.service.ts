@@ -171,7 +171,7 @@ export class AuthSignupService {
       name: user.name,
       githubUsername: user.githubUsername || undefined,
       avatarUrl: user.avatarUrl,
-      createdAt: user.createdAt?.toISOString() || new Date().toISOString(),
+      createdAt: user.createdAt!.toISOString(),
     }
   }
 }
