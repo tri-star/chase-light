@@ -77,6 +77,7 @@ export const authErrorResponseSchema = z
           example: "無効なIDトークンです",
           description: "エラーメッセージ",
         }),
+        // （動的な型のためz.any()を使用）
         details: z.any().optional().openapi({
           description: "エラーの詳細情報",
         }),

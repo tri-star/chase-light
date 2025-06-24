@@ -89,7 +89,7 @@ export const createAuthRoutes = () => {
       // 新規ユーザーの場合は201、既存ユーザーの場合は200を返す
       const statusCode = result.alreadyExists ? 200 : 201
 
-      return c.json(result, statusCode as 201 | 200)
+      return c.json(result, statusCode)
     } catch (error) {
       console.error("Sign up error:", error)
 
@@ -105,10 +105,7 @@ export const createAuthRoutes = () => {
         }
 
         // HTTPステータスに応じて適切なレスポンスを返す
-        if (error.httpStatus === 400) {
-          return c.json(errorResponse, 400)
-        }
-        return c.json(errorResponse, 401)
+        return c.json(errorResponse, error.httpStatus)
       }
 
       // 予期しないエラーの場合は500を返す

@@ -152,7 +152,7 @@ describe("Auth Routes", () => {
         {
           description: "必須クレーム不足エラー",
           error: AuthError.missingClaims("sub"),
-          expectedStatus: 401,
+          expectedStatus: 400,
           expectedCode: "MISSING_CLAIMS",
         },
       ])(

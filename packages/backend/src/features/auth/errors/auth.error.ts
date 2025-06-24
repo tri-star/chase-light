@@ -4,6 +4,11 @@
  * JWT認証における各種エラーを表現する型定義
  */
 
+/**
+ * AuthErrorで使用されるHTTPステータスコードの型定義
+ */
+export type AuthErrorHttpStatus = 400 | 401 | 500
+
 export enum AuthErrorCode {
   TOKEN_MISSING = "TOKEN_MISSING",
   TOKEN_EXPIRED = "TOKEN_EXPIRED",
@@ -22,7 +27,7 @@ export enum AuthErrorCode {
 export interface AuthErrorDetails {
   code: AuthErrorCode
   message: string
-  httpStatus: number
+  httpStatus: AuthErrorHttpStatus
   details?: {
     expiredAt?: Date
     notActiveBefore?: Date
@@ -34,7 +39,7 @@ export interface AuthErrorDetails {
 
 export class AuthError extends Error {
   public readonly code: AuthErrorCode
-  public readonly httpStatus: number
+  public readonly httpStatus: AuthErrorHttpStatus
   public readonly details?: AuthErrorDetails["details"]
 
   constructor(errorDetails: AuthErrorDetails) {
@@ -125,7 +130,7 @@ export class AuthError extends Error {
     return new AuthError({
       code: AuthErrorCode.MISSING_CLAIMS,
       message: `Required claim is missing${claim ? `: ${claim}` : ""}`,
-      httpStatus: 401,
+      httpStatus: 400,
       details: { claim },
     })
   }
