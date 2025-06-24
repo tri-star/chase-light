@@ -19,8 +19,7 @@ export interface AuthExclusionConfig {
 export const DEFAULT_AUTH_EXCLUSIONS: AuthExclusionConfig = {
   exactPaths: ["/health", "/doc", "/scalar"],
   pathPrefixes: [
-    "/api/auth/signup", // 将来のサインアップ
-    "/api/auth/login", // 将来のログイン
+    "/api/auth/", // 認証関連API全て
     "/api/public/", // パブリックAPI
   ],
   patterns: [

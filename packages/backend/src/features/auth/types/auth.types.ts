@@ -21,6 +21,16 @@ export interface JWTPayload {
   azp?: string
   /** Scope - スコープ */
   scope?: string
+  /** Email address - メールアドレス */
+  email?: string
+  /** Name - ユーザー名 */
+  name?: string
+  /** Picture - プロフィール画像URL */
+  picture?: string
+  /** Nickname - ニックネーム（GitHubユーザー名など） */
+  nickname?: string
+  /** Preferred username - 優先ユーザー名 */
+  preferred_username?: string
   /** Custom claims */
   [key: string]: unknown
 }
