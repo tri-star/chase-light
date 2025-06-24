@@ -249,6 +249,57 @@ CREATE TABLE users (
    - 統合テスト：APIエンドポイント全パターン
    - エラーケース網羅
 
+### ❌ 未完了の受け入れ条件（残作業）
+
+#### 1. **プロフィール取得・更新API** - 🚨 必須
+**受け入れ条件**: プロフィール取得・更新が動作している
+
+```typescript
+// GET /api/users/profile - プロフィール取得
+interface ProfileResponse {
+  user: {
+    id: string;
+    email: string;
+    name: string;
+    githubUsername?: string;
+    avatarUrl: string;
+    timezone: string;
+    createdAt: string;
+    updatedAt: string;
+  };
+}
+
+// PUT /api/users/profile - プロフィール更新
+interface ProfileUpdateRequest {
+  name?: string;
+  githubUsername?: string;
+  timezone?: string;
+}
+```
+
+#### 2. **ユーザー設定API** - 🚨 必須
+**受け入れ条件**: 設定変更機能が動作している
+
+```typescript
+// GET /api/users/settings - 設定取得
+interface UserSettingsResponse {
+  settings: {
+    timezone: string;
+    emailNotifications: boolean;
+    pushNotifications: boolean;
+    language: string;
+  };
+}
+
+// PUT /api/users/settings - 設定更新
+interface UserSettingsUpdateRequest {
+  timezone?: string;
+  emailNotifications?: boolean;
+  pushNotifications?: boolean;
+  language?: string;
+}
+```
+
 ### 🔄 実装中/後回し事項
 1. **構造化ログ対応**
    - console.log/console.errorの置き換え
@@ -271,3 +322,37 @@ CREATE TABLE users (
 3. **認証除外の最小権限原則**
    - 広範囲除外（/api/auth/*）から具体的エンドポイント指定に変更
    - 将来的な認証必須エンドポイント追加時の安全性確保
+
+## 🎯 CHASE-55受け入れ条件の達成状況
+
+### ✅ 完了済み
+- [x] ユーザー登録APIが動作している
+- [x] Auth0との連携が適切に実装されている
+- [x] ログイン時はIDトークンのnonceも含めて検証している
+- [x] subなどユーザーを特定する値はIDトークンから取得している
+- [x] テストが実装されている
+
+### ❌ 未完了（必須実装項目）
+- [ ] **プロフィール取得・更新が動作している**
+  - GET `/api/users/profile` 
+  - PUT `/api/users/profile`
+- [ ] **設定変更機能が動作している**
+  - GET `/api/users/settings`
+  - PUT `/api/users/settings`
+
+### 📋 実装TODO（優先度順）
+1. **高優先度**: ユーザー管理API実装
+   - `UserService`、`UserRepository`作成
+   - `/api/users/profile` GET/PUT エンドポイント
+   - `/api/users/settings` GET/PUT エンドポイント
+   - 認証済みユーザーのみアクセス可能
+   
+2. **中優先度**: データベース拡張
+   - `user_settings`テーブル追加検討
+   - 設定項目のスキーマ定義
+   
+3. **低優先度**: フロントエンド統合
+   - Nuxt3での認証状態管理
+   - プロフィール・設定画面実装
+
+**CHASE-55完了には1番の実装が必須です。**
