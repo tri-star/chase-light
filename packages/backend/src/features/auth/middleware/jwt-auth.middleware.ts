@@ -32,10 +32,17 @@ function defaultExtractToken(c: Context): string | null {
     return authHeader
   }
 
-  // クエリパラメータから取得（開発環境用）
-  const tokenFromQuery = c.req.query("access_token")
-  if (tokenFromQuery) {
-    return `Bearer ${tokenFromQuery}`
+  // クエリパラメータから取得（本番環境以外のみ）
+  const appStage = process.env.APP_STAGE
+  if (!appStage) {
+    throw new Error("APP_STAGE environment variable is required but not set")
+  }
+
+  if (appStage !== "production") {
+    const tokenFromQuery = c.req.query("access_token")
+    if (tokenFromQuery) {
+      return `Bearer ${tokenFromQuery}`
+    }
   }
 
   return null
