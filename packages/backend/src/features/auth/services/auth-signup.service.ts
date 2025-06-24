@@ -66,14 +66,17 @@ export class AuthSignupService {
     // IDトークンからユーザー情報を抽出
     const userInfo = this.extractUserInfoFromToken(validationResult.payload)
 
+    // 新規ユーザーかどうかを事前に確認
+    const existingUser = await this.userRepository.findByAuth0Id(
+      userInfo.auth0UserId,
+    )
+    const isNewUser = !existingUser
+
     // ユーザーの作成または更新（既存の場合は更新）
     const user = await this.userRepository.findOrCreateByAuth0({
       ...userInfo,
       timezone: "Asia/Tokyo", // デフォルトのタイムゾーン
     })
-
-    // 既存ユーザーかどうかを判定
-    const isNewUser = this.isNewlyCreated(user)
 
     return {
       user: this.formatUserResponse(user),
@@ -142,23 +145,6 @@ export class AuthSignupService {
     }
 
     return undefined
-  }
-
-  /**
-   * 新規作成されたユーザーかどうかを判定
-   * createdAtとupdatedAtの差が1秒以内なら新規作成とみなす
-   */
-  private isNewlyCreated(user: User): boolean {
-    if (!user.createdAt || !user.updatedAt) {
-      return false
-    }
-
-    const createdTime = new Date(user.createdAt).getTime()
-    const updatedTime = new Date(user.updatedAt).getTime()
-    const timeDiff = Math.abs(updatedTime - createdTime)
-
-    // 1秒以内の差なら新規作成
-    return timeDiff <= 1000
   }
 
   /**

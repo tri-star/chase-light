@@ -26,6 +26,7 @@ const mockJWTValidator = {
 } as unknown as JWTValidator
 
 const mockUserRepository = {
+  findByAuth0Id: vi.fn(),
   findOrCreateByAuth0: vi.fn(),
 } as unknown as UserRepository
 
@@ -65,6 +66,9 @@ describe("AuthSignupService", () => {
           mockValidationResult,
         )
 
+        // 新規ユーザー（findByAuth0Idでnullを返す）
+        vi.mocked(mockUserRepository.findByAuth0Id).mockResolvedValue(null)
+
         const mockUser: User = {
           id: "550e8400-e29b-41d4-a716-446655440000",
           auth0UserId: "auth0|github|testuser",
@@ -86,6 +90,9 @@ describe("AuthSignupService", () => {
         // 検証
         expect(mockJWTValidator.validateAccessToken).toHaveBeenCalledWith(
           validIdToken,
+        )
+        expect(mockUserRepository.findByAuth0Id).toHaveBeenCalledWith(
+          "auth0|github|testuser",
         )
         expect(mockUserRepository.findOrCreateByAuth0).toHaveBeenCalledWith({
           auth0UserId: "auth0|github|testuser",
@@ -120,8 +127,7 @@ describe("AuthSignupService", () => {
           mockValidationResult,
         )
 
-        const now = new Date()
-        const pastDate = new Date(now.getTime() - 60 * 1000) // 1分前
+        // 既存ユーザー（findByAuth0Idで既存ユーザーを返す）
         const mockExistingUser: User = {
           id: "550e8400-e29b-41d4-a716-446655440000",
           auth0UserId: "auth0|github|testuser",
@@ -130,9 +136,12 @@ describe("AuthSignupService", () => {
           avatarUrl: "https://avatars.githubusercontent.com/u/12345?v=4",
           githubUsername: "testuser",
           timezone: "Asia/Tokyo",
-          createdAt: pastDate, // 過去の日時
-          updatedAt: now, // 現在の日時（更新済み）
+          createdAt: new Date("2023-01-01T00:00:00.000Z"),
+          updatedAt: new Date(),
         }
+        vi.mocked(mockUserRepository.findByAuth0Id).mockResolvedValue(
+          mockExistingUser,
+        )
         vi.mocked(mockUserRepository.findOrCreateByAuth0).mockResolvedValue(
           mockExistingUser,
         )
@@ -141,6 +150,9 @@ describe("AuthSignupService", () => {
         const result = await authSignupService.signUp({ idToken: validIdToken })
 
         // 検証
+        expect(mockUserRepository.findByAuth0Id).toHaveBeenCalledWith(
+          "auth0|github|testuser",
+        )
         expect(result).toEqual({
           user: {
             id: "550e8400-e29b-41d4-a716-446655440000",
@@ -148,7 +160,7 @@ describe("AuthSignupService", () => {
             name: "Test User",
             githubUsername: "testuser",
             avatarUrl: "https://avatars.githubusercontent.com/u/12345?v=4",
-            createdAt: pastDate.toISOString(),
+            createdAt: mockExistingUser.createdAt?.toISOString(),
           },
           message: "既にアカウントが存在します。ログイン情報を更新しました",
           alreadyExists: true,
@@ -208,6 +220,9 @@ describe("AuthSignupService", () => {
             mockValidationResult,
           )
 
+          // 新規ユーザー（findByAuth0Idでnullを返す）
+          vi.mocked(mockUserRepository.findByAuth0Id).mockResolvedValue(null)
+
           const mockUser: User = {
             id: "test-id",
             auth0UserId: payload.sub,
@@ -228,6 +243,9 @@ describe("AuthSignupService", () => {
           await authSignupService.signUp({ idToken: validIdToken })
 
           // 検証
+          expect(mockUserRepository.findByAuth0Id).toHaveBeenCalledWith(
+            payload.sub,
+          )
           expect(mockUserRepository.findOrCreateByAuth0).toHaveBeenCalledWith(
             expect.objectContaining({
               githubUsername: expected,
@@ -337,7 +355,7 @@ describe("AuthSignupService", () => {
         )
 
         const repositoryError = new Error("Database connection failed")
-        vi.mocked(mockUserRepository.findOrCreateByAuth0).mockRejectedValue(
+        vi.mocked(mockUserRepository.findByAuth0Id).mockRejectedValue(
           repositoryError,
         )
 
