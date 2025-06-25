@@ -123,7 +123,7 @@ describe("AuthError", () => {
       const error = AuthError.missingClaims(claimName)
 
       expect(error.code).toBe(AuthErrorCode.MISSING_CLAIMS)
-      expect(error.httpStatus).toBe(401)
+      expect(error.httpStatus).toBe(400)
       expect(error.message).toBe(`Required claim is missing: ${claimName}`)
       expect(error.details?.claim).toBe(claimName)
     })
@@ -132,7 +132,7 @@ describe("AuthError", () => {
       const error = AuthError.missingClaims()
 
       expect(error.code).toBe(AuthErrorCode.MISSING_CLAIMS)
-      expect(error.httpStatus).toBe(401)
+      expect(error.httpStatus).toBe(400)
       expect(error.message).toBe("Required claim is missing")
       expect(error.details?.claim).toBeUndefined()
     })

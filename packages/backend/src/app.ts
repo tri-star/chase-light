@@ -4,7 +4,7 @@ import { logger } from "hono/logger"
 import { Scalar } from "@scalar/hono-api-reference"
 import { createDataSourceRoutes } from "./features/dataSource/presentation/routes"
 import { GitHubRepoService } from "./features/dataSource/services/github-repo.service"
-import { globalJWTAuth } from "./features/auth"
+import { globalJWTAuth, createAuthRoutes } from "./features/auth"
 
 /**
  * Chase Light Backend Application
@@ -43,6 +43,9 @@ export const createApp = () => {
     throw new Error("GITHUB_TOKEN environment variable is required")
   }
   const githubService = new GitHubRepoService(githubToken)
+
+  // Auth API routes
+  app.route("/api/auth", createAuthRoutes())
 
   // DataSource API routes
   app.route("/api/datasource", createDataSourceRoutes(githubService))

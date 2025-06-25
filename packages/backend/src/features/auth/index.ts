@@ -52,3 +52,20 @@ export {
 } from "./utils/auth-config"
 
 export { JWTValidator } from "./services/jwt-validator.service"
+
+// Services
+export {
+  AuthSignupService,
+  authSignupService,
+  type SignUpRequest as ServiceSignUpRequest,
+  type SignUpResponse as ServiceSignUpResponse,
+} from "./services/auth-signup.service"
+
+// Presentation
+export { createAuthRoutes } from "./presentation/routes"
+export type {
+  SignUpRequest,
+  UserResponse,
+  SignUpResponse,
+  AuthErrorResponse,
+} from "./presentation/schemas"
