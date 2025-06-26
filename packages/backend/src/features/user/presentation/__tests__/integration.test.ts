@@ -84,7 +84,7 @@ describe("Users API Integration Tests", () => {
       const profileResponse = await app.request("/profile", {
         method: "GET",
         headers: {
-          "Authorization": "Bearer mock-token",
+          Authorization: "Bearer mock-token",
         },
       })
       expect(profileResponse.status).toBe(200)
@@ -96,7 +96,7 @@ describe("Users API Integration Tests", () => {
       const settingsResponse = await app.request("/settings", {
         method: "GET",
         headers: {
-          "Authorization": "Bearer mock-token",
+          Authorization: "Bearer mock-token",
         },
       })
       expect(settingsResponse.status).toBe(200)
@@ -109,7 +109,7 @@ describe("Users API Integration Tests", () => {
       const updateProfileResponse = await app.request("/profile", {
         method: "PUT",
         headers: {
-          "Authorization": "Bearer mock-token",
+          Authorization: "Bearer mock-token",
           "Content-Type": "application/json",
         },
         body: JSON.stringify({ name: "更新されたユーザー" }),
@@ -124,7 +124,7 @@ describe("Users API Integration Tests", () => {
       const updateSettingsResponse = await app.request("/settings", {
         method: "PUT",
         headers: {
-          "Authorization": "Bearer mock-token",
+          Authorization: "Bearer mock-token",
           "Content-Type": "application/json",
         },
         body: JSON.stringify({ timezone: "America/New_York" }),
@@ -158,7 +158,7 @@ describe("Users API Integration Tests", () => {
       const profileResponse = await app.request("/profile", {
         method: "GET",
         headers: {
-          "Authorization": "Bearer mock-token",
+          Authorization: "Bearer mock-token",
         },
       })
       expect(profileResponse.status).toBe(404)
@@ -167,7 +167,7 @@ describe("Users API Integration Tests", () => {
       const updateProfileResponse = await app.request("/profile", {
         method: "PUT",
         headers: {
-          "Authorization": "Bearer mock-token",
+          Authorization: "Bearer mock-token",
           "Content-Type": "application/json",
         },
         body: JSON.stringify({ name: "新しい名前" }),
@@ -178,7 +178,7 @@ describe("Users API Integration Tests", () => {
       const settingsResponse = await app.request("/settings", {
         method: "GET",
         headers: {
-          "Authorization": "Bearer mock-token",
+          Authorization: "Bearer mock-token",
         },
       })
       expect(settingsResponse.status).toBe(404)
@@ -187,7 +187,7 @@ describe("Users API Integration Tests", () => {
       const updateSettingsResponse = await app.request("/settings", {
         method: "PUT",
         headers: {
-          "Authorization": "Bearer mock-token",
+          Authorization: "Bearer mock-token",
           "Content-Type": "application/json",
         },
         body: JSON.stringify({ timezone: "Europe/London" }),
@@ -214,13 +214,13 @@ describe("Users API Integration Tests", () => {
       await app.request("/profile", {
         method: "GET",
         headers: {
-          "Authorization": "Bearer mock-token",
+          Authorization: "Bearer mock-token",
         },
       })
       await app.request("/profile", {
         method: "PUT",
         headers: {
-          "Authorization": "Bearer mock-token",
+          Authorization: "Bearer mock-token",
           "Content-Type": "application/json",
         },
         body: JSON.stringify({ name: "test" }),
@@ -228,13 +228,13 @@ describe("Users API Integration Tests", () => {
       await app.request("/settings", {
         method: "GET",
         headers: {
-          "Authorization": "Bearer mock-token",
+          Authorization: "Bearer mock-token",
         },
       })
       await app.request("/settings", {
         method: "PUT",
         headers: {
-          "Authorization": "Bearer mock-token",
+          Authorization: "Bearer mock-token",
           "Content-Type": "application/json",
         },
         body: JSON.stringify({ timezone: "Asia/Tokyo" }),
@@ -260,7 +260,7 @@ describe("Users API Integration Tests", () => {
       const profileResponse = await app.request("/profile", {
         method: "GET",
         headers: {
-          "Authorization": "Bearer mock-token",
+          Authorization: "Bearer mock-token",
         },
       })
       expect(profileResponse.status).toBe(500)
@@ -276,7 +276,7 @@ describe("Users API Integration Tests", () => {
       const settingsResponse = await app.request("/settings", {
         method: "GET",
         headers: {
-          "Authorization": "Bearer mock-token",
+          Authorization: "Bearer mock-token",
         },
       })
       expect(settingsResponse.status).toBe(500)

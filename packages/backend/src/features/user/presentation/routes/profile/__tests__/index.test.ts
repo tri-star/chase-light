@@ -58,12 +58,14 @@ describe("Profile Routes", () => {
 
   describe("GET /profile", () => {
     test("認証済みユーザーのプロフィール取得に成功", async () => {
-      vi.mocked(mockUserProfileService.getUserProfileByAuth0Id).mockResolvedValue(mockUser)
+      vi.mocked(
+        mockUserProfileService.getUserProfileByAuth0Id,
+      ).mockResolvedValue(mockUser)
 
       const response = await app.request("/profile", {
         method: "GET",
         headers: {
-          "Authorization": "Bearer mock-token",
+          Authorization: "Bearer mock-token",
         },
       })
 
@@ -81,16 +83,20 @@ describe("Profile Routes", () => {
           updatedAt: "2024-01-01T00:00:00.000Z",
         },
       })
-      expect(mockUserProfileService.getUserProfileByAuth0Id).toHaveBeenCalledWith("auth0|user123")
+      expect(
+        mockUserProfileService.getUserProfileByAuth0Id,
+      ).toHaveBeenCalledWith("auth0|user123")
     })
 
     test("ユーザーが見つからない場合は404エラー", async () => {
-      vi.mocked(mockUserProfileService.getUserProfileByAuth0Id).mockResolvedValue(null)
+      vi.mocked(
+        mockUserProfileService.getUserProfileByAuth0Id,
+      ).mockResolvedValue(null)
 
       const response = await app.request("/profile", {
         method: "GET",
         headers: {
-          "Authorization": "Bearer mock-token",
+          Authorization: "Bearer mock-token",
         },
       })
 
@@ -106,14 +112,14 @@ describe("Profile Routes", () => {
     })
 
     test("内部エラーの場合は500エラー", async () => {
-      vi.mocked(mockUserProfileService.getUserProfileByAuth0Id).mockRejectedValue(
-        new Error("Database error"),
-      )
+      vi.mocked(
+        mockUserProfileService.getUserProfileByAuth0Id,
+      ).mockRejectedValue(new Error("Database error"))
 
       const response = await app.request("/profile", {
         method: "GET",
         headers: {
-          "Authorization": "Bearer mock-token",
+          Authorization: "Bearer mock-token",
         },
       })
 
@@ -138,13 +144,17 @@ describe("Profile Routes", () => {
 
       const updatedUser = { ...mockUser, ...updateData }
 
-      vi.mocked(mockUserProfileService.getUserProfileByAuth0Id).mockResolvedValue(mockUser)
-      vi.mocked(mockUserProfileService.updateUserProfile).mockResolvedValue(updatedUser)
+      vi.mocked(
+        mockUserProfileService.getUserProfileByAuth0Id,
+      ).mockResolvedValue(mockUser)
+      vi.mocked(mockUserProfileService.updateUserProfile).mockResolvedValue(
+        updatedUser,
+      )
 
       const response = await app.request("/profile", {
         method: "PUT",
         headers: {
-          "Authorization": "Bearer mock-token",
+          Authorization: "Bearer mock-token",
           "Content-Type": "application/json",
         },
         body: JSON.stringify(updateData),
@@ -154,16 +164,21 @@ describe("Profile Routes", () => {
       const data = await response.json()
       expect(data.user.name).toBe("更新されたユーザー")
       expect(data.user.timezone).toBe("America/New_York")
-      expect(mockUserProfileService.updateUserProfile).toHaveBeenCalledWith("user-123", updateData)
+      expect(mockUserProfileService.updateUserProfile).toHaveBeenCalledWith(
+        "user-123",
+        updateData,
+      )
     })
 
     test("ユーザーが見つからない場合は404エラー", async () => {
-      vi.mocked(mockUserProfileService.getUserProfileByAuth0Id).mockResolvedValue(null)
+      vi.mocked(
+        mockUserProfileService.getUserProfileByAuth0Id,
+      ).mockResolvedValue(null)
 
       const response = await app.request("/profile", {
         method: "PUT",
         headers: {
-          "Authorization": "Bearer mock-token",
+          Authorization: "Bearer mock-token",
           "Content-Type": "application/json",
         },
         body: JSON.stringify({ name: "新しい名前" }),
@@ -181,7 +196,9 @@ describe("Profile Routes", () => {
     })
 
     test("バリデーションエラーの場合は400エラー", async () => {
-      vi.mocked(mockUserProfileService.getUserProfileByAuth0Id).mockResolvedValue(mockUser)
+      vi.mocked(
+        mockUserProfileService.getUserProfileByAuth0Id,
+      ).mockResolvedValue(mockUser)
       vi.mocked(mockUserProfileService.updateUserProfile).mockRejectedValue(
         new Error("このGitHubユーザー名は既に使用されています"),
       )
@@ -189,7 +206,7 @@ describe("Profile Routes", () => {
       const response = await app.request("/profile", {
         method: "PUT",
         headers: {
-          "Authorization": "Bearer mock-token",
+          Authorization: "Bearer mock-token",
           "Content-Type": "application/json",
         },
         body: JSON.stringify({ githubUsername: "existinguser" }),

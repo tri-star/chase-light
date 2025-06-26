@@ -91,15 +91,17 @@ export function handleError(c: Context, error: unknown, operationName: string) {
     // 明示的なバリデーションエラーメッセージの場合は400
     const validationErrorPatterns = [
       "このメールアドレスは既に使用されています",
-      "このGitHubユーザー名は既に使用されています", 
+      "このGitHubユーザー名は既に使用されています",
       "無効なタイムゾーンです",
-      "サポートされていない言語です"
+      "サポートされていない言語です",
     ]
-    
-    if (validationErrorPatterns.some(pattern => error.message.includes(pattern))) {
+
+    if (
+      validationErrorPatterns.some((pattern) => error.message.includes(pattern))
+    ) {
       return c.json(createErrorResponse("VALIDATION_ERROR", error.message), 400)
     }
-    
+
     // その他のErrorは内部エラーとして扱う (Database error等)
     return c.json(
       createErrorResponse(

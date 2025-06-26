@@ -87,7 +87,7 @@ describe("Settings Routes", () => {
       const response = await app.request("/settings", {
         method: "GET",
         headers: {
-          "Authorization": "Bearer mock-token",
+          Authorization: "Bearer mock-token",
         },
       })
 
@@ -107,7 +107,7 @@ describe("Settings Routes", () => {
       const response = await app.request("/settings", {
         method: "GET",
         headers: {
-          "Authorization": "Bearer mock-token",
+          Authorization: "Bearer mock-token",
         },
       })
 
@@ -131,7 +131,7 @@ describe("Settings Routes", () => {
       const response = await app.request("/settings", {
         method: "GET",
         headers: {
-          "Authorization": "Bearer mock-token",
+          Authorization: "Bearer mock-token",
         },
       })
 
@@ -171,7 +171,7 @@ describe("Settings Routes", () => {
       const response = await app.request("/settings", {
         method: "PUT",
         headers: {
-          "Authorization": "Bearer mock-token",
+          Authorization: "Bearer mock-token",
           "Content-Type": "application/json",
         },
         body: JSON.stringify(updateData),
@@ -194,7 +194,7 @@ describe("Settings Routes", () => {
       const response = await app.request("/settings", {
         method: "PUT",
         headers: {
-          "Authorization": "Bearer mock-token",
+          Authorization: "Bearer mock-token",
           "Content-Type": "application/json",
         },
         body: JSON.stringify({ timezone: "Europe/London" }),
@@ -222,7 +222,7 @@ describe("Settings Routes", () => {
       const response = await app.request("/settings", {
         method: "PUT",
         headers: {
-          "Authorization": "Bearer mock-token",
+          Authorization: "Bearer mock-token",
           "Content-Type": "application/json",
         },
         body: JSON.stringify({ timezone: "invalid/timezone" }),
@@ -250,7 +250,7 @@ describe("Settings Routes", () => {
       const response = await app.request("/settings", {
         method: "PUT",
         headers: {
-          "Authorization": "Bearer mock-token",
+          Authorization: "Bearer mock-token",
           "Content-Type": "application/json",
         },
         body: JSON.stringify({ language: "invalid" }),
@@ -278,7 +278,7 @@ describe("Settings Routes", () => {
       const response = await app.request("/settings", {
         method: "PUT",
         headers: {
-          "Authorization": "Bearer mock-token",
+          Authorization: "Bearer mock-token",
           "Content-Type": "application/json",
         },
         body: JSON.stringify({ timezone: "Europe/London" }),
