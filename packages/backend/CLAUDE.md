@@ -916,6 +916,11 @@ export const logger = {
 - ページネーション実装
 - キャッシュ戦略（必要に応じてRedis等の検討）
 
+## トラブルシューティング
+
+- Lintエラーの解決方法
+  - @packages/backend/docs/lint-error-troubleshooting.md 参照
+
 ## 参考資料
 
 - [Hono公式ドキュメント](https://hono.dev/)
