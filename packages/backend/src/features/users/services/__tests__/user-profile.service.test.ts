@@ -1,6 +1,9 @@
 import { describe, test, expect, vi, beforeEach } from "vitest"
 import { UserProfileService } from "../user-profile.service"
-import type { UserRepository, User } from "../../../../repositories/user.repository"
+import type {
+  UserRepository,
+  User,
+} from "../../../../repositories/user.repository"
 
 const mockUserRepository = {
   findById: vi.fn(),
@@ -70,9 +73,12 @@ describe("UserProfileService", () => {
 
       vi.mocked(mockUserRepository.findByAuth0Id).mockResolvedValue(mockUser)
 
-      const result = await userProfileService.getUserProfileByAuth0Id("auth0|user123")
+      const result =
+        await userProfileService.getUserProfileByAuth0Id("auth0|user123")
 
-      expect(mockUserRepository.findByAuth0Id).toHaveBeenCalledWith("auth0|user123")
+      expect(mockUserRepository.findByAuth0Id).toHaveBeenCalledWith(
+        "auth0|user123",
+      )
       expect(result).toEqual(mockUser)
     })
   })
@@ -101,19 +107,28 @@ describe("UserProfileService", () => {
       vi.mocked(mockUserRepository.findById).mockResolvedValue(mockUser)
       vi.mocked(mockUserRepository.update).mockResolvedValue(updatedUser)
 
-      const result = await userProfileService.updateUserProfile("user-123", updateData)
+      const result = await userProfileService.updateUserProfile(
+        "user-123",
+        updateData,
+      )
 
       expect(mockUserRepository.findById).toHaveBeenCalledWith("user-123")
-      expect(mockUserRepository.update).toHaveBeenCalledWith("user-123", updateData)
+      expect(mockUserRepository.update).toHaveBeenCalledWith(
+        "user-123",
+        updateData,
+      )
       expect(result).toEqual(updatedUser)
     })
 
     test("存在しないユーザーの場合はnullを返す", async () => {
       vi.mocked(mockUserRepository.findById).mockResolvedValue(null)
 
-      const result = await userProfileService.updateUserProfile("non-existent", {
-        name: "新しい名前",
-      })
+      const result = await userProfileService.updateUserProfile(
+        "non-existent",
+        {
+          name: "新しい名前",
+        },
+      )
 
       expect(mockUserRepository.findById).toHaveBeenCalledWith("non-existent")
       expect(mockUserRepository.update).not.toHaveBeenCalled()
@@ -130,18 +145,29 @@ describe("UserProfileService", () => {
         ...updateData,
       })
 
-      const result = await userProfileService.updateUserProfile("user-123", updateData)
+      const result = await userProfileService.updateUserProfile(
+        "user-123",
+        updateData,
+      )
 
-      expect(mockUserRepository.findByGithubUsername).toHaveBeenCalledWith("newusername")
+      expect(mockUserRepository.findByGithubUsername).toHaveBeenCalledWith(
+        "newusername",
+      )
       expect(result).toBeDefined()
     })
 
     test("GitHubユーザー名の重複チェック - 他ユーザーと重複", async () => {
       const updateData = { githubUsername: "existinguser" }
-      const existingUser = { ...mockUser, id: "other-user", githubUsername: "existinguser" }
+      const existingUser = {
+        ...mockUser,
+        id: "other-user",
+        githubUsername: "existinguser",
+      }
 
       vi.mocked(mockUserRepository.findById).mockResolvedValue(mockUser)
-      vi.mocked(mockUserRepository.findByGithubUsername).mockResolvedValue(existingUser)
+      vi.mocked(mockUserRepository.findByGithubUsername).mockResolvedValue(
+        existingUser,
+      )
 
       await expect(
         userProfileService.updateUserProfile("user-123", updateData),
@@ -154,10 +180,15 @@ describe("UserProfileService", () => {
       const updateData = { githubUsername: "testuser" } // 現在と同じユーザー名
 
       vi.mocked(mockUserRepository.findById).mockResolvedValue(mockUser)
-      vi.mocked(mockUserRepository.findByGithubUsername).mockResolvedValue(mockUser)
+      vi.mocked(mockUserRepository.findByGithubUsername).mockResolvedValue(
+        mockUser,
+      )
       vi.mocked(mockUserRepository.update).mockResolvedValue(mockUser)
 
-      const result = await userProfileService.updateUserProfile("user-123", updateData)
+      const result = await userProfileService.updateUserProfile(
+        "user-123",
+        updateData,
+      )
 
       expect(result).toBeDefined()
       expect(mockUserRepository.update).toHaveBeenCalled()
@@ -180,7 +211,10 @@ describe("UserProfileService", () => {
           timezone,
         })
 
-        const result = await userProfileService.updateUserProfile("user-123", updateData)
+        const result = await userProfileService.updateUserProfile(
+          "user-123",
+          updateData,
+        )
         expect(result).toBeDefined()
       } else {
         await expect(

@@ -1,6 +1,9 @@
 import { describe, test, expect, vi, beforeEach } from "vitest"
 import { UserSettingsService } from "../user-settings.service"
-import type { UserRepository, User } from "../../../../repositories/user.repository"
+import type {
+  UserRepository,
+  User,
+} from "../../../../repositories/user.repository"
 
 const mockUserRepository = {
   findById: vi.fn(),
@@ -84,7 +87,10 @@ describe("UserSettingsService", () => {
         timezone: "Europe/London",
       })
 
-      const result = await userSettingsService.updateUserSettings("user-123", updateData)
+      const result = await userSettingsService.updateUserSettings(
+        "user-123",
+        updateData,
+      )
 
       expect(mockUserRepository.findById).toHaveBeenCalledWith("user-123")
       expect(mockUserRepository.update).toHaveBeenCalledWith("user-123", {
@@ -101,9 +107,12 @@ describe("UserSettingsService", () => {
     test("存在しないユーザーの場合はnullを返す", async () => {
       vi.mocked(mockUserRepository.findById).mockResolvedValue(null)
 
-      const result = await userSettingsService.updateUserSettings("non-existent", {
-        timezone: "Asia/Tokyo",
-      })
+      const result = await userSettingsService.updateUserSettings(
+        "non-existent",
+        {
+          timezone: "Asia/Tokyo",
+        },
+      )
 
       expect(mockUserRepository.findById).toHaveBeenCalledWith("non-existent")
       expect(mockUserRepository.update).not.toHaveBeenCalled()
@@ -131,7 +140,10 @@ describe("UserSettingsService", () => {
           timezone,
         })
 
-        const result = await userSettingsService.updateUserSettings("user-123", updateData)
+        const result = await userSettingsService.updateUserSettings(
+          "user-123",
+          updateData,
+        )
         expect(result).toBeDefined()
         expect(result?.timezone).toBe(timezone)
       } else {
@@ -158,7 +170,10 @@ describe("UserSettingsService", () => {
           .mockResolvedValueOnce(mockUser)
           .mockResolvedValueOnce(mockUser)
 
-        const result = await userSettingsService.updateUserSettings("user-123", updateData)
+        const result = await userSettingsService.updateUserSettings(
+          "user-123",
+          updateData,
+        )
         expect(result).toBeDefined()
         // 現在の実装では言語設定はDBに保存されないため、常にデフォルト値が返される
         expect(result?.language).toBe("ja") // デフォルト値
@@ -179,7 +194,10 @@ describe("UserSettingsService", () => {
         .mockResolvedValueOnce(mockUser)
         .mockResolvedValueOnce(mockUser)
 
-      const result = await userSettingsService.updateUserSettings("user-123", updateData)
+      const result = await userSettingsService.updateUserSettings(
+        "user-123",
+        updateData,
+      )
 
       // 現在の実装では通知設定はDBに保存されないが、レスポンスにはデフォルト値が含まれる
       expect(result).toEqual({

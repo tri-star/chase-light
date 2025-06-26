@@ -5,7 +5,7 @@ import { Scalar } from "@scalar/hono-api-reference"
 import { createDataSourceRoutes } from "./features/dataSource/presentation/routes"
 import { GitHubRepoService } from "./features/dataSource/services/github-repo.service"
 import { globalJWTAuth, createAuthRoutes } from "./features/auth"
-import userRoutes from "./features/users/presentation/routes"
+import userRoutes from "./features/users/presentation"
 
 /**
  * Chase Light Backend Application
