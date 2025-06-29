@@ -572,7 +572,7 @@ export { handler } from "./lambda";
 
 ## テスト戦略
 
-[ADR003-testing.md](../../docs/adr/ADR003-testing.md) に基づき、以下の方針でテストを実装します：
+@docs/testing-strategy.md に基づき、以下の方針でテストを実装します：
 
 ### ユニットテスト
 
@@ -752,7 +752,7 @@ const users = new Hono().post(
 
 ## データベース設計
 
-[ADR004-database-schema.md](../../docs/adr/ADR004-database-schema.md) に基づき、以下の原則を遵守します：
+@../../docs/adr/ADR004-database-schema.md に基づき、以下の原則を遵守します：
 
 ### Data Sourceパターン
 
@@ -915,6 +915,11 @@ export const logger = {
 - インデックス活用（schema.tsでの適切なindex定義）
 - ページネーション実装
 - キャッシュ戦略（必要に応じてRedis等の検討）
+
+## トラブルシューティング
+
+- Lintエラーの解決方法
+  - @./docs/lint-error-troubleshooting.md 参照
 
 ## 参考資料
 

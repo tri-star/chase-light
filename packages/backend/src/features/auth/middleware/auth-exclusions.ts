@@ -18,8 +18,8 @@ export interface AuthExclusionConfig {
  */
 export const DEFAULT_AUTH_EXCLUSIONS: AuthExclusionConfig = {
   exactPaths: [
-    "/health", 
-    "/doc", 
+    "/health",
+    "/doc",
     "/scalar",
     "/api/auth/signup", // ユーザー登録のみ認証除外
   ],
