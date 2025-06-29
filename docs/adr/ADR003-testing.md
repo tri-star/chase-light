@@ -13,4 +13,4 @@
 frontend / backendそれぞれで固有に方針を定めるため、以下のドキュメントを参照する。
 
 - @../../packages/frontend/docs/testing-strategy.md
-- @../../packages/backend/docs/testing-strategy.md
+- @../../packages/backend/docs/guidelines/testing-strategy.md
