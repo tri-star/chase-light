@@ -269,7 +269,7 @@ E2Eテストに関しても、ざっくりと実装することはAIにより可
 
 ## 参考資料
 
-- [認証に関するテスト戦略](docs/adr/ADR001-auth.md#testing-strategy)
+- [認証に関するテスト戦略](../../../docs/adr/ADR001-auth.md#testing-strategy)
 - [@nuxt/test-utils公式ドキュメント](https://nuxt.com/docs/getting-started/testing)
 
 - [Testing · Get Started with Nuxt v3](https://nuxt.com/docs/getting-started/testing)  
