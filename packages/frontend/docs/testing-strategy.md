@@ -17,7 +17,7 @@
 | **Browser Feature (少数)**    | ドラッグ&ドロップ・フォーカスなど “ブラウザ依存” を早期発見 | **Vitest Browser Mode** + Playwright | **MSW**                    | nightly / pre-merge | 5–10 %         |
 | **E2E**                       | 本番に最も近い形でクリティカルシナリオ担保                  | Playwright (GUI ブラウザ)            | **実 API**（ステージング） | リリース前          | 3–5 %          |
 
-※ それぞれのレイヤーで認証をどうするかは [認証に関するテスト戦略](docs/adr/ADR001-auth.md#testing-strategy) を参照
+※ それぞれのレイヤーで認証をどうするかは [認証に関するテスト戦略](../../../docs/adr/ADR001-auth.md#testing-strategy) を参照
 
 ### テストピラミッド
 
