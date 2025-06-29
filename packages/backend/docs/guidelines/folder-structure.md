@@ -44,13 +44,11 @@ packages/backend/src/
 │   │   ├── repositories/
 │   │   │   └── auth.repository.ts
 │   │   ├── presentation/
-│   │   │   ├── routes/      # 機能別ルート（index.ts に機能単位で実装）
+│   │   │   ├── routes/      # 機能別ルート
 │   │   │   │   ├── login/
-│   │   │   │   │   ├── index.ts    # ルート定義とエンドポイント実装を一箇所に配置
-│   │   │   │   │   └── schemas.ts  # 該当機能のスキーマ定義
-│   │   │   │   └── logout/
-│   │   │   │       ├── index.ts
-│   │   │   │       └── schemas.ts
+│   │   │   │   │   └── index.ts    #ルートに関するスキーマ定義、ルート定義、エンドポイント実装を一箇所に配置。URL末尾が"/"以外の場合はindex.ts以外の名前でファイル作成
+│   │   │   │   └── some/
+│   │   │   │       └── action1.ts
 │   │   │   ├── routes.ts    # メインルート統合ファイル
 │   │   │   └── shared/      # 共通コンポーネント
 │   │   ├── schemas/         # Zodスキーマ定義
@@ -58,37 +56,8 @@ packages/backend/src/
 │   │   ├── errors/          # カスタムエラークラス
 │   │   ├── utils/           # ユーティリティ関数
 │   │   └── domain/          # ドメインモデル（必要に応じて）
-│   ├── users/               # ユーザー管理
-│   │   ├── services/        # 機能別サービス
-│   │   │   ├── user-profile.service.ts    # プロフィール管理
-│   │   │   ├── user-preference.service.ts # 設定管理
-│   │   │   └── user-notification.service.ts # 通知管理
-│   │   ├── repositories/
-│   │   │   ├── user.repository.ts
-│   │   │   └── user-preference.repository.ts
-│   │   ├── presentation/
-│   │   │   ├── routes/
-│   │   │   │   ├── profile/
-│   │   │   │   │   ├── index.ts
-│   │   │   │   │   └── schemas.ts
-│   │   │   │   └── settings/
-│   │   │   │       ├── index.ts
-│   │   │   │       └── schemas.ts
-│   │   │   ├── routes.ts
-│   │   │   └── shared/
-│   │   └── types.ts
-│   ├── dataSource/          # データソース管理（GitHubリポジトリ等）
-│   │   ├── services/
-│   │   │   ├── github-repo.service.ts     # GitHubリポジトリ管理
-│   │   │   ├── repo-events.service.ts     # イベント管理
-│   │   │   └── repo-sync.service.ts       # 同期処理
-│   │   ├── repositories/
-│   │   │   ├── data-source.repository.ts
-│   │   │   └── repository.repository.ts
-│   │   ├── presentation/
-│   │   │   ├── routes.ts
-│   │   │   └── schemas.ts
-│   │   └── types.ts
+│   ├── user/                # ユーザー管理
+│   ├── data-source/          # データソース管理（GitHubリポジトリ等）
 │   └── common/              # 機能横断的なコード
 │       ├── logging/
 │       └── monitoring/
@@ -98,17 +67,10 @@ packages/backend/src/
 │   │   ├── validation.ts
 │   │   ├── error.ts
 │   │   └── __tests__/       # ミドルウェアテスト
-│   │       ├── auth.test.ts
-│   │       ├── validation.test.ts
-│   │       └── error.test.ts
-│   ├── utils/               # ヘルパー関数
-│   │   ├── encryption.ts
-│   │   ├── validation.ts
-│   │   └── __tests__/       # ユーティリティテスト
-│   │       ├── encryption.test.ts
-│   │       └── validation.test.ts
-│   └── types/               # 共通型定義
-│       └── api.ts
+│   └── utils/               # ヘルパー関数
+│       ├── encryption.ts
+│       ├── validation.ts
+│       └── __tests__/       # ユーティリティテスト
 └── db/                      # データベース関連
     ├── connection.ts        # DB接続設定
     ├── schema.ts            # Drizzleスキーマ定義
@@ -139,7 +101,7 @@ packages/backend/src/
 - **repositories/**: データアクセス層（1テーブル1リポジトリ原則）
 - **presentation/**: HTTP層（ルート・バリデーション）
 - **types.ts**: その機能固有の型定義
-- **__tests__/**: 各層のコロケーションテスト
+- **tests**: 各層のコロケーションテスト
 
 ## フォルダとファイルの命名規則
 
@@ -178,14 +140,17 @@ features/[機能名]/     # 機能名は単数形（user, auth, dataSource等）
 ### ✅ 新構造の利点
 
 1. **責任の明確化**
+
    - 各サービスが単一の責任を持つ（Single Responsibility Principle）
    - プロフィール管理と通知機能の混在を避ける
 
 2. **並行開発の促進**
+
    - 複数人が異なるファイルで作業可能
    - マージコンフリクトの軽減
 
 3. **テストの改善**
+
    - 機能単位でのテスト分離
    - モックの簡略化
 
@@ -196,10 +161,12 @@ features/[機能名]/     # 機能名は単数形（user, auth, dataSource等）
 ### ⚠️ 注意すべき点
 
 1. **過度な分割の回避**
+
    - 100行未満の小さな機能は統合を検討
    - 機能的結合度を保つ
 
 2. **依存関係の管理**
+
    - サービス間の循環依存を避ける
    - 依存性注入パターンの一貫性
 

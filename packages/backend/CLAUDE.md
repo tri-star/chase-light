@@ -16,26 +16,31 @@
 本プロジェクトでは、以下のガイドラインに従って開発を進めてください：
 
 ### 📁 [フォルダ構成ガイドライン](docs/guidelines/folder-structure.md)
+
 - Features-First Approach（機能優先アプローチ）
 - コロケーションを重視したディレクトリ設計
 - レイヤ別分割とサービス分割の原則
 
 ### 🏗️ [アーキテクチャパターン](docs/guidelines/architecture-patterns.md)
+
 - Zod v4 + Parser Architecture
 - 依存性注入パターン
 - ランタイム型安全性の確保
 
 ### 🚀 [APIルート実装ガイド](docs/guidelines/api-implementation-guide.md)
+
 - Honoフレームワークを使用したAPI実装
 - スキーマコロケーション原則
 - OpenAPI統合とエラーハンドリング
 
 ### 📝 [ファイル命名規則](docs/guidelines/file-naming-conventions.md)
+
 - kebab-case.layer.ts パターン
 - 機能名とレイヤ名の命名規則
 - ESLint設定例
 
 ### 🧪 [テスト戦略](docs/guidelines/testing-strategy.md)
+
 - Unit/Component Test の分類
 - コロケーション原則に基づくテスト配置
 - vitest + drizzle-seed を活用したテスト実装
@@ -59,18 +64,17 @@ src/
 ```typescript
 // src/lambda.ts
 import { handle } from "hono/aws-lambda";
-import { app } from "./app";
+import { createApp } from "./app";
 
+const app = createApp();
 export const handler = handle(app);
 ```
 
 ### ECS用HTTPサーバー
 
 ```typescript
-// src/server.ts
-import { serve } from "@hono/node-server";
-import { app } from "./app";
-
+import { createApp } from "./app";
+const app = createApp();
 const port = Number(process.env.PORT) || 3000;
 serve({ fetch: app.fetch, port });
 ```
@@ -109,27 +113,32 @@ export abstract class DrizzleBaseRepository<T> implements BaseRepository<T> {
 開発時は以下の項目を確認してください：
 
 #### アーキテクチャ
+
 - [ ] フォルダ構成が[フォルダ構成ガイドライン](docs/guidelines/folder-structure.md)に従っているか
 - [ ] サービスが単一の責任を持っているか（100-300行程度）
 - [ ] 依存性注入が適切に実装されているか
 - [ ] [アーキテクチャパターン](docs/guidelines/architecture-patterns.md)に従ったParser設計になっているか
 
 #### API実装
+
 - [ ] [APIルート実装ガイド](docs/guidelines/api-implementation-guide.md)に従ったルート実装になっているか
 - [ ] スキーマコロケーションが適切に行われているか
 - [ ] Zodスキーマで適切にバリデーションが定義されているか
 - [ ] エラーハンドリングが統一されているか
 
 #### ファイル管理
+
 - [ ] [ファイル命名規則](docs/guidelines/file-naming-conventions.md)に従っているか
 - [ ] レイヤの役割が命名から判別できるか
 
 #### テスト
+
 - [ ] [テスト戦略](docs/guidelines/testing-strategy.md)に従ったテスト実装になっているか
 - [ ] テストが適切にコロケーションされているか
 - [ ] テストファイル名が`[対象ファイル名].test.ts`の命名規則に従っているか
 
 #### 型安全性
+
 - [ ] 型安全性が確保されているか（any型の濫用がないか）
 - [ ] Zod + Parserパターンでランタイム型検証が実装されているか
 
