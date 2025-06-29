@@ -16,56 +16,6 @@ import {
  * プロフィール管理関連のルート定義
  */
 
-// プロフィール取得ルート定義
-const getProfileRoute = createRoute({
-  method: "get",
-  path: "/profile",
-  summary: "プロフィール取得",
-  description: "認証済みユーザーのプロフィール情報を取得します",
-  tags: ["Users"],
-  responses: {
-    200: {
-      content: {
-        "application/json": {
-          schema: userProfileResponseSchema,
-        },
-      },
-      description: "プロフィール情報",
-    },
-    ...userErrorResponseSchemaDefinition,
-  },
-})
-
-// プロフィール更新ルート定義
-const updateProfileRoute = createRoute({
-  method: "put",
-  path: "/profile",
-  summary: "プロフィール更新",
-  description: "認証済みユーザーのプロフィール情報を更新します",
-  tags: ["Users"],
-  request: {
-    body: {
-      content: {
-        "application/json": {
-          schema: updateProfileRequestSchema,
-        },
-      },
-      description: "更新するプロフィール情報",
-    },
-  },
-  responses: {
-    200: {
-      content: {
-        "application/json": {
-          schema: userProfileResponseSchema,
-        },
-      },
-      description: "更新されたプロフィール情報",
-    },
-    ...userErrorResponseSchemaDefinition,
-  },
-})
-
 /**
  * プロフィールルートファクトリー
  */
@@ -73,6 +23,28 @@ export const createProfileRoutes = (
   app: OpenAPIHono,
   userProfileService: UserProfileService,
 ) => {
+  // ===== プロフィール取得機能 =====
+  
+  // プロフィール取得ルート定義
+  const getProfileRoute = createRoute({
+    method: "get",
+    path: "/profile",
+    summary: "プロフィール取得",
+    description: "認証済みユーザーのプロフィール情報を取得します",
+    tags: ["Users"],
+    responses: {
+      200: {
+        content: {
+          "application/json": {
+            schema: userProfileResponseSchema,
+          },
+        },
+        description: "プロフィール情報",
+      },
+      ...userErrorResponseSchemaDefinition,
+    },
+  })
+
   // プロフィール取得エンドポイント
   app.openapi(getProfileRoute, async (c) => {
     try {
@@ -104,6 +76,38 @@ export const createProfileRoutes = (
     } catch (error) {
       return handleError(c, error, "プロフィール取得")
     }
+  })
+
+  // ===== プロフィール更新機能 =====
+
+  // プロフィール更新ルート定義
+  const updateProfileRoute = createRoute({
+    method: "put",
+    path: "/profile",
+    summary: "プロフィール更新",
+    description: "認証済みユーザーのプロフィール情報を更新します",
+    tags: ["Users"],
+    request: {
+      body: {
+        content: {
+          "application/json": {
+            schema: updateProfileRequestSchema,
+          },
+        },
+        description: "更新するプロフィール情報",
+      },
+    },
+    responses: {
+      200: {
+        content: {
+          "application/json": {
+            schema: userProfileResponseSchema,
+          },
+        },
+        description: "更新されたプロフィール情報",
+      },
+      ...userErrorResponseSchemaDefinition,
+    },
   })
 
   // プロフィール更新エンドポイント
