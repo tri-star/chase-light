@@ -163,7 +163,7 @@ Angular（2016年～）とNestJS（2017年～）が確立した命名規則で�
 
 | レイヤ        | パターン                         | 例                             |
 | ------------- | -------------------------------- | ------------------------------ |
-| Service       | `[機能名].[詳細].service.ts`     | `user-profile.service.ts`      |
+| Service       | `[機能名].service.ts`            | `user-profile.service.ts`      |
 | Repository    | `[エンティティ名].repository.ts` | `user.repository.ts`           |
 | Controller    | `[機能名].controller.ts`         | `auth.controller.ts`           |
 | Middleware    | `[機能名].middleware.ts`         | `auth.middleware.ts`           |
