@@ -192,22 +192,22 @@ Angular（2016年～）とNestJS（2017年～）が確立した命名規則で�
 
 ### ファイル命名パターン
 
-| レイヤ       | パターン                         | 例                             |
-| ------------ | -------------------------------- | ------------------------------ |
-| Service      | `[機能名].[詳細].service.ts`     | `user-profile.service.ts`      |
-| Repository   | `[エンティティ名].repository.ts` | `user.repository.ts`           |
-| Controller   | `[機能名].controller.ts`         | `auth.controller.ts`           |
-| Middleware   | `[機能名].middleware.ts`         | `auth.middleware.ts`           |
-| Entity       | `[エンティティ名].entity.ts`     | `user.entity.ts`               |
-| DTO          | `[用途].dto.ts`                  | `create-user.dto.ts`           |
-| Interface    | `[名前].interface.ts`            | `user-repository.interface.ts` |
-| Type         | `[用途].types.ts`                | `api.types.ts`                 |
-| Schema       | `[データ名].schema.ts`           | `repository.schema.ts`         |
-| Parser       | `[データソース名].parser.ts`     | `github-api.parser.ts`         |
-| Error        | `[用途].error.ts`                | `github-parse.error.ts`        |
-| Utils        | `[機能名].ts`                    | `auth-config.ts`               |
-| Route        | `index.ts`                       | `routes/profile/index.ts`      |
-| Route Schema | `schemas.ts`                     | `routes/profile/schemas.ts`    |
+| レイヤ        | パターン                         | 例                             |
+| ------------- | -------------------------------- | ------------------------------ |
+| Service       | `[機能名].[詳細].service.ts`     | `user-profile.service.ts`      |
+| Repository    | `[エンティティ名].repository.ts` | `user.repository.ts`           |
+| Controller    | `[機能名].controller.ts`         | `auth.controller.ts`           |
+| Middleware    | `[機能名].middleware.ts`         | `auth.middleware.ts`           |
+| Entity        | `[エンティティ名].entity.ts`     | `user.entity.ts`               |
+| DTO           | `[用途].dto.ts`                  | `create-user.dto.ts`           |
+| Interface     | `[名前].interface.ts`            | `user-repository.interface.ts` |
+| Type          | `[用途].types.ts`                | `api.types.ts`                 |
+| Schema        | `[データ名].schema.ts`           | `user-base.schema.ts`          |
+| Parser        | `[データソース名].parser.ts`     | `github-api.parser.ts`         |
+| Error         | `[用途].error.ts`                | `github-parse.error.ts`        |
+| Utils         | `[機能名].ts`                    | `auth-config.ts`               |
+| Route         | `index.ts`                       | `routes/profile/index.ts`      |
+| Shared Schema | `[用途]-[詳細].schema.ts`        | `user-error.schema.ts`         |
 
 ### 機能名の命名規則
 
@@ -426,15 +426,15 @@ app.openapi(updateProfileRoute, ...)
 // routes/profile/index.ts
 export const createProfileRoutes = (...) => {
   // ===== 共通スキーマ定義 =====
-  
+
   // 複数機能で共通利用するスキーマ
   const userProfileResponseSchema = z.object({...})
 
   // ===== プロフィール更新機能 =====
-  
+
   // プロフィール更新専用スキーマ定義
   const updateProfileRequestSchema = z.object({...})
-  
+
   // プロフィール更新ルート定義
   const updateProfileRoute = createRoute({
     request: {
@@ -448,7 +448,7 @@ export const createProfileRoutes = (...) => {
     },
     // ...
   })
-  
+
   // プロフィール更新エンドポイント
   app.openapi(updateProfileRoute, async (c) => {...})
 }
@@ -456,30 +456,99 @@ export const createProfileRoutes = (...) => {
 
 **スキーマ配置の原則**:
 
-1. **機能固有スキーマ**: 該当機能ブロック内に定義
-2. **機能間共通スキーマ**: ファイル内の共通セクションに定義
-3. **フィーチャー間共通スキーマ**: `presentation/schemas/[schema-name].schema.ts` に定義
+1. **機能固有スキーマ**: 該当機能ブロック内に定義（`updateProfileRequestSchema`等）
+2. **機能間共通スキーマ**: ファイル内の共通セクションに定義（`userProfileResponseSchema`等）
+3. **フィーチャー間共通スキーマ**: `presentation/schemas/[schema-name].schema.ts` に定義（`userBaseSchema`等）
+
+**旧パターンからの移行**:
+
+- ❌ `routes/[feature]/schemas.ts` ファイルは廃止
+- ❌ `shared/common-schemas.ts` ファイルは廃止
+- ✅ 機能固有スキーマは`routes/[feature]/index.ts`内に直接定義
+- ✅ 共通スキーマは`schemas/[name].schema.ts`に分離
 
 ```
 presentation/
 ├── routes/
 │   ├── profile/
-│   │   └── index.ts          # スキーマ + ルート + エンドポイント
+│   │   └── index.ts          # 機能固有スキーマ + ルート + エンドポイント
 │   └── settings/
-│       └── index.ts          # スキーマ + ルート + エンドポイント
+│       └── index.ts          # 機能固有スキーマ + ルート + エンドポイント
 ├── schemas/                   # フィーチャー間共通スキーマ
-│   ├── user-base.schema.ts    # ユーザー基本情報
-│   ├── user-error.schema.ts   # エラーレスポンス
-│   └── user-params.schema.ts  # パラメータ
-└── shared/
-    └── error-handling.ts
+│   ├── user-base.schema.ts    # ユーザー基本情報（共通）
+│   ├── user-error.schema.ts   # エラーレスポンス（共通）
+│   └── user-params.schema.ts  # パラメータ（共通）
+├── shared/
+│   └── error-handling.ts     # エラーハンドリングユーティリティ
+└── index.ts                  # エクスポート統合（schemas/からの再エクスポート含む）
+```
+
+**実装例**:
+
+```typescript
+// routes/profile/index.ts - 完全なコロケーション実装
+import { userBaseSchema } from "../../schemas/user-base.schema";
+
+export const createProfileRoutes = (
+  app: OpenAPIHono,
+  service: UserProfileService
+) => {
+  // ===== 共通スキーマ定義 =====
+  const userProfileResponseSchema = z
+    .object({
+      user: userBaseSchema, // schemas/から取得した共通スキーマを利用
+    })
+    .openapi("UserProfileResponse");
+
+  // ===== プロフィール更新機能 =====
+
+  // 機能固有スキーマ定義（この機能でのみ使用）
+  const updateProfileRequestSchema = z
+    .object({
+      name: z.string().min(1).optional(),
+      githubUsername: z.string().min(1).max(39).optional(),
+      timezone: z.string().optional(),
+    })
+    .openapi("UpdateProfileRequest");
+
+  // ルート定義
+  const updateProfileRoute = createRoute({
+    method: "put",
+    path: "/profile",
+    request: {
+      body: {
+        content: {
+          "application/json": {
+            schema: updateProfileRequestSchema, // 直上で定義
+          },
+        },
+      },
+    },
+    responses: {
+      200: {
+        content: {
+          "application/json": {
+            schema: userProfileResponseSchema, // ファイル内共通スキーマ
+          },
+        },
+      },
+    },
+  });
+
+  // エンドポイント実装
+  app.openapi(updateProfileRoute, async (c) => {
+    // 実装...
+  });
+};
 ```
 
 **利点**:
+
 - スキーマ・ルート・エンドポイントの完全なコロケーション
 - 一機能の修正で複数ファイルを編集する必要がなくなる
 - スキーマの使用箇所が明確で保守性向上
-- Import文の削減
+- Import文の削減（機能固有スキーマはimport不要）
+- 共通スキーマの再利用性とメンテナンス性を両立
 
 ## 関連資料
 
