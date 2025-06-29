@@ -12,5 +12,5 @@
 
 frontend / backendそれぞれで固有に方針を定めるため、以下のドキュメントを参照する。
 
-- [frontendテスト戦略](packages/frontend/docs/testing-strategy.md)
-- [backendテスト戦略](packages/backend/docs/testing-strategy.md)
+- @ ../../packages/frontend/docs/testing-strategy.md
+- @ ../../packages/backend/docs/testing-strategy.md

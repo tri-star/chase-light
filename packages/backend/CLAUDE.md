@@ -572,7 +572,7 @@ export { handler } from "./lambda";
 
 ## テスト戦略
 
-[ADR003-testing.md](../../docs/adr/ADR003-testing.md) に基づき、以下の方針でテストを実装します：
+@../../docs/adr/ADR003-testing.md に基づき、以下の方針でテストを実装します：
 
 ### ユニットテスト
 
