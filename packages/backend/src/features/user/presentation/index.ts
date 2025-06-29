@@ -20,12 +20,18 @@ export { createUserRoutes } from "./routes"
 // 共通スキーマとユーティリティをエクスポート
 export {
   userParams,
-  userErrorResponseSchema,
-  userBaseSchema,
   type UserParams,
+} from "./schemas/user-params.schema"
+
+export {
+  userErrorResponseSchema,
   type UserErrorResponse,
+} from "./schemas/user-error.schema"
+
+export {
+  userBaseSchema,
   type UserBase,
-} from "./shared/common-schemas"
+} from "./schemas/user-base.schema"
 
 export {
   createErrorResponse,

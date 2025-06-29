@@ -134,7 +134,9 @@ await reset(db, schema);
 
 ## 実装方針
 
-### テスト構成
+### テスト構成とコロケーション原則
+
+**基本方針**: **コロケーション**を重視し、テスト対象の同階層に `__tests__/` フォルダを作成
 
 ```
 src/
@@ -142,11 +144,46 @@ src/
     user/
       services/
         __tests__/
-          user.service.test.ts     # Unit Test
+          user-profile.service.test.ts   # Unit Test
+          user-preference.service.test.ts
+          user-notification.service.test.ts
+        user-profile.service.ts
+        user-preference.service.ts
+        user-notification.service.ts
+      repositories/
+        __tests__/
+          user.repository.test.ts
+          user-preference.repository.test.ts
+        user.repository.ts
+        user-preference.repository.ts
       presentation/
         __tests__/
-          user.component.test.ts   # Component Test
+          user.component.test.ts         # Component Test
+        routes/
+          profile/
+            index.ts
+          settings/
+            index.ts
+        routes.ts
+      parsers/
+        __tests__/
+          user-api.parser.test.ts
+        user-api.parser.ts
 ```
+
+### テストファイル命名規則
+
+- 各テストファイルは `[対象ファイル名].test.ts` の命名規則を採用
+- describe/testの名前は**日本語**で記述
+- `test()` を `it()` より優先
+- Parameterized testを積極活用
+
+### コロケーション原則の利点
+
+- **テスト対象のコードと物理的に近い場所にテストを配置**
+- **ファイル移動時のテストファイル同期が容易**
+- **各層（services/, repositories/, presentation/）ごとの独立性を保持**
+- **IDEでの関連ファイルの発見・navigation効率が向上**
 
 ### Component Test実装例
 
@@ -296,3 +333,10 @@ pnpm test src/features/user
 - テスト実行時間の最適化
 - 並列実行戦略
 - テストデータベースの管理
+
+## 関連資料
+
+- [フォルダ構成ガイドライン](./folder-structure.md)
+- [アーキテクチャパターン](./architecture-patterns.md)
+- [ファイル命名規則](./file-naming-conventions.md)
+- [APIルート実装ガイド](./api-implementation-guide.md)

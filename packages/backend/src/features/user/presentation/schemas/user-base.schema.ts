@@ -1,50 +1,9 @@
 import { z } from "@hono/zod-openapi"
 
 /**
- * Users API共通スキーマ
- * ユーザー管理API全体で共通で使用されるスキーマ定義
+ * User Base Schema
+ * ユーザー基本情報の共通スキーマ定義
  */
-
-// ユーザーパラメータ
-export const userParams = z
-  .object({
-    userId: z
-      .string()
-      .uuid()
-      .openapi({
-        param: { name: "userId", in: "path" },
-        example: "550e8400-e29b-41d4-a716-446655440000",
-        description: "ユーザーID（UUID）",
-      }),
-  })
-  .openapi("UserParams")
-
-// 共通エラーレスポンス
-export const userErrorResponseSchema = z
-  .object({
-    success: z.boolean().openapi({
-      example: false,
-      description: "エラー時は常にfalse",
-    }),
-    error: z
-      .object({
-        code: z.string().openapi({
-          example: "USER_NOT_FOUND",
-          description: "エラーコード",
-        }),
-        message: z.string().openapi({
-          example: "ユーザーが見つかりません",
-          description: "エラーメッセージ",
-        }),
-        details: z.any().optional().openapi({
-          description: "エラーの詳細情報",
-        }),
-      })
-      .openapi({
-        description: "エラー情報",
-      }),
-  })
-  .openapi("UserErrorResponse")
 
 // ユーザー基本情報スキーマ（プロフィール用）
 export const userBaseSchema = z.object({
@@ -83,6 +42,4 @@ export const userBaseSchema = z.object({
 })
 
 // 型推論用エクスポート
-export type UserParams = z.infer<typeof userParams>
-export type UserErrorResponse = z.infer<typeof userErrorResponseSchema>
 export type UserBase = z.infer<typeof userBaseSchema>
