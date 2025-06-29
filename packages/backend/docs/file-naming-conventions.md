@@ -51,8 +51,17 @@ features/user/
 │   ├── user.repository.ts
 │   └── user-preference.repository.ts
 ├── presentation/
-│   ├── routes.ts
-│   └── schemas.ts
+│   ├── routes/
+│   │   ├── profile/
+│   │   │   ├── index.ts      # 機能単位でルート定義とエンドポイント実装をまとめて配置
+│   │   │   └── schemas.ts
+│   │   └── settings/
+│   │       ├── index.ts
+│   │       └── schemas.ts
+│   ├── routes.ts             # メインルート統合
+│   └── shared/
+│       ├── common-schemas.ts
+│       └── error-handling.ts
 ```
 
 ### クラス名との対応関係
@@ -183,20 +192,22 @@ Angular（2016年～）とNestJS（2017年～）が確立した命名規則で�
 
 ### ファイル命名パターン
 
-| レイヤ     | パターン                         | 例                             |
-| ---------- | -------------------------------- | ------------------------------ |
-| Service    | `[機能名].[詳細].service.ts`     | `user-profile.service.ts`      |
-| Repository | `[エンティティ名].repository.ts` | `user.repository.ts`           |
-| Controller | `[機能名].controller.ts`         | `auth.controller.ts`           |
-| Middleware | `[機能名].middleware.ts`         | `auth.middleware.ts`           |
-| Entity     | `[エンティティ名].entity.ts`     | `user.entity.ts`               |
-| DTO        | `[用途].dto.ts`                  | `create-user.dto.ts`           |
-| Interface  | `[名前].interface.ts`            | `user-repository.interface.ts` |
-| Type       | `[用途].types.ts`                | `api.types.ts`                 |
-| Schema     | `[データ名].schema.ts`           | `repository.schema.ts`         |
-| Parser     | `[データソース名].parser.ts`     | `github-api.parser.ts`         |
-| Error      | `[用途].error.ts`                | `github-parse.error.ts`        |
-| Utils      | `[機能名].ts`                    | `auth-config.ts`               |
+| レイヤ       | パターン                         | 例                             |
+| ------------ | -------------------------------- | ------------------------------ |
+| Service      | `[機能名].[詳細].service.ts`     | `user-profile.service.ts`      |
+| Repository   | `[エンティティ名].repository.ts` | `user.repository.ts`           |
+| Controller   | `[機能名].controller.ts`         | `auth.controller.ts`           |
+| Middleware   | `[機能名].middleware.ts`         | `auth.middleware.ts`           |
+| Entity       | `[エンティティ名].entity.ts`     | `user.entity.ts`               |
+| DTO          | `[用途].dto.ts`                  | `create-user.dto.ts`           |
+| Interface    | `[名前].interface.ts`            | `user-repository.interface.ts` |
+| Type         | `[用途].types.ts`                | `api.types.ts`                 |
+| Schema       | `[データ名].schema.ts`           | `repository.schema.ts`         |
+| Parser       | `[データソース名].parser.ts`     | `github-api.parser.ts`         |
+| Error        | `[用途].error.ts`                | `github-parse.error.ts`        |
+| Utils        | `[機能名].ts`                    | `auth-config.ts`               |
+| Route        | `index.ts`                       | `routes/profile/index.ts`      |
+| Route Schema | `schemas.ts`                     | `routes/profile/schemas.ts`    |
 
 ### 機能名の命名規則
 
@@ -214,6 +225,13 @@ features/[機能名]/     # 機能名は単数形（user, auth, dataSource等）
 |   └── __tests__/     # テスト(.tsファイルと同じ階層に__tests__フォルダを作成する)
 ├── repositories/      # データアクセス
 ├── presentation/      # HTTP層
+│   ├── routes/       # 機能別ルート（index.ts に機能単位で実装）
+│   │   ├── [feature]/
+│   │   │   ├── index.ts    # ルート定義とエンドポイント実装を一箇所に配置
+│   │   │   └── schemas.ts  # 該当機能のスキーマ定義
+│   │   └── ...
+│   ├── routes.ts     # メインルート統合ファイル
+│   └── shared/       # 共通コンポーネント
 ├── schemas/          # Zodスキーマ定義
 ├── parsers/          # データ変換処理
 ├── errors/           # カスタムエラークラス
@@ -342,6 +360,126 @@ features/dataSource/
 - コードレビュー時の理解速度向上
 - 新メンバーのオンボーディング期間短縮
 - ファイル命名に関する質問・修正の減少
+
+## ルート実装のベストプラクティス
+
+### 機能単位でのルート構成
+
+**推奨構成**: ルート定義とエンドポイント実装を機能ごとにまとめて配置
+
+```typescript
+// routes/profile/index.ts
+export const createProfileRoutes = (
+  app: OpenAPIHono,
+  userProfileService: UserProfileService
+) => {
+  // ===== プロフィール取得機能 =====
+
+  // プロフィール取得ルート定義
+  const getProfileRoute = createRoute({
+    // ルート定義...
+  });
+
+  // プロフィール取得エンドポイント
+  app.openapi(getProfileRoute, async (c) => {
+    // エンドポイント実装...
+  });
+
+  // ===== プロフィール更新機能 =====
+
+  // プロフィール更新ルート定義
+  const updateProfileRoute = createRoute({
+    // ルート定義...
+  });
+
+  // プロフィール更新エンドポイント
+  app.openapi(updateProfileRoute, async (c) => {
+    // エンドポイント実装...
+  });
+};
+```
+
+**利点**:
+
+- 関連するコードが物理的に近い位置に配置
+- 一つの機能の修正時に必要なコードが同じ場所にある
+- 新機能追加時のパターンが明確
+- 機能単位でのコードレビューが容易
+
+**避けるべきパターン**:
+
+```typescript
+// ❌ ルート定義とエンドポイント実装が分離
+const getProfileRoute = createRoute({...})
+const updateProfileRoute = createRoute({...})
+
+// 離れた場所でエンドポイント実装
+app.openapi(getProfileRoute, ...)
+app.openapi(updateProfileRoute, ...)
+```
+
+### スキーマ定義のコロケーション
+
+**推奨構成**: スキーマ定義も機能ごとにまとめて配置
+
+```typescript
+// routes/profile/index.ts
+export const createProfileRoutes = (...) => {
+  // ===== 共通スキーマ定義 =====
+  
+  // 複数機能で共通利用するスキーマ
+  const userProfileResponseSchema = z.object({...})
+
+  // ===== プロフィール更新機能 =====
+  
+  // プロフィール更新専用スキーマ定義
+  const updateProfileRequestSchema = z.object({...})
+  
+  // プロフィール更新ルート定義
+  const updateProfileRoute = createRoute({
+    request: {
+      body: {
+        content: {
+          "application/json": {
+            schema: updateProfileRequestSchema, // 直上で定義
+          },
+        },
+      },
+    },
+    // ...
+  })
+  
+  // プロフィール更新エンドポイント
+  app.openapi(updateProfileRoute, async (c) => {...})
+}
+```
+
+**スキーマ配置の原則**:
+
+1. **機能固有スキーマ**: 該当機能ブロック内に定義
+2. **機能間共通スキーマ**: ファイル内の共通セクションに定義
+3. **フィーチャー間共通スキーマ**: `presentation/schemas/[schema-name].schema.ts` に定義
+
+```
+presentation/
+├── routes/
+│   ├── profile/
+│   │   └── index.ts          # スキーマ + ルート + エンドポイント
+│   └── settings/
+│       └── index.ts          # スキーマ + ルート + エンドポイント
+├── schemas/                   # フィーチャー間共通スキーマ
+│   ├── user-base.schema.ts    # ユーザー基本情報
+│   ├── user-error.schema.ts   # エラーレスポンス
+│   └── user-params.schema.ts  # パラメータ
+└── shared/
+    └── error-handling.ts
+```
+
+**利点**:
+- スキーマ・ルート・エンドポイントの完全なコロケーション
+- 一機能の修正で複数ファイルを編集する必要がなくなる
+- スキーマの使用箇所が明確で保守性向上
+- Import文の削減
 
 ## 関連資料
 
