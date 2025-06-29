@@ -572,7 +572,7 @@ export { handler } from "./lambda";
 
 ## テスト戦略
 
-@../../docs/adr/ADR003-testing.md に基づき、以下の方針でテストを実装します：
+@docs/testing-strategy.md に基づき、以下の方針でテストを実装します：
 
 ### ユニットテスト
 
@@ -752,7 +752,7 @@ const users = new Hono().post(
 
 ## データベース設計
 
-[ADR004-database-schema.md](../../docs/adr/ADR004-database-schema.md) に基づき、以下の原則を遵守します：
+@../../docs/adr/ADR004-database-schema.md に基づき、以下の原則を遵守します：
 
 ### Data Sourceパターン
 
@@ -919,7 +919,7 @@ export const logger = {
 ## トラブルシューティング
 
 - Lintエラーの解決方法
-  - @packages/backend/docs/lint-error-troubleshooting.md 参照
+  - @./docs/lint-error-troubleshooting.md 参照
 
 ## 参考資料
 
