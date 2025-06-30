@@ -3,7 +3,7 @@ import { OpenAPIHono } from "@hono/zod-openapi"
 import { createProfileRoutes } from "../index"
 import { requireAuth } from "../../../../../auth/middleware/jwt-auth.middleware.js"
 import type { UserProfileService } from "../../../../services/user-profile.service"
-import type { User } from "../../../../../../repositories/user.repository"
+import type { User } from "../../../../repositories/user.repository.js"
 
 // モック設定
 vi.mock("../../../../../auth/middleware/jwt-auth.middleware.js", () => ({

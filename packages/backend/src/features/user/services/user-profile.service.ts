@@ -1,5 +1,5 @@
-import { UserRepository } from "../../../repositories/user.repository.js"
-import type { User } from "../../../repositories/user.repository.js"
+import { UserRepository } from "../repositories/user.repository.js"
+import type { User } from "../repositories/user.repository.js"
 import { validateTimezone } from "../domain/timezone.js"
 
 export interface UpdateProfileRequest {

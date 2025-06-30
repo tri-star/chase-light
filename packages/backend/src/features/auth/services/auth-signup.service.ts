@@ -4,8 +4,8 @@
  * ユーザー登録機能を提供するサービス
  */
 import { JWTValidator } from "./jwt-validator.service"
-import { UserRepository } from "../../../repositories/user.repository"
-import type { User } from "../../../repositories/user.repository"
+import { UserRepository } from "../../user/repositories/user.repository.js"
+import type { User } from "../../user/repositories/user.repository.js"
 import { AuthError } from "../errors/auth.error"
 import { getAuth0Config } from "../utils/auth-config"
 import type { JWTPayload } from "../types/auth.types"

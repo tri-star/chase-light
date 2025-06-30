@@ -1,6 +1,6 @@
 import { eq, and, or, desc, asc } from "drizzle-orm"
 import { PgTable } from "drizzle-orm/pg-core"
-import { db } from "../db/connection.js"
+import { db } from "../../../db/connection.js"
 import { randomUUID } from "node:crypto"
 
 export interface BaseRepository<T> {

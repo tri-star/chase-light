@@ -7,7 +7,7 @@ import type {
   UserSettings,
 } from "../../services/user-settings.service"
 import type { SupportedLanguage } from "../../constants/index.js"
-import type { User } from "../../../../repositories/user.repository"
+import type { User } from "../../repositories/user.repository.js"
 
 // モック設定
 vi.mock("../../../auth/middleware/jwt-auth.middleware.js", () => ({

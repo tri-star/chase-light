@@ -4,7 +4,7 @@ import type { SupportedLanguage } from "../../constants/index.js"
 import type {
   UserRepository,
   User,
-} from "../../../../repositories/user.repository"
+} from "../../repositories/user.repository.js"
 
 const mockUserRepository = {
   findById: vi.fn(),

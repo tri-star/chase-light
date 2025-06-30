@@ -4,10 +4,10 @@
 import { describe, it, expect, beforeEach, vi } from "vitest"
 import { AuthSignupService } from "../auth-signup.service"
 import { JWTValidator } from "../jwt-validator.service"
-import { UserRepository } from "../../../../repositories/user.repository"
+import { UserRepository } from "../../../user/repositories/user.repository.js"
 import { AuthError } from "../../errors/auth.error"
 import type { JWTPayload, TokenValidationResult } from "../../types/auth.types"
-import type { User } from "../../../../repositories/user.repository"
+import type { User } from "../../../user/repositories/user.repository.js"
 
 // 環境変数をモック
 vi.mock("../../utils/auth-config", () => ({

@@ -3,7 +3,7 @@ import { UserProfileService } from "../user-profile.service"
 import type {
   UserRepository,
   User,
-} from "../../../../repositories/user.repository"
+} from "../../repositories/user.repository.js"
 
 const mockUserRepository = {
   findById: vi.fn(),

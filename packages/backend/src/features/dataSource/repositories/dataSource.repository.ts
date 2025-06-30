@@ -1,5 +1,11 @@
-import { DrizzleBaseRepository, eq, and, db, QueryOptions } from "./base.js"
-import { dataSources } from "../db/schema.js"
+import {
+  DrizzleBaseRepository,
+  eq,
+  and,
+  db,
+  QueryOptions,
+} from "../../shared/repositories/base.js"
+import { dataSources } from "../../../db/schema.js"
 import type { InferSelectModel, InferInsertModel } from "drizzle-orm"
 
 export type DataSource = InferSelectModel<typeof dataSources>
