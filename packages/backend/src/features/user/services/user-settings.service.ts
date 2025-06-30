@@ -6,6 +6,7 @@ import {
   DEFAULT_LANGUAGE,
   DEFAULT_NOTIFICATIONS,
 } from "../constants/index.js"
+import { validateTimezone } from "../domain/timezone.js"
 
 export interface UserSettings {
   emailNotifications: boolean
@@ -58,16 +59,7 @@ export class UserSettingsService {
     }
 
     // タイムゾーンの検証
-    if (data.timezone !== undefined) {
-      if (data.timezone === "") {
-        throw new Error("無効なタイムゾーンです")
-      }
-      try {
-        Intl.DateTimeFormat(undefined, { timeZone: data.timezone })
-      } catch {
-        throw new Error("無効なタイムゾーンです")
-      }
-    }
+    validateTimezone(data.timezone)
 
     // 言語コードの検証
     if (data.language) {

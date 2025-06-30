@@ -15,3 +15,10 @@ export const USER_NAME = {
   REQUIRED_ERROR_MESSAGE: "名前は必須です",
   MAX_LENGTH_ERROR_MESSAGE: "名前は100文字以内で入力してください",
 } as const
+
+/**
+ * タイムゾーンバリデーション関連の定数
+ */
+export const TIMEZONE_VALIDATION = {
+  INVALID_ERROR_MESSAGE: "無効なタイムゾーンです",
+} as const

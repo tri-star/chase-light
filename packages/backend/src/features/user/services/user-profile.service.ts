@@ -1,5 +1,6 @@
 import { UserRepository } from "../../../repositories/user.repository.js"
 import type { User } from "../../../repositories/user.repository.js"
+import { validateTimezone } from "../domain/timezone.js"
 
 export interface UpdateProfileRequest {
   name?: string
@@ -54,17 +55,7 @@ export class UserProfileService {
     }
 
     // タイムゾーンの検証
-    if (data.timezone !== undefined) {
-      if (data.timezone === "") {
-        throw new Error("無効なタイムゾーンです")
-      }
-      try {
-        // 基本的なタイムゾーン検証
-        Intl.DateTimeFormat(undefined, { timeZone: data.timezone })
-      } catch {
-        throw new Error("無効なタイムゾーンです")
-      }
-    }
+    validateTimezone(data.timezone)
 
     return this.userRepository.update(userId, data)
   }
