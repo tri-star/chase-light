@@ -3,6 +3,8 @@ import { z } from "@hono/zod-openapi"
 import { requireAuth } from "../../../../auth/middleware/jwt-auth.middleware.js"
 import type { UserProfileService } from "../../../services/user-profile.service"
 import type { UserSettingsService } from "../../../services/user-settings.service"
+import { SUPPORTED_LANGUAGES } from "../../../services/user-settings.service"
+import { userBaseSchema } from "../../schemas/user-base.schema"
 import {
   userErrorResponseSchemaDefinition,
   handleError,
@@ -27,22 +29,24 @@ export const createSettingsRoutes = (
   // 設定レスポンススキーマ定義（取得・更新共通）
   const userSettingsResponseSchema = z
     .object({
-      settings: z.object({
-        timezone: z.string().openapi({
-          example: "Asia/Tokyo",
-          description: "タイムゾーン",
-        }),
-        emailNotifications: z.boolean().openapi({
-          example: true,
-          description: "メール通知の有効/無効",
-        }),
-        pushNotifications: z.boolean().openapi({
-          example: false,
-          description: "プッシュ通知の有効/無効",
-        }),
-        language: z.string().openapi({
-          example: "ja",
-          description: "表示言語",
+      user: userBaseSchema.extend({
+        settings: z.object({
+          timezone: z.string().openapi({
+            example: "Asia/Tokyo",
+            description: "タイムゾーン",
+          }),
+          emailNotifications: z.boolean().openapi({
+            example: true,
+            description: "メール通知の有効/無効",
+          }),
+          pushNotifications: z.boolean().openapi({
+            example: false,
+            description: "プッシュ通知の有効/無効",
+          }),
+          language: z.enum(SUPPORTED_LANGUAGES).openapi({
+            example: "ja",
+            description: "表示言語",
+          }),
         }),
       }),
     })
@@ -99,7 +103,27 @@ export const createSettingsRoutes = (
         )
       }
 
-      return c.json({ settings }, 200)
+      return c.json(
+        {
+          user: {
+            id: currentUser.id,
+            email: currentUser.email,
+            name: currentUser.name,
+            githubUsername: currentUser.githubUsername,
+            avatarUrl: currentUser.avatarUrl,
+            timezone: currentUser.timezone,
+            createdAt: currentUser.createdAt?.toISOString() || "",
+            updatedAt: currentUser.updatedAt?.toISOString() || "",
+            settings: {
+              timezone: currentUser.timezone,
+              emailNotifications: settings.emailNotifications,
+              pushNotifications: settings.pushNotifications,
+              language: settings.language,
+            },
+          },
+        },
+        200,
+      )
     } catch (error) {
       return handleError(c, error, "設定取得")
     }
@@ -122,7 +146,7 @@ export const createSettingsRoutes = (
         example: false,
         description: "プッシュ通知の有効/無効",
       }),
-      language: z.string().optional().openapi({
+      language: z.enum(SUPPORTED_LANGUAGES).optional().openapi({
         example: "ja",
         description: "表示言語（ja/en）",
       }),
@@ -194,7 +218,27 @@ export const createSettingsRoutes = (
         )
       }
 
-      return c.json({ settings: updatedSettings }, 200)
+      return c.json(
+        {
+          user: {
+            id: currentUser.id,
+            email: currentUser.email,
+            name: currentUser.name,
+            githubUsername: currentUser.githubUsername,
+            avatarUrl: currentUser.avatarUrl,
+            timezone: currentUser.timezone,
+            createdAt: currentUser.createdAt?.toISOString() || "",
+            updatedAt: currentUser.updatedAt?.toISOString() || "",
+            settings: {
+              timezone: currentUser.timezone,
+              emailNotifications: updatedSettings.emailNotifications,
+              pushNotifications: updatedSettings.pushNotifications,
+              language: updatedSettings.language,
+            },
+          },
+        },
+        200,
+      )
     } catch (error) {
       return handleError(c, error, "設定更新")
     }
