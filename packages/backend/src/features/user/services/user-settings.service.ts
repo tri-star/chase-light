@@ -2,7 +2,10 @@ import { UserRepository } from "../../../repositories/user.repository.js"
 
 export type SupportedLanguage = "ja" | "en"
 
-export const SUPPORTED_LANGUAGES: readonly SupportedLanguage[] = ["ja", "en"] as const
+export const SUPPORTED_LANGUAGES: readonly SupportedLanguage[] = [
+  "ja",
+  "en",
+] as const
 
 export interface UserSettings {
   emailNotifications: boolean

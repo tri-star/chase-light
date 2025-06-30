@@ -99,15 +99,6 @@ export const createProfileRoutes = (
           example: "田中太郎",
           description: "ユーザー名",
         }),
-      githubUsername: z
-        .string()
-        .min(1)
-        .max(39, "GitHubユーザー名は39文字以内です")
-        .optional()
-        .openapi({
-          example: "tanaka-taro",
-          description: "GitHubユーザー名",
-        }),
       timezone: z.string().optional().openapi({
         example: "Asia/Tokyo",
         description: "タイムゾーン（IANA形式）",
