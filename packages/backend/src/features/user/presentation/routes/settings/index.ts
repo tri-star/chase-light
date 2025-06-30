@@ -1,11 +1,10 @@
 import { createRoute, OpenAPIHono } from "@hono/zod-openapi"
+import { z } from "@hono/zod-openapi"
 import { requireAuth } from "../../../../auth/middleware/jwt-auth.middleware.js"
 import type { UserProfileService } from "../../../services/user-profile.service"
 import type { UserSettingsService } from "../../../services/user-settings.service"
-import {
-  updateSettingsRequestSchema,
-  userSettingsResponseSchema,
-} from "./schemas"
+import { SUPPORTED_LANGUAGES } from "../../../services/user-settings.service"
+import { userBaseSchema } from "../../schemas/user-base.schema"
 import {
   userErrorResponseSchemaDefinition,
   handleError,
@@ -17,56 +16,6 @@ import {
  * 設定管理関連のルート定義
  */
 
-// 設定取得ルート定義
-const getSettingsRoute = createRoute({
-  method: "get",
-  path: "/settings",
-  summary: "ユーザー設定取得",
-  description: "認証済みユーザーの設定情報を取得します",
-  tags: ["Users"],
-  responses: {
-    200: {
-      content: {
-        "application/json": {
-          schema: userSettingsResponseSchema,
-        },
-      },
-      description: "ユーザー設定情報",
-    },
-    ...userErrorResponseSchemaDefinition,
-  },
-})
-
-// 設定更新ルート定義
-const updateSettingsRoute = createRoute({
-  method: "put",
-  path: "/settings",
-  summary: "ユーザー設定更新",
-  description: "認証済みユーザーの設定情報を更新します",
-  tags: ["Users"],
-  request: {
-    body: {
-      content: {
-        "application/json": {
-          schema: updateSettingsRequestSchema,
-        },
-      },
-      description: "更新する設定情報",
-    },
-  },
-  responses: {
-    200: {
-      content: {
-        "application/json": {
-          schema: userSettingsResponseSchema,
-        },
-      },
-      description: "更新された設定情報",
-    },
-    ...userErrorResponseSchemaDefinition,
-  },
-})
-
 /**
  * 設定ルートファクトリー
  */
@@ -75,6 +24,56 @@ export const createSettingsRoutes = (
   userProfileService: UserProfileService,
   userSettingsService: UserSettingsService,
 ) => {
+  // ===== 共通スキーマ定義 =====
+
+  // 設定レスポンススキーマ定義（取得・更新共通）
+  const userSettingsResponseSchema = z
+    .object({
+      user: userBaseSchema.extend({
+        settings: z.object({
+          timezone: z.string().openapi({
+            example: "Asia/Tokyo",
+            description: "タイムゾーン",
+          }),
+          emailNotifications: z.boolean().openapi({
+            example: true,
+            description: "メール通知の有効/無効",
+          }),
+          pushNotifications: z.boolean().openapi({
+            example: false,
+            description: "プッシュ通知の有効/無効",
+          }),
+          language: z.enum(SUPPORTED_LANGUAGES).openapi({
+            example: "ja",
+            description: "表示言語",
+          }),
+        }),
+      }),
+    })
+    .openapi("UserSettingsResponse")
+
+  // ===== 設定取得機能 =====
+
+  // 設定取得ルート定義
+  const getSettingsRoute = createRoute({
+    method: "get",
+    path: "/settings",
+    summary: "ユーザー設定取得",
+    description: "認証済みユーザーの設定情報を取得します",
+    tags: ["Users"],
+    responses: {
+      200: {
+        content: {
+          "application/json": {
+            schema: userSettingsResponseSchema,
+          },
+        },
+        description: "ユーザー設定情報",
+      },
+      ...userErrorResponseSchemaDefinition,
+    },
+  })
+
   // 設定取得エンドポイント
   app.openapi(getSettingsRoute, async (c) => {
     try {
@@ -104,10 +103,84 @@ export const createSettingsRoutes = (
         )
       }
 
-      return c.json({ settings }, 200)
+      return c.json(
+        {
+          user: {
+            id: currentUser.id,
+            email: currentUser.email,
+            name: currentUser.name,
+            githubUsername: currentUser.githubUsername,
+            avatarUrl: currentUser.avatarUrl,
+            timezone: currentUser.timezone,
+            createdAt: currentUser.createdAt?.toISOString() || "",
+            updatedAt: currentUser.updatedAt?.toISOString() || "",
+            settings: {
+              timezone: currentUser.timezone,
+              emailNotifications: settings.emailNotifications,
+              pushNotifications: settings.pushNotifications,
+              language: settings.language,
+            },
+          },
+        },
+        200,
+      )
     } catch (error) {
       return handleError(c, error, "設定取得")
     }
+  })
+
+  // ===== 設定更新機能 =====
+
+  // 設定更新スキーマ定義
+  const updateSettingsRequestSchema = z
+    .object({
+      timezone: z.string().optional().openapi({
+        example: "Asia/Tokyo",
+        description: "タイムゾーン（IANA形式）",
+      }),
+      emailNotifications: z.boolean().optional().openapi({
+        example: true,
+        description: "メール通知の有効/無効",
+      }),
+      pushNotifications: z.boolean().optional().openapi({
+        example: false,
+        description: "プッシュ通知の有効/無効",
+      }),
+      language: z.enum(SUPPORTED_LANGUAGES).optional().openapi({
+        example: "ja",
+        description: "表示言語（ja/en）",
+      }),
+    })
+    .openapi("UpdateSettingsRequest")
+
+  // 設定更新ルート定義
+  const updateSettingsRoute = createRoute({
+    method: "put",
+    path: "/settings",
+    summary: "ユーザー設定更新",
+    description: "認証済みユーザーの設定情報を更新します",
+    tags: ["Users"],
+    request: {
+      body: {
+        content: {
+          "application/json": {
+            schema: updateSettingsRequestSchema,
+          },
+        },
+        description: "更新する設定情報",
+      },
+    },
+    responses: {
+      200: {
+        content: {
+          "application/json": {
+            schema: userSettingsResponseSchema,
+          },
+        },
+        description: "更新された設定情報",
+      },
+      ...userErrorResponseSchemaDefinition,
+    },
   })
 
   // 設定更新エンドポイント
@@ -145,7 +218,27 @@ export const createSettingsRoutes = (
         )
       }
 
-      return c.json({ settings: updatedSettings }, 200)
+      return c.json(
+        {
+          user: {
+            id: currentUser.id,
+            email: currentUser.email,
+            name: currentUser.name,
+            githubUsername: currentUser.githubUsername,
+            avatarUrl: currentUser.avatarUrl,
+            timezone: currentUser.timezone,
+            createdAt: currentUser.createdAt?.toISOString() || "",
+            updatedAt: currentUser.updatedAt?.toISOString() || "",
+            settings: {
+              timezone: currentUser.timezone,
+              emailNotifications: updatedSettings.emailNotifications,
+              pushNotifications: updatedSettings.pushNotifications,
+              language: updatedSettings.language,
+            },
+          },
+        },
+        200,
+      )
     } catch (error) {
       return handleError(c, error, "設定更新")
     }

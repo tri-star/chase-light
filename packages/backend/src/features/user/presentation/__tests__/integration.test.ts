@@ -5,6 +5,7 @@ import type { UserProfileService } from "../../services/user-profile.service"
 import type {
   UserSettingsService,
   UserSettings,
+  SupportedLanguage,
 } from "../../services/user-settings.service"
 import type { User } from "../../../../repositories/user.repository"
 
@@ -30,10 +31,9 @@ describe("Users API Integration Tests", () => {
   }
 
   const mockSettings: UserSettings = {
-    timezone: "Asia/Tokyo",
     emailNotifications: true,
     pushNotifications: false,
-    language: "ja",
+    language: "ja" as SupportedLanguage,
   }
 
   const mockAuthenticatedUser = {

@@ -1,6 +1,6 @@
 import { Context } from "hono"
 import { HTTPException } from "hono/http-exception"
-import { userErrorResponseSchema } from "./common-schemas"
+import { userErrorResponseSchema } from "../schemas/user-error.schema"
 
 /**
  * Users API共通エラーハンドリング

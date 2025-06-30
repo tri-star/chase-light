@@ -6,6 +6,7 @@ import type { UserProfileService } from "../../../../services/user-profile.servi
 import type {
   UserSettingsService,
   UserSettings,
+  SupportedLanguage,
 } from "../../../../services/user-settings.service"
 import type { User } from "../../../../../../repositories/user.repository"
 
@@ -32,10 +33,9 @@ describe("Settings Routes", () => {
   }
 
   const mockSettings: UserSettings = {
-    timezone: "Asia/Tokyo",
     emailNotifications: true,
     pushNotifications: false,
-    language: "ja",
+    language: "ja" as SupportedLanguage,
   }
 
   const mockAuthenticatedUser = {
@@ -93,7 +93,24 @@ describe("Settings Routes", () => {
 
       expect(response.status).toBe(200)
       const data = await response.json()
-      expect(data).toEqual({ settings: mockSettings })
+      expect(data).toEqual({
+        user: {
+          id: mockUser.id,
+          email: mockUser.email,
+          name: mockUser.name,
+          githubUsername: mockUser.githubUsername,
+          avatarUrl: mockUser.avatarUrl,
+          timezone: mockUser.timezone,
+          createdAt: mockUser.createdAt?.toISOString() || "",
+          updatedAt: mockUser.updatedAt?.toISOString() || "",
+          settings: {
+            timezone: mockUser.timezone,
+            emailNotifications: mockSettings.emailNotifications,
+            pushNotifications: mockSettings.pushNotifications,
+            language: mockSettings.language,
+          },
+        },
+      })
       expect(mockUserSettingsService.getUserSettings).toHaveBeenCalledWith(
         "user-123",
       )
@@ -155,10 +172,9 @@ describe("Settings Routes", () => {
       }
 
       const updatedSettings = {
-        timezone: "Europe/London",
         emailNotifications: false,
         pushNotifications: false,
-        language: "ja",
+        language: "ja" as SupportedLanguage,
       }
 
       vi.mocked(
@@ -179,7 +195,24 @@ describe("Settings Routes", () => {
 
       expect(response.status).toBe(200)
       const data = await response.json()
-      expect(data).toEqual({ settings: updatedSettings })
+      expect(data).toEqual({
+        user: {
+          id: mockUser.id,
+          email: mockUser.email,
+          name: mockUser.name,
+          githubUsername: mockUser.githubUsername,
+          avatarUrl: mockUser.avatarUrl,
+          timezone: mockUser.timezone,
+          createdAt: mockUser.createdAt?.toISOString() || "",
+          updatedAt: mockUser.updatedAt?.toISOString() || "",
+          settings: {
+            timezone: mockUser.timezone,
+            emailNotifications: updatedSettings.emailNotifications,
+            pushNotifications: updatedSettings.pushNotifications,
+            language: updatedSettings.language,
+          },
+        },
+      })
       expect(mockUserSettingsService.updateUserSettings).toHaveBeenCalledWith(
         "user-123",
         updateData,
@@ -240,13 +273,6 @@ describe("Settings Routes", () => {
     })
 
     test("言語バリデーションエラーの場合は400エラー", async () => {
-      vi.mocked(
-        mockUserProfileService.getUserProfileByAuth0Id,
-      ).mockResolvedValue(mockUser)
-      vi.mocked(mockUserSettingsService.updateUserSettings).mockRejectedValue(
-        new Error("サポートされていない言語です"),
-      )
-
       const response = await app.request("/settings", {
         method: "PUT",
         headers: {
@@ -258,11 +284,12 @@ describe("Settings Routes", () => {
 
       expect(response.status).toBe(400)
       const data = await response.json()
+      // Zod enumバリデーションエラーの形式を期待
       expect(data).toEqual({
         success: false,
         error: {
-          code: "VALIDATION_ERROR",
-          message: "サポートされていない言語です",
+          name: "ZodError",
+          message: expect.stringContaining("Invalid option: expected one of"),
         },
       })
     })

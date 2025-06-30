@@ -1,5 +1,5 @@
 import { describe, test, expect, vi, beforeEach } from "vitest"
-import { UserSettingsService } from "../user-settings.service"
+import { UserSettingsService, type SupportedLanguage } from "../user-settings.service"
 import type {
   UserRepository,
   User,
@@ -45,10 +45,9 @@ describe("UserSettingsService", () => {
 
       expect(mockUserRepository.findById).toHaveBeenCalledWith("user-123")
       expect(result).toEqual({
-        timezone: "America/New_York",
         emailNotifications: true,
         pushNotifications: false,
-        language: "ja",
+        language: "ja" as SupportedLanguage,
       })
     })
 
@@ -97,10 +96,9 @@ describe("UserSettingsService", () => {
         timezone: "Europe/London",
       })
       expect(result).toEqual({
-        timezone: "Europe/London",
         emailNotifications: true,
         pushNotifications: false,
-        language: "ja",
+        language: "ja" as SupportedLanguage,
       })
     })
 
@@ -145,7 +143,11 @@ describe("UserSettingsService", () => {
           updateData,
         )
         expect(result).toBeDefined()
-        expect(result?.timezone).toBe(timezone)
+        expect(result).toEqual({
+          emailNotifications: true,
+          pushNotifications: false,
+          language: "ja" as SupportedLanguage,
+        })
       } else {
         await expect(
           userSettingsService.updateUserSettings("user-123", updateData),
@@ -161,7 +163,7 @@ describe("UserSettingsService", () => {
       ["fr", false],
       ["invalid", false],
     ])("言語検証: %s -> %s", async (language, shouldSucceed) => {
-      const updateData = { language }
+      const updateData = { language: language as SupportedLanguage }
 
       vi.mocked(mockUserRepository.findById).mockResolvedValue(mockUser)
 
@@ -201,10 +203,9 @@ describe("UserSettingsService", () => {
 
       // 現在の実装では通知設定はDBに保存されないが、レスポンスにはデフォルト値が含まれる
       expect(result).toEqual({
-        timezone: "Asia/Tokyo",
         emailNotifications: true, // デフォルト値
         pushNotifications: false, // デフォルト値
-        language: "ja",
+        language: "ja" as SupportedLanguage,
       })
     })
   })
@@ -238,10 +239,9 @@ describe("UserSettingsService", () => {
         timezone: "Asia/Tokyo",
       })
       expect(result).toEqual({
-        timezone: "Asia/Tokyo",
         emailNotifications: true,
         pushNotifications: false,
-        language: "ja",
+        language: "ja" as SupportedLanguage,
       })
     })
 

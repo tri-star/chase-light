@@ -1,17 +1,20 @@
 import { UserRepository } from "../../../repositories/user.repository.js"
 
+export type SupportedLanguage = "ja" | "en"
+
+export const SUPPORTED_LANGUAGES: readonly SupportedLanguage[] = ["ja", "en"] as const
+
 export interface UserSettings {
-  timezone: string
   emailNotifications: boolean
   pushNotifications: boolean
-  language: string
+  language: SupportedLanguage
 }
 
 export interface UpdateSettingsRequest {
   timezone?: string
   emailNotifications?: boolean
   pushNotifications?: boolean
-  language?: string
+  language?: SupportedLanguage
 }
 
 /**
@@ -31,9 +34,8 @@ export class UserSettingsService {
       return null
     }
 
-    // デフォルト設定値を含むレスポンス
+    // デフォルト設定値を含むレスポンス（timezoneはuser objectに含まれるため除外）
     return {
-      timezone: user.timezone,
       emailNotifications: true, // 将来的にDBに保存
       pushNotifications: false, // 将来的にDBに保存
       language: "ja", // 将来的にDBに保存
@@ -66,8 +68,7 @@ export class UserSettingsService {
 
     // 言語コードの検証
     if (data.language) {
-      const supportedLanguages = ["ja", "en"]
-      if (!supportedLanguages.includes(data.language)) {
+      if (!SUPPORTED_LANGUAGES.includes(data.language)) {
         throw new Error("サポートされていない言語です")
       }
     }
