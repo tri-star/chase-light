@@ -33,28 +33,6 @@ auth.middleware.ts
 user.controller.ts
 ```
 
-### フォルダ構造との組み合わせ
-
-機能別フォルダ内で、さらにレイヤ別フォルダを挟む構造：
-
-```
-features/user/
-├── services/
-|   |── __tests__/
-|   |   ├── user-profile.service.test.ts
-|   |   ├── auth-token.service.test.ts
-|   |   └── user-preference.service.test.ts
-│   ├── user-profile.service.ts
-│   ├── user-preference.service.ts
-│   └── user-notification.service.ts
-├── repositories/
-│   ├── user.repository.ts
-│   └── user-preference.repository.ts
-├── presentation/
-│   ├── routes.ts
-│   └── schemas.ts
-```
-
 ### クラス名との対応関係
 
 ```typescript
@@ -183,20 +161,22 @@ Angular（2016年～）とNestJS（2017年～）が確立した命名規則で�
 
 ### ファイル命名パターン
 
-| レイヤ     | パターン                         | 例                             |
-| ---------- | -------------------------------- | ------------------------------ |
-| Service    | `[機能名].[詳細].service.ts`     | `user-profile.service.ts`      |
-| Repository | `[エンティティ名].repository.ts` | `user.repository.ts`           |
-| Controller | `[機能名].controller.ts`         | `auth.controller.ts`           |
-| Middleware | `[機能名].middleware.ts`         | `auth.middleware.ts`           |
-| Entity     | `[エンティティ名].entity.ts`     | `user.entity.ts`               |
-| DTO        | `[用途].dto.ts`                  | `create-user.dto.ts`           |
-| Interface  | `[名前].interface.ts`            | `user-repository.interface.ts` |
-| Type       | `[用途].types.ts`                | `api.types.ts`                 |
-| Schema     | `[データ名].schema.ts`           | `repository.schema.ts`         |
-| Parser     | `[データソース名].parser.ts`     | `github-api.parser.ts`         |
-| Error      | `[用途].error.ts`                | `github-parse.error.ts`        |
-| Utils      | `[機能名].ts`                    | `auth-config.ts`               |
+| レイヤ        | パターン                         | 例                             |
+| ------------- | -------------------------------- | ------------------------------ |
+| Service       | `[機能名].service.ts`            | `user-profile.service.ts`      |
+| Repository    | `[エンティティ名].repository.ts` | `user.repository.ts`           |
+| Controller    | `[機能名].controller.ts`         | `auth.controller.ts`           |
+| Middleware    | `[機能名].middleware.ts`         | `auth.middleware.ts`           |
+| Entity        | `[エンティティ名].entity.ts`     | `user.entity.ts`               |
+| DTO           | `[用途].dto.ts`                  | `create-user.dto.ts`           |
+| Interface     | `[名前].interface.ts`            | `user-repository.interface.ts` |
+| Type          | `[用途].types.ts`                | `api.types.ts`                 |
+| Schema        | `[データ名].schema.ts`           | `user-base.schema.ts`          |
+| Parser        | `[データソース名].parser.ts`     | `github-api.parser.ts`         |
+| Error         | `[用途].error.ts`                | `github-parse.error.ts`        |
+| Utils         | `[機能名].ts`                    | `auth-config.ts`               |
+| Route         | `index.ts`                       | `routes/profile/index.ts`      |
+| Shared Schema | `[用途]-[詳細].schema.ts`        | `user-error.schema.ts`         |
 
 ### 機能名の命名規則
 
@@ -204,106 +184,20 @@ Angular（2016年～）とNestJS（2017年～）が確立した命名規則で�
 - **複数語**: `data-source`, `user-preference`, `order-history`
 - **頭字語**: 小文字で統一 `api`, `dto`, `jwt`
 
-### フォルダとの組み合わせ
+### テストファイルの命名規則
+
+- 各テストファイルは `[対象ファイル名].test.ts` の命名規則を採用
+- テストファイルは対象ファイルと同じ階層の `__tests__/` フォルダに配置
 
 ```
-features/[機能名]/
-├── services/          # ビジネスロジック
-|   └── __tests__/     # テスト(.tsファイルと同じ階層に__tests__フォルダを作成する)
-├── repositories/      # データアクセス
-├── presentation/      # HTTP層
-├── schemas/          # Zodスキーマ定義
-├── parsers/          # データ変換処理
-├── errors/           # カスタムエラークラス
-├── utils/            # ユーティリティ関数
-└── domain/           # ドメインモデル（必要に応じて）
-```
-
-### 新パターン: Zod v4 + Parser Architecture
-
-**背景**: 従来の`as`型キャストによる型安全性の問題を解決するため、Zod v4スキーマ + Parser クラスによるアーキテクチャを採用。
-
-#### スキーマ設計パターン
-
-```typescript
-// features/dataSource/schemas/repository.schema.ts
-// Core スキーマ（内部ドメインオブジェクト用）
-export const repositorySchema = z.object({
-  id: z.number().int().positive(),
-  name: z.string().min(1),
-  fullName: z.string().min(1), // camelCase
-  // ...
-});
-
-// GitHub API スキーマ（外部API固有）
-export const githubRepositoryApiSchema = z.object({
-  id: z.number().int().positive(),
-  name: z.string().min(1),
-  full_name: z.string().min(1), // snake_case
-  // ...
-});
-
-export type Repository = z.infer<typeof repositorySchema>;
-```
-
-#### Parserクラス設計パターン
-
-```typescript
-// features/dataSource/parsers/github-api.parser.ts
-export class GitHubApiParser {
-  static parseRepository(apiData: unknown): Repository {
-    try {
-      // 1. GitHub APIスキーマでパース
-      const githubRepo = githubRepositoryApiSchema.parse(apiData);
-
-      // 2. 内部オブジェクト形式に変換
-      const repository: Repository = {
-        id: githubRepo.id,
-        name: githubRepo.name,
-        fullName: githubRepo.full_name, // field name conversion
-        // ...
-      };
-
-      // 3. 内部スキーマで最終検証
-      return repositorySchema.parse(repository);
-    } catch (error) {
-      throw new GitHubApiParseError("Parse failed", error, apiData);
-    }
-  }
-}
-```
-
-#### 利点
-
-- **ランタイム型安全性**: `as`キャストを排除し、実行時型検証を実現
-- **データソース独立性**: GitHub API以外（DB、他API等）にも対応可能
-- **ビジネスルール検証**: Parser内で業務ルールを検証
-- **エラーハンドリング**: 構造化されたパースエラー情報
-- **テスタビリティ**: Parser単体でのテストが容易
-
-#### ファイル構成
-
-```
-features/dataSource/
-├── schemas/                # Zodスキーマ定義（Coreスキーマ + API固有スキーマ）
-│   ├── repository.schema.ts
-│   ├── pull-request.schema.ts
-│   ├── issue.schema.ts
-│   └── release.schema.ts
-├── parsers/                # データ変換クラス
-│   └── github-api.parser.ts
-├── errors/                 # カスタムエラークラス
-│   ├── github-parse.error.ts
-│   └── github-api.error.ts
-├── types/                  # 残存する型定義（API Options等）
-│   └── api-options.ts
-└── services/
-    ├── __tests__/     # テスト(.tsファイルと同じ階層に__tests__フォルダを作成する)
-    │   └── github-repo.service.test.ts
-    └── github-repo.service.ts  # Parser使用例
-
-注意: features/<feature>/types.ts は削除済み
-→ z.infer<typeof schema> による型推論を使用
+features/user/services/
+├── __tests__/
+│   ├── user-profile.service.test.ts
+│   ├── user-preference.service.test.ts
+│   └── user-notification.service.test.ts
+├── user-profile.service.ts
+├── user-preference.service.ts
+└── user-notification.service.ts
 ```
 
 ### ESLint設定例
@@ -343,6 +237,9 @@ features/dataSource/
 
 ## 関連資料
 
+- [フォルダ構成ガイドライン](./folder-structure.md)
+- [アーキテクチャパターン](./architecture-patterns.md)
+- [APIルート実装ガイド](./api-implementation-guide.md)
+- [テスト戦略](./testing-strategy.md)
 - [Angular Style Guide - Naming](https://angular.io/guide/styleguide#naming)
 - [NestJS Documentation - File structure](https://docs.nestjs.com/)
-- [packages/backend/CLAUDE.md - フォルダ構成ガイド](../packages/backend/CLAUDE.md)

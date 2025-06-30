@@ -19,4 +19,4 @@ TypeScriptプロジェクトでのファイル命名規則について、一貫�
 
 backend / frontendなどパッケージ毎に規則は分かれるため、検討結果は各パッケージ内のファイルを参照。
 
-- @packages/backend/docs/file-naming-conventions.md
+- @../../packages/backend/docs/file-naming-conventions.md
