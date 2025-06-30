@@ -1,11 +1,11 @@
 import { UserRepository } from "../../../repositories/user.repository.js"
-
-export type SupportedLanguage = "ja" | "en"
-
-export const SUPPORTED_LANGUAGES: readonly SupportedLanguage[] = [
-  "ja",
-  "en",
-] as const
+import {
+  type SupportedLanguage,
+  SUPPORTED_LANGUAGES,
+  DEFAULT_TIMEZONE,
+  DEFAULT_LANGUAGE,
+  DEFAULT_NOTIFICATIONS,
+} from "../constants/index.js"
 
 export interface UserSettings {
   emailNotifications: boolean
@@ -39,9 +39,9 @@ export class UserSettingsService {
 
     // デフォルト設定値を含むレスポンス（timezoneはuser objectに含まれるため除外）
     return {
-      emailNotifications: true, // 将来的にDBに保存
-      pushNotifications: false, // 将来的にDBに保存
-      language: "ja", // 将来的にDBに保存
+      emailNotifications: DEFAULT_NOTIFICATIONS.emailNotifications, // 将来的にDBに保存
+      pushNotifications: DEFAULT_NOTIFICATIONS.pushNotifications, // 将来的にDBに保存
+      language: DEFAULT_LANGUAGE, // 将来的にDBに保存
     }
   }
 
@@ -107,7 +107,7 @@ export class UserSettingsService {
 
     // デフォルト設定に戻す
     await this.userRepository.update(userId, {
-      timezone: "Asia/Tokyo",
+      timezone: DEFAULT_TIMEZONE,
     })
 
     return this.getUserSettings(userId)

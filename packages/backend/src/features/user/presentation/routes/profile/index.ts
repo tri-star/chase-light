@@ -8,6 +8,7 @@ import {
   handleError,
   userNotFoundResponse,
 } from "../../shared/error-handling"
+import { USER_NAME } from "../../../constants/index.js"
 
 /**
  * Profile Routes
@@ -92,8 +93,8 @@ export const createProfileRoutes = (
     .object({
       name: z
         .string()
-        .min(1, "名前は必須です")
-        .max(100, "名前は100文字以内で入力してください")
+        .min(USER_NAME.MIN_LENGTH, USER_NAME.REQUIRED_ERROR_MESSAGE)
+        .max(USER_NAME.MAX_LENGTH, USER_NAME.MAX_LENGTH_ERROR_MESSAGE)
         .optional()
         .openapi({
           example: "田中太郎",

@@ -1,8 +1,6 @@
 import { describe, test, expect, vi, beforeEach } from "vitest"
-import {
-  UserSettingsService,
-  type SupportedLanguage,
-} from "../user-settings.service"
+import { UserSettingsService } from "../user-settings.service"
+import type { SupportedLanguage } from "../../constants/index.js"
 import type {
   UserRepository,
   User,

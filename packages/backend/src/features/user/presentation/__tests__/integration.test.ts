@@ -5,8 +5,8 @@ import type { UserProfileService } from "../../services/user-profile.service"
 import type {
   UserSettingsService,
   UserSettings,
-  SupportedLanguage,
 } from "../../services/user-settings.service"
+import type { SupportedLanguage } from "../../constants/index.js"
 import type { User } from "../../../../repositories/user.repository"
 
 // モック設定

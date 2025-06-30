@@ -3,7 +3,7 @@ import { z } from "@hono/zod-openapi"
 import { requireAuth } from "../../../../auth/middleware/jwt-auth.middleware.js"
 import type { UserProfileService } from "../../../services/user-profile.service"
 import type { UserSettingsService } from "../../../services/user-settings.service"
-import { SUPPORTED_LANGUAGES } from "../../../services/user-settings.service"
+import { SUPPORTED_LANGUAGES } from "../../../constants/index.js"
 import { userBaseSchema } from "../../schemas/user-base.schema"
 import {
   userErrorResponseSchemaDefinition,
