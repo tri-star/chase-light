@@ -161,22 +161,22 @@ Angular（2016年～）とNestJS（2017年～）が確立した命名規則で�
 
 ### ファイル命名パターン
 
-| レイヤ        | パターン                         | 例                             |
-| ------------- | -------------------------------- | ------------------------------ |
-| Service       | `[機能名].service.ts`            | `user-profile.service.ts`      |
-| Repository    | `[エンティティ名].repository.ts` | `user.repository.ts`           |
-| Controller    | `[機能名].controller.ts`         | `auth.controller.ts`           |
-| Middleware    | `[機能名].middleware.ts`         | `auth.middleware.ts`           |
-| Entity        | `[エンティティ名].entity.ts`     | `user.entity.ts`               |
-| DTO           | `[用途].dto.ts`                  | `create-user.dto.ts`           |
-| Interface     | `[名前].interface.ts`            | `user-repository.interface.ts` |
-| Type          | `[用途].types.ts`                | `api.types.ts`                 |
-| Schema        | `[データ名].schema.ts`           | `user-base.schema.ts`          |
-| Parser        | `[データソース名].parser.ts`     | `github-api.parser.ts`         |
-| Error         | `[用途].error.ts`                | `github-parse.error.ts`        |
-| Utils         | `[機能名].ts`                    | `auth-config.ts`               |
-| Route         | `index.ts`                       | `routes/profile/index.ts`      |
-| Shared Schema | `[用途]-[詳細].schema.ts`        | `user-error.schema.ts`         |
+| レイヤ              | パターン                         | 例                                  |
+| ------------------- | -------------------------------- | ----------------------------------- |
+| Service             | `[機能名].service.ts`            | `user-profile.service.ts`           |
+| Repository          | `[エンティティ名].repository.ts` | `user.repository.ts`                |
+| Controller          | `[機能名].controller.ts`         | `auth.controller.ts`                |
+| Middleware          | `[機能名].middleware.ts`         | `auth.middleware.ts`                |
+| Domain Entity       | `[エンティティ名].ts`            | `user.ts` (型定義のみ)                 |
+| DTO                 | `[用途].dto.ts`                  | `create-user.dto.ts`                |
+| Interface           | `[名前].interface.ts`            | `user-repository.interface.ts`      |
+| Type                | `[用途].types.ts`                | `api.types.ts`                      |
+| Controller Schema   | `[データ名].schema.ts`           | `user-request.schema.ts`            |
+| Parser              | `[データソース名].parser.ts`     | `github-api.parser.ts`              |
+| Error               | `[用途].error.ts`                | `github-parse.error.ts`             |
+| Utils               | `[機能名].ts`                    | `auth-config.ts`                    |
+| Route               | `index.ts`                       | `routes/profile/index.ts`           |
+| Presentation Schema | `[用途]-[詳細].schema.ts`        | `user-error.schema.ts`              |
 
 ### 機能名の命名規則
 
@@ -190,15 +190,47 @@ Angular（2016年～）とNestJS（2017年～）が確立した命名規則で�
 - テストファイルは対象ファイルと同じ階層の `__tests__/` フォルダに配置
 
 ```
-features/user/services/
-├── __tests__/
-│   ├── user-profile.service.test.ts
-│   ├── user-preference.service.test.ts
-│   └── user-notification.service.test.ts
-├── user-profile.service.ts
-├── user-preference.service.ts
-└── user-notification.service.ts
+features/user/
+├── domain/
+│   ├── __tests__/
+│   │   └── user.test.ts
+│   └── user.ts
+├── services/
+│   ├── __tests__/
+│   │   ├── user-profile.service.test.ts
+│   │   ├── user-preference.service.test.ts
+│   │   └── user-notification.service.test.ts
+│   ├── user-profile.service.ts
+│   ├── user-preference.service.ts
+│   └── user-notification.service.ts
+└── presentation/
+    ├── schemas/
+    │   ├── __tests__/
+    │   │   └── user-request.schema.test.ts
+    │   └── user-request.schema.ts
+    └── routes/
+        └── profile/
+            ├── __tests__/
+            │   └── index.test.ts
+            └── index.ts
 ```
+
+### レイヤ別ファイル配置
+
+新しいアーキテクチャでは、スキーマとドメイン型の配置が以下のように変更されています：
+
+#### ドメインレベル（`src/features/[feature]/domain/`）
+- **命名**: `[エンティティ名].ts`（例：`user.ts`）
+- **内容**: TypeScriptのtypeでドメイン型の定義、エンティティ関連ロジック
+- **注意**: Zodスキーマは定義しない
+
+#### Controller層（`src/features/[feature]/presentation/schemas/`）
+- **命名**: `[用途].schema.ts`（例：`user-base.schema.ts`、`user-error.schema.ts`）
+- **内容**: HTTP入出力用のZodスキーマ（Controller層共通スキーマ）
+
+#### 機能別ルート（`src/features/[feature]/presentation/routes/[機能]/`）
+- **命名**: `index.ts`
+- **内容**: ルート定義、機能固有Zodスキーマ、エンドポイント実装
 
 ### ESLint設定例
 
@@ -207,11 +239,13 @@ features/user/services/
   "rules": {
     "filenames/match-regex": [
       "error",
-      "^[a-z]+(-[a-z]+)*\\.(service|repository|controller|middleware|entity|dto|interface|types|schema|parser|error)\\.(ts|js)$"
+      "^[a-z]+(-[a-z]+)*\\.(service|repository|controller|middleware|dto|interface|types|schema|parser|error)\\.(ts|js)$|^[a-z]+(-[a-z]+)*\\.(ts|js)$"
     ]
   }
 }
 ```
+
+注記：ドメインレベルのファイル（`user.ts`など）は拡張子前にレイヤ名を含まないため、正規表現を調整しています。
 
 ## 結果・影響
 

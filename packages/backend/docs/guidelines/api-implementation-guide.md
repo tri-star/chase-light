@@ -33,7 +33,7 @@ HonoフレームワークとOpenAPIを使用したAPIエンドポイントの実
 // features/user/presentation/routes/profile/index.ts
 import { OpenAPIHono, createRoute } from "@hono/zod-openapi";
 import { z } from "zod";
-import { userBaseSchema } from "../../schemas/user-base.schema";
+import { userBaseSchema } from "../schemas/user-base.schema";
 import { UserProfileService } from "../../../services/user-profile.service";
 
 export const createProfileRoutes = (
@@ -45,7 +45,7 @@ export const createProfileRoutes = (
   // 複数機能で共通利用するスキーマ
   const userProfileResponseSchema = z
     .object({
-      user: userBaseSchema, // schemas/から取得した共通スキーマを利用
+      user: userBaseSchema, // presentation/schemas/から取得した共通スキーマを利用
     })
     .openapi("UserProfileResponse");
 
@@ -148,10 +148,18 @@ export const createProfileRoutes = (
     const user = c.get("user");
     const data = c.req.valid("json");
 
+    // Service層の型に変換
+    const serviceInput: UserCreateInputDto = {
+      name: data.name,
+      email: data.email,
+      githubUsername: data.githubUsername,
+      timezone: data.timezone,
+    };
+
     try {
       const updatedProfile = await userProfileService.updateUserProfile(
         user.id,
-        data
+        serviceInput
       );
 
       if (!updatedProfile) {
@@ -194,72 +202,247 @@ app.openapi(getProfileRoute, ...)
 app.openapi(updateProfileRoute, ...)
 ```
 
-## スキーマ設計とコロケーション
+## Zodスキーマ設計とレイヤ別責任
 
-### スキーマ配置の原則
+### Zodを利用する方針
+
+Controller層の入力/出力や、外部APIからのレスポンスなど、境界をまたいだ部分でのランタイムのバリデーションも含めたパース処理にZodを利用し、
+アプリケーション内部ではドメイン層で定義したTypeScriptのtypeや、サービス層のDTO型を利用します。
+
+**重要**: ドメイン層ではZodスキーマを定義せず、TypeScriptのtypeのみを定義します。
+
+### レイヤ別スキーマ責任の原則
+
+現在のアーキテクチャでは、Zodスキーマの定義と責任を各レイヤで明確に分離しています。
+
+#### ドメインレベル（`src/features/[feature]/domain/**/*.ts`）
+
+- **責任**: ビジネスドメインの型定義とエンティティ関連ロジック
+- **定義内容**: エンティティの型をTypeScriptのtypeとして定義してexport
+- **スキーマ**: 特にZodスキーマを定義しない。型の定義はTypeScriptのtypeを利用
+- **例**: `User`型の定義
 
 ```typescript
-// routes/profile/index.ts
-export const createProfileRoutes = (...) => {
-  // ===== 共通スキーマ定義 =====
+// src/features/user/domain/user.ts
 
-  // 複数機能で共通利用するスキーマ
-  const userProfileResponseSchema = z.object({...})
+export type User = {
+  id: string;
+  auth0UserId: string;
+  email: string;
+  name: string;
+  avatarUrl: string;
+  githubUsername: string | null;
+  timezone: string;
+  // NOTE: 日付型カラムの場合、"日付無し"はnullで表現する
+  createdAt: Date | null;
+  updatedAt: Date | null;
+};
 
-  // ===== プロフィール更新機能 =====
+// NOTE: domainフォルダ内のtsファイルには型定義の他、Entityに関するロジックを含んだ関数も定義する
+```
 
-  // プロフィール更新専用スキーマ定義
-  const updateProfileRequestSchema = z.object({...})
+#### DBレイヤ（`src/features/[feature]/repositories/**/*.ts`）
 
-  // プロフィール更新ルート定義
-  const updateProfileRoute = createRoute({
-    request: {
-      body: {
-        content: {
-          "application/json": {
-            schema: updateProfileRequestSchema, // 直上で定義
-          },
-        },
-      },
-    },
-    // ...
-  })
+- **責任**: データの永続化とドメイン型への変換
+- **スキーマ定義**: 特にZodスキーマは定義しない（Drizzleのスキーマが担当）
+- **実装**: Repositoryレイヤでドメインの型（`User`型等）に変換して返す
 
-  // プロフィール更新エンドポイント
-  app.openapi(updateProfileRoute, async (c) => {...})
+```typescript
+// src/features/user/repositories/user.repository.ts
+import type { User } from "../domain/user";
+
+export class UserRepository {
+  async findById(id: string): Promise<User | null> {
+    // DrizzleでDBからデータを取得し、User型に変換して返す
+    const dbUser = await this.db
+      .select()
+      .from(usersTable)
+      .where(eq(usersTable.id, id));
+    if (!dbUser[0]) return null;
+
+    return {
+      id: dbUser[0].id,
+      name: dbUser[0].name,
+      email: dbUser[0].email,
+      // ... User型に合わせて変換
+    };
+  }
 }
 ```
 
-### スキーマ配置の詳細ルール
+#### Serviceレイヤ（`src/features/[feature]/services/**/*.ts`）
 
-1. **機能固有スキーマ**: 該当機能ブロック内に定義（`updateProfileRequestSchema`等）
-2. **機能間共通スキーマ**: ファイル内の共通セクションに定義（`userProfileResponseSchema`等）
-3. **フィーチャー間共通スキーマ**: `presentation/schemas/[schema-name].schema.ts` に定義（`userBaseSchema`等）
+- **責任**: ビジネスロジックの実装
+- **スキーマ定義**: 特にZodスキーマを定義しない（サービスレイヤのロジックが呼び出される時はその前でZodスキーマによるパースが行われている想定）
+- **型定義**: パラメータ・戻り値の型はドメインの型か、`~InputDto`, `~OutputDto`の名前でビジネスロジック用のDTO型を使用
+- **型の形式**: interfaceではなくtypeを利用
 
-### 新しいフォルダ構造
+```typescript
+// src/features/user/services/user-profile.service.ts
+import { UserRepository } from "../repositories/user.repository";
+import type { User } from "../domain/user";
+
+export type UpdateProfileInputDto = {
+  name: string;
+  email: string;
+};
+
+export type UpdateProfileOutputDto = User;
+
+export class UserProfileService {
+  constructor(private userRepository: UserRepository) {}
+
+  async updateUserProfile(
+    userId: string,
+    input: UpdateProfileInputDto
+  ): Promise<UpdateProfileOutputDto | null> {
+    const user = await this.userRepository.findById(userId);
+    if (!user) {
+      return null;
+    }
+
+    // メールアドレスの重複チェック（メール更新は別サービスで処理）
+    // ここではname, githubUsername, timezoneのみ更新
+
+    return this.userRepository.update(userId, input);
+  }
+}
+```
+
+#### Controllerレイヤ（`src/features/[feature]/presentation/routes/**/*.ts`）
+
+- **責任**: HTTP入出力の処理とバリデーション
+- **スキーマ定義**: Controllerレイヤで入力のZodスキーマを定義。これは、`@hono/zod-openapi`が担当
+- **実装**: Service層を呼び出す前にServiceレイヤの型に変換する。Serviceの実行結果をHTTPレスポンスのスキーマに合うように変換する
+- **シンプルなケース**: 「テーブル内のデータを単に取得してJSONで返すだけ」レベルの処理は特別にサービス層を設けない。こういったシンプルなケースでは、Repositoryレイヤを直接呼び出してそのままJSONで返す
+
+```typescript
+// src/features/user/presentation/routes/profile/index.ts
+import { createRoute, OpenAPIHono } from "@hono/zod-openapi";
+import { z } from "@hono/zod-openapi";
+import type { UpdateProfileInputDto } from "../../../services/user-profile.service";
+
+// Controller層での入力スキーマ定義
+const updateProfileRequestSchema = z
+  .object({
+    name: z.string().min(1, "名前は必須です"),
+    email: z.string().email("有効なメールアドレスを入力してください"),
+  })
+  .openapi("UpdateProfileRequest");
+
+// Controller実装
+app.openapi(updateProfileRoute, async (c) => {
+  const requestData = c.req.valid("json");
+
+  // Service層の型に変換
+  const serviceInput: UpdateProfileInputDto = {
+    name: requestData.name,
+    email: requestData.email,
+  };
+
+  const result = await userProfileService.updateUserProfile(
+    currentUser.id,
+    serviceInput
+  );
+
+  // HTTPレスポンスに変換
+  return c.json(
+    {
+      user: {
+        id: result.id,
+        name: result.name,
+        email: result.email,
+        githubUsername: result.githubUsername,
+        avatarUrl: result.avatarUrl,
+        createdAt: result.createdAt?.toISOString() || "",
+        updatedAt: result.updatedAt?.toISOString() || "",
+      },
+    },
+    200
+  );
+});
+```
+
+### 特別なケース：シンプルなCRUD操作
+
+「テーブル内のデータを単に取得してJSONで返すだけ」レベルの処理では、特別にService層を設けません。
+
+```typescript
+// シンプルなケースではRepository層を直接呼び出し
+app.openapi(getUserRoute, async (c) => {
+  const { id } = c.req.valid("param");
+
+  const user = await userRepository.findById(id);
+  if (!user) {
+    return c.json({ error: "ユーザーが見つかりません" }, 404);
+  }
+
+  return c.json({ user }, 200);
+});
+```
+
+### 日付処理のガイドライン
+
+#### Controller層での日付処理
+
+- **入力**: `transform`を利用してISO8601+UTC文字列をDate型に変換してパースする
+- **出力**: レスポンスを返す際は、Date型をISO8601+UTC文字列に変換して返す
+
+```typescript
+// 入力スキーマでの日付変換
+const updateUserRequestSchema = z.object({
+  name: z.string().optional(),
+  targetDate: z.iso
+    .datetime() // ISO8601形式のバリデーション
+    .transform((str) => new Date(str)), // Date型に変換
+});
+
+// レスポンス時の日付変換
+return c.json(
+  {
+    user: {
+      id: user.id,
+      name: user.name,
+      createdAt: user.createdAt?.toISOString() || "", // Date → ISO8601+UTC文字列
+      updatedAt: user.updatedAt?.toISOString() || "",
+    },
+  },
+  200
+);
+```
+
+#### アプリケーション内部での日付処理
+
+- **保持形式**: アプリケーション内部では日付はDate型として保持する
+- **DB保存**: DBに保存する際はUTCの時刻として保存する
+
+### フォルダ構造
 
 ```
-presentation/
-├── routes/
-│   ├── profile/
-│   │   └── index.ts          # 機能固有スキーマ + ルート + エンドポイント
-│   └── settings/
-│       └── index.ts          # 機能固有スキーマ + ルート + エンドポイント
-├── schemas/                   # フィーチャー間共通スキーマ
-│   ├── user-base.schema.ts    # ユーザー基本情報（共通）
-│   ├── user-error.schema.ts   # エラーレスポンス（共通）
-│   └── user-params.schema.ts  # パラメータ（共通）
-├── shared/
-│   └── error-handling.ts     # エラーハンドリングユーティリティ
-└── index.ts                  # エクスポート統合（schemas/からの再エクスポート含む）
+src/features/user/
+├── domain/
+│   └── user.ts               # User 型定義（TypeScript type）
+├── repositories/
+│   └── user.repository.ts    # DB操作、ドメイン型への変換
+├── services/
+│   └── user-profile.service.ts # ビジネスロジック、DTO型定義
+└── presentation/
+    ├── routes/
+    │   └── profile/
+    │       └── index.ts      # HTTP入出力Zodスキーマ、Controller実装
+    └── schemas/              # Controller層共通スキーマ（HTTP入出力用）
+        └── user-base.schema.ts
 ```
 
 ### 旧パターンからの移行
 
-- ❌ `routes/[feature]/schemas.ts` ファイルは廃止
-- ❌ `shared/common-schemas.ts` ファイルは廃止
-- ✅ 機能固有スキーマは`routes/[feature]/index.ts`内に直接定義
-- ✅ 共通スキーマは`schemas/[name].schema.ts`に分離
+- ❌ `src/features/[feature]/schemas` → ✅ `src/features/[feature]/domain`
+- ✅ `presentation/schemas/` は継続使用（Controller層共通スキーマのため）
+- ✅ ドメイン層：Zodスキーマを削除、TypeScriptのtypeのみ使用
+- ✅ サービス層：Zodスキーマを削除、InputDto/OutputDto型のみ使用
+- ✅ Controller層：Zodスキーマで入力バリデーション、レスポンス変換
+- ✅ DTO命名規則の統一（`~InputDto`, `~OutputDto`）
+- ✅ 型定義はinterfaceではなくtypeを利用
 
 ## Honoルート定義パターン
 
@@ -269,7 +452,7 @@ presentation/
 // features/users/presentation/routes.ts
 import { Hono } from "hono";
 import { zValidator } from "@hono/zod-validator";
-import { userSchemas } from "../schemas/user.schema";
+import { userSchemas } from "./schemas/user.schema";
 import { userProfileService } from "../services/user-profile.service";
 import { userPreferenceService } from "../services/user-preference.service";
 
@@ -318,38 +501,130 @@ class UsersController {
 
 ## スキーマ定義（Zod）
 
-### 基本的なスキーマ設計
+### Controller層でのスキーマ設計例
+
+#### 1. 共通スキーマファイル
 
 ```typescript
-// features/users/schemas/user.schema.ts
-import { z } from "zod";
+// features/user/presentation/schemas/user-base.schema.ts
+import { z } from "@hono/zod-openapi";
 
-export const userSchemas = {
-  create: z.object({
-    name: z.string().min(1, "名前は必須です"),
-    email: z.string().email("有効なメールアドレスを入力してください"),
-    githubUsername: z.string().optional(),
+// ユーザー基本情報スキーマ（レスポンス用）
+export const userBaseSchema = z.object({
+  id: z.string().uuid().openapi({
+    example: "550e8400-e29b-41d4-a716-446655440000",
+    description: "ユーザーID（UUID）",
   }),
+  email: z.string().email().openapi({
+    example: "user@example.com",
+    description: "メールアドレス",
+  }),
+  name: z.string().openapi({
+    example: "田中太郎",
+    description: "ユーザー名",
+  }),
+});
 
-  update: z.object({
-    name: z.string().min(1).optional(),
-    email: z.string().email().optional(),
-    githubUsername: z.string().optional(),
-  }),
+// 型推論用エクスポート
+export type UserBase = z.infer<typeof userBaseSchema>;
+```
 
-  params: z.object({
-    id: z.string().uuid("有効なUUIDを指定してください"),
-  }),
+#### 2. ルート内でのインラインスキーマ定義
 
-  query: z.object({
-    page: z.string().transform(Number).default("1"),
-    limit: z.string().transform(Number).default("20"),
-  }),
+```typescript
+// features/user/presentation/routes/profile/index.ts
+import { createRoute, OpenAPIHono } from "@hono/zod-openapi";
+import { z } from "@hono/zod-openapi";
+import { userBaseSchema } from "../../schemas/user-base.schema";
+import { USER_NAME, USER_EMAIL } from "../../../constants/user-validation.js";
+
+export const createProfileRoutes = (
+  app: OpenAPIHono,
+  userProfileService: UserProfileService
+) => {
+  // 共通レスポンススキーマ
+  const userProfileResponseSchema = z
+    .object({
+      user: userBaseSchema,
+    })
+    .openapi("UserProfileResponse");
+
+  // ルート固有のリクエストスキーマ
+  const updateProfileRequestSchema = z
+    .object({
+      name: z
+        .string()
+        .min(USER_NAME.MIN_LENGTH, USER_NAME.REQUIRED_ERROR_MESSAGE)
+        .max(USER_NAME.MAX_LENGTH, USER_NAME.MAX_LENGTH_ERROR_MESSAGE)
+        .openapi({
+          example: "田中太郎",
+          description: "ユーザー名",
+        }),
+      email: z
+        .string()
+        .min(USER_EMAIL.MIN_LENGTH, USER_EMAIL.REQUIRED_ERROR_MESSAGE)
+        .max(USER_EMAIL.MAX_LENGTH, USER_EMAIL.MAX_LENGTH_ERROR_MESSAGE)
+        .openapi({
+          example: "tanaka@example.com",
+          description: "メールアドレス",
+        }),
+    })
+    .openapi("UpdateProfileRequest");
+
+  // ルート定義
+  const updateProfileRoute = createRoute({
+    method: "put",
+    path: "/profile",
+    summary: "プロフィール更新",
+    description: "認証済みユーザーのプロフィール情報を更新します",
+    tags: ["Users"],
+    request: {
+      body: {
+        content: {
+          "application/json": {
+            schema: updateProfileRequestSchema,
+          },
+        },
+      },
+    },
+    responses: {
+      200: {
+        content: {
+          "application/json": {
+            schema: userProfileResponseSchema,
+          },
+        },
+        description: "更新されたプロフィール情報",
+      },
+      ...userErrorResponseSchemaDefinition,
+    },
+  });
+
+  // エンドポイント実装
+  app.openapi(updateProfileRoute, async (c) => {
+    const input = c.req.valid("json");
+    // 実装...
+  });
 };
+```
 
-export type CreateUserRequest = z.infer<typeof userSchemas.create>;
-export type UpdateUserRequest = z.infer<typeof userSchemas.update>;
-export type UserParams = z.infer<typeof userSchemas.params>;
+#### 3. バリデーション定数の利用
+
+```typescript
+// features/user/constants/user-validation.ts
+export const USER_NAME = {
+  MIN_LENGTH: 1,
+  MAX_LENGTH: 100,
+  REQUIRED_ERROR_MESSAGE: "名前は必須です",
+  MAX_LENGTH_ERROR_MESSAGE: "名前は100文字以内で入力してください",
+} as const;
+
+export const USER_EMAIL = {
+  MIN_LENGTH: 1,
+  MAX_LENGTH: 255,
+  REQUIRED_ERROR_MESSAGE: "メールアドレスは必須です",
+  MAX_LENGTH_ERROR_MESSAGE: "メールアドレスは255文字以内で入力してください",
+} as const;
 ```
 
 ### OpenAPIとの統合
@@ -608,5 +883,3 @@ const getUsersRoute = createRoute({
 - [アーキテクチャパターン](./architecture-patterns.md)
 - [ファイル命名規則](./file-naming-conventions.md)
 - [テスト戦略](./testing-strategy.md)
-- [Hono公式ドキュメント](https://hono.dev/)
-- [Zod公式ドキュメント](https://zod.dev/)
