@@ -7,7 +7,7 @@ import { JWTValidator } from "../jwt-validator.service"
 import { UserRepository } from "../../../user/repositories/user.repository.js"
 import { AuthError } from "../../errors/auth.error"
 import type { JWTPayload, TokenValidationResult } from "../../types/auth.types"
-import type { User } from "../../../user/repositories/user.repository.js"
+import { User } from "../../../user/domain/user"
 
 // 環境変数をモック
 vi.mock("../../utils/auth-config", () => ({
@@ -80,9 +80,7 @@ describe("AuthSignupService", () => {
           createdAt: new Date(),
           updatedAt: new Date(),
         }
-        vi.mocked(mockUserRepository.findOrCreateByAuth0).mockResolvedValue(
-          mockUser,
-        )
+        vi.mocked(mockUserRepository.save)
 
         // テスト実行
         const result = await authSignupService.signUp({ idToken: validIdToken })
@@ -94,7 +92,7 @@ describe("AuthSignupService", () => {
         expect(mockUserRepository.findByAuth0Id).toHaveBeenCalledWith(
           "auth0|github|testuser",
         )
-        expect(mockUserRepository.findOrCreateByAuth0).toHaveBeenCalledWith({
+        expect(mockUserRepository.save).toHaveBeenCalledWith({
           auth0UserId: "auth0|github|testuser",
           email: "test@example.com",
           name: "Test User",
@@ -142,10 +140,6 @@ describe("AuthSignupService", () => {
         vi.mocked(mockUserRepository.findByAuth0Id).mockResolvedValue(
           mockExistingUser,
         )
-        vi.mocked(mockUserRepository.findOrCreateByAuth0).mockResolvedValue(
-          mockExistingUser,
-        )
-
         // テスト実行
         const result = await authSignupService.signUp({ idToken: validIdToken })
 
@@ -235,9 +229,8 @@ describe("AuthSignupService", () => {
             createdAt: new Date(),
             updatedAt: new Date(),
           }
-          vi.mocked(mockUserRepository.findOrCreateByAuth0).mockResolvedValue(
-            mockUser,
-          )
+          vi.mocked(mockUserRepository.findById).mockResolvedValue(mockUser)
+          vi.mocked(mockUserRepository.save)
 
           // テスト実行
           await authSignupService.signUp({ idToken: validIdToken })
@@ -246,7 +239,7 @@ describe("AuthSignupService", () => {
           expect(mockUserRepository.findByAuth0Id).toHaveBeenCalledWith(
             payload.sub,
           )
-          expect(mockUserRepository.findOrCreateByAuth0).toHaveBeenCalledWith(
+          expect(mockUserRepository.save).toHaveBeenCalledWith(
             expect.objectContaining({
               githubUsername: expected,
             }),
@@ -274,7 +267,7 @@ describe("AuthSignupService", () => {
         expect(mockJWTValidator.validateAccessToken).toHaveBeenCalledWith(
           "invalid.token",
         )
-        expect(mockUserRepository.findOrCreateByAuth0).not.toHaveBeenCalled()
+        expect(mockUserRepository.save).not.toHaveBeenCalled()
       })
 
       it("ペイロードがnullの場合はエラーをスローする", async () => {
@@ -337,9 +330,7 @@ describe("AuthSignupService", () => {
               authSignupService.signUp({ idToken: validIdToken }),
             ).rejects.toThrow(`Required claim is missing: ${expectedError}`)
 
-            expect(
-              mockUserRepository.findOrCreateByAuth0,
-            ).not.toHaveBeenCalled()
+            expect(mockUserRepository.save).not.toHaveBeenCalled()
           },
         )
       })

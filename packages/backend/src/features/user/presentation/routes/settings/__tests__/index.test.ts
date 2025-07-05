@@ -3,12 +3,10 @@ import { OpenAPIHono } from "@hono/zod-openapi"
 import { createSettingsRoutes } from "../index"
 import { requireAuth } from "../../../../../auth/middleware/jwt-auth.middleware.js"
 import type { UserProfileService } from "../../../../services/user-profile.service"
-import type {
-  UserSettingsService,
-  UserSettings,
-} from "../../../../services/user-settings.service"
+import type { UserSettingsService } from "../../../../services/user-settings.service"
 import type { SupportedLanguage } from "../../../../constants/index.js"
-import type { User } from "../../../../repositories/user.repository.js"
+import { User } from "../../../../domain/user"
+import { UserSettings } from "../../../../domain/user-settings"
 
 // モック設定
 vi.mock("../../../../../auth/middleware/jwt-auth.middleware.js", () => ({

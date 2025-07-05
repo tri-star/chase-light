@@ -1,10 +1,8 @@
 import { describe, test, expect, vi, beforeEach } from "vitest"
 import { UserSettingsService } from "../user-settings.service"
 import type { SupportedLanguage } from "../../constants/index.js"
-import type {
-  UserRepository,
-  User,
-} from "../../repositories/user.repository.js"
+import type { UserRepository } from "../../repositories/user.repository.js"
+import { User } from "../../domain/user"
 
 const mockUserRepository = {
   findById: vi.fn(),

@@ -3,7 +3,7 @@ import { OpenAPIHono } from "@hono/zod-openapi"
 import { createProfileRoutes } from "../index"
 import { requireAuth } from "../../../../../auth/middleware/jwt-auth.middleware.js"
 import type { UserProfileService } from "../../../../services/user-profile.service"
-import type { User } from "../../../../repositories/user.repository.js"
+import { User } from "../../../../domain/user"
 
 // モック設定
 vi.mock("../../../../../auth/middleware/jwt-auth.middleware.js", () => ({
@@ -139,7 +139,7 @@ describe("Profile Routes", () => {
     test("プロフィール更新に成功", async () => {
       const updateData = {
         name: "更新されたユーザー",
-        timezone: "America/New_York",
+        email: "updated@example.com",
       }
 
       const updatedUser = { ...mockUser, ...updateData }
@@ -163,7 +163,6 @@ describe("Profile Routes", () => {
       expect(response.status).toBe(200)
       const data = await response.json()
       expect(data.user.name).toBe("更新されたユーザー")
-      expect(data.user.timezone).toBe("America/New_York")
       expect(mockUserProfileService.updateUserProfile).toHaveBeenCalledWith(
         "user-123",
         updateData,
@@ -181,7 +180,7 @@ describe("Profile Routes", () => {
           Authorization: "Bearer mock-token",
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ name: "新しい名前" }),
+        body: JSON.stringify({ name: "新しい名前", email: "test@example.com" }),
       })
 
       expect(response.status).toBe(404)

@@ -5,10 +5,11 @@
  */
 import { JWTValidator } from "./jwt-validator.service"
 import { UserRepository } from "../../user/repositories/user.repository.js"
-import type { User } from "../../user/repositories/user.repository.js"
 import { AuthError } from "../errors/auth.error"
 import { getAuth0Config } from "../utils/auth-config"
 import type { JWTPayload } from "../types/auth.types"
+import { User } from "../../user/domain/user"
+import { uuidv7 } from "uuidv7"
 
 export interface SignUpRequest {
   idToken: string
@@ -73,10 +74,27 @@ export class AuthSignupService {
     const isNewUser = !existingUser
 
     // ユーザーの作成または更新（既存の場合は更新）
-    const user = await this.userRepository.findOrCreateByAuth0({
-      ...userInfo,
+    const newUserId = uuidv7()
+    await this.userRepository.save({
+      id: newUserId,
+      auth0UserId: userInfo.auth0UserId,
+      email: userInfo.email,
+      name: userInfo.name,
+      avatarUrl: userInfo.avatarUrl,
+      githubUsername: userInfo.githubUsername ?? null,
       timezone: "Asia/Tokyo", // デフォルトのタイムゾーン
+      createdAt: null,
+      updatedAt: null,
     })
+
+    const user = await this.userRepository.findById(newUserId)
+    if (!user) {
+      console.error("ユーザーの作成に失敗しました", {
+        userId: newUserId,
+        auth0UserId: userInfo.auth0UserId,
+      })
+      throw Error("ユーザーの作成に失敗しました")
+    }
 
     return {
       user: this.formatUserResponse(user),

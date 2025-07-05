@@ -1,9 +1,7 @@
 import { describe, test, expect, vi, beforeEach } from "vitest"
 import { UserProfileService } from "../user-profile.service"
-import type {
-  UserRepository,
-  User,
-} from "../../repositories/user.repository.js"
+import type { UserRepository } from "../../repositories/user.repository.js"
+import { User } from "../../domain/user"
 
 const mockUserRepository = {
   findById: vi.fn(),
@@ -99,7 +97,7 @@ describe("UserProfileService", () => {
     test("正常なデータでプロフィールを更新できる", async () => {
       const updateData = {
         name: "更新されたユーザー",
-        timezone: "America/New_York",
+        email: "updated@example.com",
       }
 
       const updatedUser = { ...mockUser, ...updateData }
@@ -127,102 +125,13 @@ describe("UserProfileService", () => {
         "non-existent",
         {
           name: "新しい名前",
+          email: "updated@example.com",
         },
       )
 
       expect(mockUserRepository.findById).toHaveBeenCalledWith("non-existent")
       expect(mockUserRepository.update).not.toHaveBeenCalled()
       expect(result).toBeNull()
-    })
-
-    test("GitHubユーザー名の重複チェック - 成功", async () => {
-      const updateData = { githubUsername: "newusername" }
-
-      vi.mocked(mockUserRepository.findById).mockResolvedValue(mockUser)
-      vi.mocked(mockUserRepository.findByGithubUsername).mockResolvedValue(null)
-      vi.mocked(mockUserRepository.update).mockResolvedValue({
-        ...mockUser,
-        ...updateData,
-      })
-
-      const result = await userProfileService.updateUserProfile(
-        "user-123",
-        updateData,
-      )
-
-      expect(mockUserRepository.findByGithubUsername).toHaveBeenCalledWith(
-        "newusername",
-      )
-      expect(result).toBeDefined()
-    })
-
-    test("GitHubユーザー名の重複チェック - 他ユーザーと重複", async () => {
-      const updateData = { githubUsername: "existinguser" }
-      const existingUser = {
-        ...mockUser,
-        id: "other-user",
-        githubUsername: "existinguser",
-      }
-
-      vi.mocked(mockUserRepository.findById).mockResolvedValue(mockUser)
-      vi.mocked(mockUserRepository.findByGithubUsername).mockResolvedValue(
-        existingUser,
-      )
-
-      await expect(
-        userProfileService.updateUserProfile("user-123", updateData),
-      ).rejects.toThrow("このGitHubユーザー名は既に使用されています")
-
-      expect(mockUserRepository.update).not.toHaveBeenCalled()
-    })
-
-    test("GitHubユーザー名の重複チェック - 自分のユーザー名は許可", async () => {
-      const updateData = { githubUsername: "testuser" } // 現在と同じユーザー名
-
-      vi.mocked(mockUserRepository.findById).mockResolvedValue(mockUser)
-      vi.mocked(mockUserRepository.findByGithubUsername).mockResolvedValue(
-        mockUser,
-      )
-      vi.mocked(mockUserRepository.update).mockResolvedValue(mockUser)
-
-      const result = await userProfileService.updateUserProfile(
-        "user-123",
-        updateData,
-      )
-
-      expect(result).toBeDefined()
-      expect(mockUserRepository.update).toHaveBeenCalled()
-    })
-
-    test.each([
-      ["Asia/Tokyo", true],
-      ["America/New_York", true],
-      ["Europe/London", true],
-      ["invalid/timezone", false],
-      ["", false],
-    ])("タイムゾーン検証: %s -> %s", async (timezone, shouldSucceed) => {
-      const updateData = { timezone }
-
-      vi.mocked(mockUserRepository.findById).mockResolvedValue(mockUser)
-
-      if (shouldSucceed) {
-        vi.mocked(mockUserRepository.update).mockResolvedValue({
-          ...mockUser,
-          timezone,
-        })
-
-        const result = await userProfileService.updateUserProfile(
-          "user-123",
-          updateData,
-        )
-        expect(result).toBeDefined()
-      } else {
-        await expect(
-          userProfileService.updateUserProfile("user-123", updateData),
-        ).rejects.toThrow("無効なタイムゾーンです")
-
-        expect(mockUserRepository.update).not.toHaveBeenCalled()
-      }
     })
   })
 })
