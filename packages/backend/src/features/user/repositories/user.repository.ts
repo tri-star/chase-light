@@ -1,7 +1,7 @@
 import { eq, like } from "drizzle-orm"
 import { db } from "../../../db/connection"
 import { users } from "../../../db/schema"
-import { User } from "../schemas/user.schema"
+import { User } from "../domain/user"
 
 type QueryOptions = {
   queries: {

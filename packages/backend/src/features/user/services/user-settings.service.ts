@@ -7,19 +7,16 @@ import {
   DEFAULT_NOTIFICATIONS,
 } from "../constants/index.js"
 import { validateTimezone } from "../domain/timezone.js"
+import { UserSettings } from "../domain/user-settings.js"
 
-export interface UserSettings {
-  emailNotifications: boolean
-  pushNotifications: boolean
-  language: SupportedLanguage
-}
-
-export interface UpdateSettingsRequest {
+export type UpdateSettingsInputDto = {
   timezone?: string
   emailNotifications?: boolean
   pushNotifications?: boolean
   language?: SupportedLanguage
 }
+
+export type UpdateSettingsOutputDto = UserSettings
 
 /**
  * ユーザー設定管理サービス
@@ -51,8 +48,8 @@ export class UserSettingsService {
    */
   async updateUserSettings(
     userId: string,
-    data: UpdateSettingsRequest,
-  ): Promise<UserSettings | null> {
+    data: UpdateSettingsInputDto,
+  ): Promise<UpdateSettingsOutputDto | null> {
     const user = await this.userRepository.findById(userId)
     if (!user) {
       return null
@@ -91,7 +88,9 @@ export class UserSettingsService {
   /**
    * 設定のリセット（デフォルト値に戻す）
    */
-  async resetUserSettings(userId: string): Promise<UserSettings | null> {
+  async resetUserSettings(
+    userId: string,
+  ): Promise<UpdateSettingsOutputDto | null> {
     const user = await this.userRepository.findById(userId)
     if (!user) {
       return null

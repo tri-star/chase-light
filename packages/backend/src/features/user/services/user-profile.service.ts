@@ -1,12 +1,12 @@
-import { UserRepository } from "../repositories/user.repository.js"
-import type { User } from "../repositories/user.repository.js"
-import { validateTimezone } from "../domain/timezone.js"
+import { UserRepository } from "../repositories/user.repository"
+import type { User } from "../domain/user"
 
-export interface UpdateProfileRequest {
-  name?: string
-  githubUsername?: string
-  timezone?: string
+export type UpdateProfileInputDto = {
+  name: string
+  email: string
 }
+
+export type UpdateProfileOutputDto = User
 
 /**
  * ユーザープロフィール管理サービス
@@ -34,8 +34,8 @@ export class UserProfileService {
    */
   async updateUserProfile(
     userId: string,
-    data: UpdateProfileRequest,
-  ): Promise<User | null> {
+    input: UpdateProfileInputDto,
+  ): Promise<UpdateProfileOutputDto | null> {
     const user = await this.userRepository.findById(userId)
     if (!user) {
       return null
@@ -44,20 +44,7 @@ export class UserProfileService {
     // メールアドレスの重複チェック（メール更新は別サービスで処理）
     // ここではname, githubUsername, timezoneのみ更新
 
-    // GitHubユーザー名の重複チェック
-    if (data.githubUsername && data.githubUsername !== user.githubUsername) {
-      const existingUser = await this.userRepository.findByGithubUsername(
-        data.githubUsername,
-      )
-      if (existingUser && existingUser.id !== userId) {
-        throw new Error("このGitHubユーザー名は既に使用されています")
-      }
-    }
-
-    // タイムゾーンの検証
-    validateTimezone(data.timezone)
-
-    return this.userRepository.update(userId, data)
+    return this.userRepository.update(userId, input)
   }
 }
 

@@ -9,6 +9,7 @@ import {
   userNotFoundResponse,
 } from "../../shared/error-handling"
 import { USER_NAME } from "../../../constants/index.js"
+import { USER_EMAIL } from "../../../constants/user-validation.js"
 
 /**
  * Profile Routes
@@ -95,10 +96,17 @@ export const createProfileRoutes = (
         .string()
         .min(USER_NAME.MIN_LENGTH, USER_NAME.REQUIRED_ERROR_MESSAGE)
         .max(USER_NAME.MAX_LENGTH, USER_NAME.MAX_LENGTH_ERROR_MESSAGE)
-        .optional()
         .openapi({
           example: "田中太郎",
           description: "ユーザー名",
+        }),
+      email: z
+        .string()
+        .min(USER_EMAIL.MIN_LENGTH, USER_EMAIL.REQUIRED_ERROR_MESSAGE)
+        .max(USER_EMAIL.MAX_LENGTH, USER_EMAIL.MAX_LENGTH_ERROR_MESSAGE)
+        .openapi({
+          example: "tanaka@example.com",
+          description: "メールアドレス",
         }),
       timezone: z.string().optional().openapi({
         example: "Asia/Tokyo",
@@ -152,12 +160,12 @@ export const createProfileRoutes = (
       }
 
       // リクエストボディを取得
-      const data = c.req.valid("json")
+      const input = c.req.valid("json")
 
       // プロフィール更新
       const updatedUser = await userProfileService.updateUserProfile(
         currentUser.id,
-        data,
+        input,
       )
       if (!updatedUser) {
         return c.json(
