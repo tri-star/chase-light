@@ -5,41 +5,36 @@ import { describe, it, expect, beforeEach, afterEach, vi } from "vitest"
 import { Hono } from "hono"
 import { createExclusiveJWTAuthMiddleware } from "../exclusive-jwt-auth.middleware"
 import type { AuthExclusionConfig } from "../auth-exclusions"
-
-// JWT認証ミドルウェアをモック
-vi.mock("../jwt-auth.middleware", () => ({
-  createJWTAuthMiddleware: vi.fn(
-    () =>
-      // @ts-expect-error テスト用のモック関数での型簡略化
-      async (c, next) => {
-        // モックJWT認証：Authorizationヘッダーがあれば成功
-        const authHeader = c.req.header("Authorization")
-        if (authHeader === "Bearer valid-token") {
-          c.set("auth", { user: { sub: "test-user" } })
-          await next()
-        } else {
-          // HTTPExceptionを模擬
-          throw new Error("Unauthorized")
-        }
-      },
-  ),
-}))
+import { AuthTestHelper } from "../../test-helpers/auth-test-helper"
 
 describe("Exclusive JWT Auth Middleware", () => {
   let app: Hono
   const originalEnv = process.env
+  let consoleSpy: {
+    log: ReturnType<typeof vi.spyOn>
+    warn: ReturnType<typeof vi.spyOn>
+  }
 
   beforeEach(() => {
     app = new Hono()
     process.env = { ...originalEnv }
 
+    // テストユーザーをクリア
+    AuthTestHelper.clearTestUsers()
+
+    // テスト用ユーザーを登録
+    AuthTestHelper.createTestToken("test-user", "test@example.com", "Test User")
+
     // コンソールログをモック
-    vi.spyOn(console, "log").mockImplementation(() => {})
-    vi.spyOn(console, "warn").mockImplementation(() => {})
+    consoleSpy = {
+      log: vi.spyOn(console, "log").mockImplementation(() => {}),
+      warn: vi.spyOn(console, "warn").mockImplementation(() => {}),
+    }
   })
 
   afterEach(() => {
     process.env = originalEnv
+    AuthTestHelper.clearTestUsers()
     vi.restoreAllMocks()
   })
 
@@ -84,10 +79,9 @@ describe("Exclusive JWT Auth Middleware", () => {
       app.get("/api/private", (c) => c.json({ data: "private" }))
 
       // 有効なトークンでアクセス
+      const validToken = AuthTestHelper.createTestToken("valid-user", "valid@example.com", "Valid User")
       const res = await app.request("/api/private", {
-        headers: {
-          Authorization: "Bearer valid-token",
-        },
+        headers: AuthTestHelper.createAuthHeaders(validToken),
       })
       expect(res.status).toBe(200)
     })
@@ -104,7 +98,7 @@ describe("Exclusive JWT Auth Middleware", () => {
       // 認証なしでアクセス
       const res = await app.request("/api/private")
       expect(res.status).toBe(200)
-      expect(console.warn).toHaveBeenCalledWith(
+      expect(consoleSpy.warn).toHaveBeenCalledWith(
         "[AUTH] Authentication disabled for non-production: /api/private",
       )
     })
@@ -141,7 +135,7 @@ describe("Exclusive JWT Auth Middleware", () => {
 
       await app.request("/health")
 
-      expect(console.log).toHaveBeenCalledWith(
+      expect(consoleSpy.log).toHaveBeenCalledWith(
         "[AUTH] Path excluded from authentication: /health",
       )
     })
@@ -150,11 +144,12 @@ describe("Exclusive JWT Auth Middleware", () => {
       app.use("*", createExclusiveJWTAuthMiddleware())
       app.get("/api/private", (c) => c.json({ data: "private" }))
 
+      const validToken = AuthTestHelper.createTestToken("auth-user", "auth@example.com", "Auth User")
       await app.request("/api/private", {
-        headers: { Authorization: "Bearer valid-token" },
+        headers: AuthTestHelper.createAuthHeaders(validToken),
       })
 
-      expect(console.log).toHaveBeenCalledWith(
+      expect(consoleSpy.log).toHaveBeenCalledWith(
         "[AUTH] Authenticating request: /api/private",
       )
     })

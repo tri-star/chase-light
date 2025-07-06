@@ -7,8 +7,7 @@ import { Context, Next } from "hono"
 import { HTTPException } from "hono/http-exception"
 import type { AuthenticatedUser, AuthContext } from "../types/auth.types"
 import { AuthError } from "../errors/auth.error"
-import { JWTValidator } from "../services/jwt-validator.service"
-import { getAuth0Config, validateAuth0Config } from "../utils/auth-config"
+import { createJWTValidator, type JWTValidatorInterface } from "../services/jwt-validator.interface"
 import { isAuthDisabledForNonProduction } from "./auth-exclusions"
 
 /**
@@ -77,13 +76,11 @@ export function createJWTAuthMiddleware(options: JWTAuthOptions = {}) {
     onError = defaultErrorHandler,
   } = options
 
-  // Auth0設定の取得と検証
-  let validator: JWTValidator
+  // 環境に応じたJWTValidatorを作成
+  let validator: JWTValidatorInterface
 
   try {
-    const auth0Config = getAuth0Config()
-    validateAuth0Config(auth0Config)
-    validator = new JWTValidator(auth0Config)
+    validator = createJWTValidator()
   } catch (error) {
     throw new Error(
       `JWT Auth Middleware initialization failed: ${error instanceof Error ? error.message : "Unknown error"}`,
