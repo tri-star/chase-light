@@ -87,46 +87,6 @@ describe("Exclusive JWT Auth Middleware", () => {
     })
   })
 
-  describe("開発環境での認証無効化", () => {
-    it("開発環境でDISABLE_AUTH=trueの場合、すべてのリクエストを通す", async () => {
-      process.env.NODE_ENV = "development"
-      process.env.DISABLE_AUTH = "true"
-
-      app.use("*", createExclusiveJWTAuthMiddleware({ allowDevDisable: true }))
-      app.get("/api/private", (c) => c.json({ data: "private" }))
-
-      // 認証なしでアクセス
-      const res = await app.request("/api/private")
-      expect(res.status).toBe(200)
-      expect(consoleSpy.warn).toHaveBeenCalledWith(
-        "[AUTH] Authentication disabled for non-production: /api/private",
-      )
-    })
-
-    it("allowDevDisable=falseの場合、開発環境でも認証を実行", async () => {
-      process.env.NODE_ENV = "development"
-      process.env.DISABLE_AUTH = "true"
-
-      app.use("*", createExclusiveJWTAuthMiddleware({ allowDevDisable: false }))
-      app.get("/api/private", (c) => c.json({ data: "private" }))
-
-      // 認証なしでアクセス
-      const res = await app.request("/api/private")
-      expect(res.status).toBe(401)
-    })
-
-    it("本番環境では認証無効化を無視", async () => {
-      process.env.NODE_ENV = "production"
-      process.env.DISABLE_AUTH = "true"
-
-      app.use("*", createExclusiveJWTAuthMiddleware({ allowDevDisable: true }))
-      app.get("/api/private", (c) => c.json({ data: "private" }))
-
-      // 認証なしでアクセス
-      const res = await app.request("/api/private")
-      expect(res.status).toBe(401)
-    })
-  })
 
   describe("ログ出力", () => {
     it("除外パスでログを出力", async () => {

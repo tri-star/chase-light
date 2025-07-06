@@ -10,7 +10,6 @@ import {
 } from "./jwt-auth.middleware"
 import {
   isPathExcluded,
-  isAuthDisabledForNonProduction,
   getAuthExclusionsFromEnv,
   type AuthExclusionConfig,
 } from "./auth-exclusions"
@@ -18,8 +17,6 @@ import {
 export interface ExclusiveJWTAuthOptions extends JWTAuthOptions {
   /** 認証から除外するパス設定 */
   exclusions?: AuthExclusionConfig
-  /** 開発環境での認証無効化を許可するか */
-  allowDevDisable?: boolean
 }
 
 /**
@@ -30,7 +27,6 @@ export function createExclusiveJWTAuthMiddleware(
 ) {
   const {
     exclusions = getAuthExclusionsFromEnv(),
-    allowDevDisable = true,
     ...jwtOptions
   } = options
 
@@ -39,13 +35,6 @@ export function createExclusiveJWTAuthMiddleware(
 
   return async (c: Context, next: Next) => {
     const path = c.req.path
-
-    // 非本番環境での認証無効化チェック
-    if (allowDevDisable && isAuthDisabledForNonProduction()) {
-      console.warn(`[AUTH] Authentication disabled for non-production: ${path}`)
-      await next()
-      return
-    }
 
     // パス除外チェック
     if (isPathExcluded(path, exclusions)) {
@@ -72,10 +61,3 @@ export function createExclusiveJWTAuthMiddleware(
  * グローバル認証ミドルウェア（デフォルト設定）
  */
 export const globalJWTAuth = createExclusiveJWTAuthMiddleware()
-
-/**
- * 厳格な認証ミドルウェア（開発環境無効化なし）
- */
-export const strictGlobalJWTAuth = createExclusiveJWTAuthMiddleware({
-  allowDevDisable: false,
-})

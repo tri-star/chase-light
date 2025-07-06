@@ -8,7 +8,6 @@ import { HTTPException } from "hono/http-exception"
 import type { AuthenticatedUser, AuthContext } from "../types/auth.types"
 import { AuthError } from "../errors/auth.error"
 import { createJWTValidator, type JWTValidatorInterface } from "../services/jwt-validator.interface"
-import { isAuthDisabledForNonProduction } from "./auth-exclusions"
 
 /**
  * JWT認証ミドルウェアのオプション
@@ -176,29 +175,6 @@ export function getAuthenticatedUser(c: Context): AuthenticatedUser | null {
  * 認証必須のエンドポイント用ヘルパー関数
  */
 export function requireAuth(c: Context): AuthenticatedUser {
-  // 非本番環境で認証が無効化されている場合は、ヘッダーからユーザー情報を取得
-  if (isAuthDisabledForNonProduction()) {
-    const auth0UserId = c.req.header("x-auth0-user-id")
-    if (auth0UserId) {
-      return {
-        sub: auth0UserId,
-        payload: {
-          sub: auth0UserId,
-          iss: new Date().toISOString(),
-          aud: c.req.header("x-auth0-user-aud") || "",
-          iat: Math.floor(Date.now() / 1000), // 現在のUNIXタイムスタンプ
-          exp: Date.now() + 60 * 60 * 1000, //
-          email: c.req.header("x-auth0-user-email") || "",
-          name: c.req.header("x-auth0-user-name") || "",
-          picture: c.req.header("x-auth0-user-picture") || "",
-          githubUsername: c.req.header("x-auth0-user-github-username") || "",
-          timezone: c.req.header("x-auth0-user-timezone") || "UTC",
-        },
-        accessToken: c.req.header("Authorization") || "",
-      }
-    }
-  }
-
   const user = getAuthenticatedUser(c)
   if (!user) {
     throw AuthError.tokenMissing()
