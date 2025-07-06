@@ -17,10 +17,12 @@
 当初「Integration Test」と命名していたものを「Component Test」に変更しました。これは以下の理由によります：
 
 1. **最近のテスティングトレンドへの準拠**
+
    - フロントエンド分野ではComponent Testingが標準化（Cypress、Playwright等）
    - マイクロサービス文脈で「サービス単体 + 実DB」をComponent Testと呼ぶ例が増加
 
 2. **理論的背景**
+
    - Martin Fowlerの「Component Test = システムの一部だけをテスト」定義に準拠
    - Kent C. DoddのTesting Trophyで推奨される「UnitとE2Eの間の実用的な粒度」に対応
 
@@ -40,17 +42,22 @@
 ### Unit Test
 
 **対象レイヤー**: presentationよりも下のレイヤー
-- service層
+
+- service層:
+  - **IMPORTANT: Service層のテストはComponentテストと重複が多いので、基本的にはComponentテストでカバーすることを推奨**
+  - Componentテストでのテストが難しいパターン網羅を確認するようなテストはService層でのUnitテストを実施
 - ドメインロジック
 - ユーティリティ関数
 
 **特徴**:
+
 - DBへのアクセスはモック/スタブを通して行う
 - 外部サービスへのアクセスもモック/スタブ
 - 高速実行を重視
 - 細かな振る舞いの検証
 
 **DBアクセスの扱い**:
+
 - DBアクセスのモック/スタブはテストコード内で実装
 - テスト実行速度への影響を考慮し、実DBアクセスは行わない
 
@@ -59,17 +66,20 @@
 **対象レイヤー**: presentationレイヤー
 
 **特徴**:
+
 - APIエンドポイント単位でのテスト
 - DBへのアクセスは実際のDBを通して行う
 - 外部サービスへのアクセスはスタブ実装を通して行う
 - エンドポイントの動作を包括的に検証
 
 **実装方針**:
+
 - 実際のRepositoryクラスを通してDBアクセス
 - ハッピーパスに限らず、様々なパターンをテスト
 - パターン数が非常に多い場合は、下位レイヤーでのテストも併用
 
 **外部サービスの扱い**:
+
 - スタブ実装はプロダクションコードの一部として含める
 - テストコードではなく、本番環境以外で利用可能な形で実装
 - 例：ローカル環境でもスタブに差し替えて動作させる
@@ -87,6 +97,7 @@
 **vitest**を採用
 
 **選択理由**:
+
 - TypeScriptサポートが充実
 - 高速な実行速度
 - モダンなAPIと優れた開発体験
@@ -96,12 +107,14 @@
 **drizzle-seed**を採用
 
 **選択理由**:
+
 - Drizzle team公式ライブラリ
 - スキーマ定義との完全連動
 - TypeScript完全サポート
 - Faker機能内蔵によるリアルなテストデータ生成
 
 **基本的な使用例**:
+
 ```typescript
 import { seed, reset } from "drizzle-seed";
 
@@ -114,12 +127,12 @@ await seed(db, schema).refine((f) => ({
     count: 20,
     columns: {
       name: f.fullName(),
-      email: f.email({ isUnique: true })
+      email: f.email({ isUnique: true }),
     },
     with: {
-      posts: 10  // 各ユーザーに10件の投稿を生成
-    }
-  }
+      posts: 10, // 各ユーザーに10件の投稿を生成
+    },
+  },
 }));
 
 // データベースリセット
@@ -127,6 +140,7 @@ await reset(db, schema);
 ```
 
 **主要機能**:
+
 - リアルなテストデータ生成（名前、メールアドレス、住所等）
 - 関連データの自動生成（`with`オプション）
 - 一意性制約への対応（`isUnique`オプション）
@@ -144,7 +158,7 @@ src/
     user/
       services/
         __tests__/
-          user-profile.service.test.ts   # Unit Test
+          user-profile.service.test.ts   # Unit Test。Componentテストと重複することが多いのと、モックでの検証にしかならないので、Componentテストでの試験を推奨
           user-preference.service.test.ts
           user-notification.service.test.ts
         user-profile.service.ts
@@ -189,14 +203,14 @@ src/
 
 ```typescript
 // user.component.test.ts
-import { describe, it, expect, beforeEach, afterEach } from 'vitest';
-import { seed, reset } from 'drizzle-seed';
-import request from 'supertest';
-import { app } from '../../../app';
-import { db } from '../../../db/connection';
-import * as schema from '../../../db/schema';
+import { describe, it, expect, beforeEach, afterEach } from "vitest";
+import { seed, reset } from "drizzle-seed";
+import request from "supertest";
+import { app } from "../../../app";
+import { db } from "../../../db/connection";
+import * as schema from "../../../db/schema";
 
-describe('POST /api/users', () => {
+describe("POST /api/users", () => {
   beforeEach(async () => {
     // テストデータのセットアップ
     await seed(db, schema).refine((f) => ({
@@ -204,9 +218,9 @@ describe('POST /api/users', () => {
         count: 5,
         columns: {
           email: f.email({ isUnique: true }),
-          name: f.fullName()
-        }
-      }
+          name: f.fullName(),
+        },
+      },
     }));
   });
 
@@ -215,41 +229,37 @@ describe('POST /api/users', () => {
     await reset(db, schema);
   });
 
-  it('should create user and return 201', async () => {
+  it("should create user and return 201", async () => {
     const userData = {
-      name: 'Test User',
-      email: 'test@example.com'
+      name: "Test User",
+      email: "test@example.com",
     };
 
-    const response = await request(app)
-      .post('/api/users')
-      .send(userData);
-    
+    const response = await request(app).post("/api/users").send(userData);
+
     expect(response).toMatchObject({
       status: 201,
       body: {
         id: expect.any(String),
         name: userData.name,
-        email: userData.email
-      }
+        email: userData.email,
+      },
     });
   });
 
-  it('should return 400 for invalid email', async () => {
+  it("should return 400 for invalid email", async () => {
     const userData = {
-      name: 'Test User',
-      email: 'invalid-email'
+      name: "Test User",
+      email: "invalid-email",
     };
 
-    const response = await request(app)
-      .post('/api/users')
-      .send(userData);
-    
+    const response = await request(app).post("/api/users").send(userData);
+
     expect(response).toMatchObject({
       status: 400,
       body: {
-        error: expect.stringContaining('email')
-      }
+        error: expect.stringContaining("email"),
+      },
     });
   });
 });
@@ -259,24 +269,24 @@ describe('POST /api/users', () => {
 
 ```typescript
 // user.service.test.ts
-import { describe, it, expect, vi } from 'vitest';
-import { UserService } from '../user.service';
-import type { UserRepository } from '../../../repositories/user.repository';
+import { describe, it, expect, vi } from "vitest";
+import { UserService } from "../user.service";
+import type { UserRepository } from "../../../repositories/user.repository";
 
-describe('UserService', () => {
-  it('should validate email format', () => {
+describe("UserService", () => {
+  it("should validate email format", () => {
     // Repositoryをモック
     const mockUserRepository = {
       create: vi.fn(),
-      findByEmail: vi.fn()
+      findByEmail: vi.fn(),
     } as unknown as UserRepository;
 
     const userService = new UserService(mockUserRepository);
-    
-    const isValid = userService.validateEmail('test@example.com');
+
+    const isValid = userService.validateEmail("test@example.com");
     expect(isValid).toBe(true);
-    
-    const isInvalid = userService.validateEmail('invalid-email');
+
+    const isInvalid = userService.validateEmail("invalid-email");
     expect(isInvalid).toBe(false);
   });
 });
@@ -287,10 +297,12 @@ describe('UserService', () => {
 ### 開発フロー
 
 1. **新機能開発時**:
+
    - まずUnit Testを書いて個別機能を確認
    - 次にComponent Testでエンドポイント全体を確認
 
 2. **バグ修正時**:
+
    - 該当レイヤーのテストを追加・修正
    - 影響範囲に応じてComponent Testも確認
 
