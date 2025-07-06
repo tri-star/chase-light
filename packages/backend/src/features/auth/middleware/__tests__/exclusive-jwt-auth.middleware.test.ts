@@ -105,7 +105,7 @@ describe("Exclusive JWT Auth Middleware", () => {
       const res = await app.request("/api/private")
       expect(res.status).toBe(200)
       expect(console.warn).toHaveBeenCalledWith(
-        "[AUTH] Authentication disabled for development: /api/private",
+        "[AUTH] Authentication disabled for non-production: /api/private",
       )
     })
 

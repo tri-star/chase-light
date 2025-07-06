@@ -16,9 +16,21 @@ type QueryOptions = {
 
 export class UserRepository {
   async save(data: User): Promise<void> {
-    // TODO: data.idが存在するか確認
-    //       存在する場合は data.updatedAtを更新し、update メソッドを呼び出す。
-    await db.insert(users).values(data)
+    // 既存ユーザーかどうかを確認
+    const existingUser = await this.findById(data.id)
+
+    if (existingUser) {
+      // 更新の場合：updatedAtを現在時刻に設定してUPDATE
+      const updateData = {
+        ...data,
+        updatedAt: new Date(),
+      }
+
+      await db.update(users).set(updateData).where(eq(users.id, data.id))
+    } else {
+      // 新規作成の場合：INSERT
+      await db.insert(users).values(data)
+    }
   }
 
   async findById(id: string): Promise<User | null> {

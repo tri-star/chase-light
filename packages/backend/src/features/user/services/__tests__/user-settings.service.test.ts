@@ -1,22 +1,31 @@
 import { describe, test, expect, vi, beforeEach } from "vitest"
 import { UserSettingsService } from "../user-settings.service"
-import type { SupportedLanguage } from "../../constants/index.js"
-import type { UserRepository } from "../../repositories/user.repository.js"
+import type { UserRepository } from "../../repositories/user.repository"
 import { User } from "../../domain/user"
+import type { SupportedLanguage } from "../../constants/index"
+
+// UserSettingsService Unit Test - バリデーションロジックに特化
+// 注意: 主要な機能テストはComponent Testで実施済み
 
 const mockUserRepository = {
   findById: vi.fn(),
-  findByAuth0Id: vi.fn(),
-  findByEmail: vi.fn(),
-  findByGithubUsername: vi.fn(),
   save: vi.fn(),
-  findMany: vi.fn(),
-  delete: vi.fn(),
-  findOrCreateByAuth0: vi.fn(),
 } as unknown as UserRepository
 
-describe("UserSettingsService", () => {
+describe("UserSettingsService - Unit Test", () => {
   let userSettingsService: UserSettingsService
+
+  const _mockUser: User = {
+    id: "user-123",
+    auth0UserId: "auth0|user123",
+    email: "test@example.com",
+    name: "テストユーザー",
+    githubUsername: "testuser",
+    avatarUrl: "https://example.com/avatar.jpg",
+    timezone: "Asia/Tokyo",
+    createdAt: new Date(),
+    updatedAt: new Date(),
+  }
 
   beforeEach(() => {
     vi.clearAllMocks()
@@ -45,7 +54,7 @@ describe("UserSettingsService", () => {
       expect(result).toEqual({
         emailNotifications: true,
         pushNotifications: false,
-        language: "ja" as SupportedLanguage,
+        language: "ja",
       })
     })
 
@@ -94,7 +103,7 @@ describe("UserSettingsService", () => {
       expect(result).toEqual({
         emailNotifications: true,
         pushNotifications: false,
-        language: "ja" as SupportedLanguage,
+        language: "ja",
       })
     })
 
@@ -139,7 +148,7 @@ describe("UserSettingsService", () => {
         expect(result).toEqual({
           emailNotifications: true,
           pushNotifications: false,
-          language: "ja" as SupportedLanguage,
+          language: "ja",
         })
       } else {
         await expect(
@@ -198,7 +207,7 @@ describe("UserSettingsService", () => {
       expect(result).toEqual({
         emailNotifications: true, // デフォルト値
         pushNotifications: false, // デフォルト値
-        language: "ja" as SupportedLanguage,
+        language: "ja",
       })
     })
   })
@@ -232,7 +241,7 @@ describe("UserSettingsService", () => {
       expect(result).toEqual({
         emailNotifications: true,
         pushNotifications: false,
-        language: "ja" as SupportedLanguage,
+        language: "ja",
       })
     })
 
