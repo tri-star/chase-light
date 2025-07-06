@@ -2,8 +2,11 @@ import { defineConfig } from "drizzle-kit"
 import { config } from "dotenv"
 import process from "node:process"
 
-// Load environment variables
-config()
+// 環境に応じて適切な.envファイルを選択
+const envFile = process.env.NODE_ENV === "test" ? ".env.testing" : ".env"
+config({ path: envFile })
+
+console.log(`🔧 Drizzle config loading: ${envFile}`)
 
 export default defineConfig({
   dialect: "postgresql",
