@@ -10,7 +10,7 @@ import {
 } from "./jwt-auth.middleware"
 import {
   isPathExcluded,
-  isAuthDisabledForDevelopment,
+  isAuthDisabledForNonProduction,
   getAuthExclusionsFromEnv,
   type AuthExclusionConfig,
 } from "./auth-exclusions"
@@ -40,9 +40,9 @@ export function createExclusiveJWTAuthMiddleware(
   return async (c: Context, next: Next) => {
     const path = c.req.path
 
-    // 開発環境での認証無効化チェック
-    if (allowDevDisable && isAuthDisabledForDevelopment()) {
-      console.warn(`[AUTH] Authentication disabled for development: ${path}`)
+    // 非本番環境での認証無効化チェック
+    if (allowDevDisable && isAuthDisabledForNonProduction()) {
+      console.warn(`[AUTH] Authentication disabled for non-production: ${path}`)
       await next()
       return
     }

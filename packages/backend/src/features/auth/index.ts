@@ -23,7 +23,7 @@ export {
 
 export {
   isPathExcluded,
-  isAuthDisabledForDevelopment,
+  isAuthDisabledForNonProduction,
   getAuthExclusionsFromEnv,
   DEFAULT_AUTH_EXCLUSIONS,
   type AuthExclusionConfig,
