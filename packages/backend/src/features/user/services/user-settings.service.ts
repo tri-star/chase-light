@@ -67,7 +67,8 @@ export class UserSettingsService {
 
     // 現在はtimezoneのみDBに保存
     if (data.timezone) {
-      await this.userRepository.update(userId, {
+      await this.userRepository.save({
+        ...user,
         timezone: data.timezone,
       })
     }
@@ -97,7 +98,8 @@ export class UserSettingsService {
     }
 
     // デフォルト設定に戻す
-    await this.userRepository.update(userId, {
+    await this.userRepository.save({
+      ...user,
       timezone: DEFAULT_TIMEZONE,
     })
 

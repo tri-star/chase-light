@@ -43,8 +43,11 @@ export class UserProfileService {
 
     // メールアドレスの重複チェック（メール更新は別サービスで処理）
     // ここではname, githubUsername, timezoneのみ更新
+    user.name = input.name
+    user.email = input.email
+    this.userRepository.save(user)
 
-    return this.userRepository.update(userId, input)
+    return user
   }
 }
 

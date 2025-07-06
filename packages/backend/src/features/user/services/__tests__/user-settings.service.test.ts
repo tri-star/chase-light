@@ -9,9 +9,8 @@ const mockUserRepository = {
   findByAuth0Id: vi.fn(),
   findByEmail: vi.fn(),
   findByGithubUsername: vi.fn(),
-  update: vi.fn(),
+  save: vi.fn(),
   findMany: vi.fn(),
-  create: vi.fn(),
   delete: vi.fn(),
   findOrCreateByAuth0: vi.fn(),
 } as unknown as UserRepository
@@ -80,10 +79,7 @@ describe("UserSettingsService", () => {
         .mockResolvedValueOnce(mockUser) // 更新前の呼び出し
         .mockResolvedValueOnce({ ...mockUser, timezone: "Europe/London" }) // getUserSettings内の呼び出し
 
-      vi.mocked(mockUserRepository.update).mockResolvedValue({
-        ...mockUser,
-        timezone: "Europe/London",
-      })
+      vi.mocked(mockUserRepository.save).mockResolvedValue()
 
       const result = await userSettingsService.updateUserSettings(
         "user-123",
@@ -91,7 +87,8 @@ describe("UserSettingsService", () => {
       )
 
       expect(mockUserRepository.findById).toHaveBeenCalledWith("user-123")
-      expect(mockUserRepository.update).toHaveBeenCalledWith("user-123", {
+      expect(mockUserRepository.save).toHaveBeenCalledWith({
+        ...mockUser,
         timezone: "Europe/London",
       })
       expect(result).toEqual({
@@ -112,7 +109,7 @@ describe("UserSettingsService", () => {
       )
 
       expect(mockUserRepository.findById).toHaveBeenCalledWith("non-existent")
-      expect(mockUserRepository.update).not.toHaveBeenCalled()
+      expect(mockUserRepository.save).not.toHaveBeenCalled()
       expect(result).toBeNull()
     })
 
@@ -132,10 +129,7 @@ describe("UserSettingsService", () => {
           .mockResolvedValueOnce(mockUser)
           .mockResolvedValueOnce({ ...mockUser, timezone })
 
-        vi.mocked(mockUserRepository.update).mockResolvedValue({
-          ...mockUser,
-          timezone,
-        })
+        vi.mocked(mockUserRepository.save).mockResolvedValue()
 
         const result = await userSettingsService.updateUserSettings(
           "user-123",
@@ -152,7 +146,7 @@ describe("UserSettingsService", () => {
           userSettingsService.updateUserSettings("user-123", updateData),
         ).rejects.toThrow("無効なタイムゾーンです")
 
-        expect(mockUserRepository.update).not.toHaveBeenCalled()
+        expect(mockUserRepository.save).not.toHaveBeenCalled()
       }
     })
 
@@ -227,14 +221,12 @@ describe("UserSettingsService", () => {
         .mockResolvedValueOnce(mockUser) // リセット前の呼び出し
         .mockResolvedValueOnce({ ...mockUser, timezone: "Asia/Tokyo" }) // getUserSettings内の呼び出し
 
-      vi.mocked(mockUserRepository.update).mockResolvedValue({
-        ...mockUser,
-        timezone: "Asia/Tokyo",
-      })
+      vi.mocked(mockUserRepository.save).mockResolvedValue()
 
       const result = await userSettingsService.resetUserSettings("user-123")
 
-      expect(mockUserRepository.update).toHaveBeenCalledWith("user-123", {
+      expect(mockUserRepository.save).toHaveBeenCalledWith({
+        ...mockUser,
         timezone: "Asia/Tokyo",
       })
       expect(result).toEqual({
@@ -246,10 +238,11 @@ describe("UserSettingsService", () => {
 
     test("存在しないユーザーの場合はnullを返す", async () => {
       vi.mocked(mockUserRepository.findById).mockResolvedValue(null)
+      vi.mocked(mockUserRepository.save).mockResolvedValue()
 
       const result = await userSettingsService.resetUserSettings("non-existent")
 
-      expect(mockUserRepository.update).not.toHaveBeenCalled()
+      expect(mockUserRepository.save).not.toHaveBeenCalled()
       expect(result).toBeNull()
     })
   })

@@ -8,9 +8,8 @@ const mockUserRepository = {
   findByAuth0Id: vi.fn(),
   findByEmail: vi.fn(),
   findByGithubUsername: vi.fn(),
-  update: vi.fn(),
+  save: vi.fn(),
   findMany: vi.fn(),
-  create: vi.fn(),
   delete: vi.fn(),
   findOrCreateByAuth0: vi.fn(),
 } as unknown as UserRepository
@@ -103,7 +102,7 @@ describe("UserProfileService", () => {
       const updatedUser = { ...mockUser, ...updateData }
 
       vi.mocked(mockUserRepository.findById).mockResolvedValue(mockUser)
-      vi.mocked(mockUserRepository.update).mockResolvedValue(updatedUser)
+      vi.mocked(mockUserRepository.save).mockResolvedValue()
 
       const result = await userProfileService.updateUserProfile(
         "user-123",
@@ -111,15 +110,16 @@ describe("UserProfileService", () => {
       )
 
       expect(mockUserRepository.findById).toHaveBeenCalledWith("user-123")
-      expect(mockUserRepository.update).toHaveBeenCalledWith(
-        "user-123",
-        updateData,
-      )
+      expect(mockUserRepository.save).toHaveBeenCalledWith({
+        ...mockUser,
+        ...updateData,
+      })
       expect(result).toEqual(updatedUser)
     })
 
     test("存在しないユーザーの場合はnullを返す", async () => {
       vi.mocked(mockUserRepository.findById).mockResolvedValue(null)
+      vi.mocked(mockUserRepository.save).mockResolvedValue()
 
       const result = await userProfileService.updateUserProfile(
         "non-existent",
@@ -130,7 +130,7 @@ describe("UserProfileService", () => {
       )
 
       expect(mockUserRepository.findById).toHaveBeenCalledWith("non-existent")
-      expect(mockUserRepository.update).not.toHaveBeenCalled()
+      expect(mockUserRepository.save).not.toHaveBeenCalled()
       expect(result).toBeNull()
     })
   })

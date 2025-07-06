@@ -110,7 +110,10 @@ describe("Users API Integration Tests", () => {
           Authorization: "Bearer mock-token",
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ name: "更新されたユーザー" }),
+        body: JSON.stringify({
+          name: "更新されたユーザー",
+          email: "test@example.com",
+        }),
       })
       expect(updateProfileResponse.status).toBe(200)
 
@@ -168,7 +171,10 @@ describe("Users API Integration Tests", () => {
           Authorization: "Bearer mock-token",
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ name: "新しい名前" }),
+        body: JSON.stringify({
+          name: "新しい名前",
+          email: "new@example.com",
+        }),
       })
       expect(updateProfileResponse.status).toBe(404)
 
@@ -221,7 +227,10 @@ describe("Users API Integration Tests", () => {
           Authorization: "Bearer mock-token",
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ name: "test" }),
+        body: JSON.stringify({
+          name: "test",
+          email: "test@example.com",
+        }),
       })
       await app.request("/settings", {
         method: "GET",

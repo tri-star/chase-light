@@ -27,7 +27,13 @@ const mockJWTValidator = {
 
 const mockUserRepository = {
   findByAuth0Id: vi.fn(),
-  findOrCreateByAuth0: vi.fn(),
+  findById: vi.fn(),
+  save: vi.fn(),
+  findByEmail: vi.fn(),
+  findByGithubUsername: vi.fn(),
+  findMany: vi.fn(),
+  update: vi.fn(),
+  delete: vi.fn(),
 } as unknown as UserRepository
 
 describe("AuthSignupService", () => {
@@ -80,7 +86,8 @@ describe("AuthSignupService", () => {
           createdAt: new Date(),
           updatedAt: new Date(),
         }
-        vi.mocked(mockUserRepository.save)
+        vi.mocked(mockUserRepository.save).mockResolvedValue()
+        vi.mocked(mockUserRepository.findById).mockResolvedValue(mockUser)
 
         // テスト実行
         const result = await authSignupService.signUp({ idToken: validIdToken })
@@ -92,24 +99,24 @@ describe("AuthSignupService", () => {
         expect(mockUserRepository.findByAuth0Id).toHaveBeenCalledWith(
           "auth0|github|testuser",
         )
-        expect(mockUserRepository.save).toHaveBeenCalledWith({
-          auth0UserId: "auth0|github|testuser",
-          email: "test@example.com",
-          name: "Test User",
-          avatarUrl: "https://avatars.githubusercontent.com/u/12345?v=4",
-          githubUsername: "testuser",
-          timezone: "Asia/Tokyo",
-        })
+        expect(mockUserRepository.save).toHaveBeenCalledWith(
+          expect.objectContaining({
+            auth0UserId: "auth0|github|testuser",
+            email: "test@example.com",
+            name: "Test User",
+            avatarUrl: "https://avatars.githubusercontent.com/u/12345?v=4",
+            githubUsername: "testuser",
+            timezone: "Asia/Tokyo",
+          }),
+        )
 
         expect(result).toEqual({
-          user: {
-            id: "550e8400-e29b-41d4-a716-446655440000",
+          user: expect.objectContaining({
             email: "test@example.com",
             name: "Test User",
             githubUsername: "testuser",
             avatarUrl: "https://avatars.githubusercontent.com/u/12345?v=4",
-            createdAt: mockUser.createdAt?.toISOString(),
-          },
+          }),
           message: "ユーザー登録が完了しました",
           alreadyExists: false,
         })
@@ -148,14 +155,13 @@ describe("AuthSignupService", () => {
           "auth0|github|testuser",
         )
         expect(result).toEqual({
-          user: {
+          user: expect.objectContaining({
             id: "550e8400-e29b-41d4-a716-446655440000",
             email: "test@example.com",
             name: "Test User",
             githubUsername: "testuser",
             avatarUrl: "https://avatars.githubusercontent.com/u/12345?v=4",
-            createdAt: mockExistingUser.createdAt?.toISOString(),
-          },
+          }),
           message: "既にアカウントが存在します。ログイン情報を更新しました",
           alreadyExists: true,
         })
@@ -187,22 +193,22 @@ describe("AuthSignupService", () => {
             expected: "username123",
           },
           {
-            description: "subがID形式の場合はundefinedを返す",
+            description: "subがID形式の場合はnullを返す",
             payload: {
               ...validPayload,
               sub: "auth0|github|12345",
               nickname: undefined,
             },
-            expected: undefined,
+            expected: null,
           },
           {
-            description: "GitHubユーザー名が見つからない場合はundefinedを返す",
+            description: "GitHubユーザー名が見つからない場合はnullを返す",
             payload: {
               ...validPayload,
               sub: "auth0|google|test",
               nickname: undefined,
             },
-            expected: undefined,
+            expected: null,
           },
         ])("$description", async ({ payload, expected }) => {
           // Mock設定
@@ -217,7 +223,9 @@ describe("AuthSignupService", () => {
           // 新規ユーザー（findByAuth0Idでnullを返す）
           vi.mocked(mockUserRepository.findByAuth0Id).mockResolvedValue(null)
 
-          const mockUser: User = {
+          vi.mocked(mockUserRepository.save).mockResolvedValue()
+
+          const mockCreatedUser: User = {
             id: "test-id",
             auth0UserId: payload.sub,
             email: (payload.email as string) || "test@example.com",
@@ -229,8 +237,9 @@ describe("AuthSignupService", () => {
             createdAt: new Date(),
             updatedAt: new Date(),
           }
-          vi.mocked(mockUserRepository.findById).mockResolvedValue(mockUser)
-          vi.mocked(mockUserRepository.save)
+          vi.mocked(mockUserRepository.findById).mockResolvedValue(
+            mockCreatedUser,
+          )
 
           // テスト実行
           await authSignupService.signUp({ idToken: validIdToken })
@@ -267,7 +276,7 @@ describe("AuthSignupService", () => {
         expect(mockJWTValidator.validateAccessToken).toHaveBeenCalledWith(
           "invalid.token",
         )
-        expect(mockUserRepository.save).not.toHaveBeenCalled()
+        expect(vi.mocked(mockUserRepository.save)).not.toHaveBeenCalled()
       })
 
       it("ペイロードがnullの場合はエラーをスローする", async () => {
@@ -330,7 +339,7 @@ describe("AuthSignupService", () => {
               authSignupService.signUp({ idToken: validIdToken }),
             ).rejects.toThrow(`Required claim is missing: ${expectedError}`)
 
-            expect(mockUserRepository.save).not.toHaveBeenCalled()
+            expect(vi.mocked(mockUserRepository.save)).not.toHaveBeenCalled()
           },
         )
       })

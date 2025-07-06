@@ -81,21 +81,6 @@ export class UserRepository {
     return await query
   }
 
-  async update(id: string, data: Partial<User>): Promise<User | null> {
-    const updateData: Partial<User> = {
-      name: data.name,
-      updatedAt: new Date(),
-    }
-
-    const [user] = await db
-      .update(users)
-      .set(updateData)
-      .where(eq(users.id, id))
-      .returning()
-
-    return user || null
-  }
-
   async delete(id: string): Promise<boolean> {
     const result = await db.delete(users).where(eq(users.id, id))
     return result.rowCount !== null && result.rowCount > 0

@@ -199,7 +199,7 @@ describe("Profile Routes", () => {
         mockUserProfileService.getUserProfileByAuth0Id,
       ).mockResolvedValue(mockUser)
       vi.mocked(mockUserProfileService.updateUserProfile).mockRejectedValue(
-        new Error("このGitHubユーザー名は既に使用されています"),
+        new Error("このメールアドレスは既に使用されています"),
       )
 
       const response = await app.request("/profile", {
@@ -208,7 +208,10 @@ describe("Profile Routes", () => {
           Authorization: "Bearer mock-token",
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ githubUsername: "existinguser" }),
+        body: JSON.stringify({
+          name: "テストユーザー",
+          email: "existing@example.com",
+        }),
       })
 
       expect(response.status).toBe(400)
@@ -217,7 +220,7 @@ describe("Profile Routes", () => {
         success: false,
         error: {
           code: "VALIDATION_ERROR",
-          message: "このGitHubユーザー名は既に使用されています",
+          message: "このメールアドレスは既に使用されています",
         },
       })
     })
