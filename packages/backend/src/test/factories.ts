@@ -19,7 +19,10 @@ export class TestDataFactory {
       await reset(db, schema)
     } catch (error) {
       // reset()が期待通りに動作しない場合は、手動で全テーブルを削除
-      console.warn("drizzle-seed reset failed, falling back to manual cleanup:", error)
+      console.warn(
+        "drizzle-seed reset failed, falling back to manual cleanup:",
+        error,
+      )
       await this.manualCleanup()
     }
   }
@@ -35,15 +38,17 @@ export class TestDataFactory {
         FROM pg_tables 
         WHERE schemaname = 'public'
       `)
-      
-      const tableNames = result.rows.map(row => row.tablename as string)
-      
+
+      const tableNames = result.rows.map((row) => row.tablename as string)
+
       if (tableNames.length > 0) {
         // 全テーブルを一括でTRUNCATE（外部キー制約も自動処理）
-        const truncateQuery = `TRUNCATE TABLE ${tableNames.map(name => `"${name}"`).join(', ')} RESTART IDENTITY CASCADE`
+        const truncateQuery = `TRUNCATE TABLE ${tableNames.map((name) => `"${name}"`).join(", ")} RESTART IDENTITY CASCADE`
         await db.execute(sql.raw(truncateQuery))
-        
-        console.log(`🧹 Database manually cleaned up (${tableNames.length} tables truncated)`)
+
+        console.log(
+          `🧹 Database manually cleaned up (${tableNames.length} tables truncated)`,
+        )
       }
     } catch (error) {
       console.error("Manual cleanup failed:", error)
@@ -64,7 +69,7 @@ export class TestDataFactory {
    */
   static async createTestUsers(count = 5): Promise<User[]> {
     const users: User[] = []
-    
+
     for (let i = 0; i < count; i++) {
       const user: User = {
         id: uuidv7(),
@@ -82,7 +87,7 @@ export class TestDataFactory {
 
     // データベースに直接挿入
     await db.insert(schema.users).values(users)
-    
+
     return users
   }
 

@@ -1,5 +1,6 @@
 import { UserRepository } from "../repositories/user.repository"
 import type { User } from "../domain/user"
+import { UserError } from "../errors/user.error"
 
 export type UpdateProfileInputDto = {
   name: string
@@ -41,11 +42,18 @@ export class UserProfileService {
       return null
     }
 
-    // メールアドレスの重複チェック（メール更新は別サービスで処理）
-    // ここではname, githubUsername, timezoneのみ更新
+    // メールアドレスの重複チェック（現在のユーザー以外で同じメールが使用されていないか）
+    if (input.email !== user.email) {
+      const existingUser = await this.userRepository.findByEmail(input.email)
+      if (existingUser && existingUser.id !== user.id) {
+        throw UserError.emailAlreadyExists(input.email)
+      }
+    }
+
+    // プロフィール情報を更新
     user.name = input.name
     user.email = input.email
-    this.userRepository.save(user)
+    await this.userRepository.save(user)
 
     return user
   }

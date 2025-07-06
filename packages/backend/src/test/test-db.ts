@@ -48,7 +48,7 @@ export class TestDbHelper {
   }
 
   /**
-   * Unit Test用のセットアップ  
+   * Unit Test用のセットアップ
    * モックを使用するためDB接続は不要
    */
   static setupUnitTest() {
@@ -65,11 +65,11 @@ export class TestDbHelper {
 
 /**
  * Component Test用のセットアップを簡単に適用
- * 
+ *
  * @example
  * describe("User API Component Tests", () => {
  *   setupComponentTest()
- *   
+ *
  *   test("should create user", async () => {
  *     // テストコード
  *   })
@@ -81,11 +81,11 @@ export function setupComponentTest() {
 
 /**
  * Unit Test用のセットアップを簡単に適用
- * 
+ *
  * @example
  * describe("UserService Unit Tests", () => {
  *   setupUnitTest()
- *   
+ *
  *   test("should validate email", () => {
  *     // テストコード（モック使用）
  *   })

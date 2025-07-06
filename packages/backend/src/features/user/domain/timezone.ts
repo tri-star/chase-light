@@ -1,4 +1,4 @@
-import { TIMEZONE_VALIDATION } from "../constants/user-validation.js"
+import { UserError } from "../errors/user.error"
 
 /**
  * タイムゾーンバリデーション関数
@@ -6,12 +6,12 @@ import { TIMEZONE_VALIDATION } from "../constants/user-validation.js"
 export function validateTimezone(timezone: string | undefined): void {
   if (timezone !== undefined) {
     if (timezone === "") {
-      throw new Error(TIMEZONE_VALIDATION.INVALID_ERROR_MESSAGE)
+      throw UserError.invalidTimezone(timezone)
     }
     try {
       Intl.DateTimeFormat(undefined, { timeZone: timezone })
     } catch {
-      throw new Error(TIMEZONE_VALIDATION.INVALID_ERROR_MESSAGE)
+      throw UserError.invalidTimezone(timezone)
     }
   }
 }
