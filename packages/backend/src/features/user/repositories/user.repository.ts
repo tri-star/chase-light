@@ -83,12 +83,14 @@ export class UserRepository {
     }
 
     if (options?.limit) {
+      // explicit limitが指定された場合はpaginationなし
       query = query.limit(options.limit)
+    } else {
+      // limitがない場合のみpagination適用
+      const pageSize = options?.pageSize || 10
+      const page = options?.page || 1
+      query = query.limit(pageSize).offset((page - 1) * pageSize)
     }
-
-    const pageSize = options?.pageSize || 10
-    const page = options?.page || 1
-    query = query.limit(pageSize).offset((page - 1) * pageSize)
 
     return await query
   }
