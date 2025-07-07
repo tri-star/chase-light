@@ -218,19 +218,36 @@ export const createSettingsRoutes = (
         )
       }
 
+      // 更新後のユーザー情報を取得（タイムゾーンが更新されている可能性があるため）
+      const updatedUser = await userProfileService.getUserProfile(
+        currentUser.id,
+      )
+      if (!updatedUser) {
+        return c.json(
+          {
+            success: false,
+            error: {
+              code: "UPDATE_FAILED",
+              message: "設定の更新に失敗しました",
+            },
+          },
+          500,
+        )
+      }
+
       return c.json(
         {
           user: {
-            id: currentUser.id,
-            email: currentUser.email,
-            name: currentUser.name,
-            githubUsername: currentUser.githubUsername,
-            avatarUrl: currentUser.avatarUrl,
-            timezone: currentUser.timezone,
-            createdAt: currentUser.createdAt?.toISOString() || "",
-            updatedAt: currentUser.updatedAt?.toISOString() || "",
+            id: updatedUser.id,
+            email: updatedUser.email,
+            name: updatedUser.name,
+            githubUsername: updatedUser.githubUsername,
+            avatarUrl: updatedUser.avatarUrl,
+            timezone: updatedUser.timezone,
+            createdAt: updatedUser.createdAt?.toISOString() || "",
+            updatedAt: updatedUser.updatedAt?.toISOString() || "",
             settings: {
-              timezone: currentUser.timezone,
+              timezone: updatedUser.timezone,
               emailNotifications: updatedSettings.emailNotifications,
               pushNotifications: updatedSettings.pushNotifications,
               language: updatedSettings.language,

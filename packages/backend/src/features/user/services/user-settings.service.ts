@@ -8,6 +8,7 @@ import {
 } from "../constants/index.js"
 import { validateTimezone } from "../domain/timezone.js"
 import { UserSettings } from "../domain/user-settings.js"
+import { UserError } from "../errors/user.error"
 
 export type UpdateSettingsInputDto = {
   timezone?: string
@@ -61,7 +62,7 @@ export class UserSettingsService {
     // 言語コードの検証
     if (data.language) {
       if (!SUPPORTED_LANGUAGES.includes(data.language)) {
-        throw new Error("サポートされていない言語です")
+        throw UserError.unsupportedLanguage(data.language)
       }
     }
 

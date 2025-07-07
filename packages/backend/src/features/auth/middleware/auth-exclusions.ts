@@ -72,13 +72,3 @@ export function getAuthExclusionsFromEnv(): AuthExclusionConfig {
 
   return config
 }
-
-/**
- * 開発環境での認証無効化チェック
- */
-export function isAuthDisabledForDevelopment(): boolean {
-  return (
-    process.env.NODE_ENV === "development" &&
-    process.env.DISABLE_AUTH === "true"
-  )
-}

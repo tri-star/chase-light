@@ -20,7 +20,6 @@ declare global {
       /**
        * 認証制御関連の環境変数
        */
-      DISABLE_AUTH?: string
       AUTH_EXCLUDE_PATHS?: string
     }
   }

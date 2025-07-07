@@ -4,7 +4,6 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from "vitest"
 import {
   isPathExcluded,
-  isAuthDisabledForDevelopment,
   getAuthExclusionsFromEnv,
   DEFAULT_AUTH_EXCLUSIONS,
   type AuthExclusionConfig,
@@ -61,47 +60,6 @@ describe("Auth Exclusions", () => {
       expect(isPathExcluded("/api/public/info", config)).toBe(true)
       expect(isPathExcluded("/static/js/app.js", config)).toBe(true)
       expect(isPathExcluded("/api/private/data", config)).toBe(false)
-    })
-  })
-
-  describe("isAuthDisabledForDevelopment", () => {
-    const originalEnv = process.env
-
-    beforeEach(() => {
-      vi.resetModules()
-      process.env = { ...originalEnv }
-    })
-
-    afterEach(() => {
-      process.env = originalEnv
-    })
-
-    it("開発環境でDISABLE_AUTH=trueの場合にtrueを返す", () => {
-      process.env.NODE_ENV = "development"
-      process.env.DISABLE_AUTH = "true"
-
-      expect(isAuthDisabledForDevelopment()).toBe(true)
-    })
-
-    it("開発環境でもDISABLE_AUTH=falseの場合にfalseを返す", () => {
-      process.env.NODE_ENV = "development"
-      process.env.DISABLE_AUTH = "false"
-
-      expect(isAuthDisabledForDevelopment()).toBe(false)
-    })
-
-    it("本番環境では常にfalseを返す", () => {
-      process.env.NODE_ENV = "production"
-      process.env.DISABLE_AUTH = "true"
-
-      expect(isAuthDisabledForDevelopment()).toBe(false)
-    })
-
-    it("DISABLE_AUTHが未設定の場合にfalseを返す", () => {
-      process.env.NODE_ENV = "development"
-      delete process.env.DISABLE_AUTH
-
-      expect(isAuthDisabledForDevelopment()).toBe(false)
     })
   })
 

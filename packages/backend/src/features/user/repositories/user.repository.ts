@@ -16,9 +16,15 @@ type QueryOptions = {
 
 export class UserRepository {
   async save(data: User): Promise<void> {
-    // TODO: data.idが存在するか確認
-    //       存在する場合は data.updatedAtを更新し、update メソッドを呼び出す。
-    await db.insert(users).values(data)
+    // onConflictDoUpdateを使用してアトミックなupsert操作を実行し、競合状態を回避します。
+    const { id: _id, createdAt: _createdAt, ...updateFields } = data
+    await db
+      .insert(users)
+      .values({ ...data, updatedAt: new Date() })
+      .onConflictDoUpdate({
+        target: users.id,
+        set: { ...updateFields, updatedAt: new Date() },
+      })
   }
 
   async findById(id: string): Promise<User | null> {
@@ -71,12 +77,14 @@ export class UserRepository {
     }
 
     if (options?.limit) {
+      // explicit limitが指定された場合はpaginationなし
       query = query.limit(options.limit)
+    } else {
+      // limitがない場合のみpagination適用
+      const pageSize = options?.pageSize || 10
+      const page = options?.page || 1
+      query = query.limit(pageSize).offset((page - 1) * pageSize)
     }
-
-    const pageSize = options?.pageSize || 10
-    const page = options?.page || 1
-    query = query.limit(pageSize).offset((page - 1) * pageSize)
 
     return await query
   }

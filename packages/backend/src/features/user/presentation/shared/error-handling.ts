@@ -1,6 +1,7 @@
 import { Context } from "hono"
 import { HTTPException } from "hono/http-exception"
 import { userErrorResponseSchema } from "../schemas/user-error.schema"
+import { UserError } from "../../errors/user.error"
 
 /**
  * Users API共通エラーハンドリング
@@ -40,6 +41,14 @@ export const userErrorResponseSchemaDefinition = {
       },
     },
     description: "リソースが見つかりません",
+  },
+  409: {
+    content: {
+      "application/json": {
+        schema: userErrorResponseSchema,
+      },
+    },
+    description: "競合エラー（重複データなど）",
   },
   500: {
     content: {
@@ -86,22 +95,16 @@ export function handleError(c: Context, error: unknown, operationName: string) {
     throw error
   }
 
-  // 標準Errorの場合
+  // UserErrorの場合は適切なレスポンスを返す
+  if (error instanceof UserError) {
+    return c.json(
+      createErrorResponse(error.code, error.message, error.details),
+      error.httpStatus,
+    )
+  }
+
+  // 標準Errorの場合（下位互換性のため残しているが、新しいコードではUserErrorを使用すること）
   if (error instanceof Error) {
-    // 明示的なバリデーションエラーメッセージの場合は400
-    const validationErrorPatterns = [
-      "このメールアドレスは既に使用されています",
-      "このGitHubユーザー名は既に使用されています",
-      "無効なタイムゾーンです",
-      "サポートされていない言語です",
-    ]
-
-    if (
-      validationErrorPatterns.some((pattern) => error.message.includes(pattern))
-    ) {
-      return c.json(createErrorResponse("VALIDATION_ERROR", error.message), 400)
-    }
-
     // その他のErrorは内部エラーとして扱う (Database error等)
     return c.json(
       createErrorResponse(

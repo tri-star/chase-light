@@ -1,0 +1,47 @@
+# ファイル命名規則
+
+## 概要
+
+このドキュメントでは、`packages/backend`内で使用されるファイルとディレクトリの命名規則を定めます。一貫した命名規則は、プロジェクトのナビゲーションを容易にし、ファイルの内容を予測しやすくします。
+
+## 一般的な規則
+
+-   **形式**: `kebab-case`（ケバブケース）を使用します。
+-   **言語**: 原則として英語を使用します。
+-   **単語**: 略語を避け、明確で説明的な単語を選択します。
+
+## レイヤーごとの命名規則
+
+### `domain`
+
+-   エンティティやビジネスオブジェクトを表すファイルは、単数形で命名します。
+    -   例: `user.ts`, `order.ts`
+
+### `repositories`
+
+-   リポジトリクラスを定義するファイルは、`[entity-name].repository.ts`の形式で命名します。
+    -   例: `user.repository.ts`
+
+### `services`
+
+-   サービスクラスを定義するファイルは、`[feature-name].service.ts`の形式で命名します。
+    -   例: `user-profile.service.ts`, `user-settings.service.ts`
+
+### `presentation`
+
+-   **ルート定義**:
+    -   リソースに関連するルートを定義するファイルは、`index.ts`とし、リソース名のディレクトリ内に配置します。
+        -   例: `routes/profile/index.ts`
+    -   フィーチャー全体のルートを統合するファイルは `routes.ts` とします。
+        -   例: `presentation/routes.ts`
+-   **スキーマ定義**:
+    -   Zodスキーマを定義するファイルは、`[resource-name]-[purpose].schema.ts`の形式で命名します。
+        -   例: `user-base.schema.ts`, `user-error.schema.ts`
+-   **テストファイル**:
+    -   テストファイルは、`[file-name].test.ts`または`[file-name].spec.ts`の形式で命名します。
+        -   例: `user-profile.service.test.ts`, `integration.spec.ts`
+
+## ディレクトリ名
+
+-   複数形を使用することが推奨されます（例: `features`, `services`, `repositories`）。
+-   テストコードは `__tests__` ディレクトリに配置します。
