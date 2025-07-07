@@ -73,13 +73,3 @@ export function getAuthExclusionsFromEnv(): AuthExclusionConfig {
   return config
 }
 
-/**
- * 非本番環境での認証無効化チェック
- */
-export function isAuthDisabledForNonProduction(): boolean {
-  return (
-    (process.env.NODE_ENV === "development" ||
-      process.env.NODE_ENV === "test") &&
-    process.env.DISABLE_AUTH === "true"
-  )
-}

@@ -7,6 +7,7 @@ import { UserRepository } from "../../../../repositories/user.repository"
 import type { User } from "../../../../domain/user"
 import { TestDataFactory, setupComponentTest } from "../../../../../../test"
 import { globalJWTAuth } from "../../../../../auth"
+import { AuthTestHelper } from "../../../../../auth/test-helpers/auth-test-helper"
 
 // Component Test: 実DBを使用してAPIエンドポイントをテスト
 
@@ -17,8 +18,12 @@ describe("Settings Routes - Component Test", () => {
   let userProfileService: UserProfileService
   let userSettingsService: UserSettingsService
   let testUser: User
+  let testToken: string
 
   beforeEach(async () => {
+    // テストユーザーをクリア
+    AuthTestHelper.clearTestUsers()
+
     // 実際のサービスクラスを使用（モックなし）
     const userRepository = new UserRepository()
     userProfileService = new UserProfileService(userRepository)
@@ -27,10 +32,17 @@ describe("Settings Routes - Component Test", () => {
     // テスト用ユーザーを実際のDBに作成
     testUser = await TestDataFactory.createTestUser("auth0|settings123")
 
+    // Mock認証用トークンを生成
+    testToken = AuthTestHelper.createTestToken(
+      testUser.auth0UserId,
+      testUser.email,
+      testUser.name
+    )
+
     // Honoアプリケーションに実際のサービスを設定
     app = new OpenAPIHono()
 
-    // 認証ミドルウェアを追加（DISABLE_AUTH=trueによりテスト環境では無効化される）
+    // 認証ミドルウェアを追加
     app.use("*", globalJWTAuth)
 
     createSettingsRoutes(app, userProfileService, userSettingsService)
@@ -40,10 +52,7 @@ describe("Settings Routes - Component Test", () => {
     test("ユーザー設定取得に成功", async () => {
       const response = await app.request("/settings", {
         method: "GET",
-        headers: {
-          Authorization: "Bearer test-token",
-          "x-auth0-user-id": testUser.auth0UserId,
-        },
+        headers: AuthTestHelper.createAuthHeaders(testToken),
       })
 
       expect(response.status).toBe(200)
@@ -69,12 +78,16 @@ describe("Settings Routes - Component Test", () => {
     })
 
     test("ユーザーが見つからない場合は404エラー", async () => {
+      // 存在しないユーザーのトークンを作成
+      const nonexistentToken = AuthTestHelper.createTestToken(
+        "auth0|nonexistent",
+        "nonexistent@example.com",
+        "Nonexistent User"
+      )
+      
       const response = await app.request("/settings", {
         method: "GET",
-        headers: {
-          Authorization: "Bearer test-token",
-          "x-auth0-user-id": "auth0|nonexistent",
-        },
+        headers: AuthTestHelper.createAuthHeaders(nonexistentToken),
       })
 
       expect(response.status).toBe(404)
@@ -105,9 +118,8 @@ describe("Settings Routes - Component Test", () => {
       const response = await app.request("/settings", {
         method: "PUT",
         headers: {
-          Authorization: "Bearer test-token",
+          ...AuthTestHelper.createAuthHeaders(testToken),
           "Content-Type": "application/json",
-          "x-auth0-user-id": testUser.auth0UserId,
         },
         body: JSON.stringify(updateData),
       })
@@ -122,12 +134,18 @@ describe("Settings Routes - Component Test", () => {
     })
 
     test("ユーザーが見つからない場合は404エラー", async () => {
+      // 存在しないユーザーのトークンを作成
+      const nonexistentToken = AuthTestHelper.createTestToken(
+        "auth0|nonexistent",
+        "nonexistent@example.com",
+        "Nonexistent User"
+      )
+      
       const response = await app.request("/settings", {
         method: "PUT",
         headers: {
-          Authorization: "Bearer test-token",
+          ...AuthTestHelper.createAuthHeaders(nonexistentToken),
           "Content-Type": "application/json",
-          "x-auth0-user-id": "auth0|nonexistent",
         },
         body: JSON.stringify({ timezone: "Europe/London" }),
       })
@@ -147,9 +165,8 @@ describe("Settings Routes - Component Test", () => {
       const response = await app.request("/settings", {
         method: "PUT",
         headers: {
-          Authorization: "Bearer test-token",
+          ...AuthTestHelper.createAuthHeaders(testToken),
           "Content-Type": "application/json",
-          "x-auth0-user-id": testUser.auth0UserId,
         },
         body: JSON.stringify({ language: "invalid" }),
       })
@@ -170,9 +187,8 @@ describe("Settings Routes - Component Test", () => {
       const response = await app.request("/settings", {
         method: "PUT",
         headers: {
-          Authorization: "Bearer test-token",
+          ...AuthTestHelper.createAuthHeaders(testToken),
           "Content-Type": "application/json",
-          "x-auth0-user-id": testUser.auth0UserId,
         },
         body: JSON.stringify({ timezone: "Invalid/Timezone" }),
       })

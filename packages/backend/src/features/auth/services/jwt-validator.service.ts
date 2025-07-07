@@ -11,12 +11,13 @@ import type {
   TokenValidationResult,
   Auth0Config,
 } from "../types/auth.types"
+import type { JWTValidatorInterface } from "./jwt-validator.interface"
 import { AuthError } from "../errors/auth.error"
 
 /**
  * JWT検証クラス
  */
-export class JWTValidator {
+export class JWTValidator implements JWTValidatorInterface {
   private readonly config: Auth0Config
   private readonly jwksClient: ReturnType<typeof jwksClient>
 
