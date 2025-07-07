@@ -2,7 +2,7 @@ name: Tests
 
 on:
   push:
-    branches: [main, develop, "feature/*"]
+    branches: [main, develop]
     paths:
       - "pnpm-lock.yaml"
       - "packages/frontend/**"
