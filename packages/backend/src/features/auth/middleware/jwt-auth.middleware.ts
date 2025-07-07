@@ -7,7 +7,10 @@ import { Context, Next } from "hono"
 import { HTTPException } from "hono/http-exception"
 import type { AuthenticatedUser, AuthContext } from "../types/auth.types"
 import { AuthError } from "../errors/auth.error"
-import { createJWTValidator, type JWTValidatorInterface } from "../services/jwt-validator.interface"
+import {
+  createJWTValidator,
+  type JWTValidatorInterface,
+} from "../services/jwt-validator.interface"
 
 /**
  * JWT認証ミドルウェアのオプション

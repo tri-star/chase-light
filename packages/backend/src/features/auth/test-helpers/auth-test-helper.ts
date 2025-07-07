@@ -12,7 +12,7 @@ import { MockJWTValidator } from "../services/mock-jwt-validator.service"
 export class AuthTestHelper {
   /**
    * テスト用トークンを生成してMockJWTValidatorに登録
-   * 
+   *
    * @param userId - ユーザーID (Auth0のsub)
    * @param email - メールアドレス
    * @param name - ユーザー名
@@ -27,7 +27,7 @@ export class AuthTestHelper {
   ): string {
     const token = `test-token-${userId}`
     const currentTime = Math.floor(Date.now() / 1000)
-    
+
     const payload: JWTPayload = {
       sub: userId,
       email,
@@ -45,7 +45,7 @@ export class AuthTestHelper {
 
   /**
    * 認証ヘッダーを生成
-   * 
+   *
    * @param token - トークン
    * @returns Authorization ヘッダー
    */
@@ -57,7 +57,7 @@ export class AuthTestHelper {
 
   /**
    * 複数のテストユーザーを一括作成
-   * 
+   *
    * @param users - ユーザー情報の配列
    * @returns 生成されたトークンの配列
    */
@@ -67,7 +67,7 @@ export class AuthTestHelper {
       email: string
       name: string
       additionalClaims?: Partial<JWTPayload>
-    }>
+    }>,
   ): string[] {
     return users.map((user) =>
       this.createTestToken(
@@ -81,7 +81,7 @@ export class AuthTestHelper {
 
   /**
    * 無効なトークンを生成（認証失敗テスト用）
-   * 
+   *
    * @param tokenSuffix - トークンの識別子
    * @returns 無効なテストトークン
    */
@@ -91,7 +91,7 @@ export class AuthTestHelper {
 
   /**
    * 期限切れトークンを生成
-   * 
+   *
    * @param userId - ユーザーID
    * @param email - メールアドレス
    * @param name - ユーザー名
@@ -104,7 +104,7 @@ export class AuthTestHelper {
   ): string {
     const token = `expired-token-${userId}`
     const currentTime = Math.floor(Date.now() / 1000)
-    
+
     const payload: JWTPayload = {
       sub: userId,
       email,

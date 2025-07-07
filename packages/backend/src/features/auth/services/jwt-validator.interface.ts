@@ -20,11 +20,13 @@ export interface JWTValidatorInterface {
 
 /**
  * 環境に応じたJWTValidatorインスタンスを生成するファクトリー関数
- * 
+ *
  * @param config - Auth0設定（本番環境用、省略時は環境変数から取得）
  * @returns 環境に適したJWTValidatorインスタンス
  */
-export function createJWTValidator(config?: Auth0Config): JWTValidatorInterface {
+export function createJWTValidator(
+  config?: Auth0Config,
+): JWTValidatorInterface {
   // テスト環境ではMockJWTValidatorを使用
   if (process.env.NODE_ENV === "test") {
     return new MockJWTValidator()
@@ -35,6 +37,6 @@ export function createJWTValidator(config?: Auth0Config): JWTValidatorInterface 
     config = getAuth0Config()
     validateAuth0Config(config)
   }
-  
+
   return new JWTValidator(config)
 }
