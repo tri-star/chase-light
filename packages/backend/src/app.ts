@@ -2,8 +2,6 @@ import { OpenAPIHono } from "@hono/zod-openapi"
 import { cors } from "hono/cors"
 import { logger } from "hono/logger"
 import { Scalar } from "@scalar/hono-api-reference"
-import { createDataSourceRoutes } from "./features/dataSource/presentation/routes"
-import { GitHubRepoService } from "./features/dataSource/services/github-repo.service"
 import { globalJWTAuth, createAuthRoutes } from "./features/auth"
 import userRoutes from "./features/user/presentation"
 
@@ -43,16 +41,12 @@ export const createApp = () => {
   if (!githubToken) {
     throw new Error("GITHUB_TOKEN environment variable is required")
   }
-  const githubService = new GitHubRepoService(githubToken)
 
   // Auth API routes
   app.route("/api/auth", createAuthRoutes())
 
   // User management API routes
   app.route("/api/users", userRoutes)
-
-  // DataSource API routes
-  app.route("/api/datasource", createDataSourceRoutes(githubService))
 
   // OpenAPI仕様書エンドポイント
   app.doc("/doc", {
