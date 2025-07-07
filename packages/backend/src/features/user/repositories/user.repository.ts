@@ -16,21 +16,15 @@ type QueryOptions = {
 
 export class UserRepository {
   async save(data: User): Promise<void> {
-    // 既存ユーザーかどうかを確認
-    const existingUser = await this.findById(data.id)
-
-    if (existingUser) {
-      // 更新の場合：updatedAtを現在時刻に設定してUPDATE
-      const updateData = {
-        ...data,
-        updatedAt: new Date(),
-      }
-
-      await db.update(users).set(updateData).where(eq(users.id, data.id))
-    } else {
-      // 新規作成の場合：INSERT
-      await db.insert(users).values(data)
-    }
+    // onConflictDoUpdateを使用してアトミックなupsert操作を実行し、競合状態を回避します。
+    const { id: _id, createdAt: _createdAt, ...updateFields } = data
+    await db
+      .insert(users)
+      .values({ ...data, updatedAt: new Date() })
+      .onConflictDoUpdate({
+        target: users.id,
+        set: { ...updateFields, updatedAt: new Date() },
+      })
   }
 
   async findById(id: string): Promise<User | null> {
