@@ -80,6 +80,21 @@ jobs:
     timeout-minutes: 10
     needs: detect-changes
     if: needs.detect-changes.outputs.backend-changed == 'true'
+    services:
+      postgres:
+        image: public.ecr.aws/docker/library/postgres:15-bookworm
+        env:
+          POSTGRES_DB: chase_light_test
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: "password"
+          POSTGRES_HOST_AUTH_METHOD: trust
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres -d chase_light_test"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
