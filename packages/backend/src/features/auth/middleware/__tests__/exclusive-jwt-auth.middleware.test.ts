@@ -79,14 +79,17 @@ describe("Exclusive JWT Auth Middleware", () => {
       app.get("/api/private", (c) => c.json({ data: "private" }))
 
       // 有効なトークンでアクセス
-      const validToken = AuthTestHelper.createTestToken("valid-user", "valid@example.com", "Valid User")
+      const validToken = AuthTestHelper.createTestToken(
+        "valid-user",
+        "valid@example.com",
+        "Valid User",
+      )
       const res = await app.request("/api/private", {
         headers: AuthTestHelper.createAuthHeaders(validToken),
       })
       expect(res.status).toBe(200)
     })
   })
-
 
   describe("ログ出力", () => {
     it("除外パスでログを出力", async () => {
@@ -104,7 +107,11 @@ describe("Exclusive JWT Auth Middleware", () => {
       app.use("*", createExclusiveJWTAuthMiddleware())
       app.get("/api/private", (c) => c.json({ data: "private" }))
 
-      const validToken = AuthTestHelper.createTestToken("auth-user", "auth@example.com", "Auth User")
+      const validToken = AuthTestHelper.createTestToken(
+        "auth-user",
+        "auth@example.com",
+        "Auth User",
+      )
       await app.request("/api/private", {
         headers: AuthTestHelper.createAuthHeaders(validToken),
       })

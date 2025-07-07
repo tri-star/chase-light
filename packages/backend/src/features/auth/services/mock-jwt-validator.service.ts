@@ -15,7 +15,7 @@ export class MockJWTValidator implements JWTValidatorInterface {
 
   /**
    * テスト用ユーザーを登録
-   * 
+   *
    * @param token - テスト用トークン
    * @param payload - JWTペイロード
    */
@@ -46,7 +46,7 @@ export class MockJWTValidator implements JWTValidatorInterface {
 
   /**
    * アクセストークンを検証する（モック実装）
-   * 
+   *
    * @param token - 検証するトークン
    * @returns 検証結果
    */

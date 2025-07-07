@@ -63,7 +63,6 @@ describe("Auth Exclusions", () => {
     })
   })
 
-
   describe("getAuthExclusionsFromEnv", () => {
     const originalEnv = process.env
 

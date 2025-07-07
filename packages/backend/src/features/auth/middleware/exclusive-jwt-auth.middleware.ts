@@ -25,10 +25,7 @@ export interface ExclusiveJWTAuthOptions extends JWTAuthOptions {
 export function createExclusiveJWTAuthMiddleware(
   options: ExclusiveJWTAuthOptions = {},
 ) {
-  const {
-    exclusions = getAuthExclusionsFromEnv(),
-    ...jwtOptions
-  } = options
+  const { exclusions = getAuthExclusionsFromEnv(), ...jwtOptions } = options
 
   // 内部で使用するJWT認証ミドルウェア
   const jwtAuthMiddleware = createJWTAuthMiddleware(jwtOptions)

@@ -33,7 +33,7 @@ describe("Profile Routes - Component Test", () => {
     testToken = AuthTestHelper.createTestToken(
       testUser.auth0UserId,
       testUser.email,
-      testUser.name
+      testUser.name,
     )
 
     // Honoアプリケーションに実際のサービスを設定
@@ -73,9 +73,9 @@ describe("Profile Routes - Component Test", () => {
       const nonexistentToken = AuthTestHelper.createTestToken(
         "auth0|nonexistent",
         "nonexistent@example.com",
-        "Nonexistent User"
+        "Nonexistent User",
       )
-      
+
       const response = await app.request("/profile", {
         method: "GET",
         headers: AuthTestHelper.createAuthHeaders(nonexistentToken),
@@ -132,9 +132,9 @@ describe("Profile Routes - Component Test", () => {
       const nonexistentToken = AuthTestHelper.createTestToken(
         "auth0|nonexistent",
         "nonexistent@example.com",
-        "Nonexistent User"
+        "Nonexistent User",
       )
-      
+
       const response = await app.request("/profile", {
         method: "PUT",
         headers: {
