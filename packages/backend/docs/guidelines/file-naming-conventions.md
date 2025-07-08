@@ -172,7 +172,6 @@ Angular（2016年～）とNestJS（2017年～）が確立した命名規則で�
 | Interface           | `[名前].interface.ts`            | `user-repository.interface.ts`      |
 | Type                | `[用途].types.ts`                | `api.types.ts`                      |
 | Controller Schema   | `[データ名].schema.ts`           | `user-request.schema.ts`            |
-| Parser              | `[データソース名].parser.ts`     | `github-api.parser.ts`              |
 | Error               | `[用途].error.ts`                | `github-parse.error.ts`             |
 | Utils               | `[機能名].ts`                    | `auth-config.ts`                    |
 | Route               | `index.ts`                       | `routes/profile/index.ts`           |
