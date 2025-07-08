@@ -7,6 +7,11 @@
  */
 
 import { spawn } from "node:child_process"
+import { config } from "dotenv"
+// 環境に応じて適切な.envファイルを選択
+config({ path: '.env.testing' })
+
+console.log(`🔧 Drizzle config loading: .env.testing`)
 
 console.log("🧪 Running test database migration...")
 

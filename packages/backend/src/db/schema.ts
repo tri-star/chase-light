@@ -109,8 +109,6 @@ export const userWatches = pgTable(
     watchReleases: boolean("watch_releases").notNull(),
     watchIssues: boolean("watch_issues").notNull(),
     watchPullRequests: boolean("watch_pull_requests").notNull(),
-    watchPushes: boolean("watch_pushes").notNull(),
-    watchSecurityAlerts: boolean("watch_security_alerts").notNull(),
     addedAt: timestamp("added_at", { withTimezone: true }).defaultNow(),
   },
   (table) => ({
