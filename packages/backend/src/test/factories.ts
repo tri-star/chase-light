@@ -2,6 +2,11 @@ import { seed, reset } from "drizzle-seed"
 import { db } from "../db/connection"
 import * as schema from "../db/schema"
 import { User } from "../features/user/domain/user"
+import type {
+  DataSource,
+  Repository,
+  UserWatch,
+} from "../features/data-sources/domain"
 import { uuidv7 } from "uuidv7"
 import { sql } from "drizzle-orm"
 
@@ -130,5 +135,114 @@ export class TestDataFactory {
 
     await db.insert(schema.users).values(user)
     return user
+  }
+
+  /**
+   * テスト用データソースを作成
+   */
+  static async createTestDataSource(
+    customData?: Partial<DataSource>,
+  ): Promise<DataSource> {
+    const now = new Date()
+    const dataSource: DataSource = {
+      id: uuidv7(),
+      sourceType: "github",
+      sourceId: `test_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`, // ユニークなIDを生成
+      name: "Test Repository",
+      description: "A test repository",
+      url: "https://github.com/test/repository",
+      isPrivate: false,
+      createdAt: now,
+      updatedAt: now,
+      ...customData,
+    }
+
+    await db.insert(schema.dataSources).values(dataSource)
+    return dataSource
+  }
+
+  /**
+   * テスト用リポジトリを作成
+   */
+  static async createTestRepository(
+    dataSourceId: string,
+    customData?: Partial<Repository>,
+  ): Promise<Repository> {
+    const now = new Date()
+    const repository: Repository = {
+      id: uuidv7(),
+      dataSourceId,
+      githubId: 123456789,
+      fullName: "test/repository",
+      language: "TypeScript",
+      starsCount: 100,
+      forksCount: 20,
+      openIssuesCount: 5,
+      isFork: false,
+      createdAt: now,
+      updatedAt: now,
+      ...customData,
+    }
+
+    await db.insert(schema.repositories).values(repository)
+    return repository
+  }
+
+  /**
+   * テスト用ユーザーウォッチを作成
+   */
+  static async createTestUserWatch(
+    userId: string,
+    dataSourceId: string,
+    customData?: Partial<UserWatch>,
+  ): Promise<UserWatch> {
+    const now = new Date()
+    const userWatch: UserWatch = {
+      id: uuidv7(),
+      userId,
+      dataSourceId,
+      notificationEnabled: true,
+      watchReleases: true,
+      watchIssues: false,
+      watchPullRequests: false,
+      addedAt: now,
+      ...customData,
+    }
+
+    await db.insert(schema.userWatches).values(userWatch)
+    return userWatch
+  }
+
+  /**
+   * 完全なデータソースセット（データソース + リポジトリ + ユーザーウォッチ）を作成
+   */
+  static async createCompleteDataSourceSet(
+    userId: string,
+    customData?: {
+      dataSource?: Partial<DataSource>
+      repository?: Partial<Repository>
+      userWatch?: Partial<UserWatch>
+    },
+  ): Promise<{
+    dataSource: DataSource
+    repository: Repository
+    userWatch: UserWatch
+  }> {
+    const dataSource = await this.createTestDataSource(customData?.dataSource)
+    const repository = await this.createTestRepository(
+      dataSource.id,
+      customData?.repository,
+    )
+    const userWatch = await this.createTestUserWatch(
+      userId,
+      dataSource.id,
+      customData?.userWatch,
+    )
+
+    return {
+      dataSource,
+      repository,
+      userWatch,
+    }
   }
 }
