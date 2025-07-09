@@ -25,6 +25,9 @@ export const DEFAULT_AUTH_EXCLUSIONS: AuthExclusionConfig = {
   ],
   pathPrefixes: [
     "/api/public/", // パブリックAPI
+    ...(process.env.USE_GITHUB_API_STUB === "true"
+      ? ["/api/e2e-control/"]
+      : []), // E2E制御API（スタブモード時のみ）
   ],
   patterns: [
     /^\/static\/.*/, // 静的ファイル

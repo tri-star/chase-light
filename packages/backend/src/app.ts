@@ -4,6 +4,8 @@ import { logger } from "hono/logger"
 import { Scalar } from "@scalar/hono-api-reference"
 import { globalJWTAuth, createAuthRoutes } from "./features/auth"
 import userRoutes from "./features/user/presentation"
+import dataSourceRoutes from "./features/data-sources"
+import { createE2EControlRoutes } from "./features/data-sources/presentation/routes/e2e-control"
 
 /**
  * Chase Light Backend Application
@@ -36,26 +38,28 @@ export const createApp = () => {
     }),
   )
 
-  // GitHub API サービス初期化（環境変数から）
-  const githubToken = process.env.GITHUB_TOKEN
-  if (!githubToken) {
-    throw new Error("GITHUB_TOKEN environment variable is required")
-  }
-
   // Auth API routes
   app.route("/api/auth", createAuthRoutes())
 
   // User management API routes
   app.route("/api/users", userRoutes)
 
+  // Data Source management API routes
+  app.route("/api", dataSourceRoutes)
+
+  // E2E Control API routes (only in stub mode)
+  if (process.env.USE_GITHUB_API_STUB === "true") {
+    app.route("/api", createE2EControlRoutes())
+  }
+
   // OpenAPI仕様書エンドポイント
   app.doc("/doc", {
     openapi: "3.0.0",
     info: {
       version: "1.0.0",
-      title: "Chase Light Data Source API",
+      title: "Chase Light API",
       description:
-        "GitHub リポジトリデータ取得API - TypeScript + Hono + Zod + OpenAPI",
+        "GitHub リポジトリ監視サービス API - TypeScript + Hono + Zod + OpenAPI",
     },
     servers: [
       {
