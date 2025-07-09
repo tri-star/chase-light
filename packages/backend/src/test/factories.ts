@@ -147,7 +147,7 @@ export class TestDataFactory {
     const dataSource: DataSource = {
       id: uuidv7(),
       sourceType: "github",
-      sourceId: `test_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`, // ユニークなIDを生成
+      sourceId: `test_${Date.now()}_${Math.random().toString(36).substring(2, 11)}`, // ユニークなIDを生成
       name: "Test Repository",
       description: "A test repository",
       url: "https://github.com/test/repository",

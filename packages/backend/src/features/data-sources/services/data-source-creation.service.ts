@@ -6,7 +6,11 @@ import type {
   UserWatchRepository,
 } from "../repositories"
 import type { UserRepository } from "../../user/repositories/user.repository"
-import { DuplicateDataSourceError } from "../errors"
+import {
+  DuplicateDataSourceError,
+  UserNotFoundError,
+  InvalidRepositoryUrlError,
+} from "../errors"
 import type { GitHubApiServiceInterface } from "./interfaces/github-api-service.interface"
 import { createGitHubApiService } from "./github-api-service.factory"
 
@@ -101,7 +105,7 @@ export class DataSourceCreationService {
     // Auth0 UserIDからユーザーのDBレコードを取得
     const user = await this.userRepository.findByAuth0Id(input.userId)
     if (!user) {
-      throw new Error(`User not found for auth0UserId: ${input.userId}`)
+      throw new UserNotFoundError(input.userId)
     }
 
     // ユーザーウォッチ作成
@@ -125,16 +129,20 @@ export class DataSourceCreationService {
    * GitHub URL から owner/repo を抽出
    */
   private parseGitHubUrl(url: string): { owner: string; repo: string } {
-    const githubUrlPattern = /^https:\/\/github\.com\/([^/]+)\/([^/]+)\/?$/
+    const githubUrlPattern =
+      /^https:\/\/github\.com\/([^/]+)\/([^/]+)(?:\.git)?\/?$/
     const match = url.match(githubUrlPattern)
 
     if (!match) {
-      throw new Error("Invalid GitHub repository URL format")
+      throw new InvalidRepositoryUrlError(url)
     }
 
+    const owner = match[1]
+    const repo = match[2].replace(/\.git$/, "")
+
     return {
-      owner: match[1],
-      repo: match[2],
+      owner,
+      repo,
     }
   }
 }

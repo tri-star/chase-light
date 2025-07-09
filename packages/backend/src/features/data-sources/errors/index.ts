@@ -1,2 +1,4 @@
 export { GitHubApiError } from "./github-api.error"
 export { DuplicateDataSourceError } from "./duplicate-data-source.error"
+export { UserNotFoundError } from "./user-not-found.error"
+export { InvalidRepositoryUrlError } from "./invalid-repository-url.error"

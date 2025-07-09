@@ -33,23 +33,48 @@ export class GitHubApiService implements GitHubApiServiceInterface {
 
       return response.data as GitHubRepositoryResponse
     } catch (error: unknown) {
-      const apiError = error as { status?: number; message?: string }
-      if (apiError.status === 404) {
+      // Octokitエラーの型ガード
+      if (this.isOctokitError(error)) {
+        if (error.status === 404) {
+          throw new GitHubApiError(
+            `Repository ${owner}/${repo} not found or not accessible`,
+            404,
+          )
+        }
+        if (error.status === 403) {
+          throw new GitHubApiError(
+            "GitHub API rate limit exceeded or forbidden",
+            403,
+          )
+        }
         throw new GitHubApiError(
-          `Repository ${owner}/${repo} not found or not accessible`,
-          404,
+          `GitHub API error: ${error.message}`,
+          error.status,
         )
       }
-      if (apiError.status === 403) {
-        throw new GitHubApiError(
-          "GitHub API rate limit exceeded or forbidden",
-          403,
-        )
-      }
+
+      // その他のエラーの場合
+      const fallbackError = error as { message?: string }
       throw new GitHubApiError(
-        `GitHub API error: ${apiError.message || "Unknown error"}`,
-        apiError.status,
+        `GitHub API error: ${fallbackError.message || "Unknown error"}`,
+        undefined,
       )
     }
+  }
+
+  /**
+   * Octokitエラーの型ガード
+   */
+  private isOctokitError(
+    error: unknown,
+  ): error is { status: number; message: string } {
+    return (
+      typeof error === "object" &&
+      error !== null &&
+      "status" in error &&
+      "message" in error &&
+      typeof (error as Record<string, unknown>).status === "number" &&
+      typeof (error as Record<string, unknown>).message === "string"
+    )
   }
 }
