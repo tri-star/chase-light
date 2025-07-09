@@ -2,6 +2,12 @@
 
 必要に応じて以下のファイルを参照してください。
 
+## このプロジェクトの概要
+
+**IMPORTANT: このプロジェクトのゴールや何をするものかが書かれています。作業開始時は必ず参照してください。**
+
+@docs/project-overview.md
+
 ## 開発コマンド一覧
 
 @.github/instructions/dev_commands.instructions.md
