@@ -1,7 +1,7 @@
 import { describe, test, expect, beforeEach } from "vitest"
 import { OpenAPIHono } from "@hono/zod-openapi"
 import { createDataSourceRoutes } from "../index"
-import { DataSourceCreationService } from "../../../../services"
+import { DataSourceCreationService, DataSourceListService } from "../../../../services"
 import {
   DataSourceRepository,
   RepositoryRepository,
@@ -17,11 +17,12 @@ import type { User } from "../../../../../user/domain/user"
 
 // Component Test: 実DBを使用してHTTPエンドポイントをテスト
 
-describe("POST /data-sources - Component Test", () => {
+describe("DataSources API - Component Test", () => {
   setupComponentTest()
 
   let app: OpenAPIHono
   let dataSourceCreationService: DataSourceCreationService
+  let dataSourceListService: DataSourceListService
   let githubStub: GitHubApiServiceStub
   let testUser: User
   let testToken: string
@@ -55,6 +56,10 @@ describe("POST /data-sources - Component Test", () => {
       userRepository,
       githubStub,
     )
+    dataSourceListService = new DataSourceListService(
+      dataSourceRepository,
+      userRepository,
+    )
 
     // ルートアプリケーション作成
     app = new OpenAPIHono()
@@ -63,11 +68,11 @@ describe("POST /data-sources - Component Test", () => {
     app.use("*", globalJWTAuth)
 
     // データソースルートを追加
-    const dataSourceRoutes = createDataSourceRoutes(dataSourceCreationService)
+    const dataSourceRoutes = createDataSourceRoutes(dataSourceCreationService, dataSourceListService)
     app.route("/", dataSourceRoutes)
   })
 
-  describe("正常系", () => {
+  describe("POST /data-sources - データソース作成", () => {
     test("有効なリクエストでデータソースが作成される", async () => {
       const requestBody = {
         repositoryUrl: "https://github.com/facebook/react",
@@ -175,7 +180,7 @@ describe("POST /data-sources - Component Test", () => {
     })
   })
 
-  describe("異常系", () => {
+  describe("POST /data-sources - 異常系", () => {
     test("無効なリクエストボディの場合は400エラー", async () => {
       const invalidRequestBody = {
         repositoryUrl: "", // 空文字列は無効
@@ -284,6 +289,192 @@ describe("POST /data-sources - Component Test", () => {
       const responseBody = await res.json()
       expect(responseBody.success).toBe(false)
       expect(responseBody.error.code).toBe("REPOSITORY_NOT_FOUND")
+    })
+  })
+
+  describe("GET /data-sources - データソース一覧取得", () => {
+    // テストデータのセットアップ用ヘルパー
+    const createTestDataSource = async (
+      name: string,
+      fullName: string,
+      githubId: number,
+    ) => {
+      const githubResponse: GitHubRepositoryResponse = {
+        id: githubId,
+        full_name: fullName,
+        name: name,
+        description: `${name} description`,
+        html_url: `https://github.com/${fullName}`,
+        private: false,
+        language: "TypeScript",
+        stargazers_count: 1000,
+        forks_count: 100,
+        open_issues_count: 10,
+        fork: false,
+      }
+      githubStub.setStubResponse(fullName, githubResponse)
+
+      const requestBody = {
+        repositoryUrl: `https://github.com/${fullName}`,
+        name: name,
+      }
+
+      await app.request("/", {
+        method: "POST",
+        headers: {
+          ...AuthTestHelper.createAuthHeaders(testToken),
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(requestBody),
+      })
+    }
+
+    test("空の一覧が正常に取得される", async () => {
+      const res = await app.request("/", {
+        method: "GET",
+        headers: {
+          ...AuthTestHelper.createAuthHeaders(testToken),
+        },
+      })
+
+      expect(res.status).toBe(200)
+
+      const responseBody = await res.json()
+      expect(responseBody.success).toBe(true)
+      expect(responseBody.data.items).toHaveLength(0)
+      expect(responseBody.data.pagination.total).toBe(0)
+      expect(responseBody.data.pagination.totalPages).toBe(0)
+      expect(responseBody.data.pagination.hasNext).toBe(false)
+      expect(responseBody.data.pagination.hasPrev).toBe(false)
+    })
+
+    test("複数のデータソースが正常に取得される", async () => {
+      // テストデータを作成
+      await createTestDataSource("React", "facebook/react", 10270250)
+      await createTestDataSource("Vue", "vuejs/core", 11730342)
+      await createTestDataSource("Angular", "angular/angular", 24195339)
+
+      const res = await app.request("/", {
+        method: "GET",
+        headers: {
+          ...AuthTestHelper.createAuthHeaders(testToken),
+        },
+      })
+
+      expect(res.status).toBe(200)
+
+      const responseBody = await res.json()
+      expect(responseBody.success).toBe(true)
+      expect(responseBody.data.items).toHaveLength(3)
+      expect(responseBody.data.pagination.total).toBe(3)
+      expect(responseBody.data.pagination.totalPages).toBe(1)
+      expect(responseBody.data.pagination.hasNext).toBe(false)
+      expect(responseBody.data.pagination.hasPrev).toBe(false)
+
+      // レスポンス構造を確認
+      const firstItem = responseBody.data.items[0]
+      expect(firstItem.dataSource).toBeDefined()
+      expect(firstItem.repository).toBeDefined()
+      expect(firstItem.userWatch).toBeDefined()
+      expect(firstItem.repository.owner).toBeDefined()
+    })
+
+    test("名前フィルタリングが正常に動作する", async () => {
+      // テストデータを作成
+      await createTestDataSource("React", "facebook/react", 10270250)
+      await createTestDataSource("ReactNative", "facebook/react-native", 29028775)
+      await createTestDataSource("Vue", "vuejs/core", 11730342)
+
+      const res = await app.request("/?name=React", {
+        method: "GET",
+        headers: {
+          ...AuthTestHelper.createAuthHeaders(testToken),
+        },
+      })
+
+      expect(res.status).toBe(200)
+
+      const responseBody = await res.json()
+      expect(responseBody.success).toBe(true)
+      expect(responseBody.data.items).toHaveLength(2)
+      expect(responseBody.data.items[0].dataSource.name).toContain("React")
+      expect(responseBody.data.items[1].dataSource.name).toContain("React")
+    })
+
+    test("オーナーフィルタリングが正常に動作する", async () => {
+      // テストデータを作成
+      await createTestDataSource("React", "facebook/react", 10270250)
+      await createTestDataSource("ReactNative", "facebook/react-native", 29028775)
+      await createTestDataSource("Vue", "vuejs/core", 11730342)
+
+      const res = await app.request("/?owner=facebook", {
+        method: "GET",
+        headers: {
+          ...AuthTestHelper.createAuthHeaders(testToken),
+        },
+      })
+
+      expect(res.status).toBe(200)
+
+      const responseBody = await res.json()
+      expect(responseBody.success).toBe(true)
+      expect(responseBody.data.items).toHaveLength(2)
+      expect(responseBody.data.items[0].repository.owner).toBe("facebook")
+      expect(responseBody.data.items[1].repository.owner).toBe("facebook")
+    })
+
+    test("フリーワード検索が正常に動作する", async () => {
+      // テストデータを作成
+      await createTestDataSource("React", "facebook/react", 10270250)
+      await createTestDataSource("Vue", "vuejs/core", 11730342)
+
+      const res = await app.request("/?search=facebook", {
+        method: "GET",
+        headers: {
+          ...AuthTestHelper.createAuthHeaders(testToken),
+        },
+      })
+
+      expect(res.status).toBe(200)
+
+      const responseBody = await res.json()
+      expect(responseBody.success).toBe(true)
+      expect(responseBody.data.items).toHaveLength(1)
+      expect(responseBody.data.items[0].repository.fullName).toContain("facebook")
+    })
+
+    test("ページネーションが正常に動作する", async () => {
+      // テストデータを作成
+      await createTestDataSource("React", "facebook/react", 10270250)
+      await createTestDataSource("Vue", "vuejs/core", 11730342)
+      await createTestDataSource("Angular", "angular/angular", 24195339)
+
+      const res = await app.request("/?page=1&perPage=2", {
+        method: "GET",
+        headers: {
+          ...AuthTestHelper.createAuthHeaders(testToken),
+        },
+      })
+
+      expect(res.status).toBe(200)
+
+      const responseBody = await res.json()
+      expect(responseBody.success).toBe(true)
+      expect(responseBody.data.items).toHaveLength(2)
+      expect(responseBody.data.pagination.page).toBe(1)
+      expect(responseBody.data.pagination.perPage).toBe(2)
+      expect(responseBody.data.pagination.total).toBe(3)
+      expect(responseBody.data.pagination.totalPages).toBe(2)
+      expect(responseBody.data.pagination.hasNext).toBe(true)
+      expect(responseBody.data.pagination.hasPrev).toBe(false)
+    })
+
+    test("認証情報がない場合は401エラー", async () => {
+      const res = await app.request("/", {
+        method: "GET",
+      })
+
+      expect(res.status).toBe(401)
     })
   })
 })

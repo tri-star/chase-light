@@ -200,4 +200,357 @@ describe("DataSourceRepository - Unit Test", () => {
       expect(result).toBe(false)
     })
   })
+
+  describe("findByUserWithFilters()", () => {
+    test("ユーザーIDでフィルタリングしてデータソース一覧を取得できる", async () => {
+      // テストユーザーを作成
+      const testUser = await TestDataFactory.createTestUser("test-user-1")
+
+      // テストデータソースとリポジトリを作成
+      const testDataSource = await TestDataFactory.createTestDataSource({
+        name: "テストリポジトリ",
+        sourceId: "123456789",
+        sourceType: "github",
+      })
+
+      await TestDataFactory.createTestRepository(
+        testDataSource.id, 
+        {
+          fullName: "test/repository",
+          githubId: 123456789,
+          starsCount: 100,
+          language: "JavaScript",
+        }
+      )
+
+      // ユーザーウォッチを作成
+      await TestDataFactory.createTestUserWatch(
+        testUser.id,
+        testDataSource.id,
+        {
+          watchReleases: true,
+          watchIssues: false,
+          watchPullRequests: false,
+          notificationEnabled: true,
+        }
+      )
+
+      // メソッドを実行
+      const result = await dataSourceRepository.findByUserWithFilters(testUser.id)
+
+      // 結果を検証
+      expect(result.items.length).toBeGreaterThanOrEqual(1)
+      expect(result.total).toBeGreaterThanOrEqual(1)
+
+      const item = result.items.find((item) => item.dataSource.id === testDataSource.id)
+      expect(item).toBeDefined()
+      expect(item?.dataSource.name).toBe("テストリポジトリ")
+      expect(item?.repository.fullName).toBe("test/repository")
+      expect(item?.repository.owner).toBe("test")
+      expect(item?.repository.starsCount).toBe(100)
+      expect(item?.userWatch.watchReleases).toBe(true)
+      expect(item?.userWatch.watchIssues).toBe(false)
+    })
+
+    test("名前でフィルタリングが正常に動作する", async () => {
+      // テストユーザーを作成
+      const testUser = await TestDataFactory.createTestUser("test-user-2")
+
+      // マッチするデータソース
+      const matchingDataSource = await TestDataFactory.createTestDataSource({
+        name: "React Library",
+        sourceId: "react_match",
+        sourceType: "github",
+      })
+
+      // マッチしないデータソース
+      const nonMatchingDataSource = await TestDataFactory.createTestDataSource({
+        name: "Vue Framework",
+        sourceId: "vue_nomatch",
+        sourceType: "github",
+      })
+
+      // リポジトリを作成
+      await TestDataFactory.createTestRepository(
+        matchingDataSource.id,
+        {
+          fullName: "facebook/react",
+          githubId: 10270250,
+        }
+      )
+
+      await TestDataFactory.createTestRepository(
+        nonMatchingDataSource.id,
+        {
+          fullName: "vuejs/vue",
+          githubId: 11730342,
+        }
+      )
+
+      // ユーザーウォッチを作成
+      await TestDataFactory.createTestUserWatch(
+        testUser.id,
+        matchingDataSource.id
+      )
+
+      await TestDataFactory.createTestUserWatch(
+        testUser.id,
+        nonMatchingDataSource.id
+      )
+
+      // 名前でフィルタリング
+      const result = await dataSourceRepository.findByUserWithFilters(testUser.id, {
+        name: "React",
+      })
+
+      expect(result.items.length).toBe(1)
+      expect(result.items[0].dataSource.name).toBe("React Library")
+    })
+
+    test("オーナーでフィルタリングが正常に動作する", async () => {
+      // テストユーザーを作成
+      const testUser = await TestDataFactory.createTestUser("test-user-3")
+
+      // マッチするデータソース
+      const matchingDataSource = await TestDataFactory.createTestDataSource({
+        name: "React",
+        sourceId: "react_owner",
+        sourceType: "github",
+      })
+
+      // マッチしないデータソース
+      const nonMatchingDataSource = await TestDataFactory.createTestDataSource({
+        name: "Vue",
+        sourceId: "vue_owner",
+        sourceType: "github",
+      })
+
+      // リポジトリを作成
+      await TestDataFactory.createTestRepository(
+        matchingDataSource.id,
+        {
+          fullName: "facebook/react",
+          githubId: 10270250,
+        }
+      )
+
+      await TestDataFactory.createTestRepository(
+        nonMatchingDataSource.id,
+        {
+          fullName: "vuejs/vue",
+          githubId: 11730342,
+        }
+      )
+
+      // ユーザーウォッチを作成
+      await TestDataFactory.createTestUserWatch(
+        testUser.id,
+        matchingDataSource.id
+      )
+
+      await TestDataFactory.createTestUserWatch(
+        testUser.id,
+        nonMatchingDataSource.id
+      )
+
+      // オーナーでフィルタリング
+      const result = await dataSourceRepository.findByUserWithFilters(testUser.id, {
+        owner: "facebook",
+      })
+
+      expect(result.items.length).toBe(1)
+      expect(result.items[0].repository.owner).toBe("facebook")
+    })
+
+    test("フリーワード検索が正常に動作する", async () => {
+      // テストユーザーを作成
+      const testUser = await TestDataFactory.createTestUser("test-user-4")
+
+      // マッチするデータソース
+      const matchingDataSource = await TestDataFactory.createTestDataSource({
+        name: "React",
+        description: "JavaScript library for building user interfaces",
+        sourceId: "react_search",
+        sourceType: "github",
+      })
+
+      // マッチしないデータソース
+      const nonMatchingDataSource = await TestDataFactory.createTestDataSource({
+        name: "Vue",
+        description: "Progressive web framework",
+        sourceId: "vue_search",
+        sourceType: "github",
+      })
+
+      // リポジトリを作成
+      await TestDataFactory.createTestRepository(
+        matchingDataSource.id,
+        {
+          fullName: "facebook/react",
+          githubId: 10270250,
+        }
+      )
+
+      await TestDataFactory.createTestRepository(
+        nonMatchingDataSource.id,
+        {
+          fullName: "vuejs/vue",
+          githubId: 11730342,
+        }
+      )
+
+      // ユーザーウォッチを作成
+      await TestDataFactory.createTestUserWatch(
+        testUser.id,
+        matchingDataSource.id
+      )
+
+      await TestDataFactory.createTestUserWatch(
+        testUser.id,
+        nonMatchingDataSource.id
+      )
+
+      // フリーワード検索
+      const result = await dataSourceRepository.findByUserWithFilters(testUser.id, {
+        search: "JavaScript",
+      })
+
+      expect(result.items.length).toBe(1)
+      expect(result.items[0].dataSource.description).toContain("JavaScript")
+    })
+
+    test("ソート機能が正常に動作する", async () => {
+      // テストユーザーを作成
+      const testUser = await TestDataFactory.createTestUser("test-user-5")
+
+      // データソースを作成（名前順でソート確認）
+      const dataSource1 = await TestDataFactory.createTestDataSource({
+        name: "A Repository",
+        sourceId: "a_repo",
+        sourceType: "github",
+      })
+
+      const dataSource2 = await TestDataFactory.createTestDataSource({
+        name: "B Repository",
+        sourceId: "b_repo",
+        sourceType: "github",
+      })
+
+      // リポジトリを作成
+      await TestDataFactory.createTestRepository(
+        dataSource1.id,
+        {
+          fullName: "test/a-repo",
+          githubId: 1,
+          starsCount: 100,
+        }
+      )
+
+      await TestDataFactory.createTestRepository(
+        dataSource2.id,
+        {
+          fullName: "test/b-repo",
+          githubId: 2,
+          starsCount: 200,
+        }
+      )
+
+      // ユーザーウォッチを作成
+      await TestDataFactory.createTestUserWatch(
+        testUser.id,
+        dataSource1.id
+      )
+
+      await TestDataFactory.createTestUserWatch(
+        testUser.id,
+        dataSource2.id
+      )
+
+      // 名前で昇順ソート
+      const ascResult = await dataSourceRepository.findByUserWithFilters(testUser.id, {
+        sortBy: "name",
+        sortOrder: "asc",
+      })
+
+      expect(ascResult.items.length).toBe(2)
+      expect(ascResult.items[0].dataSource.name).toBe("A Repository")
+      expect(ascResult.items[1].dataSource.name).toBe("B Repository")
+
+      // スター数で降順ソート
+      const descResult = await dataSourceRepository.findByUserWithFilters(testUser.id, {
+        sortBy: "starsCount",
+        sortOrder: "desc",
+      })
+
+      expect(descResult.items.length).toBe(2)
+      expect(descResult.items[0].repository.starsCount).toBe(200)
+      expect(descResult.items[1].repository.starsCount).toBe(100)
+    })
+
+    test("ページネーションが正常に動作する", async () => {
+      // テストユーザーを作成
+      const testUser = await TestDataFactory.createTestUser("test-user-6")
+
+      // 複数のデータソースを作成
+      const dataSources = []
+      for (let i = 1; i <= 5; i++) {
+        const dataSource = await TestDataFactory.createTestDataSource({
+          name: `Repository ${i}`,
+          sourceId: `repo_${i}`,
+          sourceType: "github",
+        })
+        dataSources.push(dataSource)
+
+        await TestDataFactory.createTestRepository(
+          dataSource.id,
+          {
+            fullName: `test/repo-${i}`,
+            githubId: i,
+          }
+        )
+
+        await TestDataFactory.createTestUserWatch(
+          testUser.id,
+          dataSource.id
+        )
+      }
+
+      // 1ページ目（2件）
+      const page1 = await dataSourceRepository.findByUserWithFilters(testUser.id, {
+        limit: 2,
+        offset: 0,
+      })
+
+      expect(page1.items.length).toBe(2)
+      expect(page1.total).toBe(5)
+
+      // 2ページ目（2件）
+      const page2 = await dataSourceRepository.findByUserWithFilters(testUser.id, {
+        limit: 2,
+        offset: 2,
+      })
+
+      expect(page2.items.length).toBe(2)
+      expect(page2.total).toBe(5)
+
+      // 3ページ目（1件）
+      const page3 = await dataSourceRepository.findByUserWithFilters(testUser.id, {
+        limit: 2,
+        offset: 4,
+      })
+
+      expect(page3.items.length).toBe(1)
+      expect(page3.total).toBe(5)
+    })
+
+    test("空の結果が正常に返される", async () => {
+      // 存在しないユーザーIDで検索
+      const nonExistentUserId = uuidv7()
+
+      const result = await dataSourceRepository.findByUserWithFilters(nonExistentUserId)
+
+      expect(result.items).toEqual([])
+      expect(result.total).toBe(0)
+    })
+  })
 })
