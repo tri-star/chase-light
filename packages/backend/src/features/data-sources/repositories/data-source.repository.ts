@@ -1,8 +1,13 @@
-import { eq, and } from "drizzle-orm"
+import { eq, and, ilike, or, gte, lte, sql, asc, desc } from "drizzle-orm"
 import { randomUUID } from "crypto"
 import { db } from "../../../db/connection"
-import { dataSources } from "../../../db/schema"
-import type { DataSource, DataSourceCreationInput } from "../domain"
+import { dataSources, repositories, userWatches } from "../../../db/schema"
+import type { 
+  DataSource, 
+  DataSourceCreationInput, 
+  DataSourceListFilters, 
+  DataSourceListResult 
+} from "../domain"
 
 /**
  * データソースのリポジトリクラス
@@ -97,6 +102,200 @@ export class DataSourceRepository {
     const result = await db.delete(dataSources).where(eq(dataSources.id, id))
 
     return (result.rowCount ?? 0) > 0
+  }
+
+  /**
+   * フィルタリング条件付きでユーザーのデータソースを取得
+   */
+  async findByUserWithFilters(
+    userId: string,
+    filters: DataSourceListFilters = {},
+  ): Promise<DataSourceListResult> {
+    // 基本的なクエリ構築
+    let query = db
+      .select({
+        // データソース
+        dataSourceId: dataSources.id,
+        dataSourceType: dataSources.sourceType,
+        dataSourceSourceId: dataSources.sourceId,
+        dataSourceName: dataSources.name,
+        dataSourceDescription: dataSources.description,
+        dataSourceUrl: dataSources.url,
+        dataSourceIsPrivate: dataSources.isPrivate,
+        dataSourceCreatedAt: dataSources.createdAt,
+        dataSourceUpdatedAt: dataSources.updatedAt,
+        // リポジトリ
+        repositoryId: repositories.id,
+        repositoryDataSourceId: repositories.dataSourceId,
+        repositoryGithubId: repositories.githubId,
+        repositoryFullName: repositories.fullName,
+        repositoryLanguage: repositories.language,
+        repositoryStarsCount: repositories.starsCount,
+        repositoryForksCount: repositories.forksCount,
+        repositoryOpenIssuesCount: repositories.openIssuesCount,
+        repositoryIsFork: repositories.isFork,
+        repositoryCreatedAt: repositories.createdAt,
+        repositoryUpdatedAt: repositories.updatedAt,
+        // ユーザーウォッチ
+        userWatchId: userWatches.id,
+        userWatchUserId: userWatches.userId,
+        userWatchDataSourceId: userWatches.dataSourceId,
+        userWatchNotificationEnabled: userWatches.notificationEnabled,
+        userWatchWatchReleases: userWatches.watchReleases,
+        userWatchWatchIssues: userWatches.watchIssues,
+        userWatchWatchPullRequests: userWatches.watchPullRequests,
+        userWatchAddedAt: userWatches.addedAt,
+      })
+      .from(dataSources)
+      .innerJoin(repositories, eq(dataSources.id, repositories.dataSourceId))
+      .innerJoin(userWatches, eq(dataSources.id, userWatches.dataSourceId))
+      .where(eq(userWatches.userId, userId))
+      .$dynamic()
+
+    // WHERE条件の配列
+    const whereConditions = [eq(userWatches.userId, userId)]
+
+    // フィルタリング条件を動的に追加
+    if (filters.name) {
+      whereConditions.push(ilike(dataSources.name, `%${filters.name}%`))
+    }
+
+    if (filters.owner) {
+      // GitHubのfullNameから所有者を抽出（例: "facebook/react" -> "facebook"）
+      whereConditions.push(
+        ilike(sql`split_part(${repositories.fullName}, '/', 1)`, `%${filters.owner}%`)
+      )
+    }
+
+    if (filters.search) {
+      // 複数フィールドでの横断検索
+      const searchCondition = or(
+        ilike(dataSources.name, `%${filters.search}%`),
+        ilike(dataSources.description, `%${filters.search}%`),
+        ilike(dataSources.url, `%${filters.search}%`),
+        ilike(repositories.fullName, `%${filters.search}%`)
+      )
+      if (searchCondition) {
+        whereConditions.push(searchCondition)
+      }
+    }
+
+    if (filters.sourceType) {
+      whereConditions.push(eq(dataSources.sourceType, filters.sourceType))
+    }
+
+    if (filters.isPrivate !== undefined) {
+      whereConditions.push(eq(dataSources.isPrivate, filters.isPrivate))
+    }
+
+    if (filters.language) {
+      whereConditions.push(eq(repositories.language, filters.language))
+    }
+
+    if (filters.createdAfter) {
+      whereConditions.push(gte(dataSources.createdAt, filters.createdAfter))
+    }
+
+    if (filters.createdBefore) {
+      whereConditions.push(lte(dataSources.createdAt, filters.createdBefore))
+    }
+
+    if (filters.updatedAfter) {
+      whereConditions.push(gte(dataSources.updatedAt, filters.updatedAfter))
+    }
+
+    if (filters.updatedBefore) {
+      whereConditions.push(lte(dataSources.updatedAt, filters.updatedBefore))
+    }
+
+    // WHERE条件を適用
+    if (whereConditions.length > 0) {
+      query = query.where(and(...whereConditions))
+    }
+
+    // ソート条件を適用
+    const sortBy = filters.sortBy || "createdAt"
+    const sortOrder = filters.sortOrder || "desc"
+    const sortFunc = sortOrder === "asc" ? asc : desc
+
+    switch (sortBy) {
+      case "name":
+        query = query.orderBy(sortFunc(dataSources.name))
+        break
+      case "createdAt":
+        query = query.orderBy(sortFunc(dataSources.createdAt))
+        break
+      case "updatedAt":
+        query = query.orderBy(sortFunc(dataSources.updatedAt))
+        break
+      case "addedAt":
+        query = query.orderBy(sortFunc(userWatches.addedAt))
+        break
+      case "starsCount":
+        query = query.orderBy(sortFunc(repositories.starsCount))
+        break
+      default:
+        query = query.orderBy(sortFunc(dataSources.createdAt))
+    }
+
+    // 総件数を取得（ページネーション用）
+    const countQuery = db
+      .select({ count: sql<number>`count(*)` })
+      .from(dataSources)
+      .innerJoin(repositories, eq(dataSources.id, repositories.dataSourceId))
+      .innerJoin(userWatches, eq(dataSources.id, userWatches.dataSourceId))
+      .where(whereConditions.length > 0 ? and(...whereConditions) : undefined)
+
+    const [results, [{ count: totalCount }]] = await Promise.all([
+      query.limit(filters.limit || 20).offset(filters.offset || 0),
+      countQuery,
+    ])
+
+    const total = Number(totalCount)
+
+    // 結果を変換
+    const items = results.map((row) => ({
+      dataSource: {
+        id: row.dataSourceId,
+        sourceType: row.dataSourceType,
+        sourceId: row.dataSourceSourceId,
+        name: row.dataSourceName,
+        description: row.dataSourceDescription,
+        url: row.dataSourceUrl,
+        isPrivate: row.dataSourceIsPrivate,
+        createdAt: row.dataSourceCreatedAt!,
+        updatedAt: row.dataSourceUpdatedAt!,
+      },
+      repository: {
+        id: row.repositoryId,
+        dataSourceId: row.repositoryDataSourceId,
+        githubId: row.repositoryGithubId,
+        fullName: row.repositoryFullName,
+        owner: row.repositoryFullName.split("/")[0], // ownerフィールドを追加
+        language: row.repositoryLanguage,
+        starsCount: row.repositoryStarsCount,
+        forksCount: row.repositoryForksCount,
+        openIssuesCount: row.repositoryOpenIssuesCount,
+        isFork: row.repositoryIsFork,
+        createdAt: row.repositoryCreatedAt!,
+        updatedAt: row.repositoryUpdatedAt!,
+      },
+      userWatch: {
+        id: row.userWatchId,
+        userId: row.userWatchUserId,
+        dataSourceId: row.userWatchDataSourceId,
+        notificationEnabled: row.userWatchNotificationEnabled,
+        watchReleases: row.userWatchWatchReleases,
+        watchIssues: row.userWatchWatchIssues,
+        watchPullRequests: row.userWatchWatchPullRequests,
+        addedAt: row.userWatchAddedAt!,
+      },
+    }))
+
+    return {
+      items,
+      total,
+    }
   }
 
   /**
