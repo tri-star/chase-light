@@ -6,7 +6,8 @@ import type {
   DataSource, 
   DataSourceCreationInput, 
   DataSourceListFilters, 
-  DataSourceListResult 
+  DataSourceListResult,
+  DataSourceListItem
 } from "../domain"
 
 /**
@@ -102,6 +103,101 @@ export class DataSourceRepository {
     const result = await db.delete(dataSources).where(eq(dataSources.id, id))
 
     return (result.rowCount ?? 0) > 0
+  }
+
+  /**
+   * ユーザーのアクセス権限を持つデータソースを詳細情報付きで取得
+   */
+  async findByIdWithUserAccess(
+    id: string,
+    userId: string,
+  ): Promise<DataSourceListItem | null> {
+    const results = await db
+      .select({
+        // データソース
+        dataSourceId: dataSources.id,
+        dataSourceType: dataSources.sourceType,
+        dataSourceSourceId: dataSources.sourceId,
+        dataSourceName: dataSources.name,
+        dataSourceDescription: dataSources.description,
+        dataSourceUrl: dataSources.url,
+        dataSourceIsPrivate: dataSources.isPrivate,
+        dataSourceCreatedAt: dataSources.createdAt,
+        dataSourceUpdatedAt: dataSources.updatedAt,
+        // リポジトリ
+        repositoryId: repositories.id,
+        repositoryDataSourceId: repositories.dataSourceId,
+        repositoryGithubId: repositories.githubId,
+        repositoryFullName: repositories.fullName,
+        repositoryLanguage: repositories.language,
+        repositoryStarsCount: repositories.starsCount,
+        repositoryForksCount: repositories.forksCount,
+        repositoryOpenIssuesCount: repositories.openIssuesCount,
+        repositoryIsFork: repositories.isFork,
+        repositoryCreatedAt: repositories.createdAt,
+        repositoryUpdatedAt: repositories.updatedAt,
+        // ユーザーウォッチ
+        userWatchId: userWatches.id,
+        userWatchUserId: userWatches.userId,
+        userWatchDataSourceId: userWatches.dataSourceId,
+        userWatchNotificationEnabled: userWatches.notificationEnabled,
+        userWatchWatchReleases: userWatches.watchReleases,
+        userWatchWatchIssues: userWatches.watchIssues,
+        userWatchWatchPullRequests: userWatches.watchPullRequests,
+        userWatchAddedAt: userWatches.addedAt,
+      })
+      .from(dataSources)
+      .innerJoin(repositories, eq(dataSources.id, repositories.dataSourceId))
+      .innerJoin(userWatches, eq(dataSources.id, userWatches.dataSourceId))
+      .where(
+        and(
+          eq(dataSources.id, id),
+          eq(userWatches.userId, userId)
+        )
+      )
+
+    if (results.length === 0) {
+      return null
+    }
+
+    const row = results[0]
+    return {
+      dataSource: {
+        id: row.dataSourceId,
+        sourceType: row.dataSourceType,
+        sourceId: row.dataSourceSourceId,
+        name: row.dataSourceName,
+        description: row.dataSourceDescription,
+        url: row.dataSourceUrl,
+        isPrivate: row.dataSourceIsPrivate,
+        createdAt: row.dataSourceCreatedAt!,
+        updatedAt: row.dataSourceUpdatedAt!,
+      },
+      repository: {
+        id: row.repositoryId,
+        dataSourceId: row.repositoryDataSourceId,
+        githubId: row.repositoryGithubId,
+        fullName: row.repositoryFullName,
+        owner: row.repositoryFullName.split("/")[0], // ownerフィールドを追加
+        language: row.repositoryLanguage,
+        starsCount: row.repositoryStarsCount,
+        forksCount: row.repositoryForksCount,
+        openIssuesCount: row.repositoryOpenIssuesCount,
+        isFork: row.repositoryIsFork,
+        createdAt: row.repositoryCreatedAt!,
+        updatedAt: row.repositoryUpdatedAt!,
+      },
+      userWatch: {
+        id: row.userWatchId,
+        userId: row.userWatchUserId,
+        dataSourceId: row.userWatchDataSourceId,
+        notificationEnabled: row.userWatchNotificationEnabled,
+        watchReleases: row.userWatchWatchReleases,
+        watchIssues: row.userWatchWatchIssues,
+        watchPullRequests: row.userWatchWatchPullRequests,
+        addedAt: row.userWatchAddedAt!,
+      },
+    }
   }
 
   /**

@@ -1,11 +1,13 @@
 import { OpenAPIHono, createRoute } from "@hono/zod-openapi"
+import { z } from "@hono/zod-openapi"
 import { requireAuth } from "../../../../auth/middleware/jwt-auth.middleware"
-import type { DataSourceCreationService, DataSourceListService } from "../../../services"
+import type { DataSourceCreationService, DataSourceListService, DataSourceDetailService } from "../../../services"
 import {
   createDataSourceRequestSchema,
   createDataSourceResponseSchema,
   dataSourceListRequestSchema,
   dataSourceListResponseSchema,
+  dataSourceDetailResponseSchema,
   dataSourceErrorResponseSchemaDefinition,
 } from "../../schemas"
 import { handleDataSourceError } from "../../shared/error-handling"
@@ -16,6 +18,7 @@ import { handleDataSourceError } from "../../shared/error-handling"
 export function createDataSourceRoutes(
   dataSourceCreationService: DataSourceCreationService,
   dataSourceListService: DataSourceListService,
+  dataSourceDetailService: DataSourceDetailService,
 ) {
   const app = new OpenAPIHono()
 
@@ -130,6 +133,117 @@ export function createDataSourceRoutes(
       )
     } catch (error) {
       return handleDataSourceError(c, error, "list")
+    }
+  })
+
+  // ===== データソース詳細取得機能 =====
+
+  /**
+   * パラメータスキーマ
+   */
+  const dataSourceDetailParamsSchema = z.object({
+    id: z.string().uuid().openapi({
+      param: {
+        name: "id",
+        in: "path",
+        required: true,
+      },
+      example: "550e8400-e29b-41d4-a716-446655440000",
+      description: "データソースID（UUID形式）",
+    }),
+  })
+
+  /**
+   * GET /data-sources/{id} ルート定義
+   */
+  const getDataSourceDetailRoute = createRoute({
+    method: "get",
+    path: "/{id}",
+    summary: "データソース詳細取得",
+    description:
+      "指定されたIDのデータソース詳細情報を取得します。認証ユーザーがWatch中のデータソースのみアクセス可能です",
+    tags: ["DataSources"],
+    security: [{ Bearer: [] }],
+    request: {
+      params: dataSourceDetailParamsSchema,
+    },
+    responses: {
+      200: {
+        content: {
+          "application/json": {
+            schema: dataSourceDetailResponseSchema,
+          },
+        },
+        description: "データソース詳細が正常に取得されました",
+      },
+      ...dataSourceErrorResponseSchemaDefinition,
+    },
+  })
+
+  /**
+   * GET /data-sources/{id} - データソース詳細取得エンドポイント
+   */
+  app.openapi(getDataSourceDetailRoute, async (c) => {
+    try {
+      // 認証情報を取得
+      const authenticatedUser = requireAuth(c)
+      const auth0UserId = authenticatedUser.sub
+
+      // パスパラメータを取得
+      const { id } = c.req.valid("param")
+
+      // サービス層でデータソース詳細を取得
+      const result = await dataSourceDetailService.execute({
+        dataSourceId: id,
+        userId: auth0UserId,
+      })
+
+      // レスポンスを返す
+      return c.json(
+        {
+          success: true,
+          data: {
+            dataSource: {
+              id: result.dataSource.id,
+              sourceType: result.dataSource.sourceType,
+              sourceId: result.dataSource.sourceId,
+              name: result.dataSource.name,
+              description: result.dataSource.description,
+              url: result.dataSource.url,
+              isPrivate: result.dataSource.isPrivate,
+              createdAt: result.dataSource.createdAt.toISOString(),
+              updatedAt: result.dataSource.updatedAt.toISOString(),
+            },
+            repository: {
+              id: result.repository.id,
+              dataSourceId: result.repository.dataSourceId,
+              githubId: result.repository.githubId,
+              fullName: result.repository.fullName,
+              owner: result.repository.owner,
+              language: result.repository.language,
+              starsCount: result.repository.starsCount,
+              forksCount: result.repository.forksCount,
+              openIssuesCount: result.repository.openIssuesCount,
+              isFork: result.repository.isFork,
+              createdAt: result.repository.createdAt.toISOString(),
+              updatedAt: result.repository.updatedAt.toISOString(),
+            },
+            userWatch: {
+              id: result.userWatch.id,
+              userId: result.userWatch.userId,
+              dataSourceId: result.userWatch.dataSourceId,
+              notificationEnabled: result.userWatch.notificationEnabled,
+              watchReleases: result.userWatch.watchReleases,
+              watchIssues: result.userWatch.watchIssues,
+              watchPullRequests: result.userWatch.watchPullRequests,
+              addedAt: result.userWatch.addedAt.toISOString(),
+            },
+          },
+        },
+        200,
+      )
+    } catch (error) {
+      return handleDataSourceError(c, error, "detail")
     }
   })
 
