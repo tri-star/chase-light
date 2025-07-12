@@ -1,5 +1,10 @@
 import type { Context } from "hono"
-import { DuplicateDataSourceError, GitHubApiError, UserNotFoundError, DataSourceNotFoundError } from "../../errors"
+import {
+  DuplicateDataSourceError,
+  GitHubApiError,
+  UserNotFoundError,
+  DataSourceNotFoundError,
+} from "../../errors"
 
 /**
  * データソースエラーコード定義
@@ -86,7 +91,7 @@ export class DataSourceError extends Error {
     return new DataSourceError({
       code: DATA_SOURCE_ERROR_CODES.USER_NOT_FOUND,
       message: "ユーザーが見つかりません",
-      httpStatus: 401,
+      httpStatus: 404,
     })
   }
 
@@ -128,7 +133,7 @@ export function handleDataSourceError(
           details: error.details,
         },
       },
-      error.httpStatus as 400 | 401 | 404 | 409 | 500,
+      error.httpStatus as 400 | 404 | 409 | 500,
     )
   }
 
@@ -188,7 +193,7 @@ export function handleDataSourceError(
           message: dataSourceError.message,
         },
       },
-      dataSourceError.httpStatus as 401,
+      dataSourceError.httpStatus as 404,
     )
   }
 
