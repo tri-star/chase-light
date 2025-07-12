@@ -170,8 +170,8 @@ export class DataSourceRepository {
         description: row.dataSourceDescription,
         url: row.dataSourceUrl,
         isPrivate: row.dataSourceIsPrivate,
-        createdAt: row.dataSourceCreatedAt!,
-        updatedAt: row.dataSourceUpdatedAt!,
+        createdAt: row.dataSourceCreatedAt,
+        updatedAt: row.dataSourceUpdatedAt,
       },
       repository: {
         id: row.repositoryId,
@@ -184,8 +184,8 @@ export class DataSourceRepository {
         forksCount: row.repositoryForksCount,
         openIssuesCount: row.repositoryOpenIssuesCount,
         isFork: row.repositoryIsFork,
-        createdAt: row.repositoryCreatedAt!,
-        updatedAt: row.repositoryUpdatedAt!,
+        createdAt: row.repositoryCreatedAt,
+        updatedAt: row.repositoryUpdatedAt,
       },
       userWatch: {
         id: row.userWatchId,
@@ -195,7 +195,7 @@ export class DataSourceRepository {
         watchReleases: row.userWatchWatchReleases,
         watchIssues: row.userWatchWatchIssues,
         watchPullRequests: row.userWatchWatchPullRequests,
-        addedAt: row.userWatchAddedAt!,
+        addedAt: row.userWatchAddedAt,
       },
     }
   }
@@ -359,8 +359,8 @@ export class DataSourceRepository {
         description: row.dataSourceDescription,
         url: row.dataSourceUrl,
         isPrivate: row.dataSourceIsPrivate,
-        createdAt: row.dataSourceCreatedAt!,
-        updatedAt: row.dataSourceUpdatedAt!,
+        createdAt: row.dataSourceCreatedAt,
+        updatedAt: row.dataSourceUpdatedAt,
       },
       repository: {
         id: row.repositoryId,
@@ -373,8 +373,8 @@ export class DataSourceRepository {
         forksCount: row.repositoryForksCount,
         openIssuesCount: row.repositoryOpenIssuesCount,
         isFork: row.repositoryIsFork,
-        createdAt: row.repositoryCreatedAt!,
-        updatedAt: row.repositoryUpdatedAt!,
+        createdAt: row.repositoryCreatedAt,
+        updatedAt: row.repositoryUpdatedAt,
       },
       userWatch: {
         id: row.userWatchId,
@@ -384,7 +384,7 @@ export class DataSourceRepository {
         watchReleases: row.userWatchWatchReleases,
         watchIssues: row.userWatchWatchIssues,
         watchPullRequests: row.userWatchWatchPullRequests,
-        addedAt: row.userWatchAddedAt!,
+        addedAt: row.userWatchAddedAt,
       },
     }))
 
@@ -406,8 +406,8 @@ export class DataSourceRepository {
       description: row.description,
       url: row.url,
       isPrivate: row.isPrivate,
-      createdAt: row.createdAt!,
-      updatedAt: row.updatedAt!,
+      createdAt: row.createdAt,
+      updatedAt: row.updatedAt,
     }
   }
 }
