@@ -201,6 +201,110 @@ describe("DataSourceRepository - Unit Test", () => {
     })
   })
 
+  describe("findByIdWithUserAccess()", () => {
+    test("ユーザーがWatch中のデータソースを詳細情報付きで取得できる", async () => {
+      // テストユーザーを作成
+      const testUser = await TestDataFactory.createTestUser("detail-test-user-1")
+
+      // テストデータソースとリポジトリを作成
+      const testDataSource = await TestDataFactory.createTestDataSource({
+        name: "詳細テスト用リポジトリ",
+        sourceId: "detail-123456789",
+        sourceType: "github",
+      })
+
+      await TestDataFactory.createTestRepository(
+        testDataSource.id, 
+        {
+          fullName: "detail-test/repository",
+          githubId: 987654321,
+          starsCount: 200,
+          language: "TypeScript",
+        }
+      )
+
+      // ユーザーウォッチを作成
+      await TestDataFactory.createTestUserWatch(
+        testUser.id,
+        testDataSource.id,
+        {
+          watchReleases: true,
+          watchIssues: true,
+          watchPullRequests: false,
+          notificationEnabled: true,
+        }
+      )
+
+      // メソッドを実行
+      const result = await dataSourceRepository.findByIdWithUserAccess(
+        testDataSource.id, 
+        testUser.id
+      )
+
+      // 結果を検証
+      expect(result).not.toBeNull()
+      expect(result?.dataSource.id).toBe(testDataSource.id)
+      expect(result?.dataSource.name).toBe("詳細テスト用リポジトリ")
+      expect(result?.repository.fullName).toBe("detail-test/repository")
+      expect(result?.repository.owner).toBe("detail-test")
+      expect(result?.repository.githubId).toBe(987654321)
+      expect(result?.repository.language).toBe("TypeScript")
+      expect(result?.userWatch.userId).toBe(testUser.id)
+      expect(result?.userWatch.watchReleases).toBe(true)
+      expect(result?.userWatch.watchIssues).toBe(true)
+      expect(result?.userWatch.watchPullRequests).toBe(false)
+    })
+
+    test("ユーザーがWatch対象外のデータソースの場合はnullを返す", async () => {
+      // テストユーザーを作成
+      const testUser = await TestDataFactory.createTestUser("detail-test-user-2")
+
+      // 他のユーザーのデータソースを作成
+      const otherUser = await TestDataFactory.createTestUser("other-user")
+      const otherDataSource = await TestDataFactory.createTestDataSource({
+        name: "他ユーザーのリポジトリ",
+        sourceId: "other-123456789",
+        sourceType: "github",
+      })
+
+      await TestDataFactory.createTestRepository(
+        otherDataSource.id,
+        {
+          fullName: "other/repository",
+          githubId: 111111111,
+        }
+      )
+
+      // 他のユーザーのウォッチを作成
+      await TestDataFactory.createTestUserWatch(
+        otherUser.id,
+        otherDataSource.id,
+        {}
+      )
+
+      // メソッドを実行（testUserはotherDataSourceをWatch対象外）
+      const result = await dataSourceRepository.findByIdWithUserAccess(
+        otherDataSource.id,
+        testUser.id
+      )
+
+      // nullが返ることを確認
+      expect(result).toBeNull()
+    })
+
+    test("存在しないデータソースIDの場合はnullを返す", async () => {
+      const testUser = await TestDataFactory.createTestUser("detail-test-user-3")
+      const nonExistentId = uuidv7()
+
+      const result = await dataSourceRepository.findByIdWithUserAccess(
+        nonExistentId,
+        testUser.id
+      )
+
+      expect(result).toBeNull()
+    })
+  })
+
   describe("findByUserWithFilters()", () => {
     test("ユーザーIDでフィルタリングしてデータソース一覧を取得できる", async () => {
       // テストユーザーを作成

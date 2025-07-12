@@ -83,8 +83,8 @@ export class AuthSignupService {
       avatarUrl: userInfo.avatarUrl,
       githubUsername: userInfo.githubUsername ?? null,
       timezone: "Asia/Tokyo", // デフォルトのタイムゾーン
-      createdAt: null,
-      updatedAt: null,
+      createdAt: new Date(),
+      updatedAt: new Date(),
     })
 
     const user = await this.userRepository.findById(newUserId)

@@ -1,7 +1,7 @@
 import { describe, test, expect, beforeEach } from "vitest"
 import { OpenAPIHono } from "@hono/zod-openapi"
 import { createDataSourceRoutes } from "../index"
-import { DataSourceCreationService, DataSourceListService } from "../../../../services"
+import { DataSourceCreationService, DataSourceListService, DataSourceDetailService } from "../../../../services"
 import {
   DataSourceRepository,
   RepositoryRepository,
@@ -23,6 +23,7 @@ describe("DataSources API - Component Test", () => {
   let app: OpenAPIHono
   let dataSourceCreationService: DataSourceCreationService
   let dataSourceListService: DataSourceListService
+  let dataSourceDetailService: DataSourceDetailService
   let githubStub: GitHubApiServiceStub
   let testUser: User
   let testToken: string
@@ -60,6 +61,10 @@ describe("DataSources API - Component Test", () => {
       dataSourceRepository,
       userRepository,
     )
+    dataSourceDetailService = new DataSourceDetailService(
+      dataSourceRepository,
+      userRepository,
+    )
 
     // ルートアプリケーション作成
     app = new OpenAPIHono()
@@ -68,7 +73,11 @@ describe("DataSources API - Component Test", () => {
     app.use("*", globalJWTAuth)
 
     // データソースルートを追加
-    const dataSourceRoutes = createDataSourceRoutes(dataSourceCreationService, dataSourceListService)
+    const dataSourceRoutes = createDataSourceRoutes(
+      dataSourceCreationService, 
+      dataSourceListService,
+      dataSourceDetailService
+    )
     app.route("/", dataSourceRoutes)
   })
 
@@ -471,6 +480,135 @@ describe("DataSources API - Component Test", () => {
 
     test("認証情報がない場合は401エラー", async () => {
       const res = await app.request("/", {
+        method: "GET",
+      })
+
+      expect(res.status).toBe(401)
+    })
+  })
+
+  describe("GET /data-sources/{id} - データソース詳細取得", () => {
+    test("有効なIDでデータソース詳細を取得できる", async () => {
+      // テストデータを作成
+      const testDataSource = await TestDataFactory.createTestDataSource({
+        name: "React",
+        sourceId: "10270250",
+        sourceType: "github",
+      })
+
+      await TestDataFactory.createTestRepository(testDataSource.id, {
+        fullName: "facebook/react",
+        githubId: 10270250,
+        language: "JavaScript",
+        starsCount: 230000,
+      })
+
+      await TestDataFactory.createTestUserWatch(
+        testUser.id,
+        testDataSource.id,
+        {
+          watchReleases: true,
+          watchIssues: false,
+          watchPullRequests: false,
+          notificationEnabled: true,
+        }
+      )
+
+      const res = await app.request(`/${testDataSource.id}`, {
+        method: "GET",
+        headers: {
+          ...AuthTestHelper.createAuthHeaders(testToken),
+        },
+      })
+
+      expect(res.status).toBe(200)
+
+      const responseBody = await res.json()
+      expect(responseBody.success).toBe(true)
+      expect(responseBody.data.dataSource.id).toBe(testDataSource.id)
+      expect(responseBody.data.dataSource.name).toBe("React")
+      expect(responseBody.data.repository.fullName).toBe("facebook/react")
+      expect(responseBody.data.repository.owner).toBe("facebook")
+      expect(responseBody.data.repository.githubId).toBe(10270250)
+      expect(responseBody.data.userWatch.userId).toBe(testUser.id)
+      expect(responseBody.data.userWatch.watchReleases).toBe(true)
+    })
+
+    test("他のユーザーのデータソースにアクセスした場合は404エラー", async () => {
+      // 他のユーザーを作成
+      const otherUser = await TestDataFactory.createTestUser("auth0|other123")
+
+      // 他のユーザーのデータソースを作成
+      const otherDataSource = await TestDataFactory.createTestDataSource({
+        name: "Other Repository",
+        sourceId: "other123456",
+        sourceType: "github",
+      })
+
+      await TestDataFactory.createTestRepository(otherDataSource.id, {
+        fullName: "other/repo",
+        githubId: 999999999,
+      })
+
+      await TestDataFactory.createTestUserWatch(
+        otherUser.id,
+        otherDataSource.id,
+        {}
+      )
+
+      // testUserで他のユーザーのデータソースにアクセス
+      const res = await app.request(`/${otherDataSource.id}`, {
+        method: "GET",
+        headers: {
+          ...AuthTestHelper.createAuthHeaders(testToken),
+        },
+      })
+
+      expect(res.status).toBe(404)
+
+      const responseBody = await res.json()
+      expect(responseBody.success).toBe(false)
+      expect(responseBody.error.code).toBe("DATA_SOURCE_NOT_FOUND")
+    })
+
+    test("存在しないIDの場合は404エラー", async () => {
+      const nonExistentId = "550e8400-e29b-41d4-a716-446655440000"
+
+      const res = await app.request(`/${nonExistentId}`, {
+        method: "GET",
+        headers: {
+          ...AuthTestHelper.createAuthHeaders(testToken),
+        },
+      })
+
+      expect(res.status).toBe(404)
+
+      const responseBody = await res.json()
+      expect(responseBody.success).toBe(false)
+      expect(responseBody.error.code).toBe("DATA_SOURCE_NOT_FOUND")
+    })
+
+    test("無効なUUID形式の場合は400エラー", async () => {
+      const invalidId = "invalid-uuid"
+
+      const res = await app.request(`/${invalidId}`, {
+        method: "GET",
+        headers: {
+          ...AuthTestHelper.createAuthHeaders(testToken),
+        },
+      })
+
+      expect(res.status).toBe(400)
+    })
+
+    test("認証情報がない場合は401エラー", async () => {
+      const testDataSource = await TestDataFactory.createTestDataSource({
+        name: "React",
+        sourceId: "10270250",
+        sourceType: "github",
+      })
+
+      const res = await app.request(`/${testDataSource.id}`, {
         method: "GET",
       })
 

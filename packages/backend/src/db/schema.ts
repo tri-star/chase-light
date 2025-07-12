@@ -23,8 +23,8 @@ export const users = pgTable(
     avatarUrl: text("avatar_url").notNull(),
     githubUsername: text("github_username"),
     timezone: text("timezone").notNull(),
-    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow(),
-    updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow(),
+    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
   },
   (table) => ({
     auth0UserIdIdx: index("idx_users_auth0_user_id").on(table.auth0UserId),
@@ -48,8 +48,8 @@ export const dataSources = pgTable(
     description: text("description").notNull(),
     url: text("url").notNull(),
     isPrivate: boolean("is_private").notNull(),
-    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow(),
-    updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow(),
+    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
   },
   (table) => ({
     sourceTypeSourceIdUnique: uniqueIndex(
@@ -78,8 +78,8 @@ export const repositories = pgTable(
     forksCount: integer("forks_count").notNull(),
     openIssuesCount: integer("open_issues_count").notNull(),
     isFork: boolean("is_fork").notNull(),
-    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow(),
-    updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow(),
+    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
   },
   (table) => ({
     dataSourceIdIdx: index("idx_repositories_data_source_id").on(
@@ -109,7 +109,7 @@ export const userWatches = pgTable(
     watchReleases: boolean("watch_releases").notNull(),
     watchIssues: boolean("watch_issues").notNull(),
     watchPullRequests: boolean("watch_pull_requests").notNull(),
-    addedAt: timestamp("added_at", { withTimezone: true }).defaultNow(),
+    addedAt: timestamp("added_at", { withTimezone: true }).defaultNow().notNull(),
   },
   (table) => ({
     userDataSourceUnique: uniqueIndex(
@@ -137,7 +137,7 @@ export const events = pgTable(
     body: text("body").notNull(),
     version: text("version"),
     createdAt: timestamp("created_at", { withTimezone: true }).notNull(),
-    updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
   },
   (table) => ({
     dataSourceEventTypeUnique: uniqueIndex(
@@ -175,8 +175,8 @@ export const userPreferences = pgTable(
     emailNotifications: boolean("email_notifications").notNull(),
     timezone: text("timezone"),
     theme: text("theme").notNull(),
-    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow(),
-    updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow(),
+    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
   },
   (table) => ({
     userIdIdx: index("idx_user_preferences_user_id").on(table.userId),
@@ -196,8 +196,8 @@ export const bookmarks = pgTable(
     bookmarkType: text("bookmark_type").notNull(),
     targetId: uuid("target_id").notNull(),
     notes: text("notes").notNull(),
-    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow(),
-    updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow(),
+    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
   },
   (table) => ({
     userBookmarkTargetUnique: uniqueIndex(
@@ -233,8 +233,8 @@ export const notifications = pgTable(
     notificationType: text("notification_type").notNull(),
     isRead: boolean("is_read").notNull(),
     sentAt: timestamp("sent_at", { withTimezone: true }),
-    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow(),
-    updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow(),
+    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
   },
   (table) => ({
     userIdIdx: index("idx_notifications_user_id").on(table.userId),
@@ -270,8 +270,8 @@ export const sessions = pgTable(
     accessToken: text("access_token"),
     refreshToken: text("refresh_token"),
     expiresAt: timestamp("expires_at", { withTimezone: true }).notNull(),
-    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow(),
-    updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow(),
+    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
     loggedInAt: timestamp("logged_in_at", { withTimezone: true }).defaultNow(),
   },
   (table) => ({

@@ -1,5 +1,10 @@
 import type { Context } from "hono"
-import { DuplicateDataSourceError, GitHubApiError } from "../../errors"
+import {
+  DuplicateDataSourceError,
+  GitHubApiError,
+  UserNotFoundError,
+  DataSourceNotFoundError,
+} from "../../errors"
 
 /**
  * データソースエラーコード定義
@@ -10,6 +15,8 @@ export const DATA_SOURCE_ERROR_CODES = {
   REPOSITORY_ACCESS_DENIED: "REPOSITORY_ACCESS_DENIED",
   DUPLICATE_REPOSITORY: "DUPLICATE_REPOSITORY",
   GITHUB_API_ERROR: "GITHUB_API_ERROR",
+  USER_NOT_FOUND: "USER_NOT_FOUND",
+  DATA_SOURCE_NOT_FOUND: "DATA_SOURCE_NOT_FOUND",
   INTERNAL_ERROR: "INTERNAL_ERROR",
 } as const
 
@@ -80,6 +87,22 @@ export class DataSourceError extends Error {
     })
   }
 
+  static userNotFound(): DataSourceError {
+    return new DataSourceError({
+      code: DATA_SOURCE_ERROR_CODES.USER_NOT_FOUND,
+      message: "ユーザーが見つかりません",
+      httpStatus: 404,
+    })
+  }
+
+  static dataSourceNotFound(): DataSourceError {
+    return new DataSourceError({
+      code: DATA_SOURCE_ERROR_CODES.DATA_SOURCE_NOT_FOUND,
+      message: "データソースが見つかりません、またはアクセス権限がありません",
+      httpStatus: 404,
+    })
+  }
+
   static internalError(message?: string): DataSourceError {
     return new DataSourceError({
       code: DATA_SOURCE_ERROR_CODES.INTERNAL_ERROR,
@@ -110,7 +133,7 @@ export function handleDataSourceError(
           details: error.details,
         },
       },
-      error.httpStatus as 400 | 401 | 404 | 409 | 500,
+      error.httpStatus as 400 | 404 | 409 | 500,
     )
   }
 
@@ -156,6 +179,36 @@ export function handleDataSourceError(
         },
       },
       dataSourceError.httpStatus as 500,
+    )
+  }
+
+  // ユーザー関連エラー
+  if (error instanceof UserNotFoundError) {
+    const dataSourceError = DataSourceError.userNotFound()
+    return c.json(
+      {
+        success: false,
+        error: {
+          code: dataSourceError.code,
+          message: dataSourceError.message,
+        },
+      },
+      dataSourceError.httpStatus as 404,
+    )
+  }
+
+  // データソース詳細関連エラー
+  if (error instanceof DataSourceNotFoundError) {
+    const dataSourceError = DataSourceError.dataSourceNotFound()
+    return c.json(
+      {
+        success: false,
+        error: {
+          code: dataSourceError.code,
+          message: dataSourceError.message,
+        },
+      },
+      dataSourceError.httpStatus as 404,
     )
   }
 
