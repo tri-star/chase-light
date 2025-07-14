@@ -1,6 +1,6 @@
 import { eq } from "drizzle-orm"
 import { randomUUID } from "crypto"
-import { TransactionManager } from "../../../shared/db/transaction-manager"
+import { TransactionManager } from "../../../shared/db"
 import { repositories } from "../../../db/schema"
 import type { Repository, RepositoryCreationInput } from "../domain"
 
