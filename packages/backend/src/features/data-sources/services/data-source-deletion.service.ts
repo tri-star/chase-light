@@ -41,14 +41,6 @@ export class DataSourceDeletionService {
         throw new UserNotFoundError(input.userId)
       }
 
-      // データソースの存在確認
-      const dataSource = await this.dataSourceRepository.findById(
-        input.dataSourceId,
-      )
-      if (!dataSource) {
-        throw new DataSourceNotFoundError(input.dataSourceId)
-      }
-
       // ユーザーのウォッチ関連付けと関連データを削除
       const success =
         await this.dataSourceRepository.removeUserWatchAndRelatedData(

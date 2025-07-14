@@ -20,6 +20,9 @@ import { setupComponentTest, TestDataFactory } from "../../../../../../test"
 import { AuthTestHelper } from "../../../../../auth/test-helpers/auth-test-helper"
 import { globalJWTAuth } from "../../../../../auth"
 import type { User } from "../../../../../user/domain/user"
+import { db } from "../../../../../../db/connection"
+import { events, notifications } from "../../../../../../db/schema"
+import { eq } from "drizzle-orm"
 
 // Component Test: 実DBを使用してHTTPエンドポイントをテスト
 
@@ -951,6 +954,25 @@ describe("DataSources API - Component Test", () => {
         },
       )
 
+      // テスト用のイベントと通知を作成
+      const testEvent = await TestDataFactory.createTestEvent(testDataSource.id, {
+        eventType: "release",
+        title: "Test Release",
+        body: "Test release body",
+        version: "v1.0.0",
+      })
+
+      const testNotification = await TestDataFactory.createTestNotification(
+        testUser.id,
+        testEvent.id,
+        {
+          title: "New Release Available",
+          message: "Test release notification",
+          notificationType: "release",
+          isRead: false,
+        },
+      )
+
       const res = await app.request(`/${testDataSource.id}`, {
         method: "DELETE",
         headers: {
@@ -973,6 +995,19 @@ describe("DataSources API - Component Test", () => {
       })
 
       expect(getRes.status).toBe(404)
+
+      // eventsとnotificationsが削除されたことを確認
+      const eventExists = await db
+        .select()
+        .from(events)
+        .where(eq(events.id, testEvent.id))
+      expect(eventExists).toHaveLength(0)
+
+      const notificationExists = await db
+        .select()
+        .from(notifications)
+        .where(eq(notifications.id, testNotification.id))
+      expect(notificationExists).toHaveLength(0)
     })
 
     test("他のユーザーのデータソースは削除できない", async () => {
