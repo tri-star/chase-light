@@ -1,6 +1,6 @@
 import { eq, and, ilike, or, gte, lte, sql, asc, desc } from "drizzle-orm"
 import { randomUUID } from "crypto"
-import { db } from "../../../db/connection"
+import { TransactionManager } from "../../../shared/db"
 import { dataSources, repositories, userWatches } from "../../../db/schema"
 import type {
   DataSource,
@@ -22,8 +22,9 @@ export class DataSourceRepository {
   async save(data: DataSourceCreationInput): Promise<DataSource> {
     const now = new Date()
     const id = randomUUID()
+    const connection = TransactionManager.getConnection()
 
-    const [result] = await db
+    const [result] = await connection
       .insert(dataSources)
       .values({
         id,
@@ -55,7 +56,8 @@ export class DataSourceRepository {
    * IDでデータソースを検索
    */
   async findById(id: string): Promise<DataSource | null> {
-    const result = await db
+    const connection = TransactionManager.getConnection()
+    const result = await connection
       .select()
       .from(dataSources)
       .where(eq(dataSources.id, id))
@@ -70,7 +72,8 @@ export class DataSourceRepository {
     sourceType: string,
     sourceId: string,
   ): Promise<DataSource | null> {
-    const result = await db
+    const connection = TransactionManager.getConnection()
+    const result = await connection
       .select()
       .from(dataSources)
       .where(
@@ -87,7 +90,8 @@ export class DataSourceRepository {
    * 複数のデータソースを検索
    */
   async findMany(filters?: { sourceType?: string }): Promise<DataSource[]> {
-    let query = db.select().from(dataSources).$dynamic()
+    const connection = TransactionManager.getConnection()
+    let query = connection.select().from(dataSources).$dynamic()
 
     if (filters?.sourceType) {
       query = query.where(eq(dataSources.sourceType, filters.sourceType))
@@ -101,7 +105,10 @@ export class DataSourceRepository {
    * データソースを削除
    */
   async delete(id: string): Promise<boolean> {
-    const result = await db.delete(dataSources).where(eq(dataSources.id, id))
+    const connection = TransactionManager.getConnection()
+    const result = await connection
+      .delete(dataSources)
+      .where(eq(dataSources.id, id))
 
     return (result.rowCount ?? 0) > 0
   }
@@ -114,8 +121,9 @@ export class DataSourceRepository {
     userId: string,
     updateData: DataSourceUpdateInput,
   ): Promise<DataSource | null> {
+    const connection = TransactionManager.getConnection()
     // まず権限チェック - ユーザーがこのデータソースをウォッチしているか確認
-    const accessCheck = await db
+    const accessCheck = await connection
       .select({ dataSourceId: dataSources.id })
       .from(dataSources)
       .innerJoin(userWatches, eq(dataSources.id, userWatches.dataSourceId))
@@ -140,7 +148,7 @@ export class DataSourceRepository {
     }
 
     // 更新実行
-    const [result] = await db
+    const [result] = await connection
       .update(dataSources)
       .set(updateFields)
       .where(eq(dataSources.id, id))
@@ -156,7 +164,8 @@ export class DataSourceRepository {
     id: string,
     userId: string,
   ): Promise<DataSourceListItem | null> {
-    const results = await db
+    const connection = TransactionManager.getConnection()
+    const results = await connection
       .select({
         // データソース
         dataSourceId: dataSources.id,
@@ -246,8 +255,9 @@ export class DataSourceRepository {
     userId: string,
     filters: DataSourceListFilters = {},
   ): Promise<DataSourceListResult> {
+    const connection = TransactionManager.getConnection()
     // 基本的なクエリ構築
-    let query = db
+    let query = connection
       .select({
         // データソース
         dataSourceId: dataSources.id,
@@ -377,7 +387,7 @@ export class DataSourceRepository {
     }
 
     // 総件数を取得（ページネーション用）
-    const countQuery = db
+    const countQuery = connection
       .select({ count: sql<number>`count(*)` })
       .from(dataSources)
       .innerJoin(repositories, eq(dataSources.id, repositories.dataSourceId))

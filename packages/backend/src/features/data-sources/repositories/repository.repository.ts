@@ -1,6 +1,6 @@
 import { eq } from "drizzle-orm"
 import { randomUUID } from "crypto"
-import { db } from "../../../db/connection"
+import { TransactionManager } from "../../../shared/db/transaction-manager"
 import { repositories } from "../../../db/schema"
 import type { Repository, RepositoryCreationInput } from "../domain"
 
@@ -16,7 +16,7 @@ export class RepositoryRepository {
     const now = new Date()
     const id = randomUUID()
 
-    const [result] = await db
+    const [result] = await TransactionManager.getConnection()
       .insert(repositories)
       .values({
         id,
@@ -53,7 +53,7 @@ export class RepositoryRepository {
    * IDでリポジトリを検索
    */
   async findById(id: string): Promise<Repository | null> {
-    const result = await db
+    const result = await TransactionManager.getConnection()
       .select()
       .from(repositories)
       .where(eq(repositories.id, id))
@@ -65,7 +65,7 @@ export class RepositoryRepository {
    * データソースIDでリポジトリを検索
    */
   async findByDataSourceId(dataSourceId: string): Promise<Repository | null> {
-    const result = await db
+    const result = await TransactionManager.getConnection()
       .select()
       .from(repositories)
       .where(eq(repositories.dataSourceId, dataSourceId))
@@ -77,7 +77,7 @@ export class RepositoryRepository {
    * GitHub IDでリポジトリを検索
    */
   async findByGithubId(githubId: number): Promise<Repository | null> {
-    const result = await db
+    const result = await TransactionManager.getConnection()
       .select()
       .from(repositories)
       .where(eq(repositories.githubId, githubId))
@@ -89,7 +89,9 @@ export class RepositoryRepository {
    * リポジトリを削除
    */
   async delete(id: string): Promise<boolean> {
-    const result = await db.delete(repositories).where(eq(repositories.id, id))
+    const result = await TransactionManager.getConnection()
+      .delete(repositories)
+      .where(eq(repositories.id, id))
 
     return (result.rowCount ?? 0) > 0
   }
