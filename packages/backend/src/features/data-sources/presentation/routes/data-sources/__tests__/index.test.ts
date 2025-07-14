@@ -6,6 +6,7 @@ import {
   DataSourceListService,
   DataSourceDetailService,
   DataSourceUpdateService,
+  DataSourceDeletionService,
 } from "../../../../services"
 import {
   DataSourceRepository,
@@ -30,6 +31,7 @@ describe("DataSources API - Component Test", () => {
   let dataSourceListService: DataSourceListService
   let dataSourceDetailService: DataSourceDetailService
   let dataSourceUpdateService: DataSourceUpdateService
+  let dataSourceDeletionService: DataSourceDeletionService
   let githubStub: GitHubApiServiceStub
   let testUser: User
   let testToken: string
@@ -76,6 +78,10 @@ describe("DataSources API - Component Test", () => {
       userWatchRepository,
       userRepository,
     )
+    dataSourceDeletionService = new DataSourceDeletionService(
+      dataSourceRepository,
+      userRepository,
+    )
 
     // ルートアプリケーション作成
     app = new OpenAPIHono()
@@ -89,6 +95,7 @@ describe("DataSources API - Component Test", () => {
       dataSourceListService,
       dataSourceDetailService,
       dataSourceUpdateService,
+      dataSourceDeletionService,
     )
     app.route("/", dataSourceRoutes)
   })
@@ -914,6 +921,166 @@ describe("DataSources API - Component Test", () => {
         testDataSource.description,
       )
       expect(result.data.userWatch.notificationEnabled).toBe(true)
+    })
+  })
+
+  describe("DELETE /data-sources/{id} - データソース削除", () => {
+    test("有効なIDでデータソースの監視が削除される", async () => {
+      // テストデータを作成
+      const testDataSource = await TestDataFactory.createTestDataSource({
+        name: "React",
+        sourceId: "10270250",
+        sourceType: "github",
+      })
+
+      await TestDataFactory.createTestRepository(testDataSource.id, {
+        fullName: "facebook/react",
+        githubId: 10270250,
+        language: "JavaScript",
+        starsCount: 230000,
+      })
+
+      await TestDataFactory.createTestUserWatch(
+        testUser.id,
+        testDataSource.id,
+        {
+          watchReleases: true,
+          watchIssues: false,
+          watchPullRequests: false,
+          notificationEnabled: true,
+        },
+      )
+
+      const res = await app.request(`/${testDataSource.id}`, {
+        method: "DELETE",
+        headers: {
+          ...AuthTestHelper.createAuthHeaders(testToken),
+        },
+      })
+
+      expect(res.status).toBe(204)
+
+      // レスポンスボディは空であることを確認
+      const responseText = await res.text()
+      expect(responseText).toBe("")
+
+      // 削除後に詳細取得すると404になることを確認
+      const getRes = await app.request(`/${testDataSource.id}`, {
+        method: "GET",
+        headers: {
+          ...AuthTestHelper.createAuthHeaders(testToken),
+        },
+      })
+
+      expect(getRes.status).toBe(404)
+    })
+
+    test("他のユーザーのデータソースは削除できない", async () => {
+      // 他のユーザーを作成
+      const otherUser = await TestDataFactory.createTestUser("auth0|other123")
+
+      // 他のユーザーのデータソースを作成
+      const otherDataSource = await TestDataFactory.createTestDataSource({
+        name: "Other Repository",
+        sourceId: "other123456",
+        sourceType: "github",
+      })
+
+      await TestDataFactory.createTestRepository(otherDataSource.id, {
+        fullName: "other/repo",
+        githubId: 999999999,
+      })
+
+      await TestDataFactory.createTestUserWatch(
+        otherUser.id,
+        otherDataSource.id,
+        {},
+      )
+
+      // testUserで他のユーザーのデータソースを削除しようとする
+      const res = await app.request(`/${otherDataSource.id}`, {
+        method: "DELETE",
+        headers: {
+          ...AuthTestHelper.createAuthHeaders(testToken),
+        },
+      })
+
+      expect(res.status).toBe(404)
+
+      const responseBody = await res.json()
+      expect(responseBody.success).toBe(false)
+      expect(responseBody.error.code).toBe("DATA_SOURCE_NOT_FOUND")
+    })
+
+    test("存在しないIDの場合は404エラー", async () => {
+      const nonExistentId = "550e8400-e29b-41d4-a716-446655440000"
+
+      const res = await app.request(`/${nonExistentId}`, {
+        method: "DELETE",
+        headers: {
+          ...AuthTestHelper.createAuthHeaders(testToken),
+        },
+      })
+
+      expect(res.status).toBe(404)
+
+      const responseBody = await res.json()
+      expect(responseBody.success).toBe(false)
+      expect(responseBody.error.code).toBe("DATA_SOURCE_NOT_FOUND")
+    })
+
+    test("無効なUUID形式の場合は400エラー", async () => {
+      const invalidId = "invalid-uuid"
+
+      const res = await app.request(`/${invalidId}`, {
+        method: "DELETE",
+        headers: {
+          ...AuthTestHelper.createAuthHeaders(testToken),
+        },
+      })
+
+      expect(res.status).toBe(400)
+    })
+
+    test("認証情報がない場合は401エラー", async () => {
+      const testDataSource = await TestDataFactory.createTestDataSource({
+        name: "React",
+        sourceId: "10270250",
+        sourceType: "github",
+      })
+
+      const res = await app.request(`/${testDataSource.id}`, {
+        method: "DELETE",
+      })
+
+      expect(res.status).toBe(401)
+    })
+
+    test("ユーザーがウォッチしていないデータソースは削除できない", async () => {
+      // データソースのみ作成（ユーザーウォッチなし）
+      const testDataSource = await TestDataFactory.createTestDataSource({
+        name: "Unwatched Repository",
+        sourceId: "unwatched123",
+        sourceType: "github",
+      })
+
+      await TestDataFactory.createTestRepository(testDataSource.id, {
+        fullName: "unwatched/repo",
+        githubId: 123456789,
+      })
+
+      const res = await app.request(`/${testDataSource.id}`, {
+        method: "DELETE",
+        headers: {
+          ...AuthTestHelper.createAuthHeaders(testToken),
+        },
+      })
+
+      expect(res.status).toBe(404)
+
+      const responseBody = await res.json()
+      expect(responseBody.success).toBe(false)
+      expect(responseBody.error.code).toBe("DATA_SOURCE_NOT_FOUND")
     })
   })
 })

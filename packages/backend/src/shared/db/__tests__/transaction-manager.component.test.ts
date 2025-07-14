@@ -17,8 +17,12 @@ describe("TransactionManager - Component Test", () => {
     })
 
     it("トランザクション内ではトランザクションインスタンスを返す", async () => {
-      let connectionInTransaction: ReturnType<typeof TransactionManager.getConnection> | undefined
-      let connectionOutsideTransaction: ReturnType<typeof TransactionManager.getConnection>
+      let connectionInTransaction:
+        | ReturnType<typeof TransactionManager.getConnection>
+        | undefined
+      let connectionOutsideTransaction: ReturnType<
+        typeof TransactionManager.getConnection
+      >
 
       connectionOutsideTransaction = TransactionManager.getConnection()
 
@@ -59,7 +63,7 @@ describe("TransactionManager - Component Test", () => {
       // トランザクション内でユーザーを作成
       const result = await TransactionManager.transaction(async () => {
         const connection = TransactionManager.getConnection()
-        
+
         // ユーザーを挿入
         const [insertedUser] = await connection
           .insert(users)
@@ -89,9 +93,15 @@ describe("TransactionManager - Component Test", () => {
     })
 
     it("ネストしたトランザクションでは既存のトランザクションを再利用する", async () => {
-      let outerTransaction: ReturnType<typeof TransactionManager.getConnection> | undefined
-      let innerTransaction: ReturnType<typeof TransactionManager.getConnection> | undefined
-      let middleTransaction: ReturnType<typeof TransactionManager.getConnection> | undefined
+      let outerTransaction:
+        | ReturnType<typeof TransactionManager.getConnection>
+        | undefined
+      let innerTransaction:
+        | ReturnType<typeof TransactionManager.getConnection>
+        | undefined
+      let middleTransaction:
+        | ReturnType<typeof TransactionManager.getConnection>
+        | undefined
 
       await TransactionManager.transaction(async () => {
         outerTransaction = TransactionManager.getConnection()
@@ -157,12 +167,12 @@ describe("TransactionManager - Component Test", () => {
 
       // トランザクションがロールバックされていることを確認
       const connection = TransactionManager.getConnection()
-      
+
       const userResult = await connection
         .select()
         .from(users)
         .where(eq(users.id, testUserId))
-      
+
       const dataSourceResult = await connection
         .select()
         .from(dataSources)
@@ -175,35 +185,41 @@ describe("TransactionManager - Component Test", () => {
     it("複数のデータベース操作を含む複雑なトランザクションが正常に動作する", async () => {
       const userId = uuidv7()
       const dataSourceId = uuidv7()
-      
+
       const result = await TransactionManager.transaction(async () => {
         const connection = TransactionManager.getConnection()
 
         // ユーザーを作成
-        const [user] = await connection.insert(users).values({
-          id: userId,
-          auth0UserId: "auth0|complex_tx_user",
-          email: "complex@example.com",
-          name: "Complex Transaction User",
-          githubUsername: "complexuser",
-          avatarUrl: "https://example.com/avatar.jpg",
-          timezone: "Asia/Tokyo",
-          createdAt: new Date(),
-          updatedAt: new Date(),
-        }).returning()
+        const [user] = await connection
+          .insert(users)
+          .values({
+            id: userId,
+            auth0UserId: "auth0|complex_tx_user",
+            email: "complex@example.com",
+            name: "Complex Transaction User",
+            githubUsername: "complexuser",
+            avatarUrl: "https://example.com/avatar.jpg",
+            timezone: "Asia/Tokyo",
+            createdAt: new Date(),
+            updatedAt: new Date(),
+          })
+          .returning()
 
         // データソースを作成
-        const [dataSource] = await connection.insert(dataSources).values({
-          id: dataSourceId,
-          sourceType: "github",
-          sourceId: "complex_test_456",
-          name: "Complex Test Repository",
-          description: "Complex transaction test",
-          url: "https://github.com/test/complex",
-          isPrivate: false,
-          createdAt: new Date(),
-          updatedAt: new Date(),
-        }).returning()
+        const [dataSource] = await connection
+          .insert(dataSources)
+          .values({
+            id: dataSourceId,
+            sourceType: "github",
+            sourceId: "complex_test_456",
+            name: "Complex Test Repository",
+            description: "Complex transaction test",
+            url: "https://github.com/test/complex",
+            isPrivate: false,
+            createdAt: new Date(),
+            updatedAt: new Date(),
+          })
+          .returning()
 
         // 作成したデータを検索
         const createdUser = await connection
@@ -220,18 +236,18 @@ describe("TransactionManager - Component Test", () => {
           user,
           dataSource,
           foundUser: createdUser[0],
-          foundDataSource: createdDataSource[0]
+          foundDataSource: createdDataSource[0],
         }
       })
 
       // トランザクション外からも正しくデータが取得できることを確認
       const connection = TransactionManager.getConnection()
-      
+
       const finalUser = await connection
         .select()
         .from(users)
         .where(eq(users.id, userId))
-      
+
       const finalDataSource = await connection
         .select()
         .from(dataSources)
@@ -253,9 +269,13 @@ describe("TransactionManager - Component Test", () => {
     })
 
     it("Repository層とService層の組み合わせでトランザクションが正常に動作する", async () => {
-      const { DataSourceRepository } = await import("../../../features/data-sources/repositories/data-source.repository")
-      const { RepositoryRepository } = await import("../../../features/data-sources/repositories/repository.repository")
-      
+      const { DataSourceRepository } = await import(
+        "../../../features/data-sources/repositories/data-source.repository"
+      )
+      const { RepositoryRepository } = await import(
+        "../../../features/data-sources/repositories/repository.repository"
+      )
+
       const dataSourceRepo = new DataSourceRepository()
       const repositoryRepo = new RepositoryRepository()
 
@@ -286,8 +306,12 @@ describe("TransactionManager - Component Test", () => {
       })
 
       // トランザクション完了後に実際にデータが保存されていることを確認
-      const savedDataSource = await dataSourceRepo.findById(result.dataSource.id)
-      const savedRepository = await repositoryRepo.findByDataSourceId(result.dataSource.id)
+      const savedDataSource = await dataSourceRepo.findById(
+        result.dataSource.id,
+      )
+      const savedRepository = await repositoryRepo.findByDataSourceId(
+        result.dataSource.id,
+      )
 
       expect(savedDataSource).not.toBeNull()
       expect(savedRepository).not.toBeNull()

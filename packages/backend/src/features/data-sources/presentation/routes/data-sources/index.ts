@@ -6,6 +6,7 @@ import type {
   DataSourceListService,
   DataSourceDetailService,
   DataSourceUpdateService,
+  DataSourceDeletionService,
 } from "../../../services"
 import {
   createDataSourceRequestSchema,
@@ -25,6 +26,7 @@ export function createDataSourceRoutes(
   dataSourceListService: DataSourceListService,
   dataSourceDetailService: DataSourceDetailService,
   dataSourceUpdateService: DataSourceUpdateService,
+  dataSourceDeletionService: DataSourceDeletionService,
 ) {
   const app = new OpenAPIHono()
 
@@ -554,6 +556,55 @@ export function createDataSourceRoutes(
       )
     } catch (error) {
       return handleDataSourceError(c, error, "update")
+    }
+  })
+
+  // ===== データソース削除機能 =====
+
+  /**
+   * DELETE /data-sources/{id} ルート定義
+   */
+  const deleteDataSourceRoute = createRoute({
+    method: "delete",
+    path: "/{id}",
+    summary: "データソース削除",
+    description:
+      "指定されたIDのデータソース監視を削除します。認証ユーザーがWatch中のデータソースのみ削除可能です",
+    tags: ["DataSources"],
+    security: [{ Bearer: [] }],
+    request: {
+      params: dataSourceDetailParamsSchema,
+    },
+    responses: {
+      204: {
+        description: "データソースが正常に削除されました",
+      },
+      ...dataSourceErrorResponseSchemaDefinition,
+    },
+  })
+
+  /**
+   * DELETE /data-sources/{id} - データソース削除エンドポイント
+   */
+  app.openapi(deleteDataSourceRoute, async (c) => {
+    try {
+      // 認証情報を取得
+      const authenticatedUser = requireAuth(c)
+      const auth0UserId = authenticatedUser.sub
+
+      // パスパラメータを取得
+      const { id } = c.req.valid("param")
+
+      // サービス層でデータソースを削除
+      await dataSourceDeletionService.execute({
+        dataSourceId: id,
+        userId: auth0UserId,
+      })
+
+      // 204 No Content レスポンスを返す
+      return c.body(null, 204)
+    } catch (error) {
+      return handleDataSourceError(c, error, "deletion")
     }
   })
 
