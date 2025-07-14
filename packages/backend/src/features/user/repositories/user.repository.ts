@@ -1,5 +1,5 @@
 import { eq, like } from "drizzle-orm"
-import { TransactionManager } from "../../../shared/db/transaction-manager"
+import { TransactionManager } from "../../../shared/db"
 import { users } from "../../../db/schema"
 import { User } from "../domain/user"
 
