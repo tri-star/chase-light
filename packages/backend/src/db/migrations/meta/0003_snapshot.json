@@ -174,12 +174,8 @@
           "name": "bookmarks_user_id_users_id_fk",
           "tableFrom": "bookmarks",
           "tableTo": "users",
-          "columnsFrom": [
-            "user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["user_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -597,12 +593,8 @@
           "name": "events_data_source_id_data_sources_id_fk",
           "tableFrom": "events",
           "tableTo": "data_sources",
-          "columnsFrom": [
-            "data_source_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["data_source_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -834,12 +826,8 @@
           "name": "notifications_user_id_users_id_fk",
           "tableFrom": "notifications",
           "tableTo": "users",
-          "columnsFrom": [
-            "user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["user_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -847,12 +835,8 @@
           "name": "notifications_event_id_events_id_fk",
           "tableFrom": "notifications",
           "tableTo": "events",
-          "columnsFrom": [
-            "event_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["event_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -1048,12 +1032,8 @@
           "name": "repositories_data_source_id_data_sources_id_fk",
           "tableFrom": "repositories",
           "tableTo": "data_sources",
-          "columnsFrom": [
-            "data_source_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["data_source_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -1063,9 +1043,7 @@
         "repositories_github_id_unique": {
           "name": "repositories_github_id_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "github_id"
-          ]
+          "columns": ["github_id"]
         }
       },
       "policies": {},
@@ -1307,12 +1285,8 @@
           "name": "user_preferences_user_id_users_id_fk",
           "tableFrom": "user_preferences",
           "tableTo": "users",
-          "columnsFrom": [
-            "user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["user_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -1322,9 +1296,7 @@
         "user_preferences_user_id_unique": {
           "name": "user_preferences_user_id_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "user_id"
-          ]
+          "columns": ["user_id"]
         }
       },
       "policies": {},
@@ -1458,12 +1430,8 @@
           "name": "user_watches_user_id_users_id_fk",
           "tableFrom": "user_watches",
           "tableTo": "users",
-          "columnsFrom": [
-            "user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["user_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -1471,12 +1439,8 @@
           "name": "user_watches_data_source_id_data_sources_id_fk",
           "tableFrom": "user_watches",
           "tableTo": "data_sources",
-          "columnsFrom": [
-            "data_source_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["data_source_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -1631,16 +1595,12 @@
         "users_auth0_user_id_unique": {
           "name": "users_auth0_user_id_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "auth0_user_id"
-          ]
+          "columns": ["auth0_user_id"]
         },
         "users_email_unique": {
           "name": "users_email_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "email"
-          ]
+          "columns": ["email"]
         }
       },
       "policies": {},
