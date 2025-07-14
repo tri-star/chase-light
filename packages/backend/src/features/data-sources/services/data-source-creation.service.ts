@@ -13,6 +13,7 @@ import {
 } from "../errors"
 import type { GitHubApiServiceInterface } from "./interfaces/github-api-service.interface"
 import { createGitHubApiService } from "./github-api-service.factory"
+import { TransactionManager } from "../../../shared/db"
 
 /**
  * データソース作成サービスの入力DTO
@@ -61,68 +62,70 @@ export class DataSourceCreationService {
   async execute(
     input: CreateDataSourceInputDto,
   ): Promise<CreateDataSourceOutputDto> {
-    // GitHub URL から owner/repo を抽出
-    const { owner, repo } = this.parseGitHubUrl(input.repositoryUrl)
+    return await TransactionManager.transaction(async () => {
+      // GitHub URL から owner/repo を抽出
+      const { owner, repo } = this.parseGitHubUrl(input.repositoryUrl)
 
-    // GitHub API でリポジトリ情報を取得
-    const githubRepo = await this.githubApiService!.getRepository(owner, repo)
+      // GitHub API でリポジトリ情報を取得
+      const githubRepo = await this.githubApiService!.getRepository(owner, repo)
 
-    // 重複チェック
-    const existingDataSource =
-      await this.dataSourceRepository.findBySourceTypeAndId(
-        DATA_SOURCE_TYPES.GITHUB,
-        githubRepo.id.toString(),
-      )
+      // 重複チェック
+      const existingDataSource =
+        await this.dataSourceRepository.findBySourceTypeAndId(
+          DATA_SOURCE_TYPES.GITHUB,
+          githubRepo.id.toString(),
+        )
 
-    if (existingDataSource) {
-      throw new DuplicateDataSourceError(
-        `Repository ${githubRepo.full_name} is already registered`,
-      )
-    }
+      if (existingDataSource) {
+        throw new DuplicateDataSourceError(
+          `Repository ${githubRepo.full_name} is already registered`,
+        )
+      }
 
-    // データソース作成
-    const dataSource = await this.dataSourceRepository.save({
-      sourceType: DATA_SOURCE_TYPES.GITHUB,
-      sourceId: githubRepo.id.toString(),
-      name: input.name || githubRepo.name,
-      description: input.description || githubRepo.description || "",
-      url: githubRepo.html_url,
-      isPrivate: githubRepo.private,
+      // データソース作成
+      const dataSource = await this.dataSourceRepository.save({
+        sourceType: DATA_SOURCE_TYPES.GITHUB,
+        sourceId: githubRepo.id.toString(),
+        name: input.name || githubRepo.name,
+        description: input.description || githubRepo.description || "",
+        url: githubRepo.html_url,
+        isPrivate: githubRepo.private,
+      })
+
+      // リポジトリ情報作成
+      const repository = await this.repositoryRepository.save({
+        dataSourceId: dataSource.id,
+        githubId: githubRepo.id,
+        fullName: githubRepo.full_name,
+        language: githubRepo.language,
+        starsCount: githubRepo.stargazers_count,
+        forksCount: githubRepo.forks_count,
+        openIssuesCount: githubRepo.open_issues_count,
+        isFork: githubRepo.fork,
+      })
+
+      // Auth0 UserIDからユーザーのDBレコードを取得
+      const user = await this.userRepository.findByAuth0Id(input.userId)
+      if (!user) {
+        throw new UserNotFoundError(input.userId)
+      }
+
+      // ユーザーウォッチ作成
+      const userWatch = await this.userWatchRepository.save({
+        userId: user.id,
+        dataSourceId: dataSource.id,
+        notificationEnabled: input.notificationEnabled ?? true,
+        watchReleases: input.watchReleases ?? true,
+        watchIssues: input.watchIssues ?? false,
+        watchPullRequests: input.watchPullRequests ?? false,
+      })
+
+      return {
+        dataSource,
+        repository,
+        userWatch,
+      }
     })
-
-    // リポジトリ情報作成
-    const repository = await this.repositoryRepository.save({
-      dataSourceId: dataSource.id,
-      githubId: githubRepo.id,
-      fullName: githubRepo.full_name,
-      language: githubRepo.language,
-      starsCount: githubRepo.stargazers_count,
-      forksCount: githubRepo.forks_count,
-      openIssuesCount: githubRepo.open_issues_count,
-      isFork: githubRepo.fork,
-    })
-
-    // Auth0 UserIDからユーザーのDBレコードを取得
-    const user = await this.userRepository.findByAuth0Id(input.userId)
-    if (!user) {
-      throw new UserNotFoundError(input.userId)
-    }
-
-    // ユーザーウォッチ作成
-    const userWatch = await this.userWatchRepository.save({
-      userId: user.id,
-      dataSourceId: dataSource.id,
-      notificationEnabled: input.notificationEnabled ?? true,
-      watchReleases: input.watchReleases ?? true,
-      watchIssues: input.watchIssues ?? false,
-      watchPullRequests: input.watchPullRequests ?? false,
-    })
-
-    return {
-      dataSource,
-      repository,
-      userWatch,
-    }
   }
 
   /**

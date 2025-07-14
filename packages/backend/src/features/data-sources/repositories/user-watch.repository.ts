@@ -1,6 +1,6 @@
 import { eq, and } from "drizzle-orm"
 import { randomUUID } from "crypto"
-import { db } from "../../../db/connection"
+import { TransactionManager } from "../../../shared/db"
 import { userWatches } from "../../../db/schema"
 import type {
   UserWatch,
@@ -20,7 +20,7 @@ export class UserWatchRepository {
     const now = new Date()
     const id = randomUUID()
 
-    const [result] = await db
+    const [result] = await TransactionManager.getConnection()
       .insert(userWatches)
       .values({
         id,
@@ -50,7 +50,7 @@ export class UserWatchRepository {
    * IDでユーザーウォッチを検索
    */
   async findById(id: string): Promise<UserWatch | null> {
-    const result = await db
+    const result = await TransactionManager.getConnection()
       .select()
       .from(userWatches)
       .where(eq(userWatches.id, id))
@@ -65,7 +65,7 @@ export class UserWatchRepository {
     userId: string,
     dataSourceId: string,
   ): Promise<UserWatch | null> {
-    const result = await db
+    const result = await TransactionManager.getConnection()
       .select()
       .from(userWatches)
       .where(
@@ -82,7 +82,7 @@ export class UserWatchRepository {
    * ユーザーIDで複数のユーザーウォッチを検索
    */
   async findByUserId(userId: string): Promise<UserWatch[]> {
-    const results = await db
+    const results = await TransactionManager.getConnection()
       .select()
       .from(userWatches)
       .where(eq(userWatches.userId, userId))
@@ -94,7 +94,9 @@ export class UserWatchRepository {
    * ユーザーウォッチを削除
    */
   async delete(id: string): Promise<boolean> {
-    const result = await db.delete(userWatches).where(eq(userWatches.id, id))
+    const result = await TransactionManager.getConnection()
+      .delete(userWatches)
+      .where(eq(userWatches.id, id))
 
     return (result.rowCount ?? 0) > 0
   }
@@ -106,7 +108,7 @@ export class UserWatchRepository {
     userId: string,
     dataSourceId: string,
   ): Promise<boolean> {
-    const result = await db
+    const result = await TransactionManager.getConnection()
       .delete(userWatches)
       .where(
         and(
@@ -149,7 +151,7 @@ export class UserWatchRepository {
     }
 
     // 更新実行
-    const [result] = await db
+    const [result] = await TransactionManager.getConnection()
       .update(userWatches)
       .set(updateFields)
       .where(

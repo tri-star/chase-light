@@ -1,5 +1,5 @@
 import { eq, like } from "drizzle-orm"
-import { db } from "../../../db/connection"
+import { TransactionManager } from "../../../shared/db"
 import { users } from "../../../db/schema"
 import { User } from "../domain/user"
 
@@ -18,7 +18,7 @@ export class UserRepository {
   async save(data: User): Promise<void> {
     // onConflictDoUpdateを使用してアトミックなupsert操作を実行し、競合状態を回避します。
     const { id: _id, createdAt: _createdAt, ...updateFields } = data
-    await db
+    await TransactionManager.getConnection()
       .insert(users)
       .values({ ...data, updatedAt: new Date() })
       .onConflictDoUpdate({
@@ -28,7 +28,7 @@ export class UserRepository {
   }
 
   async findById(id: string): Promise<User | null> {
-    const [user] = await db
+    const [user] = await TransactionManager.getConnection()
       .select()
       .from(users)
       .where(eq(users.id, id))
@@ -37,7 +37,7 @@ export class UserRepository {
   }
 
   async findByAuth0Id(auth0UserId: string): Promise<User | null> {
-    const [user] = await db
+    const [user] = await TransactionManager.getConnection()
       .select()
       .from(users)
       .where(eq(users.auth0UserId, auth0UserId))
@@ -46,7 +46,7 @@ export class UserRepository {
   }
 
   async findByEmail(email: string): Promise<User | null> {
-    const [user] = await db
+    const [user] = await TransactionManager.getConnection()
       .select()
       .from(users)
       .where(eq(users.email, email))
@@ -55,7 +55,7 @@ export class UserRepository {
   }
 
   async findByGithubUsername(githubUsername: string): Promise<User | null> {
-    const [user] = await db
+    const [user] = await TransactionManager.getConnection()
       .select()
       .from(users)
       .where(eq(users.githubUsername, githubUsername))
@@ -64,7 +64,10 @@ export class UserRepository {
   }
 
   async findMany(options?: QueryOptions): Promise<User[]> {
-    let query = db.select().from(users).$dynamic()
+    let query = TransactionManager.getConnection()
+      .select()
+      .from(users)
+      .$dynamic()
 
     if (options?.queries.githubUserName) {
       query = query.where(
@@ -90,7 +93,9 @@ export class UserRepository {
   }
 
   async delete(id: string): Promise<boolean> {
-    const result = await db.delete(users).where(eq(users.id, id))
+    const result = await TransactionManager.getConnection()
+      .delete(users)
+      .where(eq(users.id, id))
     return result.rowCount !== null && result.rowCount > 0
   }
 }

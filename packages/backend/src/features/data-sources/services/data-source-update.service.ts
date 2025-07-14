@@ -2,6 +2,7 @@ import type { DataSource, Repository, UserWatch } from "../domain"
 import type { DataSourceRepository, UserWatchRepository } from "../repositories"
 import type { UserRepository } from "../../user/repositories/user.repository"
 import { DataSourceNotFoundError, UserNotFoundError } from "../errors"
+import { TransactionManager } from "../../../shared/db"
 
 /**
  * データソース更新サービスの入力DTO
@@ -43,69 +44,72 @@ export class DataSourceUpdateService {
   async execute(
     input: UpdateDataSourceInputDto,
   ): Promise<UpdateDataSourceOutputDto> {
-    // Auth0 UserIDからユーザーのDBレコードを取得
-    const user = await this.userRepository.findByAuth0Id(input.userId)
-    if (!user) {
-      throw new UserNotFoundError(input.userId)
-    }
+    return await TransactionManager.transaction(async () => {
+      // Auth0 UserIDからユーザーのDBレコードを取得
+      const user = await this.userRepository.findByAuth0Id(input.userId)
+      if (!user) {
+        throw new UserNotFoundError(input.userId)
+      }
 
-    // 権限チェック付きでデータソース詳細を取得
-    const currentData = await this.dataSourceRepository.findByIdWithUserAccess(
-      input.dataSourceId,
-      user.id,
-    )
-
-    if (!currentData) {
-      throw new DataSourceNotFoundError(input.dataSourceId)
-    }
-
-    // データソース基本情報の更新（name, descriptionが指定されている場合のみ）
-    let updatedDataSource = currentData.dataSource
-    if (input.name !== undefined || input.description !== undefined) {
-      const updateResult =
-        await this.dataSourceRepository.updateByIdWithUserAccess(
+      // 権限チェック付きでデータソース詳細を取得
+      const currentData =
+        await this.dataSourceRepository.findByIdWithUserAccess(
           input.dataSourceId,
           user.id,
-          {
-            name: input.name,
-            description: input.description,
-          },
         )
 
-      if (updateResult) {
-        updatedDataSource = updateResult
+      if (!currentData) {
+        throw new DataSourceNotFoundError(input.dataSourceId)
       }
-    }
 
-    // ユーザーウォッチ設定の更新（監視設定が指定されている場合のみ）
-    let updatedUserWatch = currentData.userWatch
-    if (
-      input.notificationEnabled !== undefined ||
-      input.watchReleases !== undefined ||
-      input.watchIssues !== undefined ||
-      input.watchPullRequests !== undefined
-    ) {
-      const watchUpdateResult =
-        await this.userWatchRepository.updateByUserAndDataSource(
-          user.id,
-          input.dataSourceId,
-          {
-            notificationEnabled: input.notificationEnabled,
-            watchReleases: input.watchReleases,
-            watchIssues: input.watchIssues,
-            watchPullRequests: input.watchPullRequests,
-          },
-        )
+      // データソース基本情報の更新（name, descriptionが指定されている場合のみ）
+      let updatedDataSource = currentData.dataSource
+      if (input.name !== undefined || input.description !== undefined) {
+        const updateResult =
+          await this.dataSourceRepository.updateByIdWithUserAccess(
+            input.dataSourceId,
+            user.id,
+            {
+              name: input.name,
+              description: input.description,
+            },
+          )
 
-      if (watchUpdateResult) {
-        updatedUserWatch = watchUpdateResult
+        if (updateResult) {
+          updatedDataSource = updateResult
+        }
       }
-    }
 
-    return {
-      dataSource: updatedDataSource,
-      repository: currentData.repository,
-      userWatch: updatedUserWatch,
-    }
+      // ユーザーウォッチ設定の更新（監視設定が指定されている場合のみ）
+      let updatedUserWatch = currentData.userWatch
+      if (
+        input.notificationEnabled !== undefined ||
+        input.watchReleases !== undefined ||
+        input.watchIssues !== undefined ||
+        input.watchPullRequests !== undefined
+      ) {
+        const watchUpdateResult =
+          await this.userWatchRepository.updateByUserAndDataSource(
+            user.id,
+            input.dataSourceId,
+            {
+              notificationEnabled: input.notificationEnabled,
+              watchReleases: input.watchReleases,
+              watchIssues: input.watchIssues,
+              watchPullRequests: input.watchPullRequests,
+            },
+          )
+
+        if (watchUpdateResult) {
+          updatedUserWatch = watchUpdateResult
+        }
+      }
+
+      return {
+        dataSource: updatedDataSource,
+        repository: currentData.repository,
+        userWatch: updatedUserWatch,
+      }
+    })
   }
 }
