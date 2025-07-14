@@ -1,16 +1,22 @@
 import { z } from "@hono/zod-openapi"
-import { dataSourceSchema, repositorySchema, userWatchSchema } from "./data-source-response.schema"
+import {
+  dataSourceSchema,
+  repositorySchema,
+  userWatchSchema,
+} from "./data-source-response.schema"
 
 /**
  * GitHubリポジトリスキーマ（一覧用）
  * ownerフィールドを追加
  */
-export const repositoryListItemSchema = repositorySchema.extend({
-  owner: z.string().openapi({
-    example: "facebook",
-    description: "GitHubリポジトリのオーナー名（fullNameから抽出）",
-  }),
-}).openapi("RepositoryListItem")
+export const repositoryListItemSchema = repositorySchema
+  .extend({
+    owner: z.string().openapi({
+      example: "facebook",
+      description: "GitHubリポジトリのオーナー名（fullNameから抽出）",
+    }),
+  })
+  .openapi("RepositoryListItem")
 
 /**
  * データソース一覧項目スキーマ
@@ -79,6 +85,8 @@ export const dataSourceListResponseSchema = z
   })
   .openapi("DataSourceListResponse")
 
-export type DataSourceListResponse = z.infer<typeof dataSourceListResponseSchema>
+export type DataSourceListResponse = z.infer<
+  typeof dataSourceListResponseSchema
+>
 export type DataSourceListItem = z.infer<typeof dataSourceListItemSchema>
 export type Pagination = z.infer<typeof paginationSchema>

@@ -43,7 +43,9 @@ export class DataSourceListService {
   /**
    * データソース一覧を取得
    */
-  async execute(input: DataSourceListInputDto): Promise<DataSourceListOutputDto> {
+  async execute(
+    input: DataSourceListInputDto,
+  ): Promise<DataSourceListOutputDto> {
     // Auth0 UserIDからユーザーのDBレコードを取得
     const user = await this.userRepository.findByAuth0Id(input.userId)
     if (!user) {

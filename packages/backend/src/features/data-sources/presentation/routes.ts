@@ -3,6 +3,7 @@ import type {
   DataSourceCreationService,
   DataSourceListService,
   DataSourceDetailService,
+  DataSourceUpdateService,
 } from "../services"
 import { createDataSourceRoutes } from "./routes/data-sources"
 
@@ -13,13 +14,19 @@ export function createDataSourcePresentationRoutes(
   dataSourceCreationService: DataSourceCreationService,
   dataSourceListService: DataSourceListService,
   dataSourceDetailService: DataSourceDetailService,
+  dataSourceUpdateService: DataSourceUpdateService,
 ) {
   const app = new OpenAPIHono()
 
   // /data-sources 配下のルートを登録
   app.route(
     "/data-sources",
-    createDataSourceRoutes(dataSourceCreationService, dataSourceListService, dataSourceDetailService),
+    createDataSourceRoutes(
+      dataSourceCreationService,
+      dataSourceListService,
+      dataSourceDetailService,
+      dataSourceUpdateService,
+    ),
   )
 
   return app

@@ -1,7 +1,12 @@
 import { describe, test, expect, beforeEach } from "vitest"
 import { OpenAPIHono } from "@hono/zod-openapi"
 import { createDataSourceRoutes } from "../index"
-import { DataSourceCreationService, DataSourceListService, DataSourceDetailService } from "../../../../services"
+import {
+  DataSourceCreationService,
+  DataSourceListService,
+  DataSourceDetailService,
+  DataSourceUpdateService,
+} from "../../../../services"
 import {
   DataSourceRepository,
   RepositoryRepository,
@@ -24,6 +29,7 @@ describe("DataSources API - Component Test", () => {
   let dataSourceCreationService: DataSourceCreationService
   let dataSourceListService: DataSourceListService
   let dataSourceDetailService: DataSourceDetailService
+  let dataSourceUpdateService: DataSourceUpdateService
   let githubStub: GitHubApiServiceStub
   let testUser: User
   let testToken: string
@@ -65,6 +71,11 @@ describe("DataSources API - Component Test", () => {
       dataSourceRepository,
       userRepository,
     )
+    dataSourceUpdateService = new DataSourceUpdateService(
+      dataSourceRepository,
+      userWatchRepository,
+      userRepository,
+    )
 
     // ルートアプリケーション作成
     app = new OpenAPIHono()
@@ -74,9 +85,10 @@ describe("DataSources API - Component Test", () => {
 
     // データソースルートを追加
     const dataSourceRoutes = createDataSourceRoutes(
-      dataSourceCreationService, 
+      dataSourceCreationService,
       dataSourceListService,
-      dataSourceDetailService
+      dataSourceDetailService,
+      dataSourceUpdateService,
     )
     app.route("/", dataSourceRoutes)
   })
@@ -391,7 +403,11 @@ describe("DataSources API - Component Test", () => {
     test("名前フィルタリングが正常に動作する", async () => {
       // テストデータを作成
       await createTestDataSource("React", "facebook/react", 10270250)
-      await createTestDataSource("ReactNative", "facebook/react-native", 29028775)
+      await createTestDataSource(
+        "ReactNative",
+        "facebook/react-native",
+        29028775,
+      )
       await createTestDataSource("Vue", "vuejs/core", 11730342)
 
       const res = await app.request("/?name=React", {
@@ -413,7 +429,11 @@ describe("DataSources API - Component Test", () => {
     test("オーナーフィルタリングが正常に動作する", async () => {
       // テストデータを作成
       await createTestDataSource("React", "facebook/react", 10270250)
-      await createTestDataSource("ReactNative", "facebook/react-native", 29028775)
+      await createTestDataSource(
+        "ReactNative",
+        "facebook/react-native",
+        29028775,
+      )
       await createTestDataSource("Vue", "vuejs/core", 11730342)
 
       const res = await app.request("/?owner=facebook", {
@@ -449,7 +469,9 @@ describe("DataSources API - Component Test", () => {
       const responseBody = await res.json()
       expect(responseBody.success).toBe(true)
       expect(responseBody.data.items).toHaveLength(1)
-      expect(responseBody.data.items[0].repository.fullName).toContain("facebook")
+      expect(responseBody.data.items[0].repository.fullName).toContain(
+        "facebook",
+      )
     })
 
     test("ページネーションが正常に動作する", async () => {
@@ -511,7 +533,7 @@ describe("DataSources API - Component Test", () => {
           watchIssues: false,
           watchPullRequests: false,
           notificationEnabled: true,
-        }
+        },
       )
 
       const res = await app.request(`/${testDataSource.id}`, {
@@ -553,7 +575,7 @@ describe("DataSources API - Component Test", () => {
       await TestDataFactory.createTestUserWatch(
         otherUser.id,
         otherDataSource.id,
-        {}
+        {},
       )
 
       // testUserで他のユーザーのデータソースにアクセス
@@ -613,6 +635,285 @@ describe("DataSources API - Component Test", () => {
       })
 
       expect(res.status).toBe(401)
+    })
+  })
+
+  describe("PUT /data-sources/{id} - データソース更新", () => {
+    test("有効なリクエストでデータソースが更新される", async () => {
+      // テストデータを作成
+      const testDataSource = await TestDataFactory.createTestDataSource({
+        name: "Original React",
+        sourceId: "10270250",
+        sourceType: "github",
+      })
+
+      const testRepository = await TestDataFactory.createTestRepository(
+        testDataSource.id,
+        {
+          githubId: 10270250,
+          fullName: "facebook/react",
+        },
+      )
+
+      const testUserWatch = await TestDataFactory.createTestUserWatch(
+        testUser.id,
+        testDataSource.id,
+        {
+          notificationEnabled: true,
+          watchReleases: true,
+          watchIssues: false,
+          watchPullRequests: false,
+        },
+      )
+
+      const updateRequest = {
+        name: "Updated React Library",
+        description: "Updated description for React",
+        notificationEnabled: false,
+        watchReleases: false,
+        watchIssues: true,
+        watchPullRequests: true,
+      }
+
+      const res = await app.request(`/${testDataSource.id}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          ...AuthTestHelper.createAuthHeaders(testToken),
+        },
+        body: JSON.stringify(updateRequest),
+      })
+
+      expect(res.status).toBe(200)
+
+      const result = await res.json()
+      expect(result).toMatchObject({
+        success: true,
+        data: {
+          dataSource: {
+            id: testDataSource.id,
+            name: "Updated React Library",
+            description: "Updated description for React",
+            sourceType: "github",
+            sourceId: "10270250",
+          },
+          repository: {
+            id: testRepository.id,
+            dataSourceId: testDataSource.id,
+            githubId: 10270250,
+            fullName: "facebook/react",
+          },
+          userWatch: {
+            id: testUserWatch.id,
+            userId: testUser.id,
+            dataSourceId: testDataSource.id,
+            notificationEnabled: false,
+            watchReleases: false,
+            watchIssues: true,
+            watchPullRequests: true,
+          },
+        },
+      })
+    })
+
+    test("部分更新が正常に動作する", async () => {
+      // テストデータを作成
+      const testDataSource = await TestDataFactory.createTestDataSource({
+        name: "Original Name",
+        sourceId: "10270250",
+        sourceType: "github",
+      })
+
+      await TestDataFactory.createTestRepository(testDataSource.id, {
+        githubId: 10270250,
+        fullName: "facebook/react",
+      })
+
+      await TestDataFactory.createTestUserWatch(
+        testUser.id,
+        testDataSource.id,
+        {
+          notificationEnabled: true,
+          watchReleases: true,
+          watchIssues: false,
+          watchPullRequests: false,
+        },
+      )
+
+      // 名前のみ更新
+      const updateRequest = {
+        name: "Updated Name Only",
+      }
+
+      const res = await app.request(`/${testDataSource.id}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          ...AuthTestHelper.createAuthHeaders(testToken),
+        },
+        body: JSON.stringify(updateRequest),
+      })
+
+      expect(res.status).toBe(200)
+
+      const result = await res.json()
+      expect(result.data.dataSource.name).toBe("Updated Name Only")
+      expect(result.data.dataSource.description).toBe(
+        testDataSource.description,
+      ) // 元の値のまま
+      // UserWatch設定も元のまま
+      expect(result.data.userWatch.notificationEnabled).toBe(true)
+      expect(result.data.userWatch.watchReleases).toBe(true)
+      expect(result.data.userWatch.watchIssues).toBe(false)
+      expect(result.data.userWatch.watchPullRequests).toBe(false)
+    })
+
+    test("他のユーザーのデータソースは更新できない", async () => {
+      // 他のユーザーのデータソースを作成
+      const otherUser = await TestDataFactory.createTestUser("auth0|other456")
+      const testDataSource = await TestDataFactory.createTestDataSource({
+        name: "Other User's DataSource",
+        sourceId: "10270250",
+        sourceType: "github",
+      })
+
+      await TestDataFactory.createTestRepository(testDataSource.id, {
+        githubId: 10270250,
+        fullName: "facebook/react",
+      })
+
+      await TestDataFactory.createTestUserWatch(
+        otherUser.id,
+        testDataSource.id,
+        {
+          notificationEnabled: true,
+          watchReleases: true,
+          watchIssues: false,
+          watchPullRequests: false,
+        },
+      )
+
+      const updateRequest = {
+        name: "Hacked Name",
+      }
+
+      const res = await app.request(`/${testDataSource.id}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          ...AuthTestHelper.createAuthHeaders(testToken),
+        },
+        body: JSON.stringify(updateRequest),
+      })
+
+      expect(res.status).toBe(404)
+    })
+
+    test("存在しないデータソースの更新は404エラー", async () => {
+      const nonExistentId = "550e8400-e29b-41d4-a716-446655440000"
+
+      const updateRequest = {
+        name: "New Name",
+      }
+
+      const res = await app.request(`/${nonExistentId}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          ...AuthTestHelper.createAuthHeaders(testToken),
+        },
+        body: JSON.stringify(updateRequest),
+      })
+
+      expect(res.status).toBe(404)
+    })
+
+    test("無効なUUIDは400エラー", async () => {
+      const invalidId = "invalid-uuid"
+
+      const updateRequest = {
+        name: "New Name",
+      }
+
+      const res = await app.request(`/${invalidId}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          ...AuthTestHelper.createAuthHeaders(testToken),
+        },
+        body: JSON.stringify(updateRequest),
+      })
+
+      expect(res.status).toBe(400)
+    })
+
+    test("認証情報がない場合は401エラー", async () => {
+      const testDataSource = await TestDataFactory.createTestDataSource({
+        name: "Test DataSource",
+        sourceId: "10270250",
+        sourceType: "github",
+      })
+
+      const updateRequest = {
+        name: "New Name",
+      }
+
+      const res = await app.request(`/${testDataSource.id}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(updateRequest),
+      })
+
+      expect(res.status).toBe(401)
+    })
+
+    test("空のリクエストボディでも正常処理", async () => {
+      // テストデータを作成
+      const testDataSource = await TestDataFactory.createTestDataSource({
+        name: "Original Name",
+        sourceId: "10270250",
+        sourceType: "github",
+      })
+
+      await TestDataFactory.createTestRepository(testDataSource.id, {
+        githubId: 10270250,
+        fullName: "facebook/react",
+      })
+
+      await TestDataFactory.createTestUserWatch(
+        testUser.id,
+        testDataSource.id,
+        {
+          notificationEnabled: true,
+          watchReleases: true,
+          watchIssues: false,
+          watchPullRequests: false,
+        },
+      )
+
+      // 空のリクエストボディ
+      const updateRequest = {}
+
+      const res = await app.request(`/${testDataSource.id}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          ...AuthTestHelper.createAuthHeaders(testToken),
+        },
+        body: JSON.stringify(updateRequest),
+      })
+
+      expect(res.status).toBe(200)
+
+      const result = await res.json()
+      // 元の値がそのまま返される
+      expect(result.data.dataSource.name).toBe(testDataSource.name)
+      expect(result.data.dataSource.description).toBe(
+        testDataSource.description,
+      )
+      expect(result.data.userWatch.notificationEnabled).toBe(true)
     })
   })
 })

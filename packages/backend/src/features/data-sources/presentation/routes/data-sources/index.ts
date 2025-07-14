@@ -1,7 +1,12 @@
 import { OpenAPIHono, createRoute } from "@hono/zod-openapi"
 import { z } from "@hono/zod-openapi"
 import { requireAuth } from "../../../../auth/middleware/jwt-auth.middleware"
-import type { DataSourceCreationService, DataSourceListService, DataSourceDetailService } from "../../../services"
+import type {
+  DataSourceCreationService,
+  DataSourceListService,
+  DataSourceDetailService,
+  DataSourceUpdateService,
+} from "../../../services"
 import {
   createDataSourceRequestSchema,
   createDataSourceResponseSchema,
@@ -19,6 +24,7 @@ export function createDataSourceRoutes(
   dataSourceCreationService: DataSourceCreationService,
   dataSourceListService: DataSourceListService,
   dataSourceDetailService: DataSourceDetailService,
+  dataSourceUpdateService: DataSourceUpdateService,
 ) {
   const app = new OpenAPIHono()
 
@@ -73,10 +79,18 @@ export function createDataSourceRoutes(
           sourceType: query.sourceType,
           isPrivate: query.isPrivate,
           language: query.language,
-          createdAfter: query.createdAfter ? new Date(query.createdAfter) : undefined,
-          createdBefore: query.createdBefore ? new Date(query.createdBefore) : undefined,
-          updatedAfter: query.updatedAfter ? new Date(query.updatedAfter) : undefined,
-          updatedBefore: query.updatedBefore ? new Date(query.updatedBefore) : undefined,
+          createdAfter: query.createdAfter
+            ? new Date(query.createdAfter)
+            : undefined,
+          createdBefore: query.createdBefore
+            ? new Date(query.createdBefore)
+            : undefined,
+          updatedAfter: query.updatedAfter
+            ? new Date(query.updatedAfter)
+            : undefined,
+          updatedBefore: query.updatedBefore
+            ? new Date(query.updatedBefore)
+            : undefined,
         },
         page: query.page,
         perPage: query.perPage,
@@ -142,15 +156,18 @@ export function createDataSourceRoutes(
    * パラメータスキーマ
    */
   const dataSourceDetailParamsSchema = z.object({
-    id: z.string().uuid().openapi({
-      param: {
-        name: "id",
-        in: "path",
-        required: true,
-      },
-      example: "550e8400-e29b-41d4-a716-446655440000",
-      description: "データソースID（UUID形式）",
-    }),
+    id: z
+      .string()
+      .uuid()
+      .openapi({
+        param: {
+          name: "id",
+          in: "path",
+          required: true,
+        },
+        example: "550e8400-e29b-41d4-a716-446655440000",
+        description: "データソースID（UUID形式）",
+      }),
   })
 
   /**
@@ -352,6 +369,191 @@ export function createDataSourceRoutes(
       )
     } catch (error) {
       return handleDataSourceError(c, error, "creation")
+    }
+  })
+
+  // ===== データソース更新機能 =====
+
+  /**
+   * リクエストスキーマ
+   */
+  const updateDataSourceRequestSchema = z.object({
+    name: z.string().min(1).max(255).optional().openapi({
+      example: "My Custom Repository Name",
+      description: "データソースの表示名（カスタマイズ可能）",
+    }),
+    description: z.string().max(1000).optional().openapi({
+      example: "This is my customized description for this repository",
+      description: "データソースの説明（カスタマイズ可能）",
+    }),
+    notificationEnabled: z.boolean().optional().openapi({
+      example: true,
+      description: "通知の有効/無効",
+    }),
+    watchReleases: z.boolean().optional().openapi({
+      example: true,
+      description: "リリース監視の有効/無効",
+    }),
+    watchIssues: z.boolean().optional().openapi({
+      example: false,
+      description: "Issue監視の有効/無効",
+    }),
+    watchPullRequests: z.boolean().optional().openapi({
+      example: false,
+      description: "PR監視の有効/無効",
+    }),
+  })
+
+  /**
+   * レスポンススキーマ
+   */
+  const updateDataSourceResponseSchema = z.object({
+    success: z.literal(true),
+    data: z.object({
+      dataSource: z.object({
+        id: z.string().uuid(),
+        sourceType: z.string(),
+        sourceId: z.string(),
+        name: z.string(),
+        description: z.string(),
+        url: z.string(),
+        isPrivate: z.boolean(),
+        createdAt: z.string(),
+        updatedAt: z.string(),
+      }),
+      repository: z.object({
+        id: z.string().uuid(),
+        dataSourceId: z.string().uuid(),
+        githubId: z.number(),
+        fullName: z.string(),
+        owner: z.string(),
+        language: z.string().nullable(),
+        starsCount: z.number(),
+        forksCount: z.number(),
+        openIssuesCount: z.number(),
+        isFork: z.boolean(),
+        createdAt: z.string(),
+        updatedAt: z.string(),
+      }),
+      userWatch: z.object({
+        id: z.string().uuid(),
+        userId: z.string().uuid(),
+        dataSourceId: z.string().uuid(),
+        notificationEnabled: z.boolean(),
+        watchReleases: z.boolean(),
+        watchIssues: z.boolean(),
+        watchPullRequests: z.boolean(),
+        addedAt: z.string(),
+      }),
+    }),
+  })
+
+  /**
+   * PUT /data-sources/{id} ルート定義
+   */
+  const updateDataSourceRoute = createRoute({
+    method: "put",
+    path: "/{id}",
+    summary: "データソース更新",
+    description:
+      "指定されたIDのデータソース設定を更新します。認証ユーザーがWatch中のデータソースのみ更新可能です",
+    tags: ["DataSources"],
+    security: [{ Bearer: [] }],
+    request: {
+      params: dataSourceDetailParamsSchema,
+      body: {
+        content: {
+          "application/json": {
+            schema: updateDataSourceRequestSchema,
+          },
+        },
+        description: "データソース更新リクエスト",
+      },
+    },
+    responses: {
+      200: {
+        content: {
+          "application/json": {
+            schema: updateDataSourceResponseSchema,
+          },
+        },
+        description: "データソースが正常に更新されました",
+      },
+      ...dataSourceErrorResponseSchemaDefinition,
+    },
+  })
+
+  /**
+   * PUT /data-sources/{id} - データソース更新エンドポイント
+   */
+  app.openapi(updateDataSourceRoute, async (c) => {
+    try {
+      // 認証情報を取得
+      const authenticatedUser = requireAuth(c)
+      const auth0UserId = authenticatedUser.sub
+
+      // パスパラメータとリクエストボディを取得
+      const { id } = c.req.valid("param")
+      const body = c.req.valid("json")
+
+      // サービス層でデータソースを更新
+      const result = await dataSourceUpdateService.execute({
+        dataSourceId: id,
+        userId: auth0UserId,
+        name: body.name,
+        description: body.description,
+        notificationEnabled: body.notificationEnabled,
+        watchReleases: body.watchReleases,
+        watchIssues: body.watchIssues,
+        watchPullRequests: body.watchPullRequests,
+      })
+
+      // レスポンスを返す
+      return c.json(
+        {
+          success: true as const,
+          data: {
+            dataSource: {
+              id: result.dataSource.id,
+              sourceType: result.dataSource.sourceType,
+              sourceId: result.dataSource.sourceId,
+              name: result.dataSource.name,
+              description: result.dataSource.description,
+              url: result.dataSource.url,
+              isPrivate: result.dataSource.isPrivate,
+              createdAt: result.dataSource.createdAt.toISOString(),
+              updatedAt: result.dataSource.updatedAt.toISOString(),
+            },
+            repository: {
+              id: result.repository.id,
+              dataSourceId: result.repository.dataSourceId,
+              githubId: result.repository.githubId,
+              fullName: result.repository.fullName,
+              owner: result.repository.owner,
+              language: result.repository.language,
+              starsCount: result.repository.starsCount,
+              forksCount: result.repository.forksCount,
+              openIssuesCount: result.repository.openIssuesCount,
+              isFork: result.repository.isFork,
+              createdAt: result.repository.createdAt.toISOString(),
+              updatedAt: result.repository.updatedAt.toISOString(),
+            },
+            userWatch: {
+              id: result.userWatch.id,
+              userId: result.userWatch.userId,
+              dataSourceId: result.userWatch.dataSourceId,
+              notificationEnabled: result.userWatch.notificationEnabled,
+              watchReleases: result.userWatch.watchReleases,
+              watchIssues: result.userWatch.watchIssues,
+              watchPullRequests: result.userWatch.watchPullRequests,
+              addedAt: result.userWatch.addedAt.toISOString(),
+            },
+          },
+        },
+        200,
+      )
+    } catch (error) {
+      return handleDataSourceError(c, error, "update")
     }
   })
 

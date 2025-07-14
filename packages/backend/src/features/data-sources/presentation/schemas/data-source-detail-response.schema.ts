@@ -14,4 +14,6 @@ export const dataSourceDetailResponseSchema = z
   })
   .openapi("DataSourceDetailResponse")
 
-export type DataSourceDetailResponse = z.infer<typeof dataSourceDetailResponseSchema>
+export type DataSourceDetailResponse = z.infer<
+  typeof dataSourceDetailResponseSchema
+>

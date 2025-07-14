@@ -29,7 +29,9 @@ export class DataSourceDetailService {
   /**
    * データソース詳細取得を実行
    */
-  async execute(input: DataSourceDetailInputDto): Promise<DataSourceDetailOutputDto> {
+  async execute(
+    input: DataSourceDetailInputDto,
+  ): Promise<DataSourceDetailOutputDto> {
     // ユーザーの存在確認
     const user = await this.userRepository.findByAuth0Id(input.userId)
     if (!user) {
@@ -37,14 +39,15 @@ export class DataSourceDetailService {
     }
 
     // ユーザーがWatch中のデータソースを詳細情報付きで取得
-    const dataSourceDetail = await this.dataSourceRepository.findByIdWithUserAccess(
-      input.dataSourceId,
-      user.id
-    )
+    const dataSourceDetail =
+      await this.dataSourceRepository.findByIdWithUserAccess(
+        input.dataSourceId,
+        user.id,
+      )
 
     if (!dataSourceDetail) {
       throw new DataSourceNotFoundError(
-        `データソースが見つかりません、またはアクセス権限がありません: ${input.dataSourceId}`
+        `データソースが見つかりません、またはアクセス権限がありません: ${input.dataSourceId}`,
       )
     }
 

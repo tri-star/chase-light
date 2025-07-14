@@ -4,7 +4,12 @@ import {
   UserWatchRepository,
 } from "./repositories"
 import { UserRepository } from "../user/repositories/user.repository"
-import { DataSourceCreationService, DataSourceListService, DataSourceDetailService } from "./services"
+import {
+  DataSourceCreationService,
+  DataSourceListService,
+  DataSourceDetailService,
+  DataSourceUpdateService,
+} from "./services"
 import { createDataSourcePresentationRoutes } from "./presentation"
 
 /**
@@ -38,11 +43,18 @@ const dataSourceDetailService = new DataSourceDetailService(
   userRepository,
 )
 
+const dataSourceUpdateService = new DataSourceUpdateService(
+  dataSourceRepository,
+  userWatchRepository,
+  userRepository,
+)
+
 // 依存性を注入してルーターを構築
 const dataSourceRoutes = createDataSourcePresentationRoutes(
   dataSourceCreationService,
   dataSourceListService,
   dataSourceDetailService,
+  dataSourceUpdateService,
 )
 
 export default dataSourceRoutes
