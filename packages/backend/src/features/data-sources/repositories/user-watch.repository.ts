@@ -2,7 +2,11 @@ import { eq, and } from "drizzle-orm"
 import { randomUUID } from "crypto"
 import { db } from "../../../db/connection"
 import { userWatches } from "../../../db/schema"
-import type { UserWatch, UserWatchCreationInput } from "../domain"
+import type {
+  UserWatch,
+  UserWatchCreationInput,
+  UserWatchUpdateInput,
+} from "../domain"
 
 /**
  * ユーザーウォッチのリポジトリクラス
@@ -112,6 +116,51 @@ export class UserWatchRepository {
       )
 
     return (result.rowCount ?? 0) > 0
+  }
+
+  /**
+   * ユーザーIDとデータソースIDでユーザーウォッチを更新
+   */
+  async updateByUserAndDataSource(
+    userId: string,
+    dataSourceId: string,
+    updateData: UserWatchUpdateInput,
+  ): Promise<UserWatch | null> {
+    // 更新用オブジェクト作成
+    const updateFields: Partial<typeof userWatches.$inferInsert> = {}
+
+    // 指定されたフィールドのみ更新
+    if (updateData.notificationEnabled !== undefined) {
+      updateFields.notificationEnabled = updateData.notificationEnabled
+    }
+    if (updateData.watchReleases !== undefined) {
+      updateFields.watchReleases = updateData.watchReleases
+    }
+    if (updateData.watchIssues !== undefined) {
+      updateFields.watchIssues = updateData.watchIssues
+    }
+    if (updateData.watchPullRequests !== undefined) {
+      updateFields.watchPullRequests = updateData.watchPullRequests
+    }
+
+    // 更新するフィールドがない場合は現在の値を返す
+    if (Object.keys(updateFields).length === 0) {
+      return this.findByUserAndDataSource(userId, dataSourceId)
+    }
+
+    // 更新実行
+    const [result] = await db
+      .update(userWatches)
+      .set(updateFields)
+      .where(
+        and(
+          eq(userWatches.userId, userId),
+          eq(userWatches.dataSourceId, dataSourceId),
+        ),
+      )
+      .returning()
+
+    return result ? this.mapToDomain(result) : null
   }
 
   /**

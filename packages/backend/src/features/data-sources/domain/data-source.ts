@@ -27,6 +27,14 @@ export type DataSourceCreationInput = {
 }
 
 /**
+ * データソース更新時の入力型
+ */
+export type DataSourceUpdateInput = {
+  name?: string
+  description?: string
+}
+
+/**
  * データソースのソースタイプ定数
  */
 export const DATA_SOURCE_TYPES = {

@@ -24,3 +24,13 @@ export type UserWatchCreationInput = {
   watchIssues: boolean
   watchPullRequests: boolean
 }
+
+/**
+ * ユーザーウォッチ更新時の入力型
+ */
+export type UserWatchUpdateInput = {
+  notificationEnabled?: boolean
+  watchReleases?: boolean
+  watchIssues?: boolean
+  watchPullRequests?: boolean
+}

@@ -2,12 +2,13 @@ import { eq, and, ilike, or, gte, lte, sql, asc, desc } from "drizzle-orm"
 import { randomUUID } from "crypto"
 import { db } from "../../../db/connection"
 import { dataSources, repositories, userWatches } from "../../../db/schema"
-import type { 
-  DataSource, 
-  DataSourceCreationInput, 
-  DataSourceListFilters, 
+import type {
+  DataSource,
+  DataSourceCreationInput,
+  DataSourceUpdateInput,
+  DataSourceListFilters,
   DataSourceListResult,
-  DataSourceListItem
+  DataSourceListItem,
 } from "../domain"
 
 /**
@@ -106,6 +107,49 @@ export class DataSourceRepository {
   }
 
   /**
+   * ユーザーアクセス権限チェック付きでデータソースを更新
+   */
+  async updateByIdWithUserAccess(
+    id: string,
+    userId: string,
+    updateData: DataSourceUpdateInput,
+  ): Promise<DataSource | null> {
+    // まず権限チェック - ユーザーがこのデータソースをウォッチしているか確認
+    const accessCheck = await db
+      .select({ dataSourceId: dataSources.id })
+      .from(dataSources)
+      .innerJoin(userWatches, eq(dataSources.id, userWatches.dataSourceId))
+      .where(and(eq(dataSources.id, id), eq(userWatches.userId, userId)))
+
+    if (accessCheck.length === 0) {
+      return null // アクセス権限なし
+    }
+
+    // 更新用オブジェクト作成
+    const now = new Date()
+    const updateFields: Partial<typeof dataSources.$inferInsert> = {
+      updatedAt: now,
+    }
+
+    // 指定されたフィールドのみ更新
+    if (updateData.name !== undefined) {
+      updateFields.name = updateData.name
+    }
+    if (updateData.description !== undefined) {
+      updateFields.description = updateData.description
+    }
+
+    // 更新実行
+    const [result] = await db
+      .update(dataSources)
+      .set(updateFields)
+      .where(eq(dataSources.id, id))
+      .returning()
+
+    return result ? this.mapToDomain(result) : null
+  }
+
+  /**
    * ユーザーのアクセス権限を持つデータソースを詳細情報付きで取得
    */
   async findByIdWithUserAccess(
@@ -149,12 +193,7 @@ export class DataSourceRepository {
       .from(dataSources)
       .innerJoin(repositories, eq(dataSources.id, repositories.dataSourceId))
       .innerJoin(userWatches, eq(dataSources.id, userWatches.dataSourceId))
-      .where(
-        and(
-          eq(dataSources.id, id),
-          eq(userWatches.userId, userId)
-        )
-      )
+      .where(and(eq(dataSources.id, id), eq(userWatches.userId, userId)))
 
     if (results.length === 0) {
       return null
@@ -259,7 +298,10 @@ export class DataSourceRepository {
     if (filters.owner) {
       // GitHubのfullNameから所有者を抽出（例: "facebook/react" -> "facebook"）
       whereConditions.push(
-        ilike(sql`split_part(${repositories.fullName}, '/', 1)`, `%${filters.owner}%`)
+        ilike(
+          sql`split_part(${repositories.fullName}, '/', 1)`,
+          `%${filters.owner}%`,
+        ),
       )
     }
 
@@ -269,7 +311,7 @@ export class DataSourceRepository {
         ilike(dataSources.name, `%${filters.search}%`),
         ilike(dataSources.description, `%${filters.search}%`),
         ilike(dataSources.url, `%${filters.search}%`),
-        ilike(repositories.fullName, `%${filters.search}%`)
+        ilike(repositories.fullName, `%${filters.search}%`),
       )
       if (searchCondition) {
         whereConditions.push(searchCondition)

@@ -103,6 +103,7 @@ export class RepositoryRepository {
       dataSourceId: row.dataSourceId,
       githubId: row.githubId,
       fullName: row.fullName,
+      owner: row.fullName.split("/")[0] || "",
       language: row.language,
       starsCount: row.starsCount,
       forksCount: row.forksCount,

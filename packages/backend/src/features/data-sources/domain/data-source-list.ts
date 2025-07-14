@@ -44,11 +44,11 @@ export type DataSourceListFilters = {
   createdBefore?: Date
   updatedAfter?: Date
   updatedBefore?: Date
-  
+
   // ソート
   sortBy?: "name" | "createdAt" | "updatedAt" | "addedAt" | "starsCount"
   sortOrder?: "asc" | "desc"
-  
+
   // ページネーション
   offset?: number
   limit?: number

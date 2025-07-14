@@ -174,6 +174,7 @@ export class TestDataFactory {
       dataSourceId,
       githubId: 123456789,
       fullName: "test/repository",
+      owner: "test",
       language: "TypeScript",
       starsCount: 100,
       forksCount: 20,

@@ -7,6 +7,7 @@ export type Repository = {
   dataSourceId: string
   githubId: number
   fullName: string
+  owner: string
   language: string | null
   starsCount: number
   forksCount: number
