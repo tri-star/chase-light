@@ -1,6 +1,6 @@
 import { eq, and } from "drizzle-orm"
 import { randomUUID } from "crypto"
-import { TransactionManager } from "../../../shared/db/transaction-manager"
+import { TransactionManager } from "../../../shared/db"
 import { userWatches } from "../../../db/schema"
 import type {
   UserWatch,
