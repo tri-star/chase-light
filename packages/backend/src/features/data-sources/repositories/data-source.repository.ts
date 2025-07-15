@@ -1,4 +1,15 @@
-import { eq, and, ilike, or, gte, lte, sql, asc, desc, inArray } from "drizzle-orm"
+import {
+  eq,
+  and,
+  ilike,
+  or,
+  gte,
+  lte,
+  sql,
+  asc,
+  desc,
+  inArray,
+} from "drizzle-orm"
 import { randomUUID } from "crypto"
 import { TransactionManager } from "../../../shared/db"
 import {
@@ -493,9 +504,7 @@ export class DataSourceRepository {
     )
 
     // 2. 対象データソースのイベントを削除
-    await connection.delete(events).where(
-      eq(events.dataSourceId, dataSourceId),
-    )
+    await connection.delete(events).where(eq(events.dataSourceId, dataSourceId))
 
     // 3. ユーザーのウォッチレコードを削除
     const deleteResult = await connection

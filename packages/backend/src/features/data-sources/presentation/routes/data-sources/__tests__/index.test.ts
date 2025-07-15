@@ -955,12 +955,15 @@ describe("DataSources API - Component Test", () => {
       )
 
       // テスト用のイベントと通知を作成
-      const testEvent = await TestDataFactory.createTestEvent(testDataSource.id, {
-        eventType: "release",
-        title: "Test Release",
-        body: "Test release body",
-        version: "v1.0.0",
-      })
+      const testEvent = await TestDataFactory.createTestEvent(
+        testDataSource.id,
+        {
+          eventType: "release",
+          title: "Test Release",
+          body: "Test release body",
+          version: "v1.0.0",
+        },
+      )
 
       const testNotification = await TestDataFactory.createTestNotification(
         testUser.id,
