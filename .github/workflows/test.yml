@@ -114,7 +114,16 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: Backend test
-        run: pnpm --filter backend test
+        run: pnpm --filter backend test:coverage
+
+      - name: Upload backend coverage to Codecov
+        uses: codecov/codecov-action@v5
+        with:
+          files: packages/backend/coverage/lcov.info
+          flags: backend
+          name: backend-coverage
+          fail_ci_if_error: false
+          token: ${{ secrets.CODECOV_TOKEN }}
 
       - name: Backend Build
         run: pnpm --filter backend build
