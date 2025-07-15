@@ -19,5 +19,11 @@ export default defineConfig({
       // テスト実行時に.env.testingファイルを読み込み
       ...config({ path: ".env.testing" }).parsed,
     },
+    coverage: {
+      provider: "v8",
+      reporter: ["text", "json", "html", "lcov"],
+      include: ["src/**/*.ts"],
+      exclude: ["src/db/migrations/**", "src/index.ts", "src/server.ts"],
+    },
   },
 })
