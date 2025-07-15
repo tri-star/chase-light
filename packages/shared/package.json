@@ -11,7 +11,7 @@
     "format": "eslint src/ --fix && biome format src/ --write"
   },
   "devDependencies": {
-    "@eslint/js": "^9.15.0",
+    "@eslint/js": "^9.31.0",
     "@types/node": "^22.10.2",
     "@typescript-eslint/eslint-plugin": "^8.15.0",
     "@typescript-eslint/parser": "^8.15.0",
