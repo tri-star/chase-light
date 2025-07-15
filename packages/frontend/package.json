@@ -28,7 +28,7 @@
     "eslint": "^9.28.0",
     "jsonwebtoken": "^9.0.2",
     "jwks-rsa": "^3.2.0",
-    "nuxt": "^3.17.5",
+    "nuxt": "^3.17.7",
     "nuxt-auth-utils": "0.5.20",
     "pg": "^8.16.0",
     "storybook": "9.0.5",
