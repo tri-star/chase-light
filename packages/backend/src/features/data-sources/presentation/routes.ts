@@ -4,6 +4,7 @@ import type {
   DataSourceListService,
   DataSourceDetailService,
   DataSourceUpdateService,
+  DataSourceDeletionService,
 } from "../services"
 import { createDataSourceRoutes } from "./routes/data-sources"
 
@@ -15,6 +16,7 @@ export function createDataSourcePresentationRoutes(
   dataSourceListService: DataSourceListService,
   dataSourceDetailService: DataSourceDetailService,
   dataSourceUpdateService: DataSourceUpdateService,
+  dataSourceDeletionService: DataSourceDeletionService,
 ) {
   const app = new OpenAPIHono()
 
@@ -26,6 +28,7 @@ export function createDataSourcePresentationRoutes(
       dataSourceListService,
       dataSourceDetailService,
       dataSourceUpdateService,
+      dataSourceDeletionService,
     ),
   )
 

@@ -9,6 +9,7 @@ import {
   DataSourceListService,
   DataSourceDetailService,
   DataSourceUpdateService,
+  DataSourceDeletionService,
 } from "./services"
 import { createDataSourcePresentationRoutes } from "./presentation"
 
@@ -49,12 +50,18 @@ const dataSourceUpdateService = new DataSourceUpdateService(
   userRepository,
 )
 
+const dataSourceDeletionService = new DataSourceDeletionService(
+  dataSourceRepository,
+  userRepository,
+)
+
 // 依存性を注入してルーターを構築
 const dataSourceRoutes = createDataSourcePresentationRoutes(
   dataSourceCreationService,
   dataSourceListService,
   dataSourceDetailService,
   dataSourceUpdateService,
+  dataSourceDeletionService,
 )
 
 export default dataSourceRoutes

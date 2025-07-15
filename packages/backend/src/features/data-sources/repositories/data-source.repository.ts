@@ -1,7 +1,13 @@
-import { eq, and, ilike, or, gte, lte, sql, asc, desc } from "drizzle-orm"
+import { eq, and, ilike, or, gte, lte, sql, asc, desc, inArray } from "drizzle-orm"
 import { randomUUID } from "crypto"
 import { TransactionManager } from "../../../shared/db"
-import { dataSources, repositories, userWatches } from "../../../db/schema"
+import {
+  dataSources,
+  repositories,
+  userWatches,
+  events,
+  notifications,
+} from "../../../db/schema"
 import type {
   DataSource,
   DataSourceCreationInput,
@@ -444,6 +450,64 @@ export class DataSourceRepository {
       items,
       total,
     }
+  }
+
+  /**
+   * ユーザーのウォッチ関連付けと関連データを削除
+   */
+  async removeUserWatchAndRelatedData(
+    dataSourceId: string,
+    userId: string,
+  ): Promise<boolean> {
+    const connection = TransactionManager.getConnection()
+
+    // まず権限チェック - ユーザーがこのデータソースをウォッチしているか確認
+    const accessCheck = await connection
+      .select({ id: userWatches.id })
+      .from(userWatches)
+      .where(
+        and(
+          eq(userWatches.dataSourceId, dataSourceId),
+          eq(userWatches.userId, userId),
+        ),
+      )
+
+    if (accessCheck.length === 0) {
+      return false // アクセス権限なし
+    }
+
+    // トランザクション内で関連データを削除
+    // 1. ユーザーに関連する通知を削除
+    await connection.delete(notifications).where(
+      and(
+        eq(notifications.userId, userId),
+        inArray(
+          notifications.eventId,
+          sql`(
+            SELECT ${events.id} 
+            FROM ${events} 
+            WHERE ${events.dataSourceId} = ${dataSourceId}
+          )`,
+        ),
+      ),
+    )
+
+    // 2. 対象データソースのイベントを削除
+    await connection.delete(events).where(
+      eq(events.dataSourceId, dataSourceId),
+    )
+
+    // 3. ユーザーのウォッチレコードを削除
+    const deleteResult = await connection
+      .delete(userWatches)
+      .where(
+        and(
+          eq(userWatches.dataSourceId, dataSourceId),
+          eq(userWatches.userId, userId),
+        ),
+      )
+
+    return (deleteResult.rowCount ?? 0) > 0
   }
 
   /**

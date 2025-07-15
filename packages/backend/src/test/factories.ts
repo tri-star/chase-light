@@ -215,6 +215,69 @@ export class TestDataFactory {
   }
 
   /**
+   * テスト用イベントを作成
+   */
+  static async createTestEvent(
+    dataSourceId: string,
+    customData?: {
+      githubEventId?: string
+      eventType?: string
+      title?: string
+      body?: string
+      version?: string
+      createdAt?: Date
+    },
+  ): Promise<{ id: string; dataSourceId: string; githubEventId: string; eventType: string; title: string; body: string; version: string | null; createdAt: Date; updatedAt: Date }> {
+    const now = new Date()
+    const event = {
+      id: uuidv7(),
+      dataSourceId,
+      githubEventId: customData?.githubEventId || `event_${Date.now()}`,
+      eventType: customData?.eventType || "release",
+      title: customData?.title || "Test Event",
+      body: customData?.body || "Test event body",
+      version: customData?.version || "v1.0.0",
+      createdAt: customData?.createdAt || now,
+      updatedAt: now,
+    }
+
+    await db.insert(schema.events).values(event)
+    return event
+  }
+
+  /**
+   * テスト用通知を作成
+   */
+  static async createTestNotification(
+    userId: string,
+    eventId: string,
+    customData?: {
+      title?: string
+      message?: string
+      notificationType?: string
+      isRead?: boolean
+      sentAt?: Date
+    },
+  ): Promise<{ id: string; userId: string; eventId: string; title: string; message: string; notificationType: string; isRead: boolean; sentAt: Date | null; createdAt: Date; updatedAt: Date }> {
+    const now = new Date()
+    const notification = {
+      id: uuidv7(),
+      userId,
+      eventId,
+      title: customData?.title || "Test Notification",
+      message: customData?.message || "Test notification message",
+      notificationType: customData?.notificationType || "release",
+      isRead: customData?.isRead || false,
+      sentAt: customData?.sentAt || now,
+      createdAt: now,
+      updatedAt: now,
+    }
+
+    await db.insert(schema.notifications).values(notification)
+    return notification
+  }
+
+  /**
    * 完全なデータソースセット（データソース + リポジトリ + ユーザーウォッチ）を作成
    */
   static async createCompleteDataSourceSet(
