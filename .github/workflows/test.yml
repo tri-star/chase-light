@@ -28,7 +28,7 @@ jobs:
       backend-changed: ${{ steps.changes.outputs.backend }}
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
         with:
           fetch-depth: 0
 
@@ -52,15 +52,15 @@ jobs:
     if: needs.detect-changes.outputs.frontend-changed == 'true'
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
 
       - name: Setup pnpm
-        uses: pnpm/action-setup@v4
+        uses: pnpm/action-setup@36de12bed180fa130ed56a35e7344f2fa7a820ab # v4
         with:
           run_install: false
 
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
           node-version: "24"
           cache: "pnpm"
@@ -97,15 +97,15 @@ jobs:
           --health-retries 5
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
 
       - name: Setup pnpm
-        uses: pnpm/action-setup@v4
+        uses: pnpm/action-setup@36de12bed180fa130ed56a35e7344f2fa7a820ab # v4
         with:
           run_install: false
 
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
           node-version: "24"
           cache: "pnpm"
@@ -117,7 +117,7 @@ jobs:
         run: pnpm --filter backend test:coverage
 
       - name: Upload backend coverage to Codecov
-        uses: codecov/codecov-action@v5
+        uses: codecov/codecov-action@18283e04ce6e62d37312384ff67231eb8fd56d24 # v5
         with:
           files: packages/backend/coverage/lcov.info
           flags: backend
@@ -159,15 +159,15 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
 
       - name: Setup pnpm
-        uses: pnpm/action-setup@v4
+        uses: pnpm/action-setup@36de12bed180fa130ed56a35e7344f2fa7a820ab # v4
         with:
           run_install: false
 
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
           node-version: "24"
           cache: "pnpm"
@@ -176,7 +176,7 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: Cache Playwright browsers
-        uses: actions/cache@v4
+        uses: actions/cache@5a3ec84eff668545956fd18022155c47e93e2684 # v4
         id: playwright-cache
         with:
           path: ~/.cache/ms-playwright
@@ -185,7 +185,7 @@ jobs:
             ${{ runner.os }}-playwright-
 
       - name: Install PostgreSQL Client
-        uses: Eeems-Org/apt-cache-action@v1
+        uses: Eeems-Org/apt-cache-action@5612bff703b327e4e764d671f434a7f198c09d60 # v1
         with:
           packages: postgresql-client
 
@@ -231,7 +231,7 @@ jobs:
           APP_STAGE: development
 
       - name: Upload Playwright report
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         if: always()
         with:
           name: playwright-report
@@ -239,7 +239,7 @@ jobs:
           retention-days: 30
 
       - name: Upload Nuxt preview log
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         if: always()
         with:
           name: nuxt-preview-log

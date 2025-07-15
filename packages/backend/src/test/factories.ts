@@ -227,7 +227,17 @@ export class TestDataFactory {
       version?: string
       createdAt?: Date
     },
-  ): Promise<{ id: string; dataSourceId: string; githubEventId: string; eventType: string; title: string; body: string; version: string | null; createdAt: Date; updatedAt: Date }> {
+  ): Promise<{
+    id: string
+    dataSourceId: string
+    githubEventId: string
+    eventType: string
+    title: string
+    body: string
+    version: string | null
+    createdAt: Date
+    updatedAt: Date
+  }> {
     const now = new Date()
     const event = {
       id: uuidv7(),
@@ -258,7 +268,18 @@ export class TestDataFactory {
       isRead?: boolean
       sentAt?: Date
     },
-  ): Promise<{ id: string; userId: string; eventId: string; title: string; message: string; notificationType: string; isRead: boolean; sentAt: Date | null; createdAt: Date; updatedAt: Date }> {
+  ): Promise<{
+    id: string
+    userId: string
+    eventId: string
+    title: string
+    message: string
+    notificationType: string
+    isRead: boolean
+    sentAt: Date | null
+    createdAt: Date
+    updatedAt: Date
+  }> {
     const now = new Date()
     const notification = {
       id: uuidv7(),
