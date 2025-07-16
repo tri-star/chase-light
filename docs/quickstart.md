@@ -34,22 +34,19 @@ TODO: OAuth経由で入手したユーザーのトークンを利用するよう
 2. **環境変数設定**:
 
    ```bash
-   # バックエンドディレクトリに移動
-   cd packages/backend
-
    # .env.exampleをコピー
-   cp .env.example .env
+   cp packages/backend/.env.example packages/backend/.env
 
    # .envファイルを編集してトークンを設定
-   echo "GITHUB_TOKEN=ghp_your_token_here" >> .env
+   echo "GITHUB_TOKEN=ghp_your_token_here" >> packages/backend/.env
    ```
 
 ### ステップ4: DBセットアップ
 
 ```bash
+cd packages/backend
 docker compose up -d
 
-cd packages/backend
 pnpm db:migrate
 ```
 
