@@ -145,14 +145,14 @@ jobs:
       postgres:
         image: public.ecr.aws/docker/library/postgres:15-bookworm
         env:
-          POSTGRES_DB: chase_light
+          POSTGRES_DB: chase_light_test
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: "password"
           POSTGRES_HOST_AUTH_METHOD: trust
         ports:
           - 5432:5432
         options: >-
-          --health-cmd "pg_isready -U postgres -d chase_light"
+          --health-cmd "pg_isready -U postgres -d chase_light_test"
           --health-interval 10s
           --health-timeout 5s
           --health-retries 5
@@ -191,7 +191,7 @@ jobs:
 
       - name: Initialize database
         run: |
-          PGPASSWORD=password psql -h localhost -U postgres -d chase_light -f database/init/01-create-sessions-table.sql
+          pnpm --filter backend test:migrate
 
       - name: Install Playwright browsers
         run: pnpm --filter frontend test:e2e:install
@@ -209,7 +209,7 @@ jobs:
           AUTH0_CLIENT_ID: "clientid"
           AUTH0_CLIENT_SECRET: "dummy"
           NUXT_SESSION_SECRET: "dummy"
-          DATABASE_URL: postgresql://postgres:password@localhost:5432/chase_light?sslmode=disable
+          DATABASE_URL: postgresql://postgres:password@localhost:5432/chase_light_test?sslmode=disable
           NUXT_PUBLIC_BASE_URL: http://localhost:3000
           APP_STAGE: development
 
@@ -226,7 +226,7 @@ jobs:
           AUTH0_CLIENT_ID: "dummy"
           AUTH0_CLIENT_SECRET: "dummy"
           NUXT_SESSION_SECRET: "dummy"
-          DATABASE_URL: postgresql://postgres:password@localhost:5432/chase_light?sslmode=disable
+          DATABASE_URL: postgresql://postgres:password@localhost:5432/chase_light_test?sslmode=disable
           NUXT_PUBLIC_BASE_URL: http://localhost:3000
           APP_STAGE: development
 
