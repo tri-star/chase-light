@@ -46,6 +46,7 @@
     "eslint-config-prettier": "^9.1.0",
     "eslint-plugin-storybook": "^9",
     "happy-dom": "^17.6.3",
+    "nitropack": "2.11.13",
     "playwright-core": "^1.52.0",
     "prettier": "^3.3.3",
     "vitest": "^3.2.2",
