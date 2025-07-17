@@ -32,8 +32,8 @@ Resources:
     Properties:
       DefinitionUri: statemachine/repository-monitoring.asl.json
       DefinitionSubstitutions:
-        GetRepositoriesFunction: !Ref GetRepositoriesFunction
-        CheckRepositoryFunction: !Ref CheckRepositoryFunction
+        ListDatasourcesFunction: !Ref ListDatasourcesFunction
+        DetectDatasourceUpdatesFunction: !Ref DetectDatasourceUpdatesFunction
       Events:
         DailySchedule:
           Type: Schedule
@@ -103,12 +103,12 @@ src/features/monitoring/
 │   ├── repository-check-result.ts
 │   └── index.ts
 ├── workers/
-│   ├── get-repositories/
+│   ├── list-datasources/
 │   │   ├── handler.ts
 │   │   ├── __tests__/
 │   │   │   └── handler.test.ts
 │   │   └── index.ts
-│   ├── check-repository/
+│   ├── detect-datasource-updates/
 │   │   ├── handler.ts
 │   │   ├── __tests__/
 │   │   │   └── handler.test.ts
@@ -125,9 +125,9 @@ src/features/monitoring/
 ├── repositories/
 │   ├── monitoring-job.repository.ts
 │   └── index.ts
-├── stepfunctions/
+├── step-functions/
 │   ├── repository-monitoring.asl.json
-│   └── sam-template.yaml
+│   └── sam-template.yaml <!-- REVIEW: API GatewayのLambdaもSAMでデプロイする予定です。そうすると、このファイルはpackages/backend配下などに合った方が良いでしょうか？または、このファイルはStepFunctionsの定義だけを含んだファイルですか？ -->
 └── index.ts
 ```
 
@@ -207,12 +207,12 @@ StepFunctionsを含む監視フロー全体のテスト手法の設計
 
 ```
 workers/
-├── get-repositories/
+├── list-datasources/
 │   ├── handler.ts
 │   ├── __tests__/
 │   │   └── handler.component.test.ts  # Component Test
 │   └── index.ts
-├── check-repository/
+├── detect-datasource-updates/
 │   ├── handler.ts
 │   ├── __tests__/
 │   │   └── handler.component.test.ts  # Component Test
@@ -263,6 +263,9 @@ pnpm add --filter backend @aws-sdk/client-sqs @aws-sdk/client-lambda @aws-sdk/cl
 
 1. **SAMテンプレートの作成**: StepFunctions + Lambda統合定義
 2. **ワーカー関数の基本実装**: 3つのLambda関数のスケルトン作成
+   - list-datasources: 監視対象データソース一覧取得
+   - detect-datasource-updates: データソース更新検知
+   - process-updates: 更新処理
 3. **ローカル開発環境の構築**: Docker Compose設定
 4. **Component Testの実装**: テスト戦略に従ったテストコード作成
 5. **既存serviceとの統合**: GitHubApiServiceとDataSourceRepositoryの活用
