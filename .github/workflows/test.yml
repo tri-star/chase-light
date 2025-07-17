@@ -190,7 +190,7 @@ jobs:
 
       - name: Install Playwright browsers
         run: pnpm --filter frontend test:e2e:install
-        if: steps.playwright-cache.outputs.cache-hit != 'true'
+        # if: steps.playwright-cache.outputs.cache-hit != 'true'
 
       - name: Build frontend
         run: |
