@@ -198,7 +198,9 @@ jobs:
         if: steps.playwright-cache.outputs.cache-hit != 'true'
 
       - name: Build frontend
-        run: pnpm --filter frontend build
+        run: |
+          rm -rf packages/frontend/.output
+          pnpm --filter frontend build
 
       - name: Start frontend
         run: pnpm --filter frontend preview > nuxt_preview.log 2>&1 &
