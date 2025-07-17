@@ -184,11 +184,6 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-playwright-
 
-      - name: Install PostgreSQL Client
-        uses: Eeems-Org/apt-cache-action@5612bff703b327e4e764d671f434a7f198c09d60 # v1
-        with:
-          packages: postgresql-client
-
       - name: Initialize database
         run: |
           pnpm --filter backend test:migrate
