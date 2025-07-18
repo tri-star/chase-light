@@ -50,6 +50,70 @@
 - **ファイル名:** `[対象ファイル名].test.ts` という命名規則に従ってください。
 - **テスト記述:** `describe` や `test` の説明は、テスト内容が明確に伝わるように**日本語**で記述します。
 
+### データベース接続テストの前提条件
+
+**重要:** データベースを扱うComponent TestやWorkerテストでは、必ずテストファイルの冒頭（通常は10行目付近）で `setupComponentTest()` を呼び出してください。
+
+```typescript
+import { setupComponentTest } from '../../../test-utils/component-test-setup'
+import { describe, test, beforeEach, afterEach, expect } from 'vitest'
+// その他のimport...
+
+describe('テスト対象の説明', () => {
+  setupComponentTest() // この行を必ず追加！
+  
+  // テストケース...
+})
+```
+
+この関数は以下の処理を行います：
+
+- テスト用データベースの初期化
+- テスト実行前後のデータクリーンアップ
+- 必要な環境変数の設定
+
+`setupComponentTest()` を呼び出さないと、データベース接続エラーやテスト間でのデータ干渉が発生する可能性があります。
+
+### モックとスタブの使い分け
+
+**Component Test**では原則として実際のDBを使用しますが、以下の場合にはモックを活用します：
+
+#### データベースエラーのテスト
+
+データベース接続エラーなどの異常系をテストする場合は、リポジトリ層をモックして意図的にエラーを発生させます：
+
+```typescript
+test('データベースエラーが発生した場合、エラーを投げる', async () => {
+  // Given: DataSourceRepositoryをモックしてエラーを発生させる
+  const mockDataSourceRepository = {
+    findMany: vi.fn().mockRejectedValue(new Error('Database connection failed'))
+  };
+  
+  // サービス層でモックを使用
+  const mockService = new RepositoryMonitorService(mockDataSourceRepository as any);
+  
+  // When & Then: エラーが投げられることを検証
+  await expect(handler({}, mockContext)).rejects.toThrow('Database connection failed');
+});
+```
+
+#### 外部API呼び出しのテスト
+
+外部サービス（GitHub API、Auth0等）への呼び出しをテストする場合は、これらのサービスをモック化します：
+
+```typescript
+test('GitHub API呼び出しエラーを適切に処理する', async () => {
+  // Given: GitHub APIクライアントをモック
+  const mockGitHubApi = {
+    getRepository: vi.fn().mockRejectedValue(new Error('GitHub API rate limit exceeded'))
+  };
+  
+  // テスト実行...
+});
+```
+
+この方法により、実際のデータベース接続を保ちながら、異常系やエラーケースを確実にテストできます。
+
 ## 5. 開発フローとテスト実行
 
 ### 開発フロー

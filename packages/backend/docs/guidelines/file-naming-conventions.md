@@ -41,6 +41,24 @@
   - テストファイルは、`[file-name].test.ts` の形式で命名します。
     - 例: `user-profile.service.test.ts`
 
+### `workers`
+
+- **ワーカー関数**:
+  - ワーカー関数のハンドラーファイルは、`handler.ts`とし、ワーカー名のディレクトリ内に配置します。
+    - 例: `workers/list-datasources/handler.ts`
+  - ワーカー関数のエントリーポイントは `index.ts` とします。
+    - 例: `workers/list-datasources/index.ts`
+- **StepFunctions定義**:
+  - StepFunctionsのASL定義ファイルは、`[workflow-name].asl.json`の形式で命名します。
+    - 例: `step-functions/repository-monitoring.asl.json`
+  - SAMテンプレートファイルは、`sam-template.yaml`とします。
+    - 例: `step-functions/sam-template.yaml`
+- **テストファイル**:
+  - ワーカー関数のテストファイルは、`handler.test.ts`の形式で命名します。
+    - 例: `workers/list-datasources/__tests__/handler.test.ts`
+  - 統合テストファイルは、`workflow.integration.test.ts`の形式で命名します。
+    - 例: `workers/__tests__/workflow.integration.test.ts`
+
 ## ディレクトリ名
 
 - 複数形を使用することが推奨されます（例: `features`, `services`, `repositories`）。

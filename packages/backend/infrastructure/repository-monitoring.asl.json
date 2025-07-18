@@ -1,0 +1,24 @@
+{
+  "Comment": "Repository monitoring workflow - single step implementation",
+  "QueryLanguage": "JSONata",
+  "StartAt": "ListDataSources",
+  "States": {
+    "ListDataSources": {
+      "Type": "Task",
+      "Resource": "${ListDataSourcesFunctionArn}",
+      "Arguments": {
+        "sourceType": "github_repository"
+      },
+      "Next": "ProcessResults"
+    },
+    "ProcessResults": {
+      "Type": "Pass",
+      "Output": {
+        "status": "completed",
+        "timestamp": "{% $now() %}",
+        "dataSourcesCount": "{% $count($states.input.dataSources) %}"
+      },
+      "End": true
+    }
+  }
+}

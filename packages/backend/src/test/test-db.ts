@@ -11,15 +11,24 @@ export class TestDbHelper {
    */
   static setupTestSuite() {
     beforeAll(async () => {
-      // テスト用データベースに接続
-      await connectDb()
-      console.log("🔗 Connected to test database")
+      try {
+        // テスト用データベースに接続
+        await connectDb()
+        console.log("🔗 Connected to test database")
+      } catch (error) {
+        console.error("Failed to connect to test database:", error)
+        process.exit(1)
+      }
     })
 
     afterAll(async () => {
-      // テスト終了時にデータベース接続を閉じる
-      await disconnectDb()
-      console.log("🔌 Disconnected from test database")
+      try {
+        // テスト終了時にデータベース接続を閉じる
+        await disconnectDb()
+        console.log("🔌 Disconnected from test database")
+      } catch (error) {
+        console.error("Failed to disconnect from test database:", error)
+      }
     })
   }
 
