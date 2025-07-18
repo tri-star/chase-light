@@ -5,7 +5,7 @@ Description: 'Repository monitoring workflow with Step Functions'
 Globals:
   Function:
     Timeout: 60
-    Runtime: nodejs18.x
+    Runtime: nodejs22.x
     Environment:
       Variables:
         DB_HOST: !Ref DatabaseHost
