@@ -1,2 +1,2 @@
-export * from './monitoring-job'
-export * from './repository-check-result'
+export * from "./monitoring-job"
+export * from "./repository-check-result"

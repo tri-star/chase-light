@@ -1,8 +1,8 @@
 export const CheckResultStatus = {
-  SUCCESS: 'success',
-  ERROR: 'error',
-  NO_CHANGES: 'no_changes',
-  RATE_LIMITED: 'rate_limited',
+  SUCCESS: "success",
+  ERROR: "error",
+  NO_CHANGES: "no_changes",
+  RATE_LIMITED: "rate_limited",
 } as const
 
 export type CheckResultStatusType =

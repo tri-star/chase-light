@@ -1,6 +1,6 @@
-import type { Context } from 'aws-lambda'
-import { DataSourceRepository } from '../../../data-sources/repositories/data-source.repository'
-import { RepositoryMonitorService } from '../../services/repository-monitor.service'
+import type { Context } from "aws-lambda"
+import { DataSourceRepository } from "../../../data-sources/repositories/data-source.repository"
+import { RepositoryMonitorService } from "../../services/repository-monitor.service"
 
 interface ListDataSourcesInput {
   sourceType?: string
@@ -24,8 +24,8 @@ export const handler = async (
   event: ListDataSourcesInput,
   context: Context,
 ): Promise<ListDataSourcesOutput> => {
-  console.log('Event:', JSON.stringify(event, null, 2))
-  console.log('Context:', context.awsRequestId)
+  console.log("Event:", JSON.stringify(event, null, 2))
+  console.log("Context:", context.awsRequestId)
 
   try {
     const dataSourceRepository = new DataSourceRepository()
@@ -51,7 +51,7 @@ export const handler = async (
       })),
     }
   } catch (error) {
-    console.error('Error in list-datasources handler:', error)
+    console.error("Error in list-datasources handler:", error)
     throw error
   }
 }
