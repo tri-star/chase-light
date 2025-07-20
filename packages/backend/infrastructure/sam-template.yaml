@@ -8,35 +8,19 @@ Globals:
     Runtime: nodejs22.x
     Environment:
       Variables:
-        DB_HOST: !Ref DatabaseHost
-        DB_PORT: !Ref DatabasePort
-        DB_NAME: !Ref DatabaseName
-        DB_USER: !Ref DatabaseUser
-        DB_PASSWORD: !Ref DatabasePassword
-        DB_SSL: !Ref DatabaseSSL
+        USE_AWS: !Ref UseAws
+        STAGE: !Ref Stage
+        AWS_REGION: !Ref AWS::Region
 
 Parameters:
-  DatabaseHost:
-    Type: String
-    Description: Database host
-  DatabasePort:
-    Type: String
-    Default: '5432'
-    Description: Database port
-  DatabaseName:
-    Type: String
-    Description: Database name
-  DatabaseUser:
-    Type: String
-    Description: Database user
-  DatabasePassword:
-    Type: String
-    NoEcho: true
-    Description: Database password
-  DatabaseSSL:
+  UseAws:
     Type: String
     Default: 'true'
-    Description: Database SSL enabled
+    Description: Flag to indicate if running in AWS environment
+  Stage:
+    Type: String
+    Default: 'dev'
+    Description: Stage environment (dev, staging, prod)
 
 Resources:
   # Lambda Functions
@@ -55,6 +39,11 @@ Resources:
                 - logs:CreateLogStream
                 - logs:PutLogEvents
               Resource: !Sub "arn:${AWS::Partition}:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/${AWS::StackName}-list-datasources*"
+        - Statement:
+            - Effect: Allow
+              Action:
+                - ssm:GetParameter
+              Resource: !Sub "arn:${AWS::Partition}:ssm:${AWS::Region}:${AWS::AccountId}:parameter/${Stage}/supabase/db_url"
 
   # Step Functions State Machine
   RepositoryMonitoringStateMachine:
