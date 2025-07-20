@@ -1,6 +1,26 @@
-import { describe, it, expect, vi, beforeEach } from "vitest"
+import {
+  describe,
+  it,
+  expect,
+  vi,
+  beforeEach,
+  afterEach,
+  afterAll,
+} from "vitest"
 
 const mockSend = vi.fn()
+
+// 元の環境変数を保存
+const originalEnv = {
+  USE_AWS: process.env.USE_AWS,
+  STAGE: process.env.STAGE,
+  AWS_REGION: process.env.AWS_REGION,
+  DB_HOST: process.env.DB_HOST,
+  DB_PORT: process.env.DB_PORT,
+  DB_NAME: process.env.DB_NAME,
+  DB_USER: process.env.DB_USER,
+  DB_PASSWORD: process.env.DB_PASSWORD,
+}
 
 // AWS SDK Mock
 vi.mock("@aws-sdk/client-ssm", () => ({
@@ -24,6 +44,35 @@ describe("database config", () => {
     delete process.env.DB_NAME
     delete process.env.DB_USER
     delete process.env.DB_PASSWORD
+  })
+
+  afterEach(() => {
+    // 各テスト後にモックをクリア
+    vi.clearAllMocks()
+
+    // 環境変数をクリア
+    delete process.env.USE_AWS
+    delete process.env.STAGE
+    delete process.env.AWS_REGION
+    delete process.env.DB_HOST
+    delete process.env.DB_PORT
+    delete process.env.DB_NAME
+    delete process.env.DB_USER
+    delete process.env.DB_PASSWORD
+  })
+
+  afterAll(() => {
+    // すべてのテスト終了後にモックをリストア
+    vi.restoreAllMocks()
+
+    // 元の環境変数を復元
+    Object.entries(originalEnv).forEach(([key, value]) => {
+      if (value !== undefined) {
+        process.env[key] = value
+      } else {
+        delete process.env[key]
+      }
+    })
   })
 
   describe("ローカル環境", () => {
