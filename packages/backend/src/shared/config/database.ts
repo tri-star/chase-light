@@ -25,8 +25,8 @@ const parsePostgresqlUrl = (url: string) => {
       password: decodeURIComponent(urlObj.password),
     }
   } catch (error) {
-    console.error("Error parsing PostgreSQL URL:", error); // Log the full error securely
-    throw new Error("Invalid PostgreSQL URL format."); // Throw a sanitized error message
+    console.error("Error parsing PostgreSQL URL:", error) // Log the full error securely
+    throw new Error("Invalid PostgreSQL URL format.") // Throw a sanitized error message
   }
 }
 
@@ -35,7 +35,7 @@ export const getDatabaseConfig = async () => {
 
   if (isAWSEnvironment) {
     const awsRegion = process.env.AWS_REGION
-    const stage = process.env.STAGE
+    const stage = process.env.APP_STAGE
 
     if (!awsRegion) {
       throw new Error(

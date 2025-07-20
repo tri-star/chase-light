@@ -13,7 +13,7 @@ const mockSend = vi.fn()
 // 元の環境変数を保存
 const originalEnv = {
   USE_AWS: process.env.USE_AWS,
-  STAGE: process.env.STAGE,
+  STAGE: process.env.APP_STAGE,
   AWS_REGION: process.env.AWS_REGION,
   DB_HOST: process.env.DB_HOST,
   DB_PORT: process.env.DB_PORT,
@@ -36,8 +36,8 @@ const { getDatabaseConfig } = await import("../database")
 describe("database config", () => {
   beforeEach(() => {
     vi.clearAllMocks()
+    process.env.APP_STAGE = "test"
     delete process.env.USE_AWS
-    delete process.env.STAGE
     delete process.env.AWS_REGION
     delete process.env.DB_HOST
     delete process.env.DB_PORT
@@ -51,8 +51,8 @@ describe("database config", () => {
     vi.clearAllMocks()
 
     // 環境変数をクリア
+    process.env.APP_STAGE = "test"
     delete process.env.USE_AWS
-    delete process.env.STAGE
     delete process.env.AWS_REGION
     delete process.env.DB_HOST
     delete process.env.DB_PORT
@@ -112,7 +112,7 @@ describe("database config", () => {
     beforeEach(() => {
       process.env.USE_AWS = "true"
       process.env.AWS_REGION = "us-east-1"
-      process.env.STAGE = "dev"
+      process.env.APP_STAGE = "dev"
     })
 
     it("Parameter StoreからPostgreSQL URLを取得してパースする", async () => {
@@ -148,7 +148,8 @@ describe("database config", () => {
     })
 
     it("STAGEが未設定の場合はエラーを投げる", async () => {
-      delete process.env.STAGE
+      // @ts-expect-error APP_STAGEがランタイムで未定義な状態を再現するため
+      delete process.env.APP_STAGE
 
       await expect(getDatabaseConfig()).rejects.toThrow(
         "STAGE environment variable is required when USE_AWS is true",
