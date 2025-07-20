@@ -6,7 +6,7 @@ import tsParser from "@typescript-eslint/parser"
 export default [
   js.configs.recommended,
   {
-    files: ["**/*.ts", "**/*.js"],
+    files: ["**/*.ts", "**/*.js", "**/*.mjs"],
     languageOptions: {
       parser: tsParser,
       parserOptions: {
@@ -34,6 +34,6 @@ export default [
     },
   },
   {
-    ignores: ["node_modules", "dist", "coverage"],
+    ignores: ["node_modules", "dist", "coverage", ".aws-sam"],
   },
 ]

@@ -2,6 +2,6 @@
   "root": false,
   "extends": "//",
   "files": {
-    "includes": ["**", "!**/node_modules", "!**/coverage"]
+    "includes": ["**", "!**/node_modules", "!**/coverage", "!**/.aws-sam"]
   }
 }

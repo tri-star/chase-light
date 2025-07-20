@@ -25,7 +25,8 @@
       "!**/node_modules",
       "!**/dist",
       "!**/build",
-      "!**/coverage"
+      "!**/coverage",
+      "!**/.aws-sam"
     ]
   }
 }
