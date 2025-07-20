@@ -17,7 +17,7 @@ if (import.meta.server) {
   // State をセッションに保存（一時的にクッキーに保存）
   const cookie = useCookie('auth-state', {
     httpOnly: true,
-    secure: process.env.APP_STAGE === 'production',
+    secure: process.env.APP_STAGE === 'prod',
     maxAge: 600, // 10分
     sameSite: 'lax',
   });

@@ -208,7 +208,7 @@ jobs:
           NUXT_SESSION_SECRET: "dummy"
           DATABASE_URL: postgresql://postgres:password@localhost:5432/chase_light_test?sslmode=disable
           NUXT_PUBLIC_BASE_URL: http://localhost:3000
-          APP_STAGE: development
+          APP_STAGE: dev
 
       - name: Wait for frontend to be ready
         run: |
@@ -225,7 +225,7 @@ jobs:
           NUXT_SESSION_SECRET: "dummy"
           DATABASE_URL: postgresql://postgres:password@localhost:5432/chase_light_test?sslmode=disable
           NUXT_PUBLIC_BASE_URL: http://localhost:3000
-          APP_STAGE: development
+          APP_STAGE: dev
 
       - name: Upload Playwright report
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4

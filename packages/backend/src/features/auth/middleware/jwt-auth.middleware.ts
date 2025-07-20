@@ -40,7 +40,7 @@ function defaultExtractToken(c: Context): string | null {
     throw new Error("APP_STAGE environment variable is required but not set")
   }
 
-  if (appStage !== "production") {
+  if (appStage !== "prod") {
     const tokenFromQuery = c.req.query("access_token")
     if (tokenFromQuery) {
       return `Bearer ${tokenFromQuery}`

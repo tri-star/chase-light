@@ -9,7 +9,7 @@ declare global {
        * アプリケーションの実行環境
        * @see docs/adr/ADR002-app-stage-env.md
        */
-      APP_STAGE: "development" | "staging" | "production" | "test"
+      APP_STAGE: "dev" | "stg" | "prod" | "test"
 
       /**
        * Auth0関連の環境変数

@@ -152,7 +152,6 @@ Nuxt.jsではセッション情報をRedisやDBに記録する機能は直接は
 Auth0公式ドキュメントではM2M認証がPlaywright E2Eテストの推奨アプローチとして示されているが、開発初期段階では以下の段階的実装を採用：
 
 1. **Phase 1: テスト専用エンドポイント** （即座に実装可能）
-
    - 開発・テスト環境でのみ有効な認証バイパス
    - 基本的なE2Eテストの迅速な実装
    - 実装コストが最小
@@ -160,7 +159,6 @@ Auth0公式ドキュメントではM2M認証がPlaywright E2Eテストの推奨�
 ※後述するM2Mはテストケース毎にAuth0へのリクエストが発生する懸念もあるため、E2Eテスト以外では常にこの方法を採用することも検討する
 
 2. **Phase 2: Auth0 M2M認証** （本格運用向け）
-
    - Auth0でM2Mアプリケーションを作成
    - より本番環境に近い認証フロー
    - セキュリティベストプラクティスに準拠
@@ -191,7 +189,7 @@ Auth0公式ドキュメントではM2M認証がPlaywright E2Eテストの推奨�
 // server/api/auth/test-login.post.ts
 // 開発・テスト環境でのみ有効な認証バイパス
 export default defineEventHandler(async (event) => {
-  if (process.env.APP_STAGE === "production") {
+  if (process.env.APP_STAGE === "prod") {
     throw createError({
       statusCode: 404,
       statusMessage: "Not Found",
@@ -223,13 +221,11 @@ export default defineEventHandler(async (event) => {
 ### 今後の対応
 
 1. **短期（実装フェーズ）:**
-
    - テスト専用エンドポイントの実装
    - 基本的なE2Eテストスイートの構築
    - セッション管理の監視体制整備
 
 2. **中期（運用フェーズ）:**
-
    - Auth0 M2M認証への移行
    - パフォーマンス監視と最適化
    - セキュリティ監査の実施
