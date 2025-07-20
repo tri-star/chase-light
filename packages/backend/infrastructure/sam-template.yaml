@@ -10,7 +10,6 @@ Globals:
       Variables:
         USE_AWS: !Ref UseAws
         STAGE: !Ref Stage
-        AWS_REGION: !Ref AWS::Region
 
 Parameters:
   UseAws:
@@ -28,7 +27,7 @@ Resources:
     Type: AWS::Serverless::Function
     Properties:
       FunctionName: !Sub "${AWS::StackName}-list-datasources"
-      CodeUri: ../workers/list-datasources/
+      CodeUri: ../dist/lambda/list-datasources/
       Handler: index.handler
       Description: 'List data sources for monitoring'
       Policies:
