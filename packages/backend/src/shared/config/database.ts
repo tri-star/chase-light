@@ -25,7 +25,8 @@ const parsePostgresqlUrl = (url: string) => {
       password: decodeURIComponent(urlObj.password),
     }
   } catch (error) {
-    throw new Error(`Invalid PostgreSQL URL format: ${error}`)
+    console.error("Error parsing PostgreSQL URL:", error); // Log the full error securely
+    throw new Error("Invalid PostgreSQL URL format."); // Throw a sanitized error message
   }
 }
 
