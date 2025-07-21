@@ -6,20 +6,6 @@ Chase LightのバックエンドAPIサーバーです。Hono + TypeScript + Open
 
 ![クイックスタート](../../docs/quickstart.md) 参照
 
-### 必要な環境変数
-
-```bash
-# .env
-NODE_ENV=development
-PORT=3001
-
-# GitHub API integration
-GITHUB_TOKEN=ghp_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-
-# データベース (必要に応じて)
-DATABASE_URL=postgresql://user:password@localhost:5432/chase_light
-```
-
 ## 📚 API ドキュメント
 
 ### インタラクティブドキュメント
@@ -147,6 +133,9 @@ pnpm start
    # 型チェック
    pnpm lint
 
+   # フォーマット
+   pnpm format
+
    # テスト実行
    pnpm test
 
@@ -154,28 +143,65 @@ pnpm start
    pnpm build
    ```
 
-### 新機能追加ガイド
+### ローカル動作確認 (SAM Local)
 
-#### 1. 新しいGitHubAPIエンドポイント追加
+AWS SAM Localを使用してLambda関数をローカル環境で実行・テストできます。
+
+#### 前提条件
+
+- [AWS SAM CLI](https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/install-sam-cli.html) がインストール済み
+- Docker が起動済み
+
+#### 動作確認手順
 
 ```bash
-# 1. スキーマ定義
-src/features/dataSource/schemas/new-entity.schema.ts
+# 1. TypeScriptビルド (Lambda用)
+pnpm build:lambda
 
-# 2. パーサー実装
-src/features/dataSource/parsers/github-api.parser.ts  # 拡張
+# 2. SAMビルド
+cd infrastructure
+sam build -t sam-template.yaml
 
-# 3. サービス拡張
-src/features/dataSource/services/github-repo.service.ts  # メソッド追加
+# 3. SAM Local API Gateway起動
+# 今時点ではAPI GateWayを利用するLambdaをSAMに登録していないため、後日対応予定
+# sam local start-api --host 0.0.0.0 --port 3000
+# # 別ターミナルでテスト実行
+# curl http://localhost:3000/list-datasources
 
-# 4. エンドポイント実装
-src/features/dataSource/presentation/routes/new-entity/
-├── index.ts
-└── __tests__/
-    └── index.test.ts
+# 4. SAM Local Invoke (Lambda関数の直接実行)
+sam local invoke ListDataSourcesFunction --event events/list-datasources.json
+```
 
-# 5. ルーティング追加
-src/features/dataSource/presentation/routes.ts  # route追加
+#### Step Functions ローカル実行
+
+```bash
+# Step Functions ローカル実行
+sam local start-lambda --host 0.0.0.0 --port 3001
+
+# 別ターミナルでStep Functionsステートマシン実行
+aws stepfunctions start-execution \
+  --endpoint-url http://localhost:8083 \
+  --state-machine-arn arn:aws:states:us-east-1:123456789012:stateMachine:RepositoryMonitoringStateMachine \
+  --input '{}'
+```
+
+#### 環境変数設定
+
+SAM Localで環境変数を設定する場合は、`env.json` ファイルを作成：
+
+```json
+{
+  "ListDataSourcesFunction": {
+    "USE_AWS": "false",
+    "STAGE": "dev",
+    "GITHUB_TOKEN": "your_github_token"
+  }
+}
+```
+
+```bash
+# 環境変数ファイルを指定して起動
+sam local start-api --env-vars env.json
 ```
 
 ## 🚀 デプロイ
@@ -186,6 +212,7 @@ src/features/dataSource/presentation/routes.ts  # route追加
 
 ```bash
 NODE_ENV=development
+APP_STAGE=dev
 PORT=3001
 GITHUB_TOKEN=your_development_token
 ```
@@ -194,6 +221,7 @@ GITHUB_TOKEN=your_development_token
 
 ```bash
 NODE_ENV=production
+APP_STAGE=prod
 PORT=3000
 GITHUB_TOKEN=your_production_token
 ```
