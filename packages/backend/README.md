@@ -172,19 +172,6 @@ sam build -t sam-template.yaml
 sam local invoke ListDataSourcesFunction --event events/list-datasources.json
 ```
 
-#### Step Functions ローカル実行
-
-```bash
-# Step Functions ローカル実行
-sam local start-lambda --host 0.0.0.0 --port 3001
-
-# 別ターミナルでStep Functionsステートマシン実行
-aws stepfunctions start-execution \
-  --endpoint-url http://localhost:8083 \
-  --state-machine-arn arn:aws:states:us-east-1:123456789012:stateMachine:RepositoryMonitoringStateMachine \
-  --input '{}'
-```
-
 #### 環境変数設定
 
 SAM Localで環境変数を設定する場合は、`env.json` ファイルを作成：
