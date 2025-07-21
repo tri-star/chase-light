@@ -26,6 +26,20 @@ log_error() {
     echo -e "${RED}[$(date '+%Y-%m-%d %H:%M:%S')]${NC} $1"
 }
 
+# コマンドライン引数の解析
+CLEAN_MODE=false
+while [[ $# -gt 0 ]]; do
+    case $1 in
+        --clean)
+            CLEAN_MODE=true
+            shift
+            ;;
+        *)
+            shift
+            ;;
+    esac
+done
+
 # 環境変数の設定
 export DB_PORT=${DB_PORT:-5432}
 
@@ -37,9 +51,15 @@ log "Chase Light StepFunctions Local開発環境を起動します"
 log "Backend Directory: $BACKEND_DIR"
 
 # 既存のコンテナを停止・削除
-log "既存のコンテナを停止・削除中..."
-cd "$BACKEND_DIR"
-docker compose down -v 2>/dev/null || true
+if [ "$CLEAN_MODE" = true ]; then
+    log "既存のコンテナとボリュームを完全削除中（--cleanオプション）..."
+    cd "$BACKEND_DIR"
+    docker compose down -v 2>/dev/null || true
+else
+    log "既存のコンテナを停止・削除中（DBボリュームは保持）..."
+    cd "$BACKEND_DIR"
+    docker compose down 2>/dev/null || true
+fi
 
 # Lambda関数のビルド
 log "Lambda関数をビルド中..."
