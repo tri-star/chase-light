@@ -35,7 +35,7 @@ function buildEsbuildCommand(functionName, config) {
     .map((pkg) => `--external:${pkg}`)
     .join(" ")
 
-  return `pnpm esbuild --bundle --outfile=${outputPath} --platform=${defaultEsbuildConfig.platform} --target=${defaultEsbuildConfig.target} --format=${defaultEsbuildConfig.format} ${externalArgs} ${config.entryPoint}`
+  return `pnpm esbuild --bundle --outfile=${outputPath} --platform=${defaultEsbuildConfig.platform} --target=${defaultEsbuildConfig.target} --format=${defaultEsbuildConfig.format} --sourcemap=${defaultEsbuildConfig.sourcemap} --minify=${defaultEsbuildConfig.minify} ${externalArgs} ${config.entryPoint}`
 }
 
 /**

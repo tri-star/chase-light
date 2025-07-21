@@ -24,6 +24,8 @@ export const defaultEsbuildConfig = {
   target: "node20",
   format: "esm",
   bundle: true,
+  sourcemap: "external",
+  minify: false,
 }
 
 // デフォルトのpackage.json設定

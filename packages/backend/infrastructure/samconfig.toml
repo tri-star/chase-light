@@ -8,3 +8,6 @@ confirm_changeset = true
 capabilities = "CAPABILITY_IAM"
 parameter_overrides = "UseAws=\"true\" Stage=\"dev\""
 image_repositories = []
+
+[dev.local_invoke.parameters]
+env_vars = "env.json"
