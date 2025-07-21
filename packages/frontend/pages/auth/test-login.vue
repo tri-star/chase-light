@@ -1,6 +1,6 @@
 <script setup>
 // テスト環境でのみアクセス可能にする
-if (process.env.APP_STAGE === 'production') {
+if (process.env.APP_STAGE === 'prod') {
   throw createError({
     statusCode: 404,
     statusMessage: 'Not Found',

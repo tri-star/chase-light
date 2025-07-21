@@ -49,7 +49,7 @@ export interface UserSession {
 const SESSION_CONFIG = {
   cookieName: 'nuxt-session',
   maxAge: 60 * 60 * 24 * 7, // 7 days
-  secure: process.env.APP_STAGE === 'production',
+  secure: process.env.APP_STAGE === 'prod',
   httpOnly: true,
   sameSite: 'lax' as const,
 };

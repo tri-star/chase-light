@@ -12,32 +12,19 @@ Chase Light Backendのローカル開発環境セットアップガイドです�
 
 ## 環境構築手順
 
-### 1. リポジトリのクローン
-
-```bash
-git clone <repository-url>
-cd chase-light2
-```
-
-### 2. 依存関係のインストール
+### 1. 依存関係のインストール
 
 ```bash
 # プロジェクトルートで実行
 pnpm install
 ```
 
-### 3. 環境変数の設定
+### 2. 環境変数の設定
 
 ```bash
 # backend用の環境変数をコピー
-cd packages/backend
+# 環境に応じて値を設定
 cp .env.example .env
-
-# 必要な環境変数を設定
-# - DB_PASSWORD: PostgreSQL パスワード
-# - AUTH0_DOMAIN: Auth0 ドメイン
-# - AUTH0_AUDIENCE: Auth0 API Identifier
-# - GITHUB_TOKEN: GitHub Personal Access Token
 ```
 
 ### 4. データベースの起動
@@ -51,83 +38,46 @@ docker compose ps
 ```
 
 データベース起動時に以下が自動で作成されます：
+
 - `chase_light` - 開発用データベース
 - `chase_light_test` - テスト用データベース
 
 ### 5. データベースマイグレーション
 
 ```bash
-cd packages/backend
-
-# スキーマの生成
-pnpm db:generate
-
 # マイグレーションの実行
 pnpm db:migrate
-
-# または開発中はpushを使用
-pnpm db:push
 ```
 
 ### 6. 開発サーバーの起動
 
 ```bash
 # Backend開発サーバー起動
-cd packages/backend
 pnpm dev
 
-# Frontend開発サーバー起動（別ターミナル）
-cd packages/frontend
-pnpm dev
 ```
 
 ## テスト環境
 
 ### テスト用データベースのセットアップ
 
-通常は Docker Compose 起動時に自動作成されますが、手動で作成する場合：
-
 ```bash
-# 方法1: npmスクリプト使用
-cd packages/backend
+# npmスクリプト使用
 pnpm test:setup
-
-# 方法2: 直接SQLファイル実行
-docker exec -i $(docker ps -q -f "name=postgres") psql -U postgres -d postgres < ../../database/init/00-create-test-database.sql
 ```
 
 ### テストの実行
 
 ```bash
-cd packages/backend
-
 # 全テスト実行
 pnpm test
 
 # テスト監視モード
 pnpm test:watch
 
-# Component Test（実DB使用）
+# 特定のフォルダだけ
 pnpm test src/features/user/presentation/__tests__/
-
-# Unit Test（モック使用）
 pnpm test src/features/user/services/__tests__/
-```
-
-### テスト用DBの確認
-
-```bash
-# PostgreSQLコンテナに接続
-docker exec -it $(docker ps -q -f "name=postgres") psql -U postgres
-
-# データベース一覧表示
-\l
-
-# テスト用DBに接続
-\c chase_light_test
-
-# テーブル一覧表示
-\dt
 ```
 
 ## 開発ツール

@@ -1,0 +1,94 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: 'Repository monitoring workflow with Step Functions'
+
+Globals:
+  Function:
+    Timeout: 60
+    Runtime: nodejs22.x
+    Environment:
+      Variables:
+        USE_AWS: !Ref UseAws
+        STAGE: !Ref Stage
+        APP_STAGE: !Ref Stage
+        DB_HOST: ""
+        DB_PORT: ""
+        DB_USER: ""
+        DB_PASSWORD: ""
+        DB_NAME: ""
+        DB_SSL: "false"
+
+Parameters:
+  UseAws:
+    Type: String
+    Default: 'true'
+    Description: Flag to indicate if running in AWS environment
+  Stage:
+    Type: String
+    Default: 'dev'
+    Description: Stage environment (dev, staging, prod)
+
+Resources:
+  # Lambda Functions
+  ListDataSourcesFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub "${AWS::StackName}-list-datasources"
+      CodeUri: ../dist/lambda/list-datasources/
+      Handler: index.handler
+      Description: 'List data sources for monitoring'
+      Policies:
+        - Statement:
+            - Effect: Allow
+              Action:
+                - logs:CreateLogGroup
+                - logs:CreateLogStream
+                - logs:PutLogEvents
+              Resource: !Sub "arn:${AWS::Partition}:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/${AWS::StackName}-list-datasources*"
+        - Statement:
+            - Effect: Allow
+              Action:
+                - ssm:GetParameter
+              Resource: !Sub "arn:${AWS::Partition}:ssm:${AWS::Region}:${AWS::AccountId}:parameter/${Stage}/supabase/db_url"
+
+  # Step Functions State Machine
+  RepositoryMonitoringStateMachine:
+    Type: AWS::Serverless::StateMachine
+    Properties:
+      Name: !Sub "${AWS::StackName}-repository-monitoring"
+      DefinitionUri: repository-monitoring.asl.json
+      DefinitionSubstitutions:
+        ListDataSourcesFunctionArn: !GetAtt ListDataSourcesFunction.Arn
+      Policies:
+        - Statement:
+            - Effect: Allow
+              Action:
+                - lambda:InvokeFunction
+              Resource: !GetAtt ListDataSourcesFunction.Arn
+        - Statement:
+            - Effect: Allow
+              Action:
+                - logs:CreateLogGroup
+                - logs:CreateLogStream
+                - logs:PutLogEvents
+              Resource: !Sub "arn:${AWS::Partition}:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/stepfunctions/${AWS::StackName}-repository-monitoring*"
+
+  # CloudWatch Log Group for Step Functions
+  RepositoryMonitoringLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Sub "/aws/stepfunctions/${AWS::StackName}-repository-monitoring"
+      RetentionInDays: 30
+
+Outputs:
+  StateMachineArn:
+    Description: 'ARN of the repository monitoring state machine'
+    Value: !Ref RepositoryMonitoringStateMachine
+    Export:
+      Name: !Sub "${AWS::StackName}-StateMachineArn"
+  
+  ListDataSourcesFunctionArn:
+    Description: 'ARN of the list data sources function'
+    Value: !GetAtt ListDataSourcesFunction.Arn
+    Export:
+      Name: !Sub "${AWS::StackName}-ListDataSourcesFunctionArn"

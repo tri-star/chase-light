@@ -8,9 +8,7 @@
     "test": "pnpm --filter frontend test && pnpm --filter backend test",
     "lint": "pnpm --filter frontend lint && pnpm --filter backend lint && pnpm --filter shared lint",
     "lint:type": "pnpm --filter frontend lint:type && pnpm --filter backend lint:type && pnpm --filter shared lint:type",
-    "lint:fix": "pnpm --filter frontend format && pnpm --filter backend format && pnpm --filter shared format",
-    "format": "biome format packages/backend packages/shared --write && prettier packages/frontend --write",
-    "format:check": "biome format packages/backend packages/shared && prettier packages/frontend --check",
+    "format": "pnpm --filter frontend format && pnpm --filter backend format && pnpm --filter shared format",
     "dev:frontend": "pnpm --filter frontend dev",
     "dev:backend": "pnpm --filter backend dev",
     "build": "pnpm -r build"
