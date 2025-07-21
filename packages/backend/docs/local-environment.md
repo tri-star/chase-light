@@ -57,6 +57,79 @@ pnpm dev
 
 ```
 
+## StepFunctions Local セットアップ
+
+StepFunctions Local を利用することで、リポジトリ監視などのバッチ処理をローカルで実行、テストできます。
+
+### 1. 開発環境起動
+
+StepFunctions Local を含んだ開発環境を起動します。
+
+```bash
+# 統合開発環境を起動
+./scripts/start-local-dev.sh
+
+# バックグラウンドで起動する場合（ターミナルを閉じても継続）
+./scripts/start-local-dev.sh --wait &
+```
+
+起動が完了すると、以下のようなメッセージが表示されます：
+
+```
+=== 開発環境の起動が完了しました ===
+
+サービス一覧:
+  - PostgreSQL: localhost:5432
+  - StepFunctions Local: http://localhost:8083
+  - SAM Local: http://localhost:3001
+
+停止する場合は以下を実行してください:
+  ./scripts/stop-local-dev.sh
+```
+
+### 2. サービス動作確認
+
+```bash
+# PostgreSQL接続確認
+docker compose exec db pg_isready -U postgres -d chase_light
+
+# StepFunctions Local確認
+curl -f http://localhost:8083/
+
+# SAM Local確認
+curl -f http://localhost:3001/2015-03-31/functions/list-datasources/invocations
+```
+
+### 3. StepFunctions実行
+
+#### ステートマシン作成
+
+```bash
+
+export AWS_REGION=ap-northeast-1
+
+# 必要に応じて実行
+# export AWS_PROFILE=xxx
+# aws sso login
+
+# StepFunctions LocalでステートマシンをLaunch
+aws stepfunctions create-state-machine \
+  --endpoint-url http://localhost:8083 \
+  --name "repository-monitoring-local" \
+  --definition file://infrastructure/repository-monitoring.asl.json \
+  --role-arn arn:aws:iam::123456789012:role/DummyRole
+```
+
+#### ワークフロー実行
+
+```bash
+# ステートマシン実行
+aws stepfunctions start-execution \
+  --endpoint-url http://localhost:8083 \
+  --state-machine-arn arn:aws:states:ap-northeast-1:123456789012:stateMachine:repository-monitoring-local \
+  --input '{"sourceType": "github_repository"}'
+```
+
 ## テスト環境
 
 ### テスト用データベースのセットアップ
@@ -104,90 +177,3 @@ pnpm lint:type
 # フォーマット
 pnpm format
 ```
-
-## トラブルシューティング
-
-### データベース関連
-
-#### テスト用DBが見つからない場合
-
-```bash
-# コンテナを再起動（初期化スクリプトが再実行される）
-docker compose down
-docker compose up -d db
-
-# または手動でセットアップ
-cd packages/backend
-pnpm test:setup
-```
-
-#### 権限エラーが発生する場合
-
-```bash
-# PostgreSQLコンテナに接続して権限確認
-docker exec -it $(docker ps -q -f "name=postgres") psql -U postgres -d chase_light_test
-
-# 権限の再設定
-GRANT ALL PRIVILEGES ON DATABASE chase_light_test TO postgres;
-GRANT ALL PRIVILEGES ON SCHEMA public TO postgres;
-```
-
-#### マイグレーションエラー
-
-```bash
-# マイグレーションファイルを削除してリセット
-rm -rf drizzle/
-
-# スキーマを再生成
-pnpm db:generate
-
-# データベースにpush（開発中）
-pnpm db:push
-```
-
-### テスト関連
-
-#### テストが失敗する場合
-
-```bash
-# テスト用環境変数の確認
-cat .env.testing
-
-# データベース接続の確認
-NODE_ENV=test pnpm db:test
-
-# テスト用DBの手動リセット
-docker exec -it $(docker ps -q -f "name=postgres") psql -U postgres -d chase_light_test -c "DROP SCHEMA public CASCADE; CREATE SCHEMA public;"
-```
-
-#### 依存関係エラー
-
-```bash
-# node_modulesをクリーンインストール
-rm -rf node_modules
-pnpm install
-
-# 型定義の再インストール
-pnpm add -D @types/node @types/pg
-```
-
-## 便利なコマンド
-
-```bash
-# 全体のビルド（プロジェクトルート）
-pnpm build
-
-# 特定パッケージのみ実行
-pnpm --filter backend dev
-pnpm --filter frontend dev
-
-# ログの確認
-docker compose logs db
-docker compose logs -f db  # リアルタイム表示
-```
-
-## 参考リンク
-
-- [開発コマンド一覧](./.github/instructions/dev_commands.instructions.md)
-- [アーキテクチャガイド](./docs/guidelines/architecture-patterns.md)
-- [テスト戦略](./docs/guidelines/testing-strategy.md)
