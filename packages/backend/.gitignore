@@ -4,6 +4,7 @@ lambda.zip
 
 # aws sam
 .aws-sam/
+sam-local.pid
 
 # dev
 .yarn/
