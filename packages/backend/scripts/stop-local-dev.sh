@@ -52,7 +52,9 @@ else
     # PIDファイルがない場合は、ポートを使用しているプロセスを探して終了
     if lsof -i:3001 >/dev/null 2>&1; then
         log "ポート3001を使用しているプロセスを停止中..."
-        lsof -ti:3001 | xargs -r kill 2>/dev/null || true
+        if lsof -ti:3001 >/dev/null 2>&1; then
+            lsof -ti:3001 | xargs kill 2>/dev/null || true
+        fi
     fi
 fi
 
