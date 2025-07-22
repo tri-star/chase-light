@@ -90,6 +90,7 @@ ensure_state_machine() {
 # 単一テストケースの実行
 run_test_case() {
     local test_case=$1
+    local expected_outcome=$2  # "SUCCEEDED" または "FAILED"
     local execution_name="${test_case,,}Execution"
     
     log "[$test_case] テストケースを実行中..."
@@ -132,36 +133,58 @@ run_test_case() {
         
         case "$status" in
             "SUCCEEDED")
-                log_success "[$test_case] テスト実行が成功しました"
-                
-                # 実行履歴から結果を表示
-                local output
-                output=$(aws stepfunctions get-execution-history \
-                    --endpoint http://localhost:8083 \
-                    --execution-arn "$execution_arn" \
-                    --query 'events[?type==`ExecutionSucceeded`].executionSucceededEventDetails.output' \
-                    --output text 2>/dev/null)
-                
-                if [ -n "$output" ] && [ "$output" != "None" ]; then
-                    log "[$test_case] 実行結果: $output"
+                if [ "$expected_outcome" = "SUCCEEDED" ]; then
+                    log_success "[$test_case] テスト実行が期待通り成功しました"
+                    
+                    # 実行履歴から結果を表示
+                    local output
+                    output=$(aws stepfunctions get-execution-history \
+                        --endpoint http://localhost:8083 \
+                        --execution-arn "$execution_arn" \
+                        --query 'events[?type==`ExecutionSucceeded`].executionSucceededEventDetails.output' \
+                        --output text 2>/dev/null)
+                    
+                    if [ -n "$output" ] && [ "$output" != "None" ]; then
+                        log "[$test_case] 実行結果: $output"
+                    fi
+                    return 0
+                else
+                    log_error "[$test_case] 期待される結果は失敗でしたが、成功しました"
+                    return 1
                 fi
-                return 0
                 ;;
             "FAILED")
-                log_error "[$test_case] テスト実行が失敗しました"
-                
-                # エラー詳細を表示
-                local error_details
-                error_details=$(aws stepfunctions get-execution-history \
-                    --endpoint http://localhost:8083 \
-                    --execution-arn "$execution_arn" \
-                    --query 'events[?type==`ExecutionFailed`].executionFailedEventDetails' \
-                    --output text 2>/dev/null)
-                
-                if [ -n "$error_details" ] && [ "$error_details" != "None" ]; then
-                    log_error "[$test_case] エラー詳細: $error_details"
+                if [ "$expected_outcome" = "FAILED" ]; then
+                    log_success "[$test_case] テスト実行が期待通り失敗しました（テスト成功）"
+                    
+                    # エラー詳細を情報として表示
+                    local error_details
+                    error_details=$(aws stepfunctions get-execution-history \
+                        --endpoint http://localhost:8083 \
+                        --execution-arn "$execution_arn" \
+                        --query 'events[?type==`ExecutionFailed`].executionFailedEventDetails' \
+                        --output text 2>/dev/null)
+                    
+                    if [ -n "$error_details" ] && [ "$error_details" != "None" ]; then
+                        log "[$test_case] エラー詳細: $error_details"
+                    fi
+                    return 0
+                else
+                    log_error "[$test_case] テスト実行が予期せず失敗しました"
+                    
+                    # エラー詳細を表示
+                    local error_details
+                    error_details=$(aws stepfunctions get-execution-history \
+                        --endpoint http://localhost:8083 \
+                        --execution-arn "$execution_arn" \
+                        --query 'events[?type==`ExecutionFailed`].executionFailedEventDetails' \
+                        --output text 2>/dev/null)
+                    
+                    if [ -n "$error_details" ] && [ "$error_details" != "None" ]; then
+                        log_error "[$test_case] エラー詳細: $error_details"
+                    fi
+                    return 1
                 fi
-                return 1
                 ;;
             "RUNNING")
                 sleep 1
@@ -211,22 +234,38 @@ main() {
     local success_count=0
     local total_count=0
     
+    # テストケース定義（名前:期待される結果の形式）
+    declare -A test_definitions=(
+        ["HappyPathTest"]="SUCCEEDED"
+        ["ErrorPathTest"]="FAILED"
+        ["EmptyResultTest"]="SUCCEEDED"
+    )
+    
     # テストケースに応じて実行
     case "$test_case" in
         "HappyPathTest"|"ErrorPathTest"|"EmptyResultTest")
+            # 単一テストケースの実行
+            if [ -z "${test_definitions[$test_case]}" ]; then
+                log_error "不明なテストケース: $test_case"
+                echo ""
+                show_usage
+                exit 1
+            fi
+            
             total_count=1
-            if run_test_case "$test_case"; then
+            if run_test_case "$test_case" "${test_definitions[$test_case]}"; then
                 success_count=1
             else
                 failed_tests+=("$test_case")
             fi
             ;;
         "all")
-            local test_cases=("HappyPathTest" "ErrorPathTest" "EmptyResultTest")
+            # 全テストケースの実行
+            local test_cases=($(printf '%s\n' "${!test_definitions[@]}" | sort))
             total_count=${#test_cases[@]}
             
             for tc in "${test_cases[@]}"; do
-                if run_test_case "$tc"; then
+                if run_test_case "$tc" "${test_definitions[$tc]}"; then
                     success_count=$((success_count + 1))
                 else
                     failed_tests+=("$tc")
