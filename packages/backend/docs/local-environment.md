@@ -106,7 +106,8 @@ curl -f http://localhost:3001/2015-03-31/functions/list-datasources/invocations
 
 ```bash
 
-export AWS_REGION=ap-northeast-1
+# StepFunctionsLocalが作成するStateMachineは常にus-east-1
+export AWS_REGION=us-east-1
 
 # 必要に応じて実行
 # export AWS_PROFILE=xxx
@@ -124,10 +125,77 @@ aws stepfunctions create-state-machine \
 
 ```bash
 # ステートマシン実行
+# ** StepFunctionsLocalが作成するStateMachineは常にus-east-1 **
 aws stepfunctions start-execution \
   --endpoint-url http://localhost:8083 \
-  --state-machine-arn arn:aws:states:ap-northeast-1:123456789012:stateMachine:repository-monitoring-local \
+  --state-machine-arn arn:aws:states:us-east-1:123456789012:stateMachine:repository-monitoring-local \
   --input '{"sourceType": "github_repository"}'
+```
+
+### 4. MockConfigを使用したテスト
+
+Step Functions Localでは、実際のLambda関数を実行せずにモックレスポンスを使用してテストできます。
+これにより高速で安定したテストが可能になります。
+
+#### 利用可能なテストケース
+
+以下の3つのテストケースが`infrastructure/MockConfigFile.json`で定義されています：
+
+1. **HappyPathTest**: 正常系テスト（複数のデータソースを返す）
+2. **ErrorPathTest**: エラー系テスト（データベース接続エラーをシミュレート）
+3. **EmptyResultTest**: 空結果テスト（データソースが存在しない場合）
+
+#### 各テストケースの実行
+
+```bash
+# 1. HappyPathTest（正常系）
+aws stepfunctions start-execution \
+  --endpoint http://localhost:8083 \
+  --name happyPathTestExecution \
+  --state-machine "arn:aws:states:us-east-1:123456789012:stateMachine:repository-monitoring-local#HappyPathTest" \
+  --input '{}'
+
+# 2. ErrorPathTest（エラー系）
+aws stepfunctions start-execution \
+  --endpoint http://localhost:8083 \
+  --name errorPathTestExecution \
+  --state-machine "arn:aws:states:us-east-1:123456789012:stateMachine:repository-monitoring-local#ErrorPathTest" \
+  --input '{}'
+
+# 3. EmptyResultTest（空結果）
+aws stepfunctions start-execution \
+  --endpoint http://localhost:8083 \
+  --name emptyResultTestExecution \
+  --state-machine "arn:aws:states:us-east-1:123456789012:stateMachine:repository-monitoring-local#EmptyResultTest" \
+  --input '{}'
+```
+
+#### 実行結果の確認
+
+```bash
+# 実行履歴を確認
+aws stepfunctions get-execution-history \
+  --endpoint http://localhost:8083 \
+  --execution-arn <実行結果のexecutionArnを指定>
+
+# 実行結果のPayloadを確認（HappyPathTestの場合）
+aws stepfunctions get-execution-history \
+  --endpoint http://localhost:8083 \
+  --execution-arn <実行結果のexecutionArn> \
+  --query 'events[?type==`TaskSucceeded`].taskSucceededEventDetails.output' \
+  --output text
+```
+
+#### 一括テスト実行
+
+全てのテストケースを一度に実行する場合は、以下のスクリプトを使用してください：
+
+```bash
+# 全テストケースを実行
+./scripts/test-stepfunctions-local.sh
+
+# 特定のテストケースのみ実行
+./scripts/test-stepfunctions-local.sh HappyPathTest
 ```
 
 ## テスト環境
