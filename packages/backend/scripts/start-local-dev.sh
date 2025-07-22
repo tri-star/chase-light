@@ -26,16 +26,45 @@ log_error() {
     echo -e "${RED}[$(date '+%Y-%m-%d %H:%M:%S')]${NC} $1"
 }
 
+# ヘルプメッセージを表示する関数
+show_usage() {
+    echo "Usage: $0 [OPTIONS]"
+    echo ""
+    echo "Chase Light StepFunctions Local開発環境を起動します。"
+    echo ""
+    echo "OPTIONS:"
+    echo "  --clean        既存のコンテナとボリュームを完全削除してから起動"
+    echo "  --wait, -w     開発環境起動後、フォアグラウンドで待機（Ctrl+Cで停止）"
+    echo "  --help, -h     このヘルプメッセージを表示"
+    echo ""
+    echo "EXAMPLES:"
+    echo "  $0             開発環境を起動"
+    echo "  $0 --clean     DBボリュームを削除してクリーンな状態で起動"
+    echo "  $0 --wait      起動後、フォアグラウンドで待機"
+    echo ""
+}
+
 # コマンドライン引数の解析
 CLEAN_MODE=false
+WAIT_MODE=false
 while [[ $# -gt 0 ]]; do
     case $1 in
         --clean)
             CLEAN_MODE=true
             shift
             ;;
-        *)
+        --wait|-w)
+            WAIT_MODE=true
             shift
+            ;;
+        --help|-h)
+            show_usage
+            exit 0
+            ;;
+        *)
+            echo "Unknown option: $1"
+            show_usage
+            exit 1
             ;;
     esac
 done
@@ -99,7 +128,7 @@ log_success "PostgreSQLが起動しました"
 # StepFunctions Localの起動確認
 log "StepFunctions Localの起動を確認中..."
 counter=0
-while ! curl -f http://localhost:8083/ >/dev/null 2>&1; do
+while ! nc -z localhost 8083 >/dev/null 2>&1; do
     if [ $counter -gt $timeout ]; then
         log_error "StepFunctions Localの起動がタイムアウトしました"
         docker compose logs stepfunctions-local
@@ -136,7 +165,7 @@ echo $SAM_PID > sam-local.pid
 # SAM Localの起動を待機
 log "SAM Localの起動を待機中..."
 counter=0
-while ! curl -f http://localhost:3001/2015-03-31/functions/list-datasources/invocations >/dev/null 2>&1; do
+while ! nc -z localhost 3001 >/dev/null 2>&1; do
     if [ $counter -gt 60 ]; then
         log_error "SAM Localの起動がタイムアウトしました"
         kill $SAM_PID 2>/dev/null || true
@@ -175,7 +204,7 @@ cleanup() {
 trap cleanup INT TERM
 
 # フォアグラウンドプロセスとして待機
-if [ "$1" = "--wait" ] || [ "$1" = "-w" ]; then
+if [ "$WAIT_MODE" = true ]; then
     log "開発環境が起動しています。Ctrl+Cで停止してください。"
     wait $SAM_PID
 fi

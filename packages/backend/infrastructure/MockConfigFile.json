@@ -1,0 +1,59 @@
+{
+  "StateMachines": {
+    "repository-monitoring-local": {
+      "TestCases": {
+        "HappyPathTest": {
+          "ListDataSourcesFunction": {
+            "0": {
+              "Return": {
+                "dataSources": [
+                  {
+                    "id": "01234567-89ab-cdef-0123-456789abcdef",
+                    "sourceType": "github_repository",
+                    "sourceId": "microsoft/typescript",
+                    "name": "TypeScript",
+                    "description": "TypeScript is a superset of JavaScript that compiles to clean JavaScript output.",
+                    "url": "https://github.com/microsoft/typescript",
+                    "isPrivate": false,
+                    "createdAt": "2023-01-15T10:30:00.000Z",
+                    "updatedAt": "2023-01-15T10:30:00.000Z"
+                  },
+                  {
+                    "id": "12345678-9abc-def0-1234-56789abcdef0",
+                    "sourceType": "github_repository",
+                    "sourceId": "facebook/react",
+                    "name": "React",
+                    "description": "A declarative, efficient, and flexible JavaScript library for building user interfaces.",
+                    "url": "https://github.com/facebook/react",
+                    "isPrivate": false,
+                    "createdAt": "2023-01-16T11:45:00.000Z",
+                    "updatedAt": "2023-01-16T11:45:00.000Z"
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "ErrorPathTest": {
+          "ListDataSourcesFunction": {
+            "0": {
+              "Throw": {
+                "Error": "InternalServerError",
+                "Cause": "Database connection failed: Unable to connect to PostgreSQL database"
+              }
+            }
+          }
+        },
+        "EmptyResultTest": {
+          "ListDataSourcesFunction": {
+            "0": {
+              "Return": {
+                "dataSources": []
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
