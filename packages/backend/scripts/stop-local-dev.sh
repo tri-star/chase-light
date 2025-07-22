@@ -60,7 +60,7 @@ fi
 
 # Docker Composeサービスを停止
 log "Docker Composeサービスを停止中..."
-docker compose down -v 2>/dev/null || true
+docker compose down 2>/dev/null || true
 
 # ログファイルのクリーンアップ
 rm -f sam-local.log
