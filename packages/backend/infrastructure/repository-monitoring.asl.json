@@ -1,22 +1,25 @@
 {
   "Comment": "Repository monitoring workflow - single step implementation",
-  "QueryLanguage": "JSONata",
   "StartAt": "ListDataSources",
   "States": {
     "ListDataSources": {
       "Type": "Task",
-      "Resource": "${ListDataSourcesFunctionArn}",
-      "Arguments": {
-        "sourceType": "github_repository"
+      "Resource": "arn:aws:states:::lambda:invoke",
+      "Parameters": {
+        "FunctionName": "arn:aws:lambda:ap-northeast-1:123456789012:function:ListDataSourcesFunction",
+        "Payload": {
+          "sourceType": "github_repository"
+        }
       },
+      "ResultPath": "$.lambdaResult",
       "Next": "ProcessResults"
     },
     "ProcessResults": {
       "Type": "Pass",
-      "Output": {
+      "Result": {
         "status": "completed",
-        "timestamp": "{% $now() %}",
-        "dataSourcesCount": "{% $count($states.input.dataSources) %}"
+        "timestamp.$": "$$.State.EnteredTime",
+        "dataSourcesCount.$": "States.ArrayLength($.lambdaResult.Payload.dataSources)"
       },
       "End": true
     }

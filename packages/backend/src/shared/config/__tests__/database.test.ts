@@ -111,7 +111,7 @@ describe("database config", () => {
   describe("AWS環境", () => {
     beforeEach(() => {
       process.env.USE_AWS = "true"
-      process.env.AWS_REGION = "us-east-1"
+      process.env.AWS_REGION = "ap-northeast-1"
       process.env.APP_STAGE = "dev"
     })
 

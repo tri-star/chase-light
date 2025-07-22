@@ -57,6 +57,147 @@ pnpm dev
 
 ```
 
+## StepFunctions Local セットアップ
+
+StepFunctions Local を利用することで、リポジトリ監視などのバッチ処理をローカルで実行、テストできます。
+
+### 1. 開発環境起動
+
+StepFunctions Local を含んだ開発環境を起動します。
+
+```bash
+# 統合開発環境を起動
+./scripts/start-local-dev.sh
+
+# バックグラウンドで起動する場合（ターミナルを閉じても継続）
+./scripts/start-local-dev.sh --wait &
+```
+
+起動が完了すると、以下のようなメッセージが表示されます：
+
+```
+=== 開発環境の起動が完了しました ===
+
+サービス一覧:
+  - PostgreSQL: localhost:5432
+  - StepFunctions Local: http://localhost:8083
+  - SAM Local: http://localhost:3001
+
+停止する場合は以下を実行してください:
+  ./scripts/stop-local-dev.sh
+```
+
+### 2. サービス動作確認
+
+```bash
+# PostgreSQL接続確認
+docker compose exec db pg_isready -U postgres -d chase_light
+
+# StepFunctions Local確認
+curl -f http://localhost:8083/
+
+# SAM Local確認
+curl -f http://localhost:3001/2015-03-31/functions/list-datasources/invocations
+```
+
+### 3. StepFunctions実行
+
+#### ステートマシン作成
+
+```bash
+
+# StepFunctionsLocalが作成するStateMachineは常にus-east-1
+export AWS_REGION=us-east-1
+
+# 必要に応じて実行
+# export AWS_PROFILE=xxx
+# aws sso login
+
+# StepFunctions LocalでステートマシンをLaunch
+aws stepfunctions create-state-machine \
+  --endpoint-url http://localhost:8083 \
+  --name "repository-monitoring-local" \
+  --definition file://infrastructure/repository-monitoring.asl.json \
+  --role-arn arn:aws:iam::123456789012:role/DummyRole
+```
+
+#### ワークフロー実行
+
+```bash
+# ステートマシン実行
+# ** StepFunctionsLocalが作成するStateMachineは常にus-east-1 **
+aws stepfunctions start-execution \
+  --endpoint-url http://localhost:8083 \
+  --state-machine-arn arn:aws:states:us-east-1:123456789012:stateMachine:repository-monitoring-local \
+  --input '{"sourceType": "github_repository"}'
+```
+
+### 4. MockConfigを使用したテスト
+
+Step Functions Localでは、実際のLambda関数を実行せずにモックレスポンスを使用してテストできます。
+これにより高速で安定したテストが可能になります。
+
+#### 利用可能なテストケース
+
+以下の3つのテストケースが`infrastructure/MockConfigFile.json`で定義されています：
+
+1. **HappyPathTest**: 正常系テスト（複数のデータソースを返す）
+2. **ErrorPathTest**: エラー系テスト（データベース接続エラーをシミュレート）
+3. **EmptyResultTest**: 空結果テスト（データソースが存在しない場合）
+
+#### 各テストケースの実行
+
+```bash
+# 1. HappyPathTest（正常系）
+aws stepfunctions start-execution \
+  --endpoint http://localhost:8083 \
+  --name happyPathTestExecution \
+  --state-machine "arn:aws:states:us-east-1:123456789012:stateMachine:repository-monitoring-local#HappyPathTest" \
+  --input '{}'
+
+# 2. ErrorPathTest（エラー系）
+aws stepfunctions start-execution \
+  --endpoint http://localhost:8083 \
+  --name errorPathTestExecution \
+  --state-machine "arn:aws:states:us-east-1:123456789012:stateMachine:repository-monitoring-local#ErrorPathTest" \
+  --input '{}'
+
+# 3. EmptyResultTest（空結果）
+aws stepfunctions start-execution \
+  --endpoint http://localhost:8083 \
+  --name emptyResultTestExecution \
+  --state-machine "arn:aws:states:us-east-1:123456789012:stateMachine:repository-monitoring-local#EmptyResultTest" \
+  --input '{}'
+```
+
+#### 実行結果の確認
+
+```bash
+# 実行履歴を確認
+aws stepfunctions get-execution-history \
+  --endpoint http://localhost:8083 \
+  --execution-arn <実行結果のexecutionArnを指定>
+
+# 実行結果のPayloadを確認（HappyPathTestの場合）
+aws stepfunctions get-execution-history \
+  --endpoint http://localhost:8083 \
+  --execution-arn <実行結果のexecutionArn> \
+  --query 'events[?type==`TaskSucceeded`].taskSucceededEventDetails.output' \
+  --output text
+```
+
+#### 一括テスト実行
+
+全てのテストケースを一度に実行する場合は、以下のスクリプトを使用してください：
+
+```bash
+# 全テストケースを実行
+./scripts/test-stepfunctions-local.sh
+
+# 特定のテストケースのみ実行
+./scripts/test-stepfunctions-local.sh HappyPathTest
+```
+
 ## テスト環境
 
 ### テスト用データベースのセットアップ
@@ -104,90 +245,3 @@ pnpm lint:type
 # フォーマット
 pnpm format
 ```
-
-## トラブルシューティング
-
-### データベース関連
-
-#### テスト用DBが見つからない場合
-
-```bash
-# コンテナを再起動（初期化スクリプトが再実行される）
-docker compose down
-docker compose up -d db
-
-# または手動でセットアップ
-cd packages/backend
-pnpm test:setup
-```
-
-#### 権限エラーが発生する場合
-
-```bash
-# PostgreSQLコンテナに接続して権限確認
-docker exec -it $(docker ps -q -f "name=postgres") psql -U postgres -d chase_light_test
-
-# 権限の再設定
-GRANT ALL PRIVILEGES ON DATABASE chase_light_test TO postgres;
-GRANT ALL PRIVILEGES ON SCHEMA public TO postgres;
-```
-
-#### マイグレーションエラー
-
-```bash
-# マイグレーションファイルを削除してリセット
-rm -rf drizzle/
-
-# スキーマを再生成
-pnpm db:generate
-
-# データベースにpush（開発中）
-pnpm db:push
-```
-
-### テスト関連
-
-#### テストが失敗する場合
-
-```bash
-# テスト用環境変数の確認
-cat .env.testing
-
-# データベース接続の確認
-NODE_ENV=test pnpm db:test
-
-# テスト用DBの手動リセット
-docker exec -it $(docker ps -q -f "name=postgres") psql -U postgres -d chase_light_test -c "DROP SCHEMA public CASCADE; CREATE SCHEMA public;"
-```
-
-#### 依存関係エラー
-
-```bash
-# node_modulesをクリーンインストール
-rm -rf node_modules
-pnpm install
-
-# 型定義の再インストール
-pnpm add -D @types/node @types/pg
-```
-
-## 便利なコマンド
-
-```bash
-# 全体のビルド（プロジェクトルート）
-pnpm build
-
-# 特定パッケージのみ実行
-pnpm --filter backend dev
-pnpm --filter frontend dev
-
-# ログの確認
-docker compose logs db
-docker compose logs -f db  # リアルタイム表示
-```
-
-## 参考リンク
-
-- [開発コマンド一覧](./.github/instructions/dev_commands.instructions.md)
-- [アーキテクチャガイド](./docs/guidelines/architecture-patterns.md)
-- [テスト戦略](./docs/guidelines/testing-strategy.md)
