@@ -3,6 +3,9 @@ import { GitHubApiError } from "../errors"
 import type {
   GitHubApiServiceInterface,
   GitHubRepositoryResponse,
+  GitHubReleaseResponse,
+  GitHubIssueResponse,
+  GitHubPullRequestResponse,
 } from "./interfaces/github-api-service.interface"
 
 /**
@@ -60,6 +63,127 @@ export class GitHubApiService implements GitHubApiServiceInterface {
         undefined,
       )
     }
+  }
+
+  /**
+   * リポジトリのリリース一覧を取得
+   */
+  async getReleases(
+    owner: string,
+    repo: string,
+    options?: { perPage?: number; page?: number },
+  ): Promise<GitHubReleaseResponse[]> {
+    try {
+      const response = await this.octokit.rest.repos.listReleases({
+        owner,
+        repo,
+        per_page: options?.perPage || 100,
+        page: options?.page || 1,
+      })
+
+      return response.data as GitHubReleaseResponse[]
+    } catch (error: unknown) {
+      this.handleApiError(error, `releases for ${owner}/${repo}`)
+    }
+  }
+
+  /**
+   * リポジトリのIssue一覧を取得
+   */
+  async getIssues(
+    owner: string,
+    repo: string,
+    options?: {
+      state?: "open" | "closed" | "all"
+      since?: string
+      perPage?: number
+      page?: number
+    },
+  ): Promise<GitHubIssueResponse[]> {
+    try {
+      const response = await this.octokit.rest.issues.listForRepo({
+        owner,
+        repo,
+        state: options?.state || "all",
+        since: options?.since,
+        per_page: options?.perPage || 100,
+        page: options?.page || 1,
+      })
+
+      // Pull Requestもissuesとして返ってくるため、除外する
+      const issues = response.data.filter(
+        (item) => !("pull_request" in item),
+      ) as GitHubIssueResponse[]
+
+      return issues
+    } catch (error: unknown) {
+      this.handleApiError(error, `issues for ${owner}/${repo}`)
+    }
+  }
+
+  /**
+   * リポジトリのPull Request一覧を取得
+   */
+  async getPullRequests(
+    owner: string,
+    repo: string,
+    options?: {
+      state?: "open" | "closed" | "all"
+      since?: string
+      perPage?: number
+      page?: number
+    },
+  ): Promise<GitHubPullRequestResponse[]> {
+    try {
+      const response = await this.octokit.rest.pulls.list({
+        owner,
+        repo,
+        state: options?.state || "all",
+        per_page: options?.perPage || 100,
+        page: options?.page || 1,
+      })
+
+      // sinceパラメータはpulls.listではサポートされていないため、手動でフィルタリング
+      let pullRequests = response.data as GitHubPullRequestResponse[]
+
+      if (options?.since) {
+        const sinceDate = new Date(options.since)
+        pullRequests = pullRequests.filter(
+          (pr) => new Date(pr.created_at) >= sinceDate,
+        )
+      }
+
+      return pullRequests
+    } catch (error: unknown) {
+      this.handleApiError(error, `pull requests for ${owner}/${repo}`)
+    }
+  }
+
+  /**
+   * APIエラーハンドリングの共通処理
+   */
+  private handleApiError(error: unknown, resource: string): never {
+    if (this.isOctokitError(error)) {
+      if (error.status === 404) {
+        throw new GitHubApiError(`${resource} not found or not accessible`, 404)
+      }
+      if (error.status === 403) {
+        throw new GitHubApiError(
+          "GitHub API rate limit exceeded or forbidden",
+          403,
+        )
+      }
+      throw new GitHubApiError(
+        `GitHub API error: ${error.message}`,
+        error.status,
+      )
+    }
+
+    const fallbackError = error as { message?: string }
+    throw new GitHubApiError(
+      `GitHub API error: ${fallbackError.message || "Unknown error"}`,
+      undefined,
+    )
   }
 
   /**

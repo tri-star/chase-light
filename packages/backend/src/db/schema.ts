@@ -150,6 +150,9 @@ export const events = pgTable(
     title: text("title").notNull(),
     body: text("body").notNull(),
     version: text("version"),
+    status: text("status").notNull().default("pending"),
+    statusDetail: text("status_detail"),
+    githubData: text("github_data"),
     createdAt: timestamp("created_at", { withTimezone: true }).notNull(),
     updatedAt: timestamp("updated_at", { withTimezone: true })
       .defaultNow()
@@ -174,6 +177,7 @@ export const events = pgTable(
       table.dataSourceId,
       table.createdAt,
     ),
+    statusIdx: index("idx_events_status").on(table.status),
     createdAtIdx: index("idx_events_created_at").on(table.createdAt),
     updatedAtIdx: index("idx_events_updated_at").on(table.updatedAt),
   }),

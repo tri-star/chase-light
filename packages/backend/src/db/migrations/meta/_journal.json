@@ -29,6 +29,20 @@
       "when": 1752289910524,
       "tag": "0003_sweet_iron_man",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1753311143552,
+      "tag": "0004_friendly_black_queen",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1753311316652,
+      "tag": "0005_mature_santa_claus",
+      "breakpoints": true
     }
   ]
 }
