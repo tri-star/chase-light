@@ -41,7 +41,8 @@ export const handler = async (
       const repositoryRepository = new RepositoryRepository()
       const eventRepository = new EventRepository()
 
-      // GitHub APIサービス（現時点では認証なし）
+      // GitHub APIサービス（現時点では認証なし - 認証を追加することでレート制限が緩和される可能性あり）
+      // TODO: Implement authentication for GitHub API to increase rate limits and improve reliability.
       const githubApiService = createGitHubApiService()
 
       // 更新検知サービス
