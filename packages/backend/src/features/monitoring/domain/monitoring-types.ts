@@ -72,16 +72,5 @@ export type GitHubPullRequest = {
   }
 }
 
-/**
- * イベントタイプ定数
- */
-export const EVENT_TYPE = {
-  RELEASE: "release",
-  ISSUE: "issue",
-  PULL_REQUEST: "pull_request",
-} as const
-
-/**
- * イベントタイプの型
- */
-export type EventType = (typeof EVENT_TYPE)[keyof typeof EVENT_TYPE]
+// ...existing code...
+export { EVENT_TYPE, EventType } from "./event"
