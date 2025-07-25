@@ -1,4 +1,4 @@
-import { describe, test, beforeEach, afterEach, expect } from "vitest"
+import { describe, test, beforeEach, afterEach, expect, vi } from "vitest"
 import type { Context } from "aws-lambda"
 import { handler } from "../handler"
 import { setupComponentTest } from "../../../../../test"
@@ -19,12 +19,9 @@ describe("detect-datasource-updates handler", () => {
   let mockContext: Context
 
   let testDataSourceId: string
-  let originalEnv: string | undefined
-
   beforeEach(async () => {
-    // 環境変数を保存してスタブモードに設定
-    originalEnv = process.env.USE_GITHUB_API_STUB
-    process.env.USE_GITHUB_API_STUB = "true"
+    // 環境変数をstubEnvでセット
+    vi.stubEnv("USE_GITHUB_API_STUB", "true")
     dataSourceRepository = new DataSourceRepository()
     repositoryRepository = new RepositoryRepository()
     eventRepository = new EventRepository()
@@ -65,12 +62,8 @@ describe("detect-datasource-updates handler", () => {
   })
 
   afterEach(() => {
-    // 環境変数を元に戻す
-    if (originalEnv === undefined) {
-      delete process.env.USE_GITHUB_API_STUB
-    } else {
-      process.env.USE_GITHUB_API_STUB = originalEnv
-    }
+    // 環境変数をstubEnvでクリア
+    vi.unstubAllEnvs()
   })
 
   test("初回実行時は7日前からの更新を取得して保存する", async () => {
