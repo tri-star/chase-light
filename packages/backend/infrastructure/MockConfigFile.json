@@ -10,6 +10,15 @@
         },
         "EmptyResultTest": {
           "ListDataSources": "MockedLambdaEmpty"
+        },
+        "SingleItemTest": {
+          "ListDataSources": "MockedLambdaSingle"
+        },
+        "DuplicateIdTest": {
+          "ListDataSources": "MockedLambdaDuplicate"
+        },
+        "InvalidValueTest": {
+          "ListDataSources": "MockedLambdaInvalid"
         }
       }
     }
@@ -42,6 +51,39 @@
                 "isPrivate": false,
                 "createdAt": "2023-01-16T11:45:00.000Z",
                 "updatedAt": "2023-01-16T11:45:00.000Z"
+              },
+              {
+                "id": "23456789-abcd-ef01-2345-6789abcdef01",
+                "sourceType": "github_repository",
+                "sourceId": "vercel/next.js",
+                "name": "Next.js",
+                "description": "",
+                "url": "https://github.com/vercel/next.js",
+                "isPrivate": true,
+                "createdAt": "2022-12-01T08:00:00.000Z",
+                "updatedAt": "2022-12-01T08:00:00.000Z"
+              },
+              {
+                "id": "34567890-bcde-f012-3456-789abcdef012",
+                "sourceType": "github_repository",
+                "sourceId": "vuejs/vue",
+                "name": "Vue.js",
+                "description": "Progressive JavaScript Framework.",
+                "url": "https://github.com/vuejs/vue",
+                "isPrivate": false,
+                "createdAt": "invalid-date",
+                "updatedAt": "2023-02-01T12:00:00.000Z"
+              },
+              {
+                "id": "12345678-9abc-def0-1234-56789abcdef0",
+                "sourceType": "github_repository",
+                "sourceId": "facebook/react",
+                "name": "React Duplicate",
+                "description": "Duplicate ID test.",
+                "url": "https://github.com/facebook/react",
+                "isPrivate": false,
+                "createdAt": "2023-01-16T11:45:00.000Z",
+                "updatedAt": "2023-01-16T11:45:00.000Z"
               }
             ]
           }
@@ -54,15 +96,113 @@
           "Error": "InternalServerError",
           "Cause": "Database connection failed: Unable to connect to PostgreSQL database"
         }
+      },
+      "1": {
+        "Throw": {
+          "Error": "ValidationError",
+          "Cause": "Invalid dataSourceId format"
+        }
+      },
+      "2": {
+        "Throw": {
+          "Error": "TimeoutError",
+          "Cause": "Lambda execution timed out"
+        }
       }
     },
-    "MockedLambdaEmpty": {
-      "0": {
-        "Return": {
-          "StatusCode": 200,
-          "Payload": {
-            "dataSources": []
-          }
+    "SingleItemTest": {
+      "ListDataSources": "MockedLambdaSingle"
+    },
+    "DuplicateIdTest": {
+      "ListDataSources": "MockedLambdaDuplicate"
+    },
+    "InvalidValueTest": {
+      "ListDataSources": "MockedLambdaInvalid"
+    }
+  },
+  "MockedLambdaSingle": {
+    "0": {
+      "Return": {
+        "StatusCode": 200,
+        "Payload": {
+          "dataSources": [
+            {
+              "id": "45678901-cdef-0123-4567-89abcdef0123",
+              "sourceType": "github_repository",
+              "sourceId": "nuxt/nuxt.js",
+              "name": "Nuxt.js",
+              "description": "The Intuitive Vue Framework",
+              "url": "https://github.com/nuxt/nuxt.js",
+              "isPrivate": false,
+              "createdAt": "2023-03-01T09:00:00.000Z",
+              "updatedAt": "2023-03-01T09:00:00.000Z"
+            }
+          ]
+        }
+      }
+    }
+  },
+  "MockedLambdaDuplicate": {
+    "0": {
+      "Return": {
+        "StatusCode": 200,
+        "Payload": {
+          "dataSources": [
+            {
+              "id": "12345678-9abc-def0-1234-56789abcdef0",
+              "sourceType": "github_repository",
+              "sourceId": "facebook/react",
+              "name": "React",
+              "description": "A declarative, efficient, and flexible JavaScript library for building user interfaces.",
+              "url": "https://github.com/facebook/react",
+              "isPrivate": false,
+              "createdAt": "2023-01-16T11:45:00.000Z",
+              "updatedAt": "2023-01-16T11:45:00.000Z"
+            },
+            {
+              "id": "12345678-9abc-def0-1234-56789abcdef0",
+              "sourceType": "github_repository",
+              "sourceId": "facebook/react",
+              "name": "React Duplicate",
+              "description": "Duplicate ID test.",
+              "url": "https://github.com/facebook/react",
+              "isPrivate": false,
+              "createdAt": "2023-01-16T11:45:00.000Z",
+              "updatedAt": "2023-01-16T11:45:00.000Z"
+            }
+          ]
+        }
+      }
+    }
+  },
+  "MockedLambdaInvalid": {
+    "0": {
+      "Return": {
+        "StatusCode": 200,
+        "Payload": {
+          "dataSources": [
+            {
+              "id": "invalid-id",
+              "sourceType": "github_repository",
+              "sourceId": "invalid/source",
+              "name": "Invalid Source",
+              "description": "Invalid test case.",
+              "url": "not-a-url",
+              "isPrivate": "not-a-boolean",
+              "createdAt": "not-a-date",
+              "updatedAt": "not-a-date"
+            }
+          ]
+        }
+      }
+    }
+  },
+  "MockedLambdaEmpty": {
+    "0": {
+      "Return": {
+        "StatusCode": 200,
+        "Payload": {
+          "dataSources": []
         }
       }
     }
