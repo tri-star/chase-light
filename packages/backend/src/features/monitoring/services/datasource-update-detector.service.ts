@@ -1,8 +1,9 @@
+import { uuidv7 } from "uuidv7"
 import { DataSourceRepository } from "../../data-sources/repositories"
 import { RepositoryRepository } from "../../data-sources/repositories"
 import type { GitHubApiServiceInterface } from "../../data-sources/services/interfaces/github-api-service.interface"
 import { EventRepository } from "../repositories"
-import { EVENT_TYPE, type EventType } from "../domain/monitoring-types"
+import { EVENT_TYPE } from "../domain/monitoring-types"
 import {
   MONITORING_DEFAULTS,
   MONITORING_ERRORS,
@@ -108,9 +109,10 @@ export class DataSourceUpdateDetectorService {
 
     // イベントとして保存
     const eventsToSave = newReleases.map((release) => ({
+      id: uuidv7(),
       dataSourceId,
       githubEventId: release.id.toString(),
-      eventType: EVENT_TYPE.RELEASE as EventType,
+      eventType: EVENT_TYPE.RELEASE,
       title: release.name || release.tag_name,
       body: release.body || "",
       version: release.tag_name,
@@ -141,9 +143,10 @@ export class DataSourceUpdateDetectorService {
 
     // イベントとして保存
     const eventsToSave = issues.map((issue) => ({
+      id: uuidv7(),
       dataSourceId,
       githubEventId: issue.id.toString(),
-      eventType: EVENT_TYPE.ISSUE as EventType,
+      eventType: EVENT_TYPE.ISSUE,
       title: issue.title,
       body: issue.body || "",
       version: null,
@@ -176,9 +179,10 @@ export class DataSourceUpdateDetectorService {
 
     // イベントとして保存
     const eventsToSave = pullRequests.map((pr) => ({
+      id: uuidv7(),
       dataSourceId,
       githubEventId: pr.id.toString(),
-      eventType: EVENT_TYPE.PULL_REQUEST as EventType,
+      eventType: EVENT_TYPE.PULL_REQUEST,
       title: pr.title,
       body: pr.body || "",
       version: null,

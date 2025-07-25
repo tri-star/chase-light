@@ -41,7 +41,6 @@ export class EventRepository {
           eq(events.eventType, data.eventType),
         ),
       )
-
     if (existing.length > 0) {
       // 既存レコードがある場合は更新
       const updateData: Record<string, unknown> = {
