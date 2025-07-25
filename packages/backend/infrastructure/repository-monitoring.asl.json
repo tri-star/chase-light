@@ -79,7 +79,7 @@
           "HandleDataSourceError": {
             "Type": "Pass",
             "Result": {
-              "status": "error",
+            "status": "failed",
               "message": "Failed to process data source"
             },
             "ResultPath": "$.errorHandled",
@@ -103,7 +103,7 @@
     "HandleError": {
       "Type": "Pass",
       "Result": {
-        "status": "error",
+        "status": "failed",
         "message": "Failed to list data sources"
       },
       "End": true
