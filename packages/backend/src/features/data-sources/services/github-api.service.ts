@@ -112,7 +112,7 @@ export class GitHubApiService implements GitHubApiServiceInterface {
 
       // Pull Requestもissuesとして返ってくるため、除外する
       const issues = response.data.filter(
-        (item) => !("pull_request" in item),
+        (item) => item.pull_request === undefined,
       ) as GitHubIssueResponse[]
 
       return issues
@@ -135,25 +135,43 @@ export class GitHubApiService implements GitHubApiServiceInterface {
     },
   ): Promise<GitHubPullRequestResponse[]> {
     try {
-      const response = await this.octokit.rest.pulls.list({
-        owner,
-        repo,
-        state: options?.state || "all",
-        per_page: options?.perPage || 100,
-        page: options?.page || 1,
-      })
+      // sinceパラメータはpulls.listではサポートされていないため、ページネーションで取得し、since日付より古いPRが見つかった時点でbreakする
+      // APIリクエスト数を最小化するための最適化
+      const perPage = options?.perPage || 100
+      const state = options?.state || "all"
+      const sinceDate = options?.since ? new Date(options.since) : undefined
+      let page = 1
+      let allPRs: GitHubPullRequestResponse[] = []
+      let shouldContinue = true
 
-      // sinceパラメータはpulls.listではサポートされていないため、手動でフィルタリング
-      let pullRequests = response.data as GitHubPullRequestResponse[]
-
-      if (options?.since) {
-        const sinceDate = new Date(options.since)
-        pullRequests = pullRequests.filter(
-          (pr) => new Date(pr.created_at) >= sinceDate,
-        )
+      while (shouldContinue) {
+        const response = await this.octokit.rest.pulls.list({
+          owner,
+          repo,
+          state,
+          per_page: perPage,
+          page,
+        })
+        const prs = response.data as GitHubPullRequestResponse[]
+        if (sinceDate) {
+          for (const pr of prs) {
+            if (new Date(pr.created_at) < sinceDate) {
+              // since日付より古いPRが見つかったらbreak
+              shouldContinue = false
+              break
+            }
+            allPRs.push(pr)
+          }
+        } else {
+          allPRs = allPRs.concat(prs)
+        }
+        // ページにPRが満たない場合は終了
+        if (prs.length < perPage) {
+          break
+        }
+        page++
       }
-
-      return pullRequests
+      return allPRs
     } catch (error: unknown) {
       this.handleApiError(error, `pull requests for ${owner}/${repo}`)
     }
