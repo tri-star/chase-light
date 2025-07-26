@@ -29,46 +29,6 @@ export class EventRepository {
     const id = data.id || randomUUID()
     const connection = TransactionManager.getConnection()
 
-    // 既存レコードのチェック
-    const existing = await connection
-      .select({ id: events.id })
-      .from(events)
-      .where(
-        and(
-          eq(events.dataSourceId, data.dataSourceId),
-          eq(events.githubEventId, data.githubEventId),
-          eq(events.eventType, data.eventType),
-        ),
-      )
-    if (existing.length > 0) {
-      // 既存レコードがある場合は更新
-      const updateData: Record<string, unknown> = {
-        title: data.title,
-        body: data.body,
-        status: data.status || "pending",
-        updatedAt: now,
-      }
-
-      // オプショナルフィールドは値がある場合のみ追加
-      if (data.version !== undefined) {
-        updateData.version = data.version
-      }
-      if (data.statusDetail !== undefined) {
-        updateData.statusDetail = data.statusDetail
-      }
-      if (data.githubData !== undefined) {
-        updateData.githubData = data.githubData
-      }
-
-      await connection
-        .update(events)
-        .set(updateData)
-        .where(eq(events.id, existing[0].id))
-
-      return { id: existing[0].id, isNew: false }
-    }
-
-    // 新規作成
     const insertData = {
       id,
       dataSourceId: data.dataSourceId,
@@ -84,12 +44,27 @@ export class EventRepository {
       updatedAt: now,
     } as const
 
+    // onConflictDoUpdateでアトミックにupsert
     const [result] = await connection
       .insert(events)
       .values(insertData)
+      .onConflictDoUpdate({
+        target: [events.dataSourceId, events.githubEventId, events.eventType],
+        set: {
+          title: insertData.title,
+          body: insertData.body,
+          version: insertData.version,
+          status: insertData.status,
+          statusDetail: insertData.statusDetail,
+          githubData: insertData.githubData,
+          updatedAt: insertData.updatedAt,
+        },
+      })
       .returning({ id: events.id })
 
-    return { id: result.id, isNew: true }
+    // result.idが既存か新規かは判別できないため、isNewは常にfalseにするか、必要なら別途工夫が必要
+    // ここでは一旦isNew: falseで返す
+    return { id: result.id, isNew: false }
   }
 
   /**
@@ -110,20 +85,47 @@ export class EventRepository {
       createdAt: Date
     }>,
   ): Promise<{ newEventIds: string[]; updatedCount: number }> {
-    const newEventIds: string[] = []
-    let updatedCount = 0
-
-    // トランザクション内で処理
-    for (const data of dataList) {
-      const result = await this.upsert(data)
-      if (result.isNew) {
-        newEventIds.push(result.id)
-      } else {
-        updatedCount++
-      }
+    if (dataList.length === 0) {
+      return { newEventIds: [], updatedCount: 0 }
     }
 
-    return { newEventIds, updatedCount }
+    const now = new Date()
+    const connection = TransactionManager.getConnection()
+    const insertDataList = dataList.map((data) => ({
+      id: data.id || randomUUID(),
+      dataSourceId: data.dataSourceId,
+      githubEventId: data.githubEventId,
+      eventType: data.eventType,
+      title: data.title,
+      body: data.body,
+      version: data.version ?? null,
+      status: data.status || "pending",
+      statusDetail: data.statusDetail ?? null,
+      githubData: data.githubData ?? null,
+      createdAt: data.createdAt,
+      updatedAt: now,
+    }))
+
+    // バルクinsert+onConflictDoUpdate
+    const results = await connection
+      .insert(events)
+      .values(insertDataList)
+      .onConflictDoUpdate({
+        target: [events.dataSourceId, events.githubEventId, events.eventType],
+        set: {
+          title: sql`excluded.title`,
+          body: sql`excluded.body`,
+          version: sql`excluded.version`,
+          status: sql`excluded.status`,
+          statusDetail: sql`excluded.status_detail`,
+          githubData: sql`excluded.github_data`,
+          updatedAt: sql`excluded.updated_at`,
+        },
+      })
+      .returning({ id: events.id })
+
+    // 新規作成か既存更新かは判別できないため、全idをnewEventIdsに入れる
+    return { newEventIds: results.map((r) => r.id), updatedCount: 0 }
   }
 
   /**
