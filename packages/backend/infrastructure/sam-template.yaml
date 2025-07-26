@@ -82,10 +82,6 @@ Resources:
       Timeout: 300
       MemorySize: 512
       ReservedConcurrentExecutions: 2
-      Environment:
-        Variables:
-          NODE_ENV: !Ref NodeEnv
-          STAGE: !Ref Stage
       Policies:
         - Statement:
           - Effect: Allow
