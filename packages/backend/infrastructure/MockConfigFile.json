@@ -3,13 +3,16 @@
     "repository-monitoring-local": {
       "TestCases": {
         "HappyPathTest": {
-          "ListDataSources": "MockedLambdaSuccess"
+          "ListDataSources": "MockedLambdaSuccess",
+          "DetectDataSourceUpdates": "MockedDetectUpdatesSuccess",
+          "ProcessUpdates": "MockedProcessUpdatesSuccess"
         },
         "ErrorPathTest": {
           "ListDataSources": "MockedLambdaError"
         },
         "EmptyResultTest": {
-          "ListDataSources": "MockedLambdaEmpty"
+          "ListDataSources": "MockedLambdaEmpty",
+          "DetectDataSourceUpdates": "MockedDetectUpdatesEmpty"
         },
         "SingleItemTest": {
           "ListDataSources": "MockedLambdaSingle"
@@ -19,6 +22,11 @@
         },
         "InvalidValueTest": {
           "ListDataSources": "MockedLambdaInvalid"
+        },
+        "ProcessUpdatesErrorTest": {
+          "ListDataSources": "MockedLambdaSuccess",
+          "DetectDataSourceUpdates": "MockedDetectUpdatesSuccess",
+          "ProcessUpdates": "MockedProcessUpdatesError"
         }
       }
     }
@@ -204,6 +212,60 @@
         "Payload": {
           "dataSources": []
         }
+      }
+    }
+  },
+  "MockedLambdaInvalid": {
+    "0": {
+      "Throw": {
+        "Error": "States.TaskFailed",
+        "Cause": "Invalid input parameter"
+      }
+    }
+  },
+  "MockedDetectUpdatesSuccess": {
+    "0": {
+      "Return": {
+        "StatusCode": 200,
+        "Payload": {
+          "newEventIds": [
+            "event-01234567-89ab-cdef-0123-456789abcdef",
+            "event-fedcba98-7654-3210-fedc-ba9876543210",
+            "event-abcdef01-2345-6789-abcd-ef0123456789"
+          ]
+        }
+      }
+    }
+  },
+  "MockedDetectUpdatesEmpty": {
+    "0": {
+      "Return": {
+        "StatusCode": 200,
+        "Payload": {
+          "newEventIds": []
+        }
+      }
+    }
+  },
+  "MockedProcessUpdatesSuccess": {
+    "0": {
+      "Return": {
+        "StatusCode": 200,
+        "Payload": {
+          "processedEventIds": [
+            "event-01234567-89ab-cdef-0123-456789abcdef",
+            "event-fedcba98-7654-3210-fedc-ba9876543210"
+          ],
+          "failedEventIds": ["event-abcdef01-2345-6789-abcd-ef0123456789"]
+        }
+      }
+    }
+  },
+  "MockedProcessUpdatesError": {
+    "0": {
+      "Throw": {
+        "Error": "States.TaskFailed",
+        "Cause": "OpenAI API rate limit exceeded"
       }
     }
   }

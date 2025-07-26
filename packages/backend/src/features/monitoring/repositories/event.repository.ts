@@ -153,6 +153,25 @@ export class EventRepository {
   }
 
   /**
+   * IDリストによる複数イベントの取得
+   */
+  async findByIds(eventIds: string[]): Promise<Event[]> {
+    if (eventIds.length === 0) {
+      return []
+    }
+
+    const connection = TransactionManager.getConnection()
+
+    const results = await connection
+      .select()
+      .from(events)
+      .where(inArray(events.id, eventIds))
+      .orderBy(desc(events.createdAt))
+
+    return results.map(this.mapToDomain)
+  }
+
+  /**
    * イベントのステータスを更新
    */
   async updateStatus(
@@ -166,6 +185,33 @@ export class EventRepository {
     const result = await connection
       .update(events)
       .set({
+        status,
+        statusDetail,
+        updatedAt: now,
+      })
+      .where(eq(events.id, eventId))
+
+    return (result.rowCount ?? 0) > 0
+  }
+
+  /**
+   * 翻訳結果とステータスを更新
+   */
+  async updateWithTranslation(
+    eventId: string,
+    translatedTitle: string,
+    translatedBody: string,
+    status: EventStatus,
+    statusDetail?: string | null,
+  ): Promise<boolean> {
+    const connection = TransactionManager.getConnection()
+    const now = new Date()
+
+    const result = await connection
+      .update(events)
+      .set({
+        title: translatedTitle,
+        body: translatedBody,
         status,
         statusDetail,
         updatedAt: now,
