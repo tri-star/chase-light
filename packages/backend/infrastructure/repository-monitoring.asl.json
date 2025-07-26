@@ -55,7 +55,7 @@
             },
             "ResultPath": "$.detectUpdatesResult",
             "OutputPath": "$.detectUpdatesResult.Payload",
-            "End": true,
+            "Next": "CheckForNewEvents",
             "Retry": [
               {
                 "ErrorEquals": [
@@ -83,6 +83,67 @@
               "message": "Failed to process data source"
             },
             "ResultPath": "$.errorHandled",
+            "End": true
+          },
+          "CheckForNewEvents": {
+            "Type": "Choice",
+            "Choices": [
+              {
+                "Variable": "$.newEventIds",
+                "IsPresent": true,
+                "Next": "HasNewEvents"
+              }
+            ],
+            "Default": "NoNewEvents"
+          },
+          "HasNewEvents": {
+            "Type": "Choice",
+            "Choices": [
+              {
+                "Variable": "$.newEventIds[0]",
+                "IsPresent": true,
+                "Next": "ProcessUpdates"
+              }
+            ],
+            "Default": "NoNewEvents"
+          },
+          "ProcessUpdates": {
+            "Type": "Task",
+            "Resource": "arn:aws:states:::lambda:invoke",
+            "Parameters": {
+              "FunctionName": "${ProcessUpdatesFunctionArn}",
+              "Payload": {
+                "eventIds.$": "$.newEventIds"
+              }
+            },
+            "ResultPath": "$.processUpdatesResult",
+            "End": true,
+            "Retry": [
+              {
+                "ErrorEquals": [
+                  "Lambda.ServiceException",
+                  "Lambda.AWSLambdaException",
+                  "Lambda.SdkClientException"
+                ],
+                "IntervalSeconds": 2,
+                "MaxAttempts": 3,
+                "BackoffRate": 2.0
+              }
+            ],
+            "Catch": [
+              {
+                "ErrorEquals": ["States.ALL"],
+                "Next": "HandleDataSourceError",
+                "ResultPath": "$.error"
+              }
+            ]
+          },
+          "NoNewEvents": {
+            "Type": "Pass",
+            "Result": {
+              "status": "completed",
+              "message": "No new events to process"
+            },
             "End": true
           }
         }

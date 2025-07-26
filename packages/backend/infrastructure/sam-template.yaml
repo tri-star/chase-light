@@ -72,6 +72,29 @@ Resources:
                 - ssm:GetParameter
               Resource: !Sub "arn:${AWS::Partition}:ssm:${AWS::Region}:${AWS::AccountId}:parameter/${Stage}/supabase/db_url"
 
+  ProcessUpdatesFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub "${AWS::StackName}-process-updates"
+      CodeUri: ../dist/lambda/process-updates/
+      Handler: index.handler
+      Runtime: nodejs20.x
+      Timeout: 300
+      MemorySize: 512
+      ReservedConcurrentExecutions: 2
+      Environment:
+        Variables:
+          NODE_ENV: !Ref NodeEnv
+          STAGE: !Ref Stage
+      Policies:
+        - Statement:
+          - Effect: Allow
+            Action:
+              - ssm:GetParameter
+            Resource: 
+              - !Sub "arn:${AWS::Partition}:ssm:${AWS::Region}:${AWS::AccountId}:parameter/${Stage}/supabase/db_url"
+              - !Sub "arn:${AWS::Partition}:ssm:${AWS::Region}:${AWS::AccountId}:parameter/${Stage}/openai/api_key"
+
   # Step Functions State Machine
   RepositoryMonitoringStateMachine:
     Type: AWS::Serverless::StateMachine
@@ -81,6 +104,7 @@ Resources:
       DefinitionSubstitutions:
         ListDataSourcesFunctionArn: !GetAtt ListDataSourcesFunction.Arn
         DetectDataSourceUpdatesFunctionArn: !GetAtt DetectDataSourceUpdatesFunction.Arn
+        ProcessUpdatesFunctionArn: !GetAtt ProcessUpdatesFunction.Arn
       Policies:
         - Statement:
             - Effect: Allow
@@ -89,6 +113,7 @@ Resources:
               Resource:
                 - !GetAtt ListDataSourcesFunction.Arn
                 - !GetAtt DetectDataSourceUpdatesFunction.Arn
+                - !GetAtt ProcessUpdatesFunction.Arn
         - Statement:
             - Effect: Allow
               Action:
@@ -116,3 +141,15 @@ Outputs:
     Value: !GetAtt ListDataSourcesFunction.Arn
     Export:
       Name: !Sub "${AWS::StackName}-ListDataSourcesFunctionArn"
+
+  DetectDataSourceUpdatesFunctionArn:
+    Description: 'ARN of the detect data source updates function'
+    Value: !GetAtt DetectDataSourceUpdatesFunction.Arn
+    Export:
+      Name: !Sub "${AWS::StackName}-DetectDataSourceUpdatesFunctionArn"
+
+  ProcessUpdatesFunctionArn:
+    Description: 'ARN of the process updates function'
+    Value: !GetAtt ProcessUpdatesFunction.Arn
+    Export:
+      Name: !Sub "${AWS::StackName}-ProcessUpdatesFunctionArn"
