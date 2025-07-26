@@ -174,7 +174,7 @@ export function createE2EControlRoutes(): OpenAPIHono {
       const { key, response } = c.req.valid("json")
       const stubService = getStubService()
 
-      stubService.setStubResponse(key, response as GitHubRepositoryResponse)
+      stubService.setStubResponse(response as GitHubRepositoryResponse)
 
       return c.json(
         {
@@ -200,7 +200,7 @@ export function createE2EControlRoutes(): OpenAPIHono {
       const { key, error } = c.req.valid("json")
       const stubService = getStubService()
 
-      stubService.setErrorScenario(key, error)
+      stubService.setStubResponse(error)
 
       return c.json(
         {

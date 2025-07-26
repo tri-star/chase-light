@@ -130,7 +130,7 @@ describe("DataSources API - Component Test", () => {
         open_issues_count: 1500,
         fork: false,
       }
-      githubStub.setStubResponse("facebook/react", githubResponse)
+      githubStub.setStubResponse(githubResponse)
 
       const res = await app.request("/", {
         method: "POST",
@@ -181,7 +181,7 @@ describe("DataSources API - Component Test", () => {
         open_issues_count: 500,
         fork: false,
       }
-      githubStub.setStubResponse("microsoft/typescript", githubResponse)
+      githubStub.setStubResponse(githubResponse)
 
       const res = await app.request("/", {
         method: "POST",
@@ -266,7 +266,7 @@ describe("DataSources API - Component Test", () => {
         open_issues_count: 1500,
         fork: false,
       }
-      githubStub.setStubResponse("facebook/react", githubResponse)
+      githubStub.setStubResponse(githubResponse)
 
       // 最初のリクエストで同じリポジトリを作成
       await app.request("/", {
@@ -301,7 +301,7 @@ describe("DataSources API - Component Test", () => {
       }
 
       // GitHubスタブでエラーシナリオを設定
-      githubStub.setErrorScenario("nonexistent/repo", {
+      githubStub.setStubResponse({
         status: 404,
         message: "Repository nonexistent/repo not found or not accessible",
       })
@@ -343,7 +343,7 @@ describe("DataSources API - Component Test", () => {
         open_issues_count: 10,
         fork: false,
       }
-      githubStub.setStubResponse(fullName, githubResponse)
+      githubStub.setStubResponse(githubResponse)
 
       const requestBody = {
         repositoryUrl: `https://github.com/${fullName}`,

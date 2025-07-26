@@ -1,25 +1,110 @@
 {
-  "Comment": "Repository monitoring workflow - single step implementation",
+  "Comment": "Repository monitoring workflow - detects updates for all data sources",
   "StartAt": "ListDataSources",
   "States": {
     "ListDataSources": {
       "Type": "Task",
       "Resource": "arn:aws:states:::lambda:invoke",
       "Parameters": {
-        "FunctionName": "arn:aws:lambda:ap-northeast-1:123456789012:function:ListDataSourcesFunction",
+        "FunctionName": "${ListDataSourcesFunction.Arn}",
         "Payload": {
           "sourceType": "github_repository"
         }
       },
-      "ResultPath": "$.lambdaResult",
-      "Next": "ProcessResults"
+      "ResultPath": "$.listDataSourcesResult",
+      "OutputPath": "$.listDataSourcesResult.Payload",
+      "Next": "ProcessDataSources",
+      "Retry": [
+        {
+          "ErrorEquals": [
+            "Lambda.ServiceException",
+            "Lambda.AWSLambdaException",
+            "Lambda.SdkClientException"
+          ],
+          "IntervalSeconds": 2,
+          "MaxAttempts": 3,
+          "BackoffRate": 2
+        }
+      ],
+      "Catch": [
+        {
+          "ErrorEquals": ["States.ALL"],
+          "Next": "HandleError",
+          "ResultPath": "$.error"
+        }
+      ]
     },
-    "ProcessResults": {
+    "ProcessDataSources": {
+      "Type": "Map",
+      "ItemsPath": "$.dataSources",
+      "MaxConcurrency": 5,
+      "Parameters": {
+        "dataSourceId.$": "$$.Map.Item.Value.id"
+      },
+      "Iterator": {
+        "StartAt": "DetectDataSourceUpdates",
+        "States": {
+          "DetectDataSourceUpdates": {
+            "Type": "Task",
+            "Resource": "arn:aws:states:::lambda:invoke",
+            "Parameters": {
+              "FunctionName": "${DetectDataSourceUpdatesFunctionArn}",
+              "Payload": {
+                "dataSourceId.$": "$.dataSourceId"
+              }
+            },
+            "ResultPath": "$.detectUpdatesResult",
+            "OutputPath": "$.detectUpdatesResult.Payload",
+            "End": true,
+            "Retry": [
+              {
+                "ErrorEquals": [
+                  "Lambda.ServiceException",
+                  "Lambda.AWSLambdaException",
+                  "Lambda.SdkClientException"
+                ],
+                "IntervalSeconds": 2,
+                "MaxAttempts": 3,
+                "BackoffRate": 2
+              }
+            ],
+            "Catch": [
+              {
+                "ErrorEquals": ["States.ALL"],
+                "Next": "HandleDataSourceError",
+                "ResultPath": "$.error"
+              }
+            ]
+          },
+          "HandleDataSourceError": {
+            "Type": "Pass",
+            "Result": {
+              "status": "failed",
+              "message": "Failed to process data source"
+            },
+            "ResultPath": "$.errorHandled",
+            "End": true
+          }
+        }
+      },
+      "ResultPath": "$.mapResults",
+      "Next": "SummarizeResults"
+    },
+    "SummarizeResults": {
       "Type": "Pass",
-      "Result": {
+      "Parameters": {
         "status": "completed",
         "timestamp.$": "$$.State.EnteredTime",
-        "dataSourcesCount.$": "States.ArrayLength($.lambdaResult.Payload.dataSources)"
+        "processedDataSourcesCount.$": "States.ArrayLength($.mapResults)",
+        "results.$": "$.mapResults"
+      },
+      "End": true
+    },
+    "HandleError": {
+      "Type": "Pass",
+      "Result": {
+        "status": "failed",
+        "message": "Failed to list data sources"
       },
       "End": true
     }

@@ -51,6 +51,27 @@ Resources:
                 - ssm:GetParameter
               Resource: !Sub "arn:${AWS::Partition}:ssm:${AWS::Region}:${AWS::AccountId}:parameter/${Stage}/supabase/db_url"
 
+  DetectDataSourceUpdatesFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub "${AWS::StackName}-detect-datasource-updates"
+      CodeUri: ../dist/lambda/detect-datasource-updates/
+      Handler: index.handler
+      Description: 'Detect updates for a data source'
+      Policies:
+        - Statement:
+            - Effect: Allow
+              Action:
+                - logs:CreateLogGroup
+                - logs:CreateLogStream
+                - logs:PutLogEvents
+              Resource: !Sub "arn:${AWS::Partition}:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/${AWS::StackName}-detect-datasource-updates*"
+        - Statement:
+            - Effect: Allow
+              Action:
+                - ssm:GetParameter
+              Resource: !Sub "arn:${AWS::Partition}:ssm:${AWS::Region}:${AWS::AccountId}:parameter/${Stage}/supabase/db_url"
+
   # Step Functions State Machine
   RepositoryMonitoringStateMachine:
     Type: AWS::Serverless::StateMachine
@@ -59,12 +80,15 @@ Resources:
       DefinitionUri: repository-monitoring.asl.json
       DefinitionSubstitutions:
         ListDataSourcesFunctionArn: !GetAtt ListDataSourcesFunction.Arn
+        DetectDataSourceUpdatesFunctionArn: !GetAtt DetectDataSourceUpdatesFunction.Arn
       Policies:
         - Statement:
             - Effect: Allow
               Action:
                 - lambda:InvokeFunction
-              Resource: !GetAtt ListDataSourcesFunction.Arn
+              Resource:
+                - !GetAtt ListDataSourcesFunction.Arn
+                - !GetAtt DetectDataSourceUpdatesFunction.Arn
         - Statement:
             - Effect: Allow
               Action:
