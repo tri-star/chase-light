@@ -2,7 +2,12 @@ import { eq, and, desc, sql, inArray } from "drizzle-orm"
 import { randomUUID } from "crypto"
 import { TransactionManager } from "../../../shared/db"
 import { events } from "../../../db/schema"
-import type { EventStatus, EventType, Event } from "../domain/event"
+import {
+  type EventStatus,
+  type EventType,
+  type Event,
+  EVENT_STATUS,
+} from "../domain/event"
 
 /**
  * イベント情報の保存・更新を行うRepository
@@ -37,7 +42,7 @@ export class EventRepository {
       title: data.title,
       body: data.body,
       version: data.version ?? null,
-      status: data.status || "pending",
+      status: data.status || EVENT_STATUS.PENDING,
       statusDetail: data.statusDetail ?? null,
       githubData: data.githubData ?? null,
       createdAt: data.createdAt,
@@ -99,7 +104,7 @@ export class EventRepository {
       title: data.title,
       body: data.body,
       version: data.version ?? null,
-      status: data.status || "pending",
+      status: data.status || EVENT_STATUS.PENDING,
       statusDetail: data.statusDetail ?? null,
       githubData: data.githubData ?? null,
       createdAt: data.createdAt,
