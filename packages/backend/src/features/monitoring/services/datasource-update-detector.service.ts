@@ -46,16 +46,19 @@ export class DataSourceUpdateDetectorService {
     const [owner, repo] = repository.fullName.split("/")
     const allNewEventIds: string[] = []
 
-    try {
-      // リリース・Issue・PR取得処理を並列化
-      const [releaseIds, issueIds, prIds] = await Promise.all([
-        this.fetchAndSaveReleases(owner, repo, dataSourceId, sinceDate),
-        this.fetchAndSaveIssues(owner, repo, dataSourceId, sinceDate),
-        this.fetchAndSavePullRequests(owner, repo, dataSourceId, sinceDate),
-      ])
-      allNewEventIds.push(...releaseIds, ...issueIds, ...prIds)
-    } catch (error) {
-      // GitHub APIエラーの場合は、エラーメッセージを含めて再スロー
+    // 並列実行し、どれか一つでもエラーがあればthrowする
+    const results = await Promise.allSettled([
+      this.fetchAndSaveReleases(owner, repo, dataSourceId, sinceDate),
+      this.fetchAndSaveIssues(owner, repo, dataSourceId, sinceDate),
+      this.fetchAndSavePullRequests(owner, repo, dataSourceId, sinceDate),
+    ])
+
+    // どれか一つでもエラーがあれば最初のエラーをthrow
+    const firstRejected = results.find((r) => r.status === "rejected") as
+      | PromiseRejectedResult
+      | undefined
+    if (firstRejected) {
+      const error = firstRejected.reason
       if (error instanceof Error) {
         throw new Error(
           `${MONITORING_ERRORS.GITHUB_API_ERROR}: ${error.message}`,
@@ -64,6 +67,11 @@ export class DataSourceUpdateDetectorService {
       throw error
     }
 
+    // 全てfulfilledの場合のみIDをまとめて返す
+    const [releaseIds, issueIds, prIds] = results.map((r) =>
+      r.status === "fulfilled" ? r.value : [],
+    )
+    allNewEventIds.push(...releaseIds, ...issueIds, ...prIds)
     return allNewEventIds
   }
 

@@ -370,8 +370,8 @@ describe("detect-datasource-updates handler", () => {
   })
 
   test("GitHub APIエラー時は適切にエラーハンドリングする", async () => {
-    // Given: GitHub APIエラーを設定
-    githubApiStub.setStubResponse({
+    // Given: getIssues呼び出し時にエラーを返すようスタブを設定
+    githubApiStub.setStubIssues({
       status: 403,
       message: "API rate limit exceeded",
     })
