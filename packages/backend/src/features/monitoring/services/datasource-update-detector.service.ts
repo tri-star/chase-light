@@ -47,32 +47,13 @@ export class DataSourceUpdateDetectorService {
     const allNewEventIds: string[] = []
 
     try {
-      // リリースの取得と保存
-      const releaseIds = await this.fetchAndSaveReleases(
-        owner,
-        repo,
-        dataSourceId,
-        sinceDate,
-      )
-      allNewEventIds.push(...releaseIds)
-
-      // Issueの取得と保存
-      const issueIds = await this.fetchAndSaveIssues(
-        owner,
-        repo,
-        dataSourceId,
-        sinceDate,
-      )
-      allNewEventIds.push(...issueIds)
-
-      // Pull Requestの取得と保存
-      const prIds = await this.fetchAndSavePullRequests(
-        owner,
-        repo,
-        dataSourceId,
-        sinceDate,
-      )
-      allNewEventIds.push(...prIds)
+      // リリース・Issue・PR取得処理を並列化
+      const [releaseIds, issueIds, prIds] = await Promise.all([
+        this.fetchAndSaveReleases(owner, repo, dataSourceId, sinceDate),
+        this.fetchAndSaveIssues(owner, repo, dataSourceId, sinceDate),
+        this.fetchAndSavePullRequests(owner, repo, dataSourceId, sinceDate),
+      ])
+      allNewEventIds.push(...releaseIds, ...issueIds, ...prIds)
     } catch (error) {
       // GitHub APIエラーの場合は、エラーメッセージを含めて再スロー
       if (error instanceof Error) {
