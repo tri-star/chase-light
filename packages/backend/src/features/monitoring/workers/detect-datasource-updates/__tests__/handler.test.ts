@@ -10,6 +10,55 @@ import { EVENT_STATUS } from "../../../domain/event-status"
 import { EVENT_TYPE } from "../../../domain/monitoring-types"
 
 describe("detect-datasource-updates handler", () => {
+  test("GitHub APIのIssue取得でエラーが起きた場合、DBにイベントが保存されない（ロールバックされる）", async () => {
+    // Given: Releases/PRは正常、Issuesのみエラー
+    githubApiStub.setStubReleases([
+      {
+        id: 1001,
+        tag_name: "v1.0.0",
+        name: "Version 1.0.0",
+        body: "Initial release",
+        draft: false,
+        prerelease: false,
+        created_at: new Date().toISOString(),
+        published_at: new Date().toISOString(),
+        html_url: "https://github.com/test-owner/test-repo/releases/tag/v1.0.0",
+      },
+    ])
+    githubApiStub.setStubPullRequests([
+      {
+        id: 3001,
+        number: 10,
+        title: "Fix memory leak",
+        body: "This fixes the memory leak",
+        state: "open",
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+        closed_at: null,
+        merged_at: null,
+        html_url: "https://github.com/test-owner/test-repo/pull/10",
+        user: {
+          login: "contributor1",
+          avatar_url: "https://github.com/contributor1.png",
+        },
+      },
+    ])
+    githubApiStub.setStubIssues({
+      status: 500,
+      message: "issues fetch error",
+    })
+
+    // When & Then: handler実行でエラーが発生し、DBにイベントが保存されていないこと
+    await expect(
+      handler({ dataSourceId: testDataSourceId }, mockContext),
+    ).rejects.toThrow("issues fetch error")
+
+    const events = await eventRepository.findByDataSourceAndStatus(
+      testDataSourceId,
+      EVENT_STATUS.PENDING,
+    )
+    expect(events).toHaveLength(0)
+  })
   setupComponentTest()
 
   let dataSourceRepository: DataSourceRepository
@@ -72,7 +121,7 @@ describe("detect-datasource-updates handler", () => {
     const fiveDaysAgo = new Date(now.getTime() - 5 * 24 * 60 * 60 * 1000)
     const tenDaysAgo = new Date(now.getTime() - 10 * 24 * 60 * 60 * 1000)
 
-    githubApiStub.setStubReleases("test-owner/test-repo", [
+    githubApiStub.setStubReleases([
       {
         id: 1001,
         tag_name: "v1.0.0",
@@ -97,7 +146,7 @@ describe("detect-datasource-updates handler", () => {
       },
     ])
 
-    githubApiStub.setStubIssues("test-owner/test-repo", [
+    githubApiStub.setStubIssues([
       {
         id: 2001,
         number: 1,
@@ -112,7 +161,7 @@ describe("detect-datasource-updates handler", () => {
       },
     ])
 
-    githubApiStub.setStubPullRequests("test-owner/test-repo", [
+    githubApiStub.setStubPullRequests([
       {
         id: 3001,
         number: 10,
@@ -193,10 +242,10 @@ describe("detect-datasource-updates handler", () => {
     const fiveDaysAgo = new Date(new Date().getTime() - 5 * 24 * 60 * 60 * 1000)
 
     // 他のAPIコールは空の結果を返すように設定
-    githubApiStub.setStubReleases("test-owner/test-repo", [])
-    githubApiStub.setStubPullRequests("test-owner/test-repo", [])
+    githubApiStub.setStubReleases([])
+    githubApiStub.setStubPullRequests([])
 
-    githubApiStub.setStubIssues("test-owner/test-repo", [
+    githubApiStub.setStubIssues([
       {
         id: 2002,
         number: 2,
@@ -252,10 +301,10 @@ describe("detect-datasource-updates handler", () => {
     const twoDaysAgo = new Date(now.getTime() - 2 * 24 * 60 * 60 * 1000)
 
     // 他のAPIコールは空の結果を返すように設定
-    githubApiStub.setStubIssues("test-owner/test-repo", [])
-    githubApiStub.setStubPullRequests("test-owner/test-repo", [])
+    githubApiStub.setStubIssues([])
+    githubApiStub.setStubPullRequests([])
 
-    githubApiStub.setStubReleases("test-owner/test-repo", [
+    githubApiStub.setStubReleases([
       {
         id: 1003,
         tag_name: "v2.0.0",
@@ -322,7 +371,7 @@ describe("detect-datasource-updates handler", () => {
 
   test("GitHub APIエラー時は適切にエラーハンドリングする", async () => {
     // Given: GitHub APIエラーを設定
-    githubApiStub.setErrorScenario("test-owner/test-repo", {
+    githubApiStub.setStubResponse({
       status: 403,
       message: "API rate limit exceeded",
     })
