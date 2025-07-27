@@ -55,7 +55,7 @@
             },
             "ResultPath": "$.detectUpdatesResult",
             "OutputPath": "$.detectUpdatesResult.Payload",
-            "End": true,
+            "Next": "CheckForNewEvents",
             "Retry": [
               {
                 "ErrorEquals": [
@@ -83,6 +83,70 @@
               "message": "Failed to process data source"
             },
             "ResultPath": "$.errorHandled",
+            "End": true
+          },
+          "CheckForNewEvents": {
+            "Type": "Choice",
+            "Choices": [
+              {
+                "Variable": "$.newEventIds",
+                "IsPresent": true,
+                "Next": "HasNewEvents"
+              }
+            ],
+            "Default": "NoNewEvents"
+          },
+          "HasNewEvents": {
+            "Type": "Choice",
+            "Choices": [
+              {
+                "NumericGreaterThan": 0,
+                "Variable": "States.ArrayLength($.newEventIds)",
+                "Next": "ProcessUpdates"
+              }
+            ],
+            "Default": "NoNewEvents"
+          },
+          "ProcessUpdates": {
+            "Type": "Map",
+            "ItemsPath": "$.newEventIds",
+            "MaxConcurrency": 10,
+            "Parameters": {
+              "eventId.$": "$"
+            },
+            "Iterator": {
+              "StartAt": "SendToQueue",
+              "States": {
+                "SendToQueue": {
+                  "Type": "Task",
+                  "Resource": "arn:aws:states:::sqs:sendMessage",
+                  "Parameters": {
+                    "QueueUrl": "${ProcessUpdatesQueueUrl}",
+                    "MessageBody": {
+                      "eventId.$": "$.eventId"
+                    }
+                  },
+                  "Retry": [
+                    {
+                      "ErrorEquals": ["States.TaskFailed"],
+                      "IntervalSeconds": 2,
+                      "MaxAttempts": 3,
+                      "BackoffRate": 2.0
+                    }
+                  ],
+                  "End": true
+                }
+              }
+            },
+            "ResultPath": "$.processUpdatesResult",
+            "End": true
+          },
+          "NoNewEvents": {
+            "Type": "Pass",
+            "Result": {
+              "status": "completed",
+              "message": "No new events to process"
+            },
             "End": true
           }
         }

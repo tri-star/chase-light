@@ -29,6 +29,23 @@ Parameters:
     Description: Stage environment (dev, staging, prod)
 
 Resources:
+  # SQS Queues
+  ProcessUpdatesQueue:
+    Type: AWS::SQS::Queue
+    Properties:
+      QueueName: !Sub "${AWS::StackName}-process-updates-queue"
+      VisibilityTimeoutSeconds: 360
+      MessageRetentionPeriod: 1209600  # 14 days
+      RedrivePolicy:
+        deadLetterTargetArn: !GetAtt ProcessUpdatesDeadLetterQueue.Arn
+        maxReceiveCount: 3
+
+  ProcessUpdatesDeadLetterQueue:
+    Type: AWS::SQS::Queue
+    Properties:
+      QueueName: !Sub "${AWS::StackName}-process-updates-dlq"
+      MessageRetentionPeriod: 1209600  # 14 days
+
   # Lambda Functions
   ListDataSourcesFunction:
     Type: AWS::Serverless::Function
@@ -72,6 +89,39 @@ Resources:
                 - ssm:GetParameter
               Resource: !Sub "arn:${AWS::Partition}:ssm:${AWS::Region}:${AWS::AccountId}:parameter/${Stage}/supabase/db_url"
 
+  ProcessUpdatesFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub "${AWS::StackName}-process-updates"
+      CodeUri: ../dist/lambda/process-updates/
+      Handler: index.sqsHandler
+      Runtime: nodejs20.x
+      Timeout: 300
+      MemorySize: 512
+      ReservedConcurrentExecutions: 5
+      Events:
+        SQSEvent:
+          Type: SQS
+          Properties:
+            Queue: !GetAtt ProcessUpdatesQueue.Arn
+            BatchSize: 1
+            MaximumBatchingWindowInSeconds: 0
+      Policies:
+        - Statement:
+          - Effect: Allow
+            Action:
+              - ssm:GetParameter
+            Resource: 
+              - !Sub "arn:${AWS::Partition}:ssm:${AWS::Region}:${AWS::AccountId}:parameter/${Stage}/supabase/db_url"
+              - !Sub "arn:${AWS::Partition}:ssm:${AWS::Region}:${AWS::AccountId}:parameter/${Stage}/openai/api_key"
+        - Statement:
+          - Effect: Allow
+            Action:
+              - sqs:ReceiveMessage
+              - sqs:DeleteMessage
+              - sqs:GetQueueAttributes
+            Resource: !GetAtt ProcessUpdatesQueue.Arn
+
   # Step Functions State Machine
   RepositoryMonitoringStateMachine:
     Type: AWS::Serverless::StateMachine
@@ -81,6 +131,8 @@ Resources:
       DefinitionSubstitutions:
         ListDataSourcesFunctionArn: !GetAtt ListDataSourcesFunction.Arn
         DetectDataSourceUpdatesFunctionArn: !GetAtt DetectDataSourceUpdatesFunction.Arn
+        ProcessUpdatesFunctionArn: !GetAtt ProcessUpdatesFunction.Arn
+        ProcessUpdatesQueueUrl: !Ref ProcessUpdatesQueue
       Policies:
         - Statement:
             - Effect: Allow
@@ -89,6 +141,12 @@ Resources:
               Resource:
                 - !GetAtt ListDataSourcesFunction.Arn
                 - !GetAtt DetectDataSourceUpdatesFunction.Arn
+                - !GetAtt ProcessUpdatesFunction.Arn
+        - Statement:
+            - Effect: Allow
+              Action:
+                - sqs:SendMessage
+              Resource: !GetAtt ProcessUpdatesQueue.Arn
         - Statement:
             - Effect: Allow
               Action:
@@ -116,3 +174,27 @@ Outputs:
     Value: !GetAtt ListDataSourcesFunction.Arn
     Export:
       Name: !Sub "${AWS::StackName}-ListDataSourcesFunctionArn"
+
+  DetectDataSourceUpdatesFunctionArn:
+    Description: 'ARN of the detect data source updates function'
+    Value: !GetAtt DetectDataSourceUpdatesFunction.Arn
+    Export:
+      Name: !Sub "${AWS::StackName}-DetectDataSourceUpdatesFunctionArn"
+
+  ProcessUpdatesFunctionArn:
+    Description: 'ARN of the process updates function'
+    Value: !GetAtt ProcessUpdatesFunction.Arn
+    Export:
+      Name: !Sub "${AWS::StackName}-ProcessUpdatesFunctionArn"
+
+  ProcessUpdatesQueueUrl:
+    Description: 'URL of the process updates SQS queue'
+    Value: !Ref ProcessUpdatesQueue
+    Export:
+      Name: !Sub "${AWS::StackName}-ProcessUpdatesQueueUrl"
+
+  ProcessUpdatesQueueArn:
+    Description: 'ARN of the process updates SQS queue'
+    Value: !GetAtt ProcessUpdatesQueue.Arn
+    Export:
+      Name: !Sub "${AWS::StackName}-ProcessUpdatesQueueArn"
