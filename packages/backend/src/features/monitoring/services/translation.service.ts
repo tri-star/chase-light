@@ -28,7 +28,7 @@ const TRANSLATION_PROMPTS = {
 export class TranslationService {
   private openai: OpenAI
   private defaultOptions: TranslationOptions = {
-    model: "gpt-4o-2024-08-06",
+    model: "gpt-4o-mini",
     maxTokens: 4000,
   }
 
@@ -138,4 +138,15 @@ export class TranslationService {
       .replace(/<\/user-input>/gi, "")
       .trim()
   }
+}
+
+/**
+ * TranslationServiceのファクトリー関数
+ * テスト時にスタブインスタンスを差し替えやすくするため
+ */
+export function createTranslationService(
+  apiKey: string,
+  options: TranslationOptions = {},
+): TranslationService {
+  return new TranslationService(apiKey, options)
 }
