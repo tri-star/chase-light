@@ -1,8 +1,9 @@
-import type { Context } from "aws-lambda"
+import type { Context, SQSEvent } from "aws-lambda"
 import { connectDb } from "../../../../db/connection"
 import { TransactionManager } from "../../../../shared/db"
+import { getOpenAiConfig } from "../../../../shared/config/open-ai"
 import { EventRepository } from "../../repositories"
-import { ProcessUpdatesService, TranslationService } from "../../services"
+import { ProcessUpdatesService, createTranslationService } from "../../services"
 
 interface ProcessUpdatesInput {
   eventIds: string[]
@@ -41,15 +42,15 @@ export const handler = async (
 
     // トランザクション内で処理を実行
     return await TransactionManager.transaction(async () => {
-      // OpenAI APIキーを環境変数または SSM から取得
-      const openaiApiKey = process.env.OPENAI_API_KEY
-      if (!openaiApiKey) {
-        throw new Error("OpenAI API key not configured")
-      }
+      // OpenAI APIキーを環境に応じて取得（AWS環境はSSM、ローカル環境は環境変数）
+      const openAiConfig = await getOpenAiConfig({
+        stage: process.env.STAGE || process.env.APP_STAGE || "dev",
+        useAws: process.env.USE_AWS === "true",
+      })
 
       // リポジトリとサービスのインスタンス化
       const eventRepository = new EventRepository()
-      const translationService = new TranslationService(openaiApiKey)
+      const translationService = createTranslationService(openAiConfig.apiKey)
 
       const processUpdatesService = new ProcessUpdatesService(
         eventRepository,
@@ -82,4 +83,85 @@ export const handler = async (
     // エラーを再スロー（StepFunctionsでエラーハンドリング）
     throw error
   }
+}
+
+/**
+ * SQSトリガー用のprocess-updates Lambda関数のハンドラー
+ * SQSから単一のイベントIDを受信して処理する
+ */
+export const sqsHandler = async (
+  event: SQSEvent,
+  context: Context,
+): Promise<void> => {
+  console.log("SQS Event:", JSON.stringify(event, null, 2))
+  console.log("Context:", context.awsRequestId)
+
+  try {
+    // データベース接続を確立
+    await connectDb()
+
+    // 各SQSメッセージを処理
+    for (const record of event.Records) {
+      try {
+        const messageBody = JSON.parse(record.body)
+        const eventId = messageBody.eventId
+
+        if (!eventId || typeof eventId !== "string") {
+          console.error("Invalid eventId in SQS message:", messageBody)
+          continue
+        }
+
+        console.log(`Processing single event: ${eventId}`)
+
+        // 単一イベントを処理
+        await processSingleEvent(eventId)
+
+        console.log(`Successfully processed event: ${eventId}`)
+      } catch (error) {
+        console.error("Error processing SQS record:", {
+          messageId: record.messageId,
+          error: error instanceof Error ? error.message : error,
+          errorStack: error instanceof Error ? error.stack : undefined,
+          record,
+        })
+
+        // SQSでは個別のメッセージの失敗はエラーをスローして再試行させる
+        throw error
+      }
+    }
+  } catch (error) {
+    console.error("Error in SQS handler:", error)
+    throw error
+  }
+}
+
+/**
+ * 単一イベントの処理を行う共通関数
+ */
+async function processSingleEvent(eventId: string): Promise<void> {
+  await TransactionManager.transaction(async () => {
+    // OpenAI APIキーを環境に応じて取得
+    const openAiConfig = await getOpenAiConfig({
+      stage: process.env.STAGE || process.env.APP_STAGE || "dev",
+      useAws: process.env.USE_AWS === "true",
+    })
+
+    // リポジトリとサービスのインスタンス化
+    const eventRepository = new EventRepository()
+    const translationService = createTranslationService(openAiConfig.apiKey)
+
+    const processUpdatesService = new ProcessUpdatesService(
+      eventRepository,
+      translationService,
+    )
+
+    // 単一イベント処理
+    const result = await processUpdatesService.execute({
+      eventIds: [eventId],
+    })
+
+    if (result.failedEventIds.length > 0) {
+      throw new Error(`Failed to process event ${eventId}`)
+    }
+  })
 }
