@@ -38,7 +38,7 @@ describe("process-updates handler", () => {
   beforeEach(async () => {
     eventRepository = new EventRepository()
     dataSourceRepository = new DataSourceRepository()
-    
+
     // テスト用データソースを作成
     const testDataSource = await dataSourceRepository.save({
       sourceType: DATA_SOURCE_TYPES.GITHUB,
@@ -172,7 +172,9 @@ describe("process-updates handler", () => {
       expect(result.failedEventIds).toContain(failEvent.id)
 
       // 成功したイベントの状態確認
-      const successEventUpdated = await eventRepository.findById(successEvent.id)
+      const successEventUpdated = await eventRepository.findById(
+        successEvent.id,
+      )
       expect(successEventUpdated!.status).toBe(EVENT_STATUS.COMPLETED)
       expect(successEventUpdated!.title).toBe("[翻訳済み] テストタイトル")
 
@@ -251,16 +253,16 @@ describe("process-updates handler", () => {
         { eventIds: null } as unknown as { eventIds: string[] },
         mockContext,
       ),
-    ).rejects.toThrow("Invalid input")
+    ).rejects.toThrow("Invalid input: eventIds must be an array")
     await expect(
       handler({} as unknown as { eventIds: string[] }, mockContext),
-    ).rejects.toThrow("Invalid input")
+    ).rejects.toThrow("Invalid input: eventIds must be an array")
     await expect(
       handler(
         { eventIds: "not-an-array" } as unknown as { eventIds: string[] },
         mockContext,
       ),
-    ).rejects.toThrow("Invalid input")
+    ).rejects.toThrow("Invalid input: eventIds must be an array")
   })
 
   test("OpenAI APIキーが設定されていない場合、エラーをスローする", async () => {
@@ -270,7 +272,7 @@ describe("process-updates handler", () => {
     // When & Then: APIキー未設定エラー
     await expect(
       handler({ eventIds: [randomUUID()] }, mockContext),
-    ).rejects.toThrow("OpenAI API key not configured")
+    ).rejects.toThrow("Failed to get OpenAI configuration")
 
     // Cleanup: APIキーを復元
     process.env.OPENAI_API_KEY = "test-api-key"

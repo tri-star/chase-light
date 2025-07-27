@@ -103,14 +103,29 @@ export class ProcessUpdatesService {
       const errorMessage =
         error instanceof Error ? error.message : "Unknown error"
 
+      // 詳細なエラーログを出力
+      console.error(`Failed to process event ${event.id}:`, {
+        eventId: event.id,
+        eventType: event.eventType,
+        title: event.title,
+        errorMessage,
+        errorStack: error instanceof Error ? error.stack : undefined,
+        timestamp: new Date().toISOString(),
+      })
+
       await this.eventRepository
         .updateStatus(event.id, EVENT_STATUS.FAILED, errorMessage)
-        .catch(() => {
+        .catch((updateError) => {
           // ステータス更新に失敗してもログに記録するだけで処理は継続
-          console.error(
-            `Failed to update status for event ${event.id}:`,
-            errorMessage,
-          )
+          console.error(`Failed to update status for event ${event.id}:`, {
+            eventId: event.id,
+            originalError: errorMessage,
+            updateError:
+              updateError instanceof Error ? updateError.message : updateError,
+            updateErrorStack:
+              updateError instanceof Error ? updateError.stack : undefined,
+            timestamp: new Date().toISOString(),
+          })
         })
 
       return {
