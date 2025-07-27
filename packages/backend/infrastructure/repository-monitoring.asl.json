@@ -100,43 +100,46 @@
             "Type": "Choice",
             "Choices": [
               {
-                "Variable": "$.newEventIds[0]",
-                "IsPresent": true,
+                "NumericGreaterThan": 0,
+                "Variable": "States.ArrayLength($.newEventIds)",
                 "Next": "ProcessUpdates"
               }
             ],
             "Default": "NoNewEvents"
           },
           "ProcessUpdates": {
-            "Type": "Task",
-            "Resource": "arn:aws:states:::lambda:invoke",
+            "Type": "Map",
+            "ItemsPath": "$.newEventIds",
+            "MaxConcurrency": 10,
             "Parameters": {
-              "FunctionName": "${ProcessUpdatesFunctionArn}",
-              "Payload": {
-                "eventIds.$": "$.newEventIds"
+              "eventId.$": "$"
+            },
+            "Iterator": {
+              "StartAt": "SendToQueue",
+              "States": {
+                "SendToQueue": {
+                  "Type": "Task",
+                  "Resource": "arn:aws:states:::sqs:sendMessage",
+                  "Parameters": {
+                    "QueueUrl": "${ProcessUpdatesQueueUrl}",
+                    "MessageBody": {
+                      "eventId.$": "$.eventId"
+                    }
+                  },
+                  "Retry": [
+                    {
+                      "ErrorEquals": ["States.TaskFailed"],
+                      "IntervalSeconds": 2,
+                      "MaxAttempts": 3,
+                      "BackoffRate": 2.0
+                    }
+                  ],
+                  "End": true
+                }
               }
             },
             "ResultPath": "$.processUpdatesResult",
-            "End": true,
-            "Retry": [
-              {
-                "ErrorEquals": [
-                  "Lambda.ServiceException",
-                  "Lambda.AWSLambdaException",
-                  "Lambda.SdkClientException"
-                ],
-                "IntervalSeconds": 2,
-                "MaxAttempts": 3,
-                "BackoffRate": 2.0
-              }
-            ],
-            "Catch": [
-              {
-                "ErrorEquals": ["States.ALL"],
-                "Next": "HandleDataSourceError",
-                "ResultPath": "$.error"
-              }
-            ]
+            "End": true
           },
           "NoNewEvents": {
             "Type": "Pass",

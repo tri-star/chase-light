@@ -77,11 +77,6 @@ export class ProcessUpdatesService {
         return { eventId: event.id, success: true }
       }
 
-      // 失敗状態のイベントも再処理しない
-      if (event.status === EVENT_STATUS.FAILED) {
-        return { eventId: event.id, success: false, error: "Previously failed" }
-      }
-
       // AI翻訳を実行
       const translationResult = await this.translationService.translate(
         event.eventType,

@@ -118,154 +118,137 @@
         }
       }
     },
-    "SingleItemTest": {
-      "ListDataSources": "MockedLambdaSingle"
+    "MockedLambdaSingle": {
+      "0": {
+        "Return": {
+          "StatusCode": 200,
+          "Payload": {
+            "dataSources": [
+              {
+                "id": "45678901-cdef-0123-4567-89abcdef0123",
+                "sourceType": "github_repository",
+                "sourceId": "nuxt/nuxt.js",
+                "name": "Nuxt.js",
+                "description": "The Intuitive Vue Framework",
+                "url": "https://github.com/nuxt/nuxt.js",
+                "isPrivate": false,
+                "createdAt": "2023-03-01T09:00:00.000Z",
+                "updatedAt": "2023-03-01T09:00:00.000Z"
+              }
+            ]
+          }
+        }
+      }
     },
-    "DuplicateIdTest": {
-      "ListDataSources": "MockedLambdaDuplicate"
+    "MockedLambdaDuplicate": {
+      "0": {
+        "Return": {
+          "StatusCode": 200,
+          "Payload": {
+            "dataSources": [
+              {
+                "id": "12345678-9abc-def0-1234-56789abcdef0",
+                "sourceType": "github_repository",
+                "sourceId": "facebook/react",
+                "name": "React",
+                "description": "A declarative, efficient, and flexible JavaScript library for building user interfaces.",
+                "url": "https://github.com/facebook/react",
+                "isPrivate": false,
+                "createdAt": "2023-01-16T11:45:00.000Z",
+                "updatedAt": "2023-01-16T11:45:00.000Z"
+              },
+              {
+                "id": "12345678-9abc-def0-1234-56789abcdef0",
+                "sourceType": "github_repository",
+                "sourceId": "facebook/react",
+                "name": "React Duplicate",
+                "description": "Duplicate ID test.",
+                "url": "https://github.com/facebook/react",
+                "isPrivate": false,
+                "createdAt": "2023-01-16T11:45:00.000Z",
+                "updatedAt": "2023-01-16T11:45:00.000Z"
+              }
+            ]
+          }
+        }
+      }
     },
-    "InvalidValueTest": {
-      "ListDataSources": "MockedLambdaInvalid"
-    }
-  },
-  "MockedLambdaSingle": {
-    "0": {
-      "Return": {
-        "StatusCode": 200,
-        "Payload": {
-          "dataSources": [
-            {
-              "id": "45678901-cdef-0123-4567-89abcdef0123",
-              "sourceType": "github_repository",
-              "sourceId": "nuxt/nuxt.js",
-              "name": "Nuxt.js",
-              "description": "The Intuitive Vue Framework",
-              "url": "https://github.com/nuxt/nuxt.js",
-              "isPrivate": false,
-              "createdAt": "2023-03-01T09:00:00.000Z",
-              "updatedAt": "2023-03-01T09:00:00.000Z"
-            }
-          ]
+    "MockedLambdaEmpty": {
+      "0": {
+        "Return": {
+          "StatusCode": 200,
+          "Payload": {
+            "dataSources": []
+          }
         }
       }
-    }
-  },
-  "MockedLambdaDuplicate": {
-    "0": {
-      "Return": {
-        "StatusCode": 200,
-        "Payload": {
-          "dataSources": [
-            {
-              "id": "12345678-9abc-def0-1234-56789abcdef0",
-              "sourceType": "github_repository",
-              "sourceId": "facebook/react",
-              "name": "React",
-              "description": "A declarative, efficient, and flexible JavaScript library for building user interfaces.",
-              "url": "https://github.com/facebook/react",
-              "isPrivate": false,
-              "createdAt": "2023-01-16T11:45:00.000Z",
-              "updatedAt": "2023-01-16T11:45:00.000Z"
-            },
-            {
-              "id": "12345678-9abc-def0-1234-56789abcdef0",
-              "sourceType": "github_repository",
-              "sourceId": "facebook/react",
-              "name": "React Duplicate",
-              "description": "Duplicate ID test.",
-              "url": "https://github.com/facebook/react",
-              "isPrivate": false,
-              "createdAt": "2023-01-16T11:45:00.000Z",
-              "updatedAt": "2023-01-16T11:45:00.000Z"
-            }
-          ]
+    },
+    "MockedLambdaInvalid": {
+      "0": {
+        "Return": {
+          "StatusCode": 200,
+          "Payload": {
+            "dataSources": [
+              {
+                "id": "invalid-id",
+                "sourceType": "github_repository",
+                "sourceId": "invalid/source",
+                "name": "Invalid Source",
+                "description": "Invalid test case.",
+                "url": "not-a-url",
+                "isPrivate": "not-a-boolean",
+                "createdAt": "not-a-date",
+                "updatedAt": "not-a-date"
+              }
+            ]
+          }
         }
       }
-    }
-  },
-  "MockedLambdaInvalid": {
-    "0": {
-      "Return": {
-        "StatusCode": 200,
-        "Payload": {
-          "dataSources": [
-            {
-              "id": "invalid-id",
-              "sourceType": "github_repository",
-              "sourceId": "invalid/source",
-              "name": "Invalid Source",
-              "description": "Invalid test case.",
-              "url": "not-a-url",
-              "isPrivate": "not-a-boolean",
-              "createdAt": "not-a-date",
-              "updatedAt": "not-a-date"
-            }
-          ]
+    },
+    "MockedDetectUpdatesSuccess": {
+      "0": {
+        "Return": {
+          "StatusCode": 200,
+          "Payload": {
+            "newEventIds": [
+              "event-01234567-89ab-cdef-0123-456789abcdef",
+              "event-fedcba98-7654-3210-fedc-ba9876543210",
+              "event-abcdef01-2345-6789-abcd-ef0123456789"
+            ]
+          }
         }
       }
-    }
-  },
-  "MockedLambdaEmpty": {
-    "0": {
-      "Return": {
-        "StatusCode": 200,
-        "Payload": {
-          "dataSources": []
+    },
+    "MockedDetectUpdatesEmpty": {
+      "0": {
+        "Return": {
+          "StatusCode": 200,
+          "Payload": {
+            "newEventIds": []
+          }
         }
       }
-    }
-  },
-  "MockedLambdaInvalid": {
-    "0": {
-      "Throw": {
-        "Error": "States.TaskFailed",
-        "Cause": "Invalid input parameter"
-      }
-    }
-  },
-  "MockedDetectUpdatesSuccess": {
-    "0": {
-      "Return": {
-        "StatusCode": 200,
-        "Payload": {
-          "newEventIds": [
-            "event-01234567-89ab-cdef-0123-456789abcdef",
-            "event-fedcba98-7654-3210-fedc-ba9876543210",
-            "event-abcdef01-2345-6789-abcd-ef0123456789"
-          ]
+    },
+    "MockedProcessUpdatesSuccess": {
+      "0": {
+        "Return": {
+          "StatusCode": 200,
+          "Payload": {
+            "processedEventIds": [
+              "event-01234567-89ab-cdef-0123-456789abcdef",
+              "event-fedcba98-7654-3210-fedc-ba9876543210"
+            ],
+            "failedEventIds": ["event-abcdef01-2345-6789-abcd-ef0123456789"]
+          }
         }
       }
-    }
-  },
-  "MockedDetectUpdatesEmpty": {
-    "0": {
-      "Return": {
-        "StatusCode": 200,
-        "Payload": {
-          "newEventIds": []
+    },
+    "MockedProcessUpdatesError": {
+      "0": {
+        "Throw": {
+          "Error": "States.TaskFailed",
+          "Cause": "OpenAI API rate limit exceeded"
         }
-      }
-    }
-  },
-  "MockedProcessUpdatesSuccess": {
-    "0": {
-      "Return": {
-        "StatusCode": 200,
-        "Payload": {
-          "processedEventIds": [
-            "event-01234567-89ab-cdef-0123-456789abcdef",
-            "event-fedcba98-7654-3210-fedc-ba9876543210"
-          ],
-          "failedEventIds": ["event-abcdef01-2345-6789-abcd-ef0123456789"]
-        }
-      }
-    }
-  },
-  "MockedProcessUpdatesError": {
-    "0": {
-      "Throw": {
-        "Error": "States.TaskFailed",
-        "Cause": "OpenAI API rate limit exceeded"
       }
     }
   }
