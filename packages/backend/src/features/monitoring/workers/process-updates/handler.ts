@@ -43,10 +43,7 @@ export const handler = async (
     // トランザクション内で処理を実行
     return await TransactionManager.transaction(async () => {
       // OpenAI APIキーを環境に応じて取得（AWS環境はSSM、ローカル環境は環境変数）
-      const openAiConfig = await getOpenAiConfig({
-        stage: process.env.STAGE || process.env.APP_STAGE || "dev",
-        useAws: process.env.USE_AWS === "true",
-      })
+      const openAiConfig = await getOpenAiConfig()
 
       // リポジトリとサービスのインスタンス化
       const eventRepository = new EventRepository()
@@ -141,10 +138,7 @@ export const sqsHandler = async (
 async function processSingleEvent(eventId: string): Promise<void> {
   await TransactionManager.transaction(async () => {
     // OpenAI APIキーを環境に応じて取得
-    const openAiConfig = await getOpenAiConfig({
-      stage: process.env.STAGE || process.env.APP_STAGE || "dev",
-      useAws: process.env.USE_AWS === "true",
-    })
+    const openAiConfig = await getOpenAiConfig()
 
     // リポジトリとサービスのインスタンス化
     const eventRepository = new EventRepository()

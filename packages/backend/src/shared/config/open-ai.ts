@@ -4,20 +4,18 @@ interface OpenAiConfig {
   apiKey: string
 }
 
-interface OpenAiConfigOptions {
-  stage?: string
-  useAws?: boolean
-}
-
 /**
  * OpenAI設定を環境に応じて取得する
  * - AWS環境: SSM Parameter Storeから取得
  * - ローカル環境: 環境変数から取得
  */
-export async function getOpenAiConfig(
-  options: OpenAiConfigOptions = {},
-): Promise<OpenAiConfig> {
-  const { stage = "dev", useAws = process.env.USE_AWS === "true" } = options
+export async function getOpenAiConfig(): Promise<OpenAiConfig> {
+  if (!process.env.APP_STAGE) {
+    throw new Error("Missing environment variable: APP_STAGE")
+  }
+
+  const stage = process.env.APP_STAGE
+  const useAws = process.env.USE_AWS === "true"
 
   try {
     if (useAws) {
@@ -57,8 +55,12 @@ export async function getOpenAiConfig(
  */
 async function getApiKeyFromSSM(parameterName: string): Promise<string | null> {
   try {
+    if (!process.env.AWS_REGION) {
+      throw new Error("Missing environment variable: AWS_REGION")
+    }
+
     const ssmClient = new SSMClient({
-      region: process.env.AWS_REGION || "us-east-1",
+      region: process.env.AWS_REGION,
     })
 
     const command = new GetParameterCommand({
