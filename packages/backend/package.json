@@ -22,7 +22,9 @@
     "db:push": "drizzle-kit push",
     "db:studio": "drizzle-kit studio",
     "db:test": "tsx src/db/test-connection.ts",
-    "repos:test": "tsx src/repositories/test-repositories.ts"
+    "repos:test": "tsx src/repositories/test-repositories.ts",
+    "stepfunctions:setup": "node scripts/setup-stepfunctions-local.js",
+    "stepfunctions:setup:bash": "bash scripts/setup-stepfunctions-local.sh"
   },
   "devDependencies": {
     "@eslint/js": "^9.15.0",
