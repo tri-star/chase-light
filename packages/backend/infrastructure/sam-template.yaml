@@ -95,7 +95,7 @@ Resources:
       FunctionName: !Sub "${AWS::StackName}-process-updates"
       CodeUri: ../dist/lambda/process-updates/
       Handler: index.sqsHandler
-      Runtime: nodejs20.x
+      Runtime: nodejs22.x
       Timeout: 300
       MemorySize: 512
       ReservedConcurrentExecutions: 5

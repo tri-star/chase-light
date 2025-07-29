@@ -67,16 +67,16 @@ StepFunctions Local を利用することで、リポジトリ監視などのバ
 
 ```bash
 # 統合開発環境を起動
-pnpm local:setup
+pnpm local:start
 
 # または直接実行
 node scripts/setup-local-environment.mjs
 
 # クリーンモード（既存のコンテナとボリュームを削除してから起動）
-pnpm local:setup --clean
+pnpm local:start --clean
 
 # 起動後、フォアグラウンドで待機（Ctrl+Cで停止）
-pnpm local:setup --wait
+pnpm local:start --wait
 ```
 
 ### 2. 従来の方法（非推奨）

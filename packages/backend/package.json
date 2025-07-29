@@ -25,9 +25,9 @@
     "repos:test": "tsx src/repositories/test-repositories.ts",
     "stepfunctions:setup": "node scripts/setup-stepfunctions-local.js",
     "stepfunctions:setup:bash": "bash scripts/setup-stepfunctions-local.sh",
-    "local:setup": "node scripts/setup-local-environment.mjs",
+    "local:start": "node scripts/setup-local-environment.mjs",
     "local:stop": "node scripts/stop-local-environment.mjs",
-    "local:restart": "run-s local:stop local:setup"
+    "local:restart": "run-s local:stop local:start"
   },
   "devDependencies": {
     "@eslint/js": "^9.15.0",

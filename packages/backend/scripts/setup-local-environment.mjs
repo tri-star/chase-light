@@ -121,7 +121,7 @@ function showHelp() {
   )
   console.log("  node setup-local-environment.mjs --clean      # クリーン起動")
   console.log(
-    "  pnpm local:setup --wait                       # フォアグラウンド実行",
+    "  pnpm local:start --wait                       # フォアグラウンド実行",
   )
 }
 
@@ -553,7 +553,7 @@ function showExecutionExamples(localVariables, stateMachineArn) {
   console.log("  pnpm local:stop")
   console.log("")
   console.log("フォアグラウンドで実行する場合は:")
-  console.log("  pnpm local:setup --wait")
+  console.log("  pnpm local:start --wait")
 }
 
 /**

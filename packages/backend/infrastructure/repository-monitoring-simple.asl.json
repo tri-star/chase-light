@@ -1,0 +1,46 @@
+{
+  "Comment": "Simple repository monitoring workflow - List data sources only",
+  "StartAt": "ListDataSources",
+  "States": {
+    "ListDataSources": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::lambda:invoke",
+      "Parameters": {
+        "FunctionName": "${ListDataSourcesFunction.Arn}",
+        "Payload": {
+          "sourceType": "github_repository"
+        }
+      },
+      "ResultPath": "$.listDataSourcesResult",
+      "OutputPath": "$.listDataSourcesResult.Payload",
+      "End": true,
+      "Retry": [
+        {
+          "ErrorEquals": [
+            "Lambda.ServiceException",
+            "Lambda.AWSLambdaException",
+            "Lambda.SdkClientException"
+          ],
+          "IntervalSeconds": 2,
+          "MaxAttempts": 3,
+          "BackoffRate": 2
+        }
+      ],
+      "Catch": [
+        {
+          "ErrorEquals": ["States.ALL"],
+          "Next": "HandleError",
+          "ResultPath": "$.error"
+        }
+      ]
+    },
+    "HandleError": {
+      "Type": "Pass",
+      "Parameters": {
+        "error": "An error occurred during execution",
+        "details.$": "$.error"
+      },
+      "End": true
+    }
+  }
+}
