@@ -1,0 +1,19 @@
+{
+  "Description": "StepFunctions Local環境用の変数マッピング設定",
+  "Variables": {
+    "ProcessUpdatesQueueUrl": "http://elasticmq:9324/000000000000/process-updates-queue",
+    "ListDataSourcesFunction.Arn": "ListDataSourcesFunction",
+    "DetectDataSourceUpdatesFunctionArn": "DetectDataSourceUpdatesFunction",
+    "ProcessUpdatesFunctionArn": "ProcessUpdatesFunction"
+  },
+  "ElasticMQ": {
+    "ExternalEndpoint": "http://localhost:9324",
+    "InternalEndpoint": "http://elasticmq:9324",
+    "AccountId": "000000000000"
+  },
+  "StepFunctionsLocal": {
+    "Endpoint": "http://localhost:8083",
+    "Region": "us-east-1",
+    "DummyRoleArn": "arn:aws:iam::123456789012:role/DummyRole"
+  }
+}

@@ -14,8 +14,52 @@ export const lambdaConfigs = {
       dotenv: "^16.5.0",
     },
   },
-  // 将来的に他のLambda関数もここに追加
-  // 'another-function': { ... }
+  "detect-datasource-updates": {
+    name: "detect-datasource-updates-lambda",
+    description: "Detect updates for a data source",
+    entryPoint:
+      "./src/features/monitoring/workers/detect-datasource-updates/index.ts",
+    // バンドルから除外するパッケージ（node_modulesにインストールされる）
+    externalPackages: [
+      "@aws-sdk/*",
+      "aws-sdk",
+      "pg",
+      "drizzle-orm",
+      "dotenv",
+      "@octokit/rest",
+    ],
+    // Lambda関数のpackage.jsonに含める依存関係
+    dependencies: {
+      "@aws-sdk/client-ssm": "^3.848.0",
+      "@octokit/rest": "^22.0.0",
+      pg: "^8.16.0",
+      "drizzle-orm": "^0.44.2",
+      dotenv: "^16.5.0",
+    },
+  },
+  "process-updates": {
+    name: "process-updates-lambda",
+    description:
+      "Process updates for events (SQS handler and direct invocation)",
+    entryPoint: "./src/features/monitoring/workers/process-updates/index.ts",
+    // バンドルから除外するパッケージ（node_modulesにインストールされる）
+    externalPackages: [
+      "@aws-sdk/*",
+      "aws-sdk",
+      "pg",
+      "drizzle-orm",
+      "dotenv",
+      "openai",
+    ],
+    // Lambda関数のpackage.jsonに含める依存関係
+    dependencies: {
+      "@aws-sdk/client-ssm": "^3.848.0",
+      openai: "^4.69.0",
+      pg: "^8.16.0",
+      "drizzle-orm": "^0.44.2",
+      dotenv: "^16.5.0",
+    },
+  },
 }
 
 // デフォルトのesbuild設定

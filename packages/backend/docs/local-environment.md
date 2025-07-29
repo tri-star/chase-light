@@ -61,33 +61,54 @@ pnpm dev
 
 StepFunctions Local を利用することで、リポジトリ監視などのバッチ処理をローカルで実行、テストできます。
 
-### 1. 開発環境起動
+### 1. 統合開発環境起動（推奨）
 
-StepFunctions Local を含んだ開発環境を起動します。
+新しい統合セットアップスクリプトを使用して、全ての必要なサービスを一括で起動できます。
 
 ```bash
 # 統合開発環境を起動
-./scripts/start-local-dev.sh
+pnpm local:start
 
-# バックグラウンドで起動する場合（ターミナルを閉じても継続）
-./scripts/start-local-dev.sh --wait &
+# または直接実行
+node scripts/setup-local-environment.mjs
+
+# クリーンモード（既存のコンテナとボリュームを削除してから起動）
+pnpm local:start --clean
+
+# 起動後、フォアグラウンドで待機（Ctrl+Cで停止）
+pnpm local:start --wait
 ```
 
 起動が完了すると、以下のようなメッセージが表示されます：
 
 ```
-=== 開発環境の起動が完了しました ===
+=== セットアップ完了 ===
 
 サービス一覧:
   - PostgreSQL: localhost:5432
   - StepFunctions Local: http://localhost:8083
   - SAM Local: http://localhost:3001
+  - ElasticMQ Web UI: http://localhost:9325
+
+ステートマシンARN: arn:aws:states:us-east-1:123456789012:stateMachine:repository-monitoring-local
 
 停止する場合は以下を実行してください:
-  ./scripts/stop-local-dev.sh
+  pnpm local:stop
+  または Ctrl+C で停止できます
 ```
 
-### 2. サービス動作確認
+## 環境の停止
+
+開発環境を停止するには、以下のコマンドを実行します：
+
+```bash
+pnpm local:stop
+
+# または直接実行
+node scripts/stop-local-environment.mjs
+```
+
+### 3. サービス動作確認
 
 ```bash
 # PostgreSQL接続確認
@@ -100,39 +121,56 @@ curl -f http://localhost:8083/
 curl -f http://localhost:3001/2015-03-31/functions/list-datasources/invocations
 ```
 
-### 3. StepFunctions実行
+### 4. StepFunctions実行
 
-#### ステートマシン作成
-
-```bash
-
-# StepFunctionsLocalが作成するStateMachineは常にus-east-1
-export AWS_REGION=us-east-1
-
-# 必要に応じて実行
-# export AWS_PROFILE=xxx
-# aws sso login
-
-# StepFunctions LocalでステートマシンをLaunch
-aws stepfunctions create-state-machine \
-  --endpoint-url http://localhost:8083 \
-  --name "repository-monitoring-local" \
-  --definition file://infrastructure/repository-monitoring.asl.json \
-  --role-arn arn:aws:iam::123456789012:role/DummyRole
-```
+統合セットアップスクリプトによって、ステートマシンは自動的に作成されます。
 
 #### ワークフロー実行
 
+用意されている入力データサンプルを使用してワークフローを実行できます：
+
 ```bash
-# ステートマシン実行
-# ** StepFunctionsLocalが作成するStateMachineは常にus-east-1 **
+# 基本的な実行
+aws stepfunctions start-execution \
+  --endpoint-url http://localhost:8083 \
+  --state-machine-arn arn:aws:states:us-east-1:123456789012:stateMachine:repository-monitoring-local \
+  --input file://infrastructure/events/repository-monitoring-basic.json
+
+# テストモードでの実行
+aws stepfunctions start-execution \
+  --endpoint-url http://localhost:8083 \
+  --state-machine-arn arn:aws:states:us-east-1:123456789012:stateMachine:repository-monitoring-local \
+  --input file://infrastructure/events/repository-monitoring-test.json
+
+# 直接JSON指定での実行
 aws stepfunctions start-execution \
   --endpoint-url http://localhost:8083 \
   --state-machine-arn arn:aws:states:us-east-1:123456789012:stateMachine:repository-monitoring-local \
   --input '{"sourceType": "github_repository"}'
 ```
 
-### 4. MockConfigを使用したテスト
+利用可能な入力データサンプルについては、`infrastructure/events/README.md` を参照してください。
+
+#### 実行結果の確認
+
+```bash
+# 実行一覧の確認
+aws stepfunctions list-executions \
+  --endpoint-url http://localhost:8083 \
+  --state-machine-arn arn:aws:states:us-east-1:123456789012:stateMachine:repository-monitoring-local
+
+# 実行履歴の詳細確認
+aws stepfunctions get-execution-history \
+  --endpoint-url http://localhost:8083 \
+  --execution-arn <実行結果のexecutionArnを指定>
+
+# SQSキューメッセージの確認
+aws --region us-east-1 --endpoint-url http://localhost:9324 \
+  sqs receive-message \
+  --queue-url http://localhost:9324/000000000000/process-updates-queue
+```
+
+### 5. MockConfigを使用したテスト
 
 Step Functions Localでは、実際のLambda関数を実行せずにモックレスポンスを使用してテストできます。
 これにより高速で安定したテストが可能になります。

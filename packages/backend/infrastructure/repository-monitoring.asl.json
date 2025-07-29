@@ -100,8 +100,8 @@
             "Type": "Choice",
             "Choices": [
               {
-                "NumericGreaterThan": 0,
-                "Variable": "States.ArrayLength($.newEventIds)",
+                "Variable": "$.newEventIds[0]",
+                "IsPresent": true,
                 "Next": "ProcessUpdates"
               }
             ],

@@ -19,6 +19,18 @@ services:
       retries: 5
       start_period: 30s
 
+  elasticmq:
+    image: softwaremill/elasticmq:latest
+    ports:
+      - "9324:9324"  # SQS 互換 REST API
+      - "9325:9325"  # Web UI
+    healthcheck:
+      test: ["CMD", "sh", "-c", "nc -z localhost 9324"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+
   stepfunctions-local:
     image: amazon/aws-stepfunctions-local
     ports:
@@ -26,10 +38,14 @@ services:
     environment:
       - LAMBDA_ENDPOINT=http://host.docker.internal:3001
       - SFN_MOCK_CONFIG=/home/stepfunctions/MockConfigFile.json
+      - SQS_ENDPOINT=http://elasticmq:9324
+    env_file:
+      - ./docker/stepfunctions-local/aws-stepfunctions-local-credentials.txt
     volumes:
       - ./infrastructure:/home/stepfunctions
     depends_on:
       - db
+      - elasticmq
     healthcheck:
       test: ["CMD", "sh", "-c", "nc -z localhost 8083"]
       interval: 30s
