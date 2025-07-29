@@ -17,9 +17,17 @@ export const lambdaConfigs = {
   "detect-datasource-updates": {
     name: "detect-datasource-updates-lambda",
     description: "Detect updates for a data source",
-    entryPoint: "./src/features/monitoring/workers/detect-datasource-updates/index.ts",
+    entryPoint:
+      "./src/features/monitoring/workers/detect-datasource-updates/index.ts",
     // バンドルから除外するパッケージ（node_modulesにインストールされる）
-    externalPackages: ["@aws-sdk/*", "aws-sdk", "pg", "drizzle-orm", "dotenv", "@octokit/rest"],
+    externalPackages: [
+      "@aws-sdk/*",
+      "aws-sdk",
+      "pg",
+      "drizzle-orm",
+      "dotenv",
+      "@octokit/rest",
+    ],
     // Lambda関数のpackage.jsonに含める依存関係
     dependencies: {
       "@aws-sdk/client-ssm": "^3.848.0",
@@ -31,10 +39,18 @@ export const lambdaConfigs = {
   },
   "process-updates": {
     name: "process-updates-lambda",
-    description: "Process updates for events (SQS handler and direct invocation)",
+    description:
+      "Process updates for events (SQS handler and direct invocation)",
     entryPoint: "./src/features/monitoring/workers/process-updates/index.ts",
     // バンドルから除外するパッケージ（node_modulesにインストールされる）
-    externalPackages: ["@aws-sdk/*", "aws-sdk", "pg", "drizzle-orm", "dotenv", "openai"],
+    externalPackages: [
+      "@aws-sdk/*",
+      "aws-sdk",
+      "pg",
+      "drizzle-orm",
+      "dotenv",
+      "openai",
+    ],
     // Lambda関数のpackage.jsonに含める依存関係
     dependencies: {
       "@aws-sdk/client-ssm": "^3.848.0",

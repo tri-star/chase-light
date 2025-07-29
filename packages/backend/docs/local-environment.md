@@ -79,15 +79,6 @@ pnpm local:start --clean
 pnpm local:start --wait
 ```
 
-### 2. 従来の方法（非推奨）
-
-従来の方法でも起動可能ですが、統合セットアップスクリプトの使用を推奨します。
-
-```bash
-# 従来の方法
-./scripts/start-local-dev.sh
-```
-
 起動が完了すると、以下のようなメッセージが表示されます：
 
 ```
@@ -111,14 +102,10 @@ pnpm local:start --wait
 開発環境を停止するには、以下のコマンドを実行します：
 
 ```bash
-# 統合環境停止（推奨）
 pnpm local:stop
 
 # または直接実行
 node scripts/stop-local-environment.mjs
-
-# 従来の方法（非推奨）
-./scripts/stop-local-dev.sh
 ```
 
 ### 3. サービス動作確認
