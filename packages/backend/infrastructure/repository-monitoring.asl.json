@@ -8,7 +8,7 @@
       "Parameters": {
         "FunctionName": "${ListDataSourcesFunction.Arn}",
         "Payload": {
-          "sourceType": "github_repository"
+          "sourceType": "github"
         }
       },
       "ResultPath": "$.listDataSourcesResult",

@@ -538,7 +538,7 @@ function showExecutionExamples(localVariables, stateMachineArn) {
     `    --endpoint-url ${localVariables.StepFunctionsLocal.Endpoint} \\`,
   )
   console.log(`    --state-machine-arn '${stateMachineArn}' \\`)
-  console.log(`    --input '{"sourceType": "github_repository"}'`)
+  console.log(`    --input '{"sourceType": "github"}'`)
   console.log("")
   console.log("キューメッセージ確認:")
   console.log(
