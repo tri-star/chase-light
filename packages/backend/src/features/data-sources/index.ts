@@ -6,11 +6,13 @@ import {
 import { UserRepository } from "../user/repositories/user.repository"
 import {
   DataSourceCreationService,
+  DataSourceWatchService,
   DataSourceListService,
   DataSourceDetailService,
   DataSourceUpdateService,
   DataSourceDeletionService,
 } from "./services"
+import { createGitHubApiService } from "./services/github-api-service.factory"
 import { createDataSourcePresentationRoutes } from "./presentation"
 
 /**
@@ -26,10 +28,18 @@ const repositoryRepository = new RepositoryRepository()
 const userWatchRepository = new UserWatchRepository()
 const userRepository = new UserRepository()
 
+// GitHubApiServiceを作成
+const githubApiService = createGitHubApiService()
+
 // サービスの依存性注入
 const dataSourceCreationService = new DataSourceCreationService(
   dataSourceRepository,
   repositoryRepository,
+  githubApiService,
+)
+
+const dataSourceWatchService = new DataSourceWatchService(
+  dataSourceCreationService,
   userWatchRepository,
   userRepository,
 )
@@ -57,7 +67,7 @@ const dataSourceDeletionService = new DataSourceDeletionService(
 
 // 依存性を注入してルーターを構築
 const dataSourceRoutes = createDataSourcePresentationRoutes(
-  dataSourceCreationService,
+  dataSourceWatchService,
   dataSourceListService,
   dataSourceDetailService,
   dataSourceUpdateService,

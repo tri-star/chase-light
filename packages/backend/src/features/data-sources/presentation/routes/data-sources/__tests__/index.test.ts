@@ -3,6 +3,7 @@ import { OpenAPIHono } from "@hono/zod-openapi"
 import { createDataSourceRoutes } from "../index"
 import {
   DataSourceCreationService,
+  DataSourceWatchService,
   DataSourceListService,
   DataSourceDetailService,
   DataSourceUpdateService,
@@ -31,6 +32,7 @@ describe("DataSources API - Component Test", () => {
 
   let app: OpenAPIHono
   let dataSourceCreationService: DataSourceCreationService
+  let dataSourceWatchService: DataSourceWatchService
   let dataSourceListService: DataSourceListService
   let dataSourceDetailService: DataSourceDetailService
   let dataSourceUpdateService: DataSourceUpdateService
@@ -64,9 +66,12 @@ describe("DataSources API - Component Test", () => {
     dataSourceCreationService = new DataSourceCreationService(
       dataSourceRepository,
       repositoryRepository,
+      githubStub,
+    )
+    dataSourceWatchService = new DataSourceWatchService(
+      dataSourceCreationService,
       userWatchRepository,
       userRepository,
-      githubStub,
     )
     dataSourceListService = new DataSourceListService(
       dataSourceRepository,
@@ -94,7 +99,7 @@ describe("DataSources API - Component Test", () => {
 
     // データソースルートを追加
     const dataSourceRoutes = createDataSourceRoutes(
-      dataSourceCreationService,
+      dataSourceWatchService,
       dataSourceListService,
       dataSourceDetailService,
       dataSourceUpdateService,
@@ -246,7 +251,7 @@ describe("DataSources API - Component Test", () => {
       expect(res.status).toBe(401)
     })
 
-    test("重複エラーの場合は409エラー", async () => {
+    test("重複データソースの場合は既存レコードが返される（upsert動作）", async () => {
       const requestBody = {
         repositoryUrl: "https://github.com/facebook/react",
       }
@@ -269,7 +274,7 @@ describe("DataSources API - Component Test", () => {
       githubStub.setStubResponse(githubResponse)
 
       // 最初のリクエストで同じリポジトリを作成
-      await app.request("/", {
+      const firstRes = await app.request("/", {
         method: "POST",
         headers: {
           ...AuthTestHelper.createAuthHeaders(testToken),
@@ -278,7 +283,10 @@ describe("DataSources API - Component Test", () => {
         body: JSON.stringify(requestBody),
       })
 
-      // 2回目のリクエストで重複エラーが発生することを確認
+      expect(firstRes.status).toBe(201)
+      const firstResponseBody = await firstRes.json()
+
+      // 2回目のリクエストで同じリポジトリを作成（upsert動作）
       const res = await app.request("/", {
         method: "POST",
         headers: {
@@ -288,11 +296,20 @@ describe("DataSources API - Component Test", () => {
         body: JSON.stringify(requestBody),
       })
 
-      expect(res.status).toBe(409)
+      expect(res.status).toBe(201)
 
       const responseBody = await res.json()
-      expect(responseBody.success).toBe(false)
-      expect(responseBody.error.code).toBe("DUPLICATE_REPOSITORY")
+      expect(responseBody.success).toBe(true)
+      // 既存レコードが返されることを確認
+      expect(responseBody.data.dataSource.id).toBe(
+        firstResponseBody.data.dataSource.id,
+      )
+      expect(responseBody.data.repository.id).toBe(
+        firstResponseBody.data.repository.id,
+      )
+      expect(responseBody.data.userWatch.id).toBe(
+        firstResponseBody.data.userWatch.id,
+      )
     })
 
     test("GitHub APIエラーの場合は適切なエラーレスポンス", async () => {
