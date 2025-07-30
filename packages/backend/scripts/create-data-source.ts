@@ -122,6 +122,7 @@ async function main() {
 }
 
 // スクリプトが直接実行された場合のみメイン処理を実行
-if (require.main === module) {
+// ESモジュールでは import.meta.url を使用
+if (import.meta.url === `file://${process.argv[1]}`) {
   main()
 }
