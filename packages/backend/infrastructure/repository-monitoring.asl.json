@@ -138,7 +138,16 @@
                 }
               }
             },
-            "ResultPath": "$.processUpdatesResult",
+            "ResultPath": null,
+            "Next": "ProcessUpdatesComplete"
+          },
+          "ProcessUpdatesComplete": {
+            "Type": "Pass",
+            "Parameters": {
+              "status": "completed",
+              "message": "Events sent to processing queue successfully",
+              "timestamp.$": "$$.State.EnteredTime"
+            },
             "End": true
           },
           "NoNewEvents": {
