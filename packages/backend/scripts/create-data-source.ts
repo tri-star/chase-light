@@ -118,6 +118,11 @@ async function main() {
 
     console.error(JSON.stringify(errorOutput, null, 2))
     process.exit(1)
+  } finally {
+    // データベース接続を閉じる
+    if (db) {
+      await db.end()
+    }
   }
 }
 
