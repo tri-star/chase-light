@@ -1,5 +1,7 @@
 #!/usr/bin/env tsx
 
+import { fileURLToPath } from "url"
+import { resolve } from "path"
 import { DataSourceCreationService } from "../src/features/data-sources/services/data-source-creation.service"
 import { DataSourceRepository } from "../src/features/data-sources/repositories/data-source.repository"
 import { RepositoryRepository } from "../src/features/data-sources/repositories/repository.repository"
@@ -112,6 +114,9 @@ async function main() {
 
 // スクリプトが直接実行された場合のみメイン処理を実行
 // ESモジュールでは import.meta.url を使用
-if (import.meta.url === `file://${process.argv[1]}`) {
+const scriptPath = resolve(fileURLToPath(import.meta.url))
+const executedPath = resolve(process.argv[1])
+
+if (scriptPath === executedPath) {
   main()
 }
