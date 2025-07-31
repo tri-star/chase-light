@@ -4,7 +4,7 @@ import { DataSourceCreationService } from "../src/features/data-sources/services
 import { DataSourceRepository } from "../src/features/data-sources/repositories/data-source.repository"
 import { RepositoryRepository } from "../src/features/data-sources/repositories/repository.repository"
 import { createGitHubApiService } from "../src/features/data-sources/services/github-api-service.factory"
-import { connectDb, db } from "../src/db/connection"
+import { connectDb, disconnectDb } from "../src/db/connection"
 
 /**
  * コマンドライン引数を解析
@@ -69,26 +69,12 @@ async function main() {
     const output = {
       success: true,
       dataSource: {
-        id: result.dataSource.id,
-        sourceType: result.dataSource.sourceType,
-        sourceId: result.dataSource.sourceId,
-        name: result.dataSource.name,
-        description: result.dataSource.description,
-        url: result.dataSource.url,
-        isPrivate: result.dataSource.isPrivate,
+        ...result.dataSource,
         createdAt: result.dataSource.createdAt.toISOString(),
         updatedAt: result.dataSource.updatedAt.toISOString(),
       },
       repository: {
-        id: result.repository.id,
-        dataSourceId: result.repository.dataSourceId,
-        githubId: result.repository.githubId,
-        fullName: result.repository.fullName,
-        language: result.repository.language,
-        starsCount: result.repository.starsCount,
-        forksCount: result.repository.forksCount,
-        openIssuesCount: result.repository.openIssuesCount,
-        isFork: result.repository.isFork,
+        ...result.repository,
         createdAt: result.repository.createdAt.toISOString(),
         updatedAt: result.repository.updatedAt.toISOString(),
       },
@@ -120,9 +106,7 @@ async function main() {
     process.exit(1)
   } finally {
     // データベース接続を閉じる
-    if (db) {
-      await db.end()
-    }
+    await disconnectDb()
   }
 }
 

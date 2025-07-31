@@ -81,10 +81,16 @@ export class DataSourceWatchService {
             },
           )
 
+        if (!updatedUserWatch) {
+          throw new Error(
+            `Failed to update UserWatch for userId: ${user.id} and dataSourceId: ${dataSource.id}`,
+          )
+        }
+
         return {
           dataSource,
           repository,
-          userWatch: updatedUserWatch!,
+          userWatch: updatedUserWatch,
         }
       }
 
