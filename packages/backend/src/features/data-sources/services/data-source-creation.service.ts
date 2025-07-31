@@ -1,16 +1,10 @@
-import type { DataSource, Repository, UserWatch } from "../domain"
+import type { DataSource, Repository } from "../domain"
 import { DATA_SOURCE_TYPES } from "../domain"
 import type {
   DataSourceRepository,
   RepositoryRepository,
-  UserWatchRepository,
 } from "../repositories"
-import type { UserRepository } from "../../user/repositories/user.repository"
-import {
-  DuplicateDataSourceError,
-  UserNotFoundError,
-  InvalidRepositoryUrlError,
-} from "../errors"
+import { InvalidRepositoryUrlError } from "../errors"
 import type { GitHubApiServiceInterface } from "./interfaces/github-api-service.interface"
 import { createGitHubApiService } from "./github-api-service.factory"
 import { TransactionManager } from "../../../shared/db"
@@ -20,13 +14,8 @@ import { TransactionManager } from "../../../shared/db"
  */
 export type CreateDataSourceInputDto = {
   repositoryUrl: string
-  userId: string
   name?: string
   description?: string
-  notificationEnabled?: boolean
-  watchReleases?: boolean
-  watchIssues?: boolean
-  watchPullRequests?: boolean
 }
 
 /**
@@ -35,19 +24,16 @@ export type CreateDataSourceInputDto = {
 export type CreateDataSourceOutputDto = {
   dataSource: DataSource
   repository: Repository
-  userWatch: UserWatch
 }
 
 /**
  * データソース作成サービス
- * GitHub リポジトリ URL からデータソース、リポジトリ、ユーザーウォッチを作成
+ * GitHub リポジトリ URL からデータソースとリポジトリを作成
  */
 export class DataSourceCreationService {
   constructor(
     private dataSourceRepository: DataSourceRepository,
     private repositoryRepository: RepositoryRepository,
-    private userWatchRepository: UserWatchRepository,
-    private userRepository: UserRepository,
     private githubApiService?: GitHubApiServiceInterface,
   ) {
     // githubApiServiceが指定されていない場合はファクトリ関数を使用
@@ -69,7 +55,7 @@ export class DataSourceCreationService {
       // GitHub API でリポジトリ情報を取得
       const githubRepo = await this.githubApiService!.getRepository(owner, repo)
 
-      // 重複チェック
+      // 重複チェック: 既存の場合は既存のレコードを返す
       const existingDataSource =
         await this.dataSourceRepository.findBySourceTypeAndId(
           DATA_SOURCE_TYPES.GITHUB,
@@ -77,9 +63,21 @@ export class DataSourceCreationService {
         )
 
       if (existingDataSource) {
-        throw new DuplicateDataSourceError(
-          `Repository ${githubRepo.full_name} is already registered`,
-        )
+        // 既存のRepositoryも取得
+        const existingRepository =
+          await this.repositoryRepository.findByDataSourceId(
+            existingDataSource.id,
+          )
+        if (!existingRepository) {
+          throw new Error(
+            `Repository record not found for dataSource ${existingDataSource.id}`,
+          )
+        }
+
+        return {
+          dataSource: existingDataSource,
+          repository: existingRepository,
+        }
       }
 
       // データソース作成
@@ -104,26 +102,9 @@ export class DataSourceCreationService {
         isFork: githubRepo.fork,
       })
 
-      // Auth0 UserIDからユーザーのDBレコードを取得
-      const user = await this.userRepository.findByAuth0Id(input.userId)
-      if (!user) {
-        throw new UserNotFoundError(input.userId)
-      }
-
-      // ユーザーウォッチ作成
-      const userWatch = await this.userWatchRepository.save({
-        userId: user.id,
-        dataSourceId: dataSource.id,
-        notificationEnabled: input.notificationEnabled ?? true,
-        watchReleases: input.watchReleases ?? true,
-        watchIssues: input.watchIssues ?? false,
-        watchPullRequests: input.watchPullRequests ?? false,
-      })
-
       return {
         dataSource,
         repository,
-        userWatch,
       }
     })
   }

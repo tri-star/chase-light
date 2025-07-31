@@ -146,7 +146,7 @@ aws stepfunctions start-execution \
 aws stepfunctions start-execution \
   --endpoint-url http://localhost:8083 \
   --state-machine-arn arn:aws:states:us-east-1:123456789012:stateMachine:repository-monitoring-local \
-  --input '{"sourceType": "github_repository"}'
+  --input '{"sourceType": "github"}'
 ```
 
 利用可能な入力データサンプルについては、`infrastructure/events/README.md` を参照してください。

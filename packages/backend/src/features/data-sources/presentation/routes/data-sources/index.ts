@@ -2,7 +2,7 @@ import { OpenAPIHono, createRoute } from "@hono/zod-openapi"
 import { z } from "@hono/zod-openapi"
 import { requireAuth } from "../../../../auth/middleware/jwt-auth.middleware"
 import type {
-  DataSourceCreationService,
+  DataSourceWatchService,
   DataSourceListService,
   DataSourceDetailService,
   DataSourceUpdateService,
@@ -22,7 +22,7 @@ import { handleDataSourceError } from "../../shared/error-handling"
  * データソースルートファクトリー
  */
 export function createDataSourceRoutes(
-  dataSourceCreationService: DataSourceCreationService,
+  dataSourceWatchService: DataSourceWatchService,
   dataSourceListService: DataSourceListService,
   dataSourceDetailService: DataSourceDetailService,
   dataSourceUpdateService: DataSourceUpdateService,
@@ -315,7 +315,7 @@ export function createDataSourceRoutes(
       const body = c.req.valid("json")
 
       // サービス層でデータソースを作成
-      const result = await dataSourceCreationService.execute({
+      const result = await dataSourceWatchService.execute({
         repositoryUrl: body.repositoryUrl,
         userId: auth0UserId,
         name: body.name,

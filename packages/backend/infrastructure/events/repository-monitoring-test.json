@@ -1,5 +1,5 @@
 {
-  "sourceType": "github_repository",
+  "sourceType": "github",
   "testMode": true,
   "description": "テストモード用のリポジトリ監視実行データ"
 }

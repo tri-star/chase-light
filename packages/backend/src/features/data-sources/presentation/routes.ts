@@ -1,6 +1,6 @@
 import { OpenAPIHono } from "@hono/zod-openapi"
 import type {
-  DataSourceCreationService,
+  DataSourceWatchService,
   DataSourceListService,
   DataSourceDetailService,
   DataSourceUpdateService,
@@ -12,7 +12,7 @@ import { createDataSourceRoutes } from "./routes/data-sources"
  * データソース機能のメインルートファクトリー
  */
 export function createDataSourcePresentationRoutes(
-  dataSourceCreationService: DataSourceCreationService,
+  dataSourceWatchService: DataSourceWatchService,
   dataSourceListService: DataSourceListService,
   dataSourceDetailService: DataSourceDetailService,
   dataSourceUpdateService: DataSourceUpdateService,
@@ -24,7 +24,7 @@ export function createDataSourcePresentationRoutes(
   app.route(
     "/data-sources",
     createDataSourceRoutes(
-      dataSourceCreationService,
+      dataSourceWatchService,
       dataSourceListService,
       dataSourceDetailService,
       dataSourceUpdateService,

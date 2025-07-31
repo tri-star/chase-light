@@ -40,7 +40,7 @@
             "dataSources": [
               {
                 "id": "01234567-89ab-cdef-0123-456789abcdef",
-                "sourceType": "github_repository",
+                "sourceType": "github",
                 "sourceId": "microsoft/typescript",
                 "name": "TypeScript",
                 "description": "TypeScript is a superset of JavaScript that compiles to clean JavaScript output.",
@@ -51,7 +51,7 @@
               },
               {
                 "id": "12345678-9abc-def0-1234-56789abcdef0",
-                "sourceType": "github_repository",
+                "sourceType": "github",
                 "sourceId": "facebook/react",
                 "name": "React",
                 "description": "A declarative, efficient, and flexible JavaScript library for building user interfaces.",
@@ -62,7 +62,7 @@
               },
               {
                 "id": "23456789-abcd-ef01-2345-6789abcdef01",
-                "sourceType": "github_repository",
+                "sourceType": "github",
                 "sourceId": "vercel/next.js",
                 "name": "Next.js",
                 "description": "",
@@ -73,7 +73,7 @@
               },
               {
                 "id": "34567890-bcde-f012-3456-789abcdef012",
-                "sourceType": "github_repository",
+                "sourceType": "github",
                 "sourceId": "vuejs/vue",
                 "name": "Vue.js",
                 "description": "Progressive JavaScript Framework.",
@@ -84,7 +84,7 @@
               },
               {
                 "id": "12345678-9abc-def0-1234-56789abcdef0",
-                "sourceType": "github_repository",
+                "sourceType": "github",
                 "sourceId": "facebook/react",
                 "name": "React Duplicate",
                 "description": "Duplicate ID test.",
@@ -126,7 +126,7 @@
             "dataSources": [
               {
                 "id": "45678901-cdef-0123-4567-89abcdef0123",
-                "sourceType": "github_repository",
+                "sourceType": "github",
                 "sourceId": "nuxt/nuxt.js",
                 "name": "Nuxt.js",
                 "description": "The Intuitive Vue Framework",
@@ -148,7 +148,7 @@
             "dataSources": [
               {
                 "id": "12345678-9abc-def0-1234-56789abcdef0",
-                "sourceType": "github_repository",
+                "sourceType": "github",
                 "sourceId": "facebook/react",
                 "name": "React",
                 "description": "A declarative, efficient, and flexible JavaScript library for building user interfaces.",
@@ -159,7 +159,7 @@
               },
               {
                 "id": "12345678-9abc-def0-1234-56789abcdef0",
-                "sourceType": "github_repository",
+                "sourceType": "github",
                 "sourceId": "facebook/react",
                 "name": "React Duplicate",
                 "description": "Duplicate ID test.",
@@ -191,7 +191,7 @@
             "dataSources": [
               {
                 "id": "invalid-id",
-                "sourceType": "github_repository",
+                "sourceType": "github",
                 "sourceId": "invalid/source",
                 "name": "Invalid Source",
                 "description": "Invalid test case.",
