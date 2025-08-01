@@ -15,5 +15,12 @@
     "Endpoint": "http://localhost:8083",
     "Region": "us-east-1",
     "DummyRoleArn": "arn:aws:iam::123456789012:role/DummyRole"
+  },
+  "QueueConfig": {
+    "process-updates-queue": {
+      "lambdaFunctionName": "ProcessUpdatesFunction",
+      "pollInterval": 5000,
+      "enabled": true
+    }
   }
 }
