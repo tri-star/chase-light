@@ -36,3 +36,5 @@ lerna-debug.log*
 .DS_Store
 
 coverage/
+
+infrastructure/env.json
