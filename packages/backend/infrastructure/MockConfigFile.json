@@ -210,7 +210,7 @@
         "Return": {
           "StatusCode": 200,
           "Payload": {
-            "newEventIds": [
+            "eventIds": [
               "event-01234567-89ab-cdef-0123-456789abcdef",
               "event-fedcba98-7654-3210-fedc-ba9876543210",
               "event-abcdef01-2345-6789-abcd-ef0123456789"
@@ -224,7 +224,7 @@
         "Return": {
           "StatusCode": 200,
           "Payload": {
-            "newEventIds": []
+            "eventIds": []
           }
         }
       }

@@ -89,7 +89,7 @@
             "Type": "Choice",
             "Choices": [
               {
-                "Variable": "$.newEventIds",
+                "Variable": "$.eventIds",
                 "IsPresent": true,
                 "Next": "HasNewEvents"
               }
@@ -100,7 +100,7 @@
             "Type": "Choice",
             "Choices": [
               {
-                "Variable": "$.newEventIds[0]",
+                "Variable": "$.eventIds[0]",
                 "IsPresent": true,
                 "Next": "ProcessUpdates"
               }
@@ -109,11 +109,8 @@
           },
           "ProcessUpdates": {
             "Type": "Map",
-            "ItemsPath": "$.newEventIds",
+            "ItemsPath": "$.eventIds",
             "MaxConcurrency": 10,
-            "Parameters": {
-              "eventId.$": "$"
-            },
             "Iterator": {
               "StartAt": "SendToQueue",
               "States": {
@@ -123,7 +120,7 @@
                   "Parameters": {
                     "QueueUrl": "${ProcessUpdatesQueueUrl}",
                     "MessageBody": {
-                      "eventId.$": "$.eventId"
+                      "eventId.$": "$"
                     }
                   },
                   "Retry": [

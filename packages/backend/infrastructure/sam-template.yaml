@@ -17,6 +17,7 @@ Globals:
         DB_PASSWORD: ""
         DB_NAME: ""
         DB_SSL: "false"
+        OPENAI_API_KEY: ""
 
 Parameters:
   UseAws:
@@ -94,7 +95,7 @@ Resources:
     Properties:
       FunctionName: !Sub "${AWS::StackName}-process-updates"
       CodeUri: ../dist/lambda/process-updates/
-      Handler: index.sqsHandler
+      Handler: index.handler
       Runtime: nodejs22.x
       Timeout: 300
       MemorySize: 512
@@ -131,7 +132,7 @@ Resources:
       DefinitionSubstitutions:
         ListDataSourcesFunctionArn: !GetAtt ListDataSourcesFunction.Arn
         DetectDataSourceUpdatesFunctionArn: !GetAtt DetectDataSourceUpdatesFunction.Arn
-        ProcessUpdatesFunctionArn: !GetAtt ProcessUpdatesFunction.Arn
+        ProcessUpdatesFunction: !GetAtt ProcessUpdatesFunction.Arn
         ProcessUpdatesQueueUrl: !Ref ProcessUpdatesQueue
       Policies:
         - Statement:

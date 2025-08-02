@@ -187,7 +187,7 @@ describe("detect-datasource-updates handler", () => {
     )
 
     // Then: 新規イベントが作成されていることを確認
-    expect(result.newEventIds).toHaveLength(3) // Release1個、Issue1個、PR1個
+    expect(result.eventIds).toHaveLength(3) // Release1個、Issue1個、PR1個
 
     // 保存されたイベントを確認
     const releases = await eventRepository.findByDataSourceAndStatus(
@@ -279,7 +279,7 @@ describe("detect-datasource-updates handler", () => {
     )
 
     // Then: 新しいイベントのみが作成されていることを確認
-    expect(result.newEventIds).toHaveLength(1)
+    expect(result.eventIds).toHaveLength(1)
 
     const events = await eventRepository.findByDataSourceAndStatus(
       testDataSourceId,
@@ -325,7 +325,7 @@ describe("detect-datasource-updates handler", () => {
     )
 
     // Then: 1件作成される
-    expect(result1.newEventIds).toHaveLength(1)
+    expect(result1.eventIds).toHaveLength(1)
 
     // When: 2回目の実行（同じデータ）
     const result2 = await handler(
@@ -334,7 +334,7 @@ describe("detect-datasource-updates handler", () => {
     )
 
     // Then: 新規作成は0件（既存データは更新される）
-    expect(result2.newEventIds).toHaveLength(0)
+    expect(result2.eventIds).toHaveLength(0)
 
     // イベントが重複していないことを確認
     const events = await eventRepository.findByDataSourceAndStatus(

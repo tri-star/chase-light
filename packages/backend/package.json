@@ -22,7 +22,9 @@
     "db:test": "tsx src/db/test-connection.ts",
     "local:start": "node scripts/setup-local-environment.mjs",
     "local:stop": "node scripts/stop-local-environment.mjs",
-    "local:restart": "run-s local:stop local:start"
+    "local:restart": "run-s local:stop local:start",
+    "poller": "tsx scripts/elasticmq-poller.ts",
+    "poller:test": "tsx scripts/__tests__/poller-test.ts"
   },
   "devDependencies": {
     "@eslint/js": "^9.15.0",
@@ -43,6 +45,8 @@
     "vitest": "^3.2.2"
   },
   "dependencies": {
+    "@aws-sdk/client-lambda": "^3.848.0",
+    "@aws-sdk/client-sqs": "^3.848.0",
     "@aws-sdk/client-ssm": "^3.848.0",
     "@hono/node-server": "^1.14.3",
     "@hono/zod-openapi": "1.0.0-beta.1",
