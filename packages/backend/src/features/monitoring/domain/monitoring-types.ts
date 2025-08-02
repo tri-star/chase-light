@@ -14,8 +14,7 @@ export type DetectUpdatesInput = {
  * detect-datasource-updatesワーカーの出力型
  */
 export type DetectUpdatesOutput = {
-  /** 新規作成されたイベントのID配列 */
-  newEventIds: string[]
+  eventIds: string[]
 }
 
 /**
