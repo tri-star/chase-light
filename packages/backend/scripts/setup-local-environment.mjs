@@ -17,10 +17,14 @@ import fs from "fs"
 import path from "path"
 import { setTimeout } from "timers"
 import { fileURLToPath } from "url"
+import dotenv from "dotenv"
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
 const BACKEND_DIR = path.dirname(__dirname)
+
+// .envファイルを読み込み
+dotenv.config({ path: path.join(BACKEND_DIR, ".env") })
 
 // カラー付きログ設定
 const colors = {
@@ -604,6 +608,86 @@ function sleep(ms) {
 }
 
 /**
+ * 環境変数を動的に読み込んでenv.jsonを生成
+ */
+function generateEnvJson() {
+  log.info("環境変数を読み込んでenv.jsonを生成中...")
+
+  // OPENAI_API_KEYを環境変数から取得（.envファイルまたはシステム環境変数）
+  const openaiApiKey = process.env.OPENAI_API_KEY || "test-api-key"
+
+  if (process.env.OPENAI_API_KEY) {
+    log.success(`OPENAI_API_KEY found in environment variables`)
+  } else {
+    log.warn(
+      `OPENAI_API_KEY not found in environment variables, using default value: test-api-key`,
+    )
+    log.warn(
+      `Set OPENAI_API_KEY in your .env file or environment variables for actual usage`,
+    )
+  }
+
+  const envConfig = {
+    ListDataSourcesFunction: {
+      USE_AWS: "false",
+      STAGE: "local",
+      APP_STAGE: "local",
+      DB_HOST: "host.docker.internal",
+      DB_PORT: "5432",
+      DB_USER: "postgres",
+      DB_PASSWORD: "password",
+      DB_NAME: "chase_light",
+      DB_SSL: "false",
+      NODE_ENV: "development",
+      LOG_LEVEL: "debug",
+      AWS_REGION: "ap-northeast-1",
+      AWS_ACCESS_KEY_ID: "dummy",
+      AWS_SECRET_ACCESS_KEY: "dummy",
+    },
+    DetectDataSourceUpdatesFunction: {
+      USE_AWS: "false",
+      STAGE: "local",
+      APP_STAGE: "local",
+      DB_HOST: "host.docker.internal",
+      DB_PORT: "5432",
+      DB_USER: "postgres",
+      DB_PASSWORD: "password",
+      DB_NAME: "chase_light",
+      DB_SSL: "false",
+      NODE_ENV: "development",
+      LOG_LEVEL: "debug",
+      AWS_REGION: "ap-northeast-1",
+      AWS_ACCESS_KEY_ID: "dummy",
+      AWS_SECRET_ACCESS_KEY: "dummy",
+    },
+    ProcessUpdatesFunction: {
+      USE_AWS: "false",
+      STAGE: "local",
+      APP_STAGE: "local",
+      DB_HOST: "host.docker.internal",
+      DB_PORT: "5432",
+      DB_USER: "postgres",
+      DB_PASSWORD: "password",
+      DB_NAME: "chase_light",
+      DB_SSL: "false",
+      NODE_ENV: "development",
+      LOG_LEVEL: "debug",
+      OPENAI_API_KEY: openaiApiKey,
+      AWS_REGION: "ap-northeast-1",
+      AWS_ACCESS_KEY_ID: "dummy",
+      AWS_SECRET_ACCESS_KEY: "dummy",
+    },
+  }
+
+  // env.jsonファイルに書き込み
+  const envJsonPath = path.join(BACKEND_DIR, "infrastructure/env.json")
+  fs.writeFileSync(envJsonPath, JSON.stringify(envConfig, null, 2))
+  log.success(`env.json generated successfully at ${envJsonPath}`)
+
+  return envConfig
+}
+
+/**
  * メイン処理
  */
 async function main() {
@@ -618,22 +702,25 @@ async function main() {
     log.info("Chase Light StepFunctions Local統合環境をセットアップします")
     log.info(`Backend Directory: ${BACKEND_DIR}`)
 
-    // 1. 既存コンテナの停止・削除
+    // 1. 環境変数を読み込んでenv.jsonを生成
+    generateEnvJson()
+
+    // 2. 既存コンテナの停止・削除
     stopContainers(options.clean)
 
-    // 2. Lambda関数のビルド
+    // 3. Lambda関数のビルド
     buildLambdaFunctions()
 
-    // 3. Docker Composeサービスの起動
+    // 4. Docker Composeサービスの起動
     await startDockerServices()
 
-    // 4. PostgreSQLの起動確認
+    // 5. PostgreSQLの起動確認
     const pgStarted = await checkPostgreSQL()
     if (!pgStarted) {
       throw new Error("PostgreSQLの起動に失敗しました")
     }
 
-    // 5. StepFunctions LocalとElasticMQの起動確認
+    // 6. StepFunctions LocalとElasticMQの起動確認
     const stepFunctionsStarted = await checkStepFunctionsLocal()
     const elasticMqStarted = await checkElasticMQ()
 
@@ -641,16 +728,16 @@ async function main() {
       throw new Error("StepFunctions LocalまたはElasticMQの起動に失敗しました")
     }
 
-    // 6. SAM Localの起動
+    // 7. SAM Localの起動
     const samProcess = await startSamLocal(!options.wait)
 
-    // 7. StepFunctions環境のセットアップ
+    // 8. StepFunctions環境のセットアップ
     const { localVariables, stateMachineArn } = await setupStepFunctions()
 
-    // 8. 実行結果の表示
+    // 9. 実行結果の表示
     showExecutionExamples(localVariables, stateMachineArn)
 
-    // 9. 待機モードの処理
+    // 10. 待機モードの処理
     if (options.wait) {
       // フォアグラウンド実行時のみクリーンアップ処理を設定
       const cleanup = setupCleanup(samProcess, true)
