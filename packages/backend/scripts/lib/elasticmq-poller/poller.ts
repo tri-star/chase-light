@@ -2,9 +2,14 @@
  * ElasticMQ Poller Core Logic
  */
 
-import { SQSClient, ReceiveMessageCommand, DeleteMessageCommand, type Message } from '@aws-sdk/client-sqs'
-import { logger } from './logger.js'
-import { type PollerConfig } from './config.js'
+import {
+  SQSClient,
+  ReceiveMessageCommand,
+  DeleteMessageCommand,
+  type Message,
+} from "@aws-sdk/client-sqs"
+import { logger } from "./logger.js"
+import { type PollerConfig } from "./config.js"
 
 export interface PollerResult {
   success: boolean
@@ -20,11 +25,11 @@ export class ElasticMQPoller {
   constructor(private config: PollerConfig) {
     // ElasticMQ用のSQSクライアント設定
     this.sqsClient = new SQSClient({
-      region: 'us-east-1', // ElasticMQではダミー値
+      region: "us-east-1", // ElasticMQではダミー値
       endpoint: config.elasticMqEndpoint,
       credentials: {
-        accessKeyId: 'test',
-        secretAccessKey: 'test',
+        accessKeyId: "test",
+        secretAccessKey: "test",
       },
     })
   }
@@ -32,9 +37,11 @@ export class ElasticMQPoller {
   /**
    * ポーリングを開始
    */
-  async start(messageHandler: (message: Message) => Promise<void>): Promise<void> {
+  async start(
+    messageHandler: (message: Message) => Promise<void>,
+  ): Promise<void> {
     if (this.isRunning) {
-      logger.warn('ポーラーは既に実行中です')
+      logger.warn("ポーラーは既に実行中です")
       return
     }
 
@@ -66,29 +73,31 @@ export class ElasticMQPoller {
   /**
    * メッセージのポーリングループ
    */
-  private async pollMessages(messageHandler: (message: Message) => Promise<void>): Promise<void> {
+  private async pollMessages(
+    messageHandler: (message: Message) => Promise<void>,
+  ): Promise<void> {
     while (this.isRunning) {
       try {
         const result = await this.receiveMessages()
-        
+
         if (result.Messages && result.Messages.length > 0) {
           // メッセージを順次処理
           for (const message of result.Messages) {
             if (!this.isRunning) break
-            
+
             try {
               await this.processMessage(message, messageHandler)
             } catch (error) {
-              logger.error('メッセージ処理エラー', error)
+              logger.error("メッセージ処理エラー", error)
               // メッセージ処理に失敗してもポーリングは継続
             }
           }
         } else {
-          logger.debug('新しいメッセージはありません')
+          logger.debug("新しいメッセージはありません")
         }
       } catch (error) {
-        logger.error('ポーリングエラー', error)
-        
+        logger.error("ポーリングエラー", error)
+
         // 接続エラーの場合は少し待ってからリトライ
         if (this.isConnectionError(error)) {
           logger.info(`${this.config.pollIntervalMs}ms後にリトライします...`)
@@ -107,12 +116,12 @@ export class ElasticMQPoller {
    */
   private async receiveMessages() {
     const queueUrl = `${this.config.elasticMqEndpoint}/000000000000/${this.config.queueName}`
-    
+
     const command = new ReceiveMessageCommand({
       QueueUrl: queueUrl,
       MaxNumberOfMessages: this.config.maxMessages,
       WaitTimeSeconds: this.config.waitTimeSeconds,
-      MessageAttributeNames: ['All'],
+      MessageAttributeNames: ["All"],
     })
 
     logger.debug(`メッセージ受信を試行中: ${queueUrl}`)
@@ -122,26 +131,32 @@ export class ElasticMQPoller {
   /**
    * 個別メッセージの処理
    */
-  private async processMessage(message: Message, messageHandler: (message: Message) => Promise<void>): Promise<void> {
+  private async processMessage(
+    message: Message,
+    messageHandler: (message: Message) => Promise<void>,
+  ): Promise<void> {
     if (!message.Body) {
-      logger.warn('メッセージにBodyが含まれていません', message)
+      logger.warn("メッセージにBodyが含まれていません", message)
       return
     }
 
     // メッセージ受信をログ出力
-    logger.messageReceived(this.config.queueName, message.Body, message.MessageId)
+    logger.messageReceived(
+      this.config.queueName,
+      message.Body,
+      message.MessageId,
+    )
 
     try {
       // メッセージハンドラーを実行
       await messageHandler(message)
-      
+
       // 処理成功時はメッセージを削除
       await this.deleteMessage(message)
-      logger.success('メッセージ処理が完了しました')
-      
+      logger.success("メッセージ処理が完了しました")
     } catch (error) {
-      logger.error('メッセージ処理に失敗しました', error)
-      
+      logger.error("メッセージ処理に失敗しました", error)
+
       // 処理失敗時もメッセージを削除（無限ループを防ぐため）
       await this.deleteMessage(message)
       throw error // エラーを再スロー
@@ -153,12 +168,12 @@ export class ElasticMQPoller {
    */
   private async deleteMessage(message: Message): Promise<void> {
     if (!message.ReceiptHandle) {
-      logger.warn('メッセージにReceiptHandleが含まれていません')
+      logger.warn("メッセージにReceiptHandleが含まれていません")
       return
     }
 
     const queueUrl = `${this.config.elasticMqEndpoint}/000000000000/${this.config.queueName}`
-    
+
     const command = new DeleteMessageCommand({
       QueueUrl: queueUrl,
       ReceiptHandle: message.ReceiptHandle,
@@ -166,9 +181,9 @@ export class ElasticMQPoller {
 
     try {
       await this.sqsClient.send(command)
-      logger.debug('メッセージを削除しました', { messageId: message.MessageId })
+      logger.debug("メッセージを削除しました", { messageId: message.MessageId })
     } catch (error) {
-      logger.error('メッセージ削除に失敗しました', error)
+      logger.error("メッセージ削除に失敗しました", error)
       // 削除失敗は致命的ではないので、エラーをスローしない
     }
   }
@@ -178,9 +193,11 @@ export class ElasticMQPoller {
    */
   private isConnectionError(error: unknown): boolean {
     if (error instanceof Error) {
-      return error.message.includes('ECONNREFUSED') || 
-             error.message.includes('ENOTFOUND') ||
-             error.message.includes('timeout')
+      return (
+        error.message.includes("ECONNREFUSED") ||
+        error.message.includes("ENOTFOUND") ||
+        error.message.includes("timeout")
+      )
     }
     return false
   }
