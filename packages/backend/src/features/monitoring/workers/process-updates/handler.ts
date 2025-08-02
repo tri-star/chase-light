@@ -27,8 +27,8 @@ export const handler = async (
 
   // 入力検証
   if (!event.eventId) {
-    console.error("Missing or invalid eventIds parameter")
-    throw new Error("Invalid input: eventIds must be an array")
+    console.error("Missing or invalid eventId parameter")
+    throw new Error("Invalid input: eventId must be a string")
   }
 
   try {
