@@ -134,6 +134,13 @@ Resources:
         DetectDataSourceUpdatesFunctionArn: !GetAtt DetectDataSourceUpdatesFunction.Arn
         ProcessUpdatesFunction: !GetAtt ProcessUpdatesFunction.Arn
         ProcessUpdatesQueueUrl: !Ref ProcessUpdatesQueue
+        RepositoryMonitoringLogGroup.Arn: !GetAtt RepositoryMonitoringLogGroup.Arn
+      Logging:
+        Level: ALL
+        IncludeExecutionData: true
+        Destinations:
+          - CloudWatchLogsLogGroup:
+              LogGroupArn: !GetAtt RepositoryMonitoringLogGroup.Arn
       Policies:
         - Statement:
             - Effect: Allow
@@ -162,6 +169,102 @@ Resources:
     Properties:
       LogGroupName: !Sub "/aws/stepfunctions/${AWS::StackName}-repository-monitoring"
       RetentionInDays: 30
+
+  # EventBridge Rule for daily execution
+  RepositoryMonitoringScheduleRule:
+    Type: AWS::Events::Rule
+    Properties:
+      Name: !Sub "${AWS::StackName}-repository-monitoring-schedule"
+      Description: "Daily execution of repository monitoring workflow"
+      ScheduleExpression: "cron(0 8 * * ? *)"  # Daily at 17:00 JST (08:00 UTC)
+      State: ENABLED
+      Targets:
+        - Arn: !Ref RepositoryMonitoringStateMachine
+          Id: "RepositoryMonitoringTarget"
+          RoleArn: !GetAtt EventBridgeExecutionRole.Arn
+
+  # IAM Role for EventBridge to execute Step Functions
+  EventBridgeExecutionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: events.amazonaws.com
+            Action: sts:AssumeRole
+      Policies:
+        - PolicyName: StepFunctionsExecutionPolicy
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - states:StartExecution
+                Resource: !Ref RepositoryMonitoringStateMachine
+
+  # SNS Topic for alerts
+  AlertsTopic:
+    Type: AWS::SNS::Topic
+    Properties:
+      TopicName: !Sub "${AWS::StackName}-alerts"
+      DisplayName: "Repository Monitoring Alerts"
+
+  # CloudWatch Alarms
+  StepFunctionsExecutionFailedAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmName: !Sub "${AWS::StackName}-stepfunctions-execution-failed"
+      AlarmDescription: "Alert when Step Functions execution fails"
+      MetricName: ExecutionsFailed
+      Namespace: AWS/States
+      Statistic: Sum
+      Period: 300
+      EvaluationPeriods: 1
+      Threshold: 1
+      ComparisonOperator: GreaterThanOrEqualToThreshold
+      Dimensions:
+        - Name: StateMachineArn
+          Value: !Ref RepositoryMonitoringStateMachine
+      AlarmActions:
+        - !Ref AlertsTopic
+      TreatMissingData: notBreaching
+
+  LambdaErrorRateAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmName: !Sub "${AWS::StackName}-lambda-error-rate"
+      AlarmDescription: "Alert when Lambda error rate exceeds 5%"
+      MetricName: ErrorRate
+      Namespace: AWS/Lambda
+      Statistic: Average
+      Period: 300
+      EvaluationPeriods: 2
+      Threshold: 5
+      ComparisonOperator: GreaterThanThreshold
+      AlarmActions:
+        - !Ref AlertsTopic
+      TreatMissingData: notBreaching
+
+  ProcessUpdatesDeadLetterQueueAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmName: !Sub "${AWS::StackName}-dlq-messages"
+      AlarmDescription: "Alert when messages appear in DLQ"
+      MetricName: ApproximateNumberOfVisibleMessages
+      Namespace: AWS/SQS
+      Statistic: Maximum
+      Period: 300
+      EvaluationPeriods: 1
+      Threshold: 1
+      ComparisonOperator: GreaterThanOrEqualToThreshold
+      Dimensions:
+        - Name: QueueName
+          Value: !GetAtt ProcessUpdatesDeadLetterQueue.QueueName
+      AlarmActions:
+        - !Ref AlertsTopic
+      TreatMissingData: notBreaching
 
 Outputs:
   StateMachineArn:
@@ -199,3 +302,15 @@ Outputs:
     Value: !GetAtt ProcessUpdatesQueue.Arn
     Export:
       Name: !Sub "${AWS::StackName}-ProcessUpdatesQueueArn"
+
+  ScheduleRuleArn:
+    Description: 'ARN of the EventBridge schedule rule'
+    Value: !GetAtt RepositoryMonitoringScheduleRule.Arn
+    Export:
+      Name: !Sub "${AWS::StackName}-ScheduleRuleArn"
+
+  AlertsTopicArn:
+    Description: 'ARN of the SNS alerts topic'
+    Value: !Ref AlertsTopic
+    Export:
+      Name: !Sub "${AWS::StackName}-AlertsTopicArn"
