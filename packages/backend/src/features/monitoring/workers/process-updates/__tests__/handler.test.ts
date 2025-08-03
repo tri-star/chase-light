@@ -77,18 +77,8 @@ describe("process-updates handler", () => {
       body: "Initial release with new features",
       eventType: EVENT_TYPE.RELEASE,
     })
-    const event2 = createTestEvent({
-      title: "Bug in login system",
-      body: "Users cannot log in with their credentials",
-      eventType: EVENT_TYPE.ISSUE,
-      version: null,
-    })
-
     // イベントを DB に保存
     await eventRepository.upsert(event1)
-    await eventRepository.upsert(event2)
-
-    const eventIds = [event1.id, event2.id]
 
     // TranslationService をスタブ化
     const { TranslationService } = await import(
@@ -102,86 +92,21 @@ describe("process-updates handler", () => {
 
     try {
       // When: process-updates ハンドラーを実行
-      const result = await handler({ eventIds }, mockContext)
+      const result = await handler({ eventId: event1.id }, mockContext)
 
       // Then: 処理結果を検証
-      expect(result.processedEventIds).toHaveLength(2)
+      expect(result.processedEventIds).toHaveLength(1)
       expect(result.failedEventIds).toHaveLength(0)
-      expect(result.processedEventIds).toEqual(expect.arrayContaining(eventIds))
+      expect(result.processedEventIds).toEqual(
+        expect.arrayContaining([event1.id]),
+      )
 
       // DB の状態を確認
-      for (const eventId of eventIds) {
-        const updatedEvent = await eventRepository.findById(eventId)
-        expect(updatedEvent).not.toBeNull()
-        expect(updatedEvent!.status).toBe(EVENT_STATUS.COMPLETED)
-        expect(updatedEvent!.title).toBe("[翻訳済み] テストタイトル")
-        expect(updatedEvent!.body).toBe("[翻訳済み] テスト本文")
-      }
-    } finally {
-      // スタブを復元
-      TranslationService.prototype.translate = originalTranslate
-    }
-  })
-
-  test("一部のイベント処理が失敗した場合、成功したものは完了状態になる", async () => {
-    // Given: テスト用のイベントデータを作成
-    const successEvent = createTestEvent({
-      title: "Version 1.0.0",
-      body: "Success event",
-      eventType: EVENT_TYPE.RELEASE,
-    })
-    const failEvent = createTestEvent({
-      title: "Fail event",
-      body: "This will fail",
-      eventType: EVENT_TYPE.ISSUE,
-      version: null,
-    })
-
-    // イベントを DB に保存
-    await eventRepository.upsert(successEvent)
-    await eventRepository.upsert(failEvent)
-
-    // TranslationService をスタブ化（一部失敗）
-    const { TranslationService } = await import(
-      "../../../services/translation.service"
-    )
-    const originalTranslate = TranslationService.prototype.translate
-    TranslationService.prototype.translate = vi
-      .fn()
-      .mockImplementation(async (eventType, title) => {
-        if (title === "Fail event") {
-          throw new Error("Translation API error")
-        }
-        return {
-          translatedTitle: "[翻訳済み] テストタイトル",
-          translatedBody: "[翻訳済み] テスト本文",
-        }
-      })
-
-    try {
-      // When: process-updates ハンドラーを実行
-      const result = await handler(
-        { eventIds: [successEvent.id, failEvent.id] },
-        mockContext,
-      )
-
-      // Then: 部分的成功を検証
-      expect(result.processedEventIds).toHaveLength(1)
-      expect(result.failedEventIds).toHaveLength(1)
-      expect(result.processedEventIds).toContain(successEvent.id)
-      expect(result.failedEventIds).toContain(failEvent.id)
-
-      // 成功したイベントの状態確認
-      const successEventUpdated = await eventRepository.findById(
-        successEvent.id,
-      )
-      expect(successEventUpdated!.status).toBe(EVENT_STATUS.COMPLETED)
-      expect(successEventUpdated!.title).toBe("[翻訳済み] テストタイトル")
-
-      // 失敗したイベントの状態確認
-      const failEventUpdated = await eventRepository.findById(failEvent.id)
-      expect(failEventUpdated!.status).toBe(EVENT_STATUS.FAILED)
-      expect(failEventUpdated!.statusDetail).toContain("Translation API error")
+      const updatedEvent = await eventRepository.findById(event1.id)
+      expect(updatedEvent).not.toBeNull()
+      expect(updatedEvent!.status).toBe(EVENT_STATUS.COMPLETED)
+      expect(updatedEvent!.title).toBe("[翻訳済み] テストタイトル")
+      expect(updatedEvent!.body).toBe("[翻訳済み] テスト本文")
     } finally {
       // スタブを復元
       TranslationService.prototype.translate = originalTranslate
@@ -196,16 +121,9 @@ describe("process-updates handler", () => {
       eventType: EVENT_TYPE.RELEASE,
       status: EVENT_STATUS.COMPLETED,
     })
-    const pendingEvent = createTestEvent({
-      title: "Pending event",
-      body: "This needs processing",
-      eventType: EVENT_TYPE.ISSUE,
-      version: null,
-    })
 
     // イベントを DB に保存
     await eventRepository.upsert(completedEvent)
-    await eventRepository.upsert(pendingEvent)
 
     // TranslationService をスタブ化
     const { TranslationService } = await import(
@@ -220,49 +138,27 @@ describe("process-updates handler", () => {
 
     try {
       // When: 両方のイベントIDを指定してハンドラーを実行
-      const result = await handler(
-        { eventIds: [completedEvent.id, pendingEvent.id] },
-        mockContext,
-      )
+      const result = await handler({ eventId: completedEvent.id }, mockContext)
 
       // Then: 完了済みイベントもprocessedEventIdsに含まれる（スキップされるが成功扱い）
-      expect(result.processedEventIds).toHaveLength(2)
-      expect(result.failedEventIds).toHaveLength(0)
+      expect(result.processedEventIds).toHaveLength(1)
 
-      // 翻訳サービスは pending イベントのみ呼び出される
-      expect(mockTranslate).toHaveBeenCalledTimes(1)
+      // 翻訳サービスは 呼び出されない
+      expect(mockTranslate).toHaveBeenCalledTimes(0)
     } finally {
       // スタブを復元
       TranslationService.prototype.translate = originalTranslate
     }
   })
 
-  test("空のeventIds配列の場合、何も処理しない", async () => {
-    // When: 空の配列で実行
-    const result = await handler({ eventIds: [] }, mockContext)
-
-    // Then: 空の結果が返る
-    expect(result.processedEventIds).toHaveLength(0)
-    expect(result.failedEventIds).toHaveLength(0)
-  })
-
   test("無効な入力パラメータの場合、エラーをスローする", async () => {
     // When & Then: 無効な入力でエラーをスロー
     await expect(
-      handler(
-        { eventIds: null } as unknown as { eventIds: string[] },
-        mockContext,
-      ),
-    ).rejects.toThrow("Invalid input: eventIds must be an array")
+      handler({ eventId: null } as unknown as { eventId: string }, mockContext),
+    ).rejects.toThrow("Invalid input: eventId must be a string")
     await expect(
-      handler({} as unknown as { eventIds: string[] }, mockContext),
-    ).rejects.toThrow("Invalid input: eventIds must be an array")
-    await expect(
-      handler(
-        { eventIds: "not-an-array" } as unknown as { eventIds: string[] },
-        mockContext,
-      ),
-    ).rejects.toThrow("Invalid input: eventIds must be an array")
+      handler({} as unknown as { eventId: string }, mockContext),
+    ).rejects.toThrow("Invalid input: eventId must be a string")
   })
 
   test("OpenAI APIキーが設定されていない場合、エラーをスローする", async () => {
@@ -271,7 +167,7 @@ describe("process-updates handler", () => {
 
     // When & Then: APIキー未設定エラー
     await expect(
-      handler({ eventIds: [randomUUID()] }, mockContext),
+      handler({ eventId: randomUUID() }, mockContext),
     ).rejects.toThrow("Failed to get OpenAI configuration")
 
     // Cleanup: APIキーを復元

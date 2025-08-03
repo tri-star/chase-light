@@ -55,14 +55,14 @@ export const handler = async (
 
       // 更新検知実行
       console.log(`Detecting updates for dataSource: ${event.dataSourceId}`)
-      const newEventIds = await updateDetectorService.detectUpdates(
+      const eventIds = await updateDetectorService.detectUpdates(
         event.dataSourceId,
       )
 
-      console.log(`Detection completed. Found ${newEventIds.length} new events`)
+      console.log(`Detection completed. Found ${eventIds.length} new events`)
 
       return {
-        newEventIds,
+        eventIds,
       }
     })
   } catch (error) {

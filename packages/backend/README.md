@@ -174,16 +174,35 @@ sam local invoke ListDataSourcesFunction --event events/list-datasources.json
 
 #### 環境変数設定
 
-SAM Localで環境変数を設定する場合は、`env.json` ファイルを作成：
+**ローカル開発環境**
 
-```json
-{
-  "ListDataSourcesFunction": {
-    "USE_AWS": "false",
-    "STAGE": "dev",
-    "GITHUB_TOKEN": "your_github_token"
-  }
-}
+ローカル環境では、以下の方法で環境変数を設定できます：
+
+1. `.env`ファイルを作成（推奨）
+
+```bash
+# .envファイルを作成
+cp .env.example .env
+
+# OPENAI_API_KEYとGITHUB_TOKENを設定
+OPENAI_API_KEY=your-openai-api-key-here
+GITHUB_TOKEN=your-github-token-here
+```
+
+2. システム環境変数として設定
+
+```bash
+export OPENAI_API_KEY="your-openai-api-key-here"
+export GITHUB_TOKEN="your-github-token-here"
+```
+
+**SAM Local**
+
+SAM Localは環境変数を `.env` ファイルまたはシステム環境変数から自動的に読み込み、`env.json` ファイルを動的に生成します。ローカル環境セットアップスクリプトを実行するだけで、適切に設定されます：
+
+```bash
+# ローカル環境を起動（.envファイルから環境変数を読み込み）
+pnpm local:start
 ```
 
 ```bash
