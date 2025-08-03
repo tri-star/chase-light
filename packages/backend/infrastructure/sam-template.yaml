@@ -35,7 +35,7 @@ Resources:
     Type: AWS::SQS::Queue
     Properties:
       QueueName: !Sub "${AWS::StackName}-process-updates-queue"
-      VisibilityTimeoutSeconds: 360
+      VisibilityTimeout: 360
       MessageRetentionPeriod: 1209600  # 14 days
       RedrivePolicy:
         deadLetterTargetArn: !GetAtt ProcessUpdatesDeadLetterQueue.Arn
