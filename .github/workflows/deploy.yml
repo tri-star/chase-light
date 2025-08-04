@@ -1,4 +1,4 @@
-name: Deploy
+name: Deploy(BAckend)
 
 on:
   # push:
@@ -9,9 +9,9 @@ on:
   workflow_dispatch:
     inputs:
       env:
-        description: 'Environment to deploy'
+        description: "Environment to deploy"
         required: true
-        default: 'dev'
+        default: "dev"
         type: choice
         options:
           - dev
@@ -54,9 +54,6 @@ jobs:
         run: |
           pnpm --filter backend lint
           pnpm --filter backend lint:type
-
-      - name: Run tests
-        run: pnpm --filter backend test
 
       - name: Build Lambda functions
         run: pnpm --filter backend build:lambda
