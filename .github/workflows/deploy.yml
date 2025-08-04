@@ -1,0 +1,149 @@
+name: Deploy
+
+on:
+  # push:
+  #   branches: [main]
+  #   paths:
+  #     - "packages/backend/**"
+  #     - "!packages/backend/docs/**"
+  workflow_dispatch:
+    inputs:
+      env:
+        description: 'Environment to deploy'
+        required: true
+        default: 'dev'
+        type: choice
+        options:
+          - dev
+          - prod
+
+concurrency:
+  group: deploy-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    environment: ${{ inputs.env }}
+
+    # AWS認証に必要な権限設定
+    permissions:
+      id-token: write
+      contents: read
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@a7487c7e89a18df4991f7f222e4898a00d66ddda # v4
+        with:
+          run_install: false
+
+      - name: Setup Node.js
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: "24"
+          cache: "pnpm"
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Lint and type check
+        run: |
+          pnpm --filter backend lint
+          pnpm --filter backend lint:type
+
+      - name: Run tests
+        run: pnpm --filter backend test
+
+      - name: Build Lambda functions
+        run: pnpm --filter backend build:lambda
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@8c3f20df09ac63af7b3ae3d7c91f105f857d8497 # v4
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          aws-region: ${{ vars.AWS_REGION || 'ap-northeast-1' }}
+
+      - name: Setup SAM CLI
+        uses: aws-actions/setup-sam@f664fad9e12492edfc187a31f575537dfbb0ff63 # v2
+        with:
+          use-installer: true
+
+      - name: Validate SAM template
+        run: |
+          cd packages/backend/infrastructure
+          sam validate --lint --template sam-template.yaml
+
+      - name: Deploy with SAM
+        run: |
+          cd packages/backend/infrastructure
+          sam deploy \
+            --template-file sam-template.yaml \
+            --stack-name chase-light-${{ inputs.env }} \
+            --capabilities CAPABILITY_IAM \
+            --parameter-overrides \
+              UseAws=true \
+              Stage=${{ inputs.env }} \
+            --no-confirm-changeset \
+            --no-fail-on-empty-changeset
+
+      - name: Display deployment outputs
+        run: |
+          cd packages/backend/infrastructure
+          sam list stack-outputs --stack-name chase-light-${{ inputs.env }} --output table
+
+      - name: Test deployed Step Functions (optional)
+        if: vars.TEST_STEPFUNCTIONS == 'true'
+        run: |
+          # Get Step Functions ARN from stack outputs
+          STEP_FUNCTION_ARN=$(aws cloudformation describe-stacks \
+            --stack-name chase-light-${{ inputs.env }} \
+            --query 'Stacks[0].Outputs[?OutputKey==`StateMachineArn`].OutputValue' \
+            --output text)
+
+          echo "Testing Step Functions: $STEP_FUNCTION_ARN"
+
+          # Start execution
+          EXECUTION_ARN=$(aws stepfunctions start-execution \
+            --state-machine-arn "$STEP_FUNCTION_ARN" \
+            --name "test-execution-$(date +%s)" \
+            --query 'executionArn' \
+            --output text)
+
+          echo "Started execution: $EXECUTION_ARN"
+
+          # Wait for completion (timeout after 5 minutes)
+          timeout 300 bash -c "
+            while true; do
+              STATUS=\$(aws stepfunctions describe-execution \
+                --execution-arn '$EXECUTION_ARN' \
+                --query 'status' \
+                --output text)
+              echo \"Execution status: \$STATUS\"
+              if [[ \$STATUS == 'SUCCEEDED' ]]; then
+                echo 'Execution completed successfully'
+                break
+              elif [[ \$STATUS == 'FAILED' ]] || [[ \$STATUS == 'TIMED_OUT' ]] || [[ \$STATUS == 'ABORTED' ]]; then
+                echo 'Execution failed'
+                exit 1
+              fi
+              sleep 10
+            done
+          "
+
+      - name: Notify deployment success
+        if: success()
+        run: |
+          echo "✅ Deployment completed successfully"
+          echo "Stack: chase-light-${{ inputs.env }}"
+          echo "Environment: ${{ inputs.env }}"
+          echo "Region: ${{ vars.AWS_REGION || 'ap-northeast-1' }}"
+
+      - name: Notify deployment failure
+        if: failure()
+        run: |
+          echo "❌ Deployment failed"
+          echo "Please check the logs above for details"
