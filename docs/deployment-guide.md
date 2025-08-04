@@ -54,9 +54,11 @@ aws ssm put-parameter \
 GitHubリポジトリの Settings > Secrets and variables > Actions で以下を設定：
 
 #### Secrets
+
 - `AWS_ROLE_ARN`: GitHubからAWSにアクセスするためのIAMロールARN
 
 #### Variables
+
 - `AWS_REGION`: デプロイするAWSリージョン（デフォルト: ap-northeast-1）
 - `TEST_STEPFUNCTIONS`: デプロイ後にStep Functionsをテストするか（true/false）
 
@@ -78,6 +80,7 @@ aws iam create-role \
 ```
 
 trust policy例（`github-actions-trust-policy.json`）:
+
 ```json
 {
   "Version": "2012-10-17",
@@ -120,19 +123,22 @@ trust policy例（`github-actions-trust-policy.json`）:
 緊急時やローカルでのデプロイが必要な場合：
 
 1. **依存関係インストール**
+
    ```bash
    pnpm install
    ```
 
 2. **Lambdaビルド**
+
    ```bash
    pnpm --filter backend build:lambda
    ```
 
 3. **SAMデプロイ**
+
    ```bash
    cd packages/backend/infrastructure
-   
+
    # dev環境へのデプロイ
    sam deploy \
      --template-file sam-template.yaml \
@@ -142,7 +148,7 @@ trust policy例（`github-actions-trust-policy.json`）:
        UseAws=true \
        Stage=dev \
      --no-confirm-changeset
-   
+
    # prod環境へのデプロイ（将来）
    sam deploy \
      --template-file sam-template.yaml \
@@ -211,6 +217,7 @@ aws sns list-topics | grep chase-light-prod  # prod環境
 ### CloudWatch Logs Insightsクエリ
 
 #### エラー分析
+
 ```sql
 fields @timestamp, @message
 | filter @message like /ERROR/
@@ -219,6 +226,7 @@ fields @timestamp, @message
 ```
 
 #### パフォーマンス分析
+
 ```sql
 fields @timestamp, @duration
 | filter @type = "REPORT"
@@ -228,16 +236,19 @@ fields @timestamp, @duration
 ### アラート対応手順
 
 #### Step Functions実行失敗
+
 1. CloudWatch Logs でエラーログを確認
 2. 失敗原因を特定（GitHub API制限、DB接続エラーなど）
 3. 必要に応じて手動で再実行
 
 #### Lambda エラー率高騰
+
 1. 特定のLambda関数を特定
 2. エラーログで根本原因を調査
 3. コード修正が必要な場合は緊急デプロイ
 
 #### DLQメッセージ蓄積
+
 1. DLQのメッセージ内容を確認
 2. 処理失敗の原因を特定
 3. 修正後、DLQメッセージを再処理
@@ -251,6 +262,7 @@ fields @timestamp, @duration
 **症状**: CloudFormationスタック作成/更新エラー
 
 **対処法**:
+
 ```bash
 # スタック詳細確認
 aws cloudformation describe-stack-events --stack-name chase-light-dev  # dev環境
@@ -266,6 +278,7 @@ aws cloudformation describe-stack-events --stack-name chase-light-prod # prod環
 **症状**: Parameter not found エラー
 
 **対処法**:
+
 ```bash
 # パラメータ存在確認
 aws ssm get-parameter --name "/prod/supabase/db_url"
@@ -281,6 +294,7 @@ aws iam attach-role-policy \
 **症状**: Unable to start execution エラー
 
 **対処法**:
+
 ```bash
 # EventBridge実行ロール確認（環境に応じてロール名を変更）
 aws iam get-role --role-name chase-light-dev-EventBridgeExecutionRole
@@ -295,6 +309,7 @@ aws iam put-role-policy \
 ### 緊急時対応
 
 #### システム停止
+
 ```bash
 # EventBridgeルール無効化（環境に応じて変更）
 aws events disable-rule --name "chase-light-dev-repository-monitoring-schedule"
@@ -304,6 +319,7 @@ aws stepfunctions stop-execution --execution-arn "実行中のARN"
 ```
 
 #### システム復旧
+
 ```bash
 # EventBridgeルール有効化（環境に応じて変更）
 aws events enable-rule --name "chase-light-dev-repository-monitoring-schedule"
@@ -317,16 +333,19 @@ aws stepfunctions start-execution \
 ## セキュリティ考慮事項
 
 ### シークレット管理
+
 - すべてのAPIキー・DB認証情報はSSM Parameter Store（SecureString）で管理
 - Lambda関数からの直接アクセスのみ許可
 - 定期的なキーローテーション実施
 
 ### IAM権限
+
 - 最小権限の原則に従った権限設定
 - 定期的な権限監査の実施
 - 不要なアクセス権限の削除
 
 ### 監視・ログ
+
 - すべてのAPI呼び出しをCloudTrailで記録
 - 異常なアクセスパターンの監視
 - セキュリティインシデント対応手順の整備
@@ -334,12 +353,14 @@ aws stepfunctions start-execution \
 ## 更新・メンテナンス
 
 ### 定期作業
+
 - 月次: CloudWatch ログの容量確認
 - 四半期: IAM権限の棚卸し
 - 半年: シークレットのローテーション
 - 年次: アーキテクチャ全体の見直し
 
 ### アップデート手順
+
 1. developブランチでの機能開発・テスト
 2. mainブランチへのマージ
 3. 自動デプロイによる本番反映
