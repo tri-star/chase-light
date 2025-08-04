@@ -256,8 +256,9 @@ fields @timestamp, @duration
 aws cloudformation describe-stack-events --stack-name chase-light-dev  # dev環境
 aws cloudformation describe-stack-events --stack-name chase-light-prod # prod環境
 
-# IAM権限不足の場合
-aws iam attach-role-policy --role-name YourRole --policy-arn arn:aws:iam::aws:policy/PowerUserAccess
+# 注意: IAMロールの権限はTerraformで管理されており、必要最低限の権限が設定されています。
+# 権限不足エラーが発生した場合は、CloudFormationスタックイベントのエラーメッセージを確認し、
+# 必要な権限をTerraformのIAMポリシーに追加することを検討してください。
 ```
 
 #### 2. Lambda関数でSSMパラメータ取得エラー

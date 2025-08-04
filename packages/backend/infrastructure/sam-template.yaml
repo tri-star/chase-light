@@ -235,17 +235,24 @@ Resources:
     Type: AWS::CloudWatch::Alarm
     Properties:
       AlarmName: !Sub "${AWS::StackName}-lambda-error-rate"
-      AlarmDescription: "Alert when Lambda error rate exceeds 5%"
-      MetricName: ErrorRate
-      Namespace: AWS/Lambda
-      Statistic: Average
-      Period: 300
+      AlarmDescription: "Alert when Lambda error rate for this stack exceeds 5%"
+      ComparisonOperator: GreaterThanThreshold
       EvaluationPeriods: 2
       Threshold: 5
-      ComparisonOperator: GreaterThanThreshold
+      TreatMissingData: notBreaching
       AlarmActions:
         - !Ref AlertsTopic
-      TreatMissingData: notBreaching
+      Metrics:
+        - Id: e1
+          Expression: "100 * (mErrors / mInvocations)"
+          Label: "Error Rate"
+          ReturnData: true
+        - Id: mErrors
+          Expression: !Sub 'SEARCH(''{AWS/Lambda,FunctionName} MetricName="Errors" FunctionName="${AWS::StackName}"'', ''Sum'', 300)'
+          ReturnData: false
+        - Id: mInvocations
+          Expression: !Sub 'SEARCH(''{AWS/Lambda,FunctionName} MetricName="Invocations" FunctionName="${AWS::StackName}"'', ''Sum'', 300)'
+          ReturnData: false
 
   ProcessUpdatesDeadLetterQueueAlarm:
     Type: AWS::CloudWatch::Alarm
