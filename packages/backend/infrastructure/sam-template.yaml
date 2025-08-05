@@ -238,6 +238,7 @@ Resources:
       AlarmDescription: "Alert when Lambda error rate for this stack exceeds 5%"
       ComparisonOperator: GreaterThanThreshold
       EvaluationPeriods: 2
+      Period: 300
       Threshold: 5
       TreatMissingData: notBreaching
       AlarmActions:
