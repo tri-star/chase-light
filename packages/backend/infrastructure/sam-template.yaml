@@ -158,10 +158,25 @@ Resources:
         - Statement:
             - Effect: Allow
               Action:
+                - logs:CreateLogDelivery
+                - logs:GetLogDelivery
+                - logs:UpdateLogDelivery
+                - logs:DeleteLogDelivery
+                - logs:ListLogDeliveries
+                - logs:PutResourcePolicy
+                - logs:DescribeResourcePolicies
+                - logs:DescribeLogGroups
+              Resource: "*"
+        - Statement:
+            - Effect: Allow
+              Action:
                 - logs:CreateLogGroup
                 - logs:CreateLogStream
                 - logs:PutLogEvents
-              Resource: !Sub "arn:${AWS::Partition}:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/stepfunctions/${AWS::StackName}-repository-monitoring*"
+                - logs:DescribeLogStreams
+              Resource: 
+                - !GetAtt RepositoryMonitoringLogGroup.Arn
+                - !Sub "${RepositoryMonitoringLogGroup.Arn}:*"
 
   # CloudWatch Log Group for Step Functions
   RepositoryMonitoringLogGroup:
