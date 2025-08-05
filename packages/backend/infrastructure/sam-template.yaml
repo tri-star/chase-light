@@ -242,7 +242,7 @@ Resources:
       TreatMissingData: notBreaching
       AlarmActions:
         - !Ref AlertsTopic
-      MetricDataQueries:
+      Metrics:
         - Id: e1
           Expression: "100 * (mErrors / mInvocations)"
           Label: "Error Rate"
