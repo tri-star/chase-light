@@ -238,21 +238,20 @@ Resources:
       AlarmDescription: "Alert when Lambda error rate for this stack exceeds 5%"
       ComparisonOperator: GreaterThanThreshold
       EvaluationPeriods: 2
-      Period: 300
       Threshold: 5
       TreatMissingData: notBreaching
       AlarmActions:
         - !Ref AlertsTopic
-      Metrics:
+      MetricDataQueries:
         - Id: e1
           Expression: "100 * (mErrors / mInvocations)"
           Label: "Error Rate"
           ReturnData: true
         - Id: mErrors
-          Expression: !Sub 'SEARCH(''{AWS/Lambda,FunctionName} MetricName="Errors" FunctionName="${AWS::StackName}"'', ''Sum'', 300)'
+          Expression: !Sub 'SEARCH(''{AWS/Lambda,FunctionName} MetricName="Errors" FunctionName="${AWS::StackName}-*"'', ''Sum'', 300)'
           ReturnData: false
         - Id: mInvocations
-          Expression: !Sub 'SEARCH(''{AWS/Lambda,FunctionName} MetricName="Invocations" FunctionName="${AWS::StackName}"'', ''Sum'', 300)'
+          Expression: !Sub 'SEARCH(''{AWS/Lambda,FunctionName} MetricName="Invocations" FunctionName="${AWS::StackName}-*"'', ''Sum'', 300)'
           ReturnData: false
 
   ProcessUpdatesDeadLetterQueueAlarm:
