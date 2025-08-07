@@ -152,44 +152,44 @@
 <script setup>
 definePageMeta({
   middleware: 'auth',
-});
+})
 
-const { user, logout } = useAuth();
+const { user, logout } = useAuth()
 
-const loading = ref(false);
-const apiResult = ref('');
-const apiError = ref('');
+const loading = ref(false)
+const apiResult = ref('')
+const apiError = ref('')
 
 const clearResults = () => {
-  apiResult.value = '';
-  apiError.value = '';
-};
+  apiResult.value = ''
+  apiError.value = ''
+}
 
 const testGitHubUser = async () => {
-  loading.value = true;
-  clearResults();
+  loading.value = true
+  clearResults()
 
   try {
-    const result = await $fetch('/api/github/user');
-    apiResult.value = JSON.stringify(result, null, 2);
+    const result = await $fetch('/api/github/user')
+    apiResult.value = JSON.stringify(result, null, 2)
   } catch (error) {
-    apiError.value = error.message || 'Unknown error occurred';
+    apiError.value = error.message || 'Unknown error occurred'
   } finally {
-    loading.value = false;
+    loading.value = false
   }
-};
+}
 
 const testGitHubRepos = async () => {
-  loading.value = true;
-  clearResults();
+  loading.value = true
+  clearResults()
 
   try {
-    const result = await $fetch('/api/github/repos?per_page=5');
-    apiResult.value = JSON.stringify(result, null, 2);
+    const result = await $fetch('/api/github/repos?per_page=5')
+    apiResult.value = JSON.stringify(result, null, 2)
   } catch (error) {
-    apiError.value = error.message || 'Unknown error occurred';
+    apiError.value = error.message || 'Unknown error occurred'
   } finally {
-    loading.value = false;
+    loading.value = false
   }
-};
+}
 </script>

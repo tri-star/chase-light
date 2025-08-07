@@ -103,25 +103,25 @@
 <script setup>
 definePageMeta({
   middleware: 'auth',
-});
+})
 
-const { user, logout } = useAuth();
+const { user, logout } = useAuth()
 
-const apiLoading = ref(false);
-const apiResult = ref('');
+const apiLoading = ref(false)
+const apiResult = ref('')
 
 const testProtectedApi = async () => {
-  apiLoading.value = true;
-  apiResult.value = '';
+  apiLoading.value = true
+  apiResult.value = ''
 
   try {
-    const result = await $fetch('/api/protected/test');
-    apiResult.value = JSON.stringify(result, null, 2);
+    const result = await $fetch('/api/protected/test')
+    apiResult.value = JSON.stringify(result, null, 2)
   } catch (error) {
-    console.error('Fetch error:', error);
-    apiResult.value = `Error: ${error.message}`;
+    console.error('Fetch error:', error)
+    apiResult.value = `Error: ${error.message}`
   } finally {
-    apiLoading.value = false;
+    apiLoading.value = false
   }
-};
+}
 </script>

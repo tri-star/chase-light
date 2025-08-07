@@ -4,12 +4,12 @@ if (process.env.APP_STAGE === 'prod') {
   throw createError({
     statusCode: 404,
     statusMessage: 'Not Found',
-  });
+  })
 }
 
 // サーバーサイドでのみ実行
 if (import.meta.server) {
-  const event = useRequestEvent();
+  const event = useRequestEvent()
 
   // テスト用のユーザー情報でセッションを作成
   await setUserSession(event, {
@@ -21,10 +21,10 @@ if (import.meta.server) {
     accessToken: 'test-access-token',
     refreshToken: 'test-refresh-token',
     loggedInAt: new Date(),
-  });
+  })
 
   // ダッシュボードにリダイレクト
-  await sendRedirect(event, '/dashboard');
+  await sendRedirect(event, '/dashboard')
 }
 </script>
 

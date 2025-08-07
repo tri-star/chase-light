@@ -1,4 +1,4 @@
-import { defineVitestConfig } from '@nuxt/test-utils/config';
+import { defineVitestConfig } from '@nuxt/test-utils/config'
 
 export default defineVitestConfig({
   test: {
@@ -10,4 +10,4 @@ export default defineVitestConfig({
     globals: true,
     environment: 'nuxt', // デフォルトをNuxt環境に設定
   },
-});
+})

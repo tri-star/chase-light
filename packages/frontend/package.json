@@ -10,7 +10,7 @@
     "postinstall": "nuxt prepare",
     "lint": "eslint . && prettier . --check",
     "lint:type": "nuxt typecheck",
-    "format": "eslint . --fix && prettier --write -c .prettierrc",
+    "format": "eslint . --fix && prettier --write -c .prettierrc .",
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build",
     "test": "vitest run --reporter=verbose --watch=false",

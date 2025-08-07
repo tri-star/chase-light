@@ -1,12 +1,12 @@
 export default defineEventHandler(async (event) => {
   // セッション認証を要求
-  const session = await requireUserSession(event);
+  const session = await requireUserSession(event)
 
   if (!session.accessToken) {
     throw createError({
       statusCode: 401,
       statusMessage: 'No access token available',
-    });
+    })
   }
 
   try {
@@ -17,29 +17,29 @@ export default defineEventHandler(async (event) => {
         Accept: 'application/vnd.github.v3+json',
         'User-Agent': 'chase-light2-app',
       },
-    });
+    })
 
     if (!response.ok) {
       throw createError({
         statusCode: response.status,
         statusMessage: `GitHub API error: ${response.statusText}`,
-      });
+      })
     }
 
-    const userData = await response.json();
+    const userData = await response.json()
 
     return {
       success: true,
       data: userData,
       timestamp: new Date().toISOString(),
-    };
+    }
   } catch (error) {
-    console.error('GitHub API proxy error:', error);
+    console.error('GitHub API proxy error:', error)
     const errorMessage =
-      error instanceof Error ? error.message : 'Unknown error';
+      error instanceof Error ? error.message : 'Unknown error'
     throw createError({
       statusCode: 500,
       statusMessage: `Failed to fetch GitHub user data: ${errorMessage}`,
-    });
+    })
   }
-});
+})

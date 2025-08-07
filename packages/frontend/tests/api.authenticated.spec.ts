@@ -1,51 +1,51 @@
-import { test, expect } from '@playwright/test';
+import { test, expect } from '@playwright/test'
 
 test.describe('Protected API Endpoints', () => {
   test('should access protected test endpoint with authentication', async ({
     request,
   }) => {
     // 保護されたAPIエンドポイントにアクセス
-    const response = await request.get('/api/protected/test');
+    const response = await request.get('/api/protected/test')
 
-    expect(response.ok()).toBeTruthy();
+    expect(response.ok()).toBeTruthy()
 
-    const data = await response.json();
-    expect(data.message).toBe('Protected API endpoint accessed successfully');
-    expect(data.user.id).toBe('test-user-123');
-    expect(data.user.email).toBe('test@example.com');
-    expect(data.sessionInfo).toBeDefined();
-  });
+    const data = await response.json()
+    expect(data.message).toBe('Protected API endpoint accessed successfully')
+    expect(data.user.id).toBe('test-user-123')
+    expect(data.user.email).toBe('test@example.com')
+    expect(data.sessionInfo).toBeDefined()
+  })
 
   test('should access session endpoint', async ({ request }) => {
-    const response = await request.get('/api/auth/session');
+    const response = await request.get('/api/auth/session')
 
-    expect(response.ok()).toBeTruthy();
+    expect(response.ok()).toBeTruthy()
 
-    const data = await response.json();
-    expect(data.data.user.id).toBe('test-user-123');
-    expect(data.data.user.email).toBe('test@example.com');
-    expect(data.data.user.name).toBe('Test User');
-  });
+    const data = await response.json()
+    expect(data.data.user.id).toBe('test-user-123')
+    expect(data.data.user.email).toBe('test@example.com')
+    expect(data.data.user.name).toBe('Test User')
+  })
 
   test('should access GitHub user API (expect error with test token)', async ({
     request,
   }) => {
     // テスト環境では実際のGitHubトークンがないため、エラーレスポンスを期待
-    const response = await request.get('/api/github/user');
+    const response = await request.get('/api/github/user')
 
     // 401 (トークンエラー) または 500 (API呼び出しエラー) を期待
-    expect([401, 500]).toContain(response.status());
-  });
+    expect([401, 500]).toContain(response.status())
+  })
 
   test('should access GitHub repos API (expect error with test token)', async ({
     request,
   }) => {
     // テスト環境では実際のGitHubトークンがないため、エラーレスポンスを期待
-    const response = await request.get('/api/github/repos');
+    const response = await request.get('/api/github/repos')
 
     // 401 (トークンエラー) または 500 (API呼び出しエラー) を期待
-    expect([401, 500]).toContain(response.status());
-  });
+    expect([401, 500]).toContain(response.status())
+  })
 
   // test('should reject access to protected API without authentication', async ({ browser }) => {
   // // 認証状態を完全にクリアした新しいコンテキストを作成
@@ -83,4 +83,4 @@ test.describe('Protected API Endpoints', () => {
   //   // const data = await response.json()
   //   // expect(data.success).toBe(true)
   // })
-});
+})

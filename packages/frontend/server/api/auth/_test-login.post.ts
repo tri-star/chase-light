@@ -4,17 +4,17 @@ export default defineEventHandler(async (event) => {
     throw createError({
       statusCode: 404,
       statusMessage: 'Not Found',
-    });
+    })
   }
 
-  const body = await readBody(event);
+  const body = await readBody(event)
   const {
     userId = 'test-user-123',
     email = 'test@example.com',
     name = 'Test User',
     avatar = 'https://github.com/test.png',
     provider = 'github',
-  } = body || {};
+  } = body || {}
 
   try {
     // テスト用のセッションを作成
@@ -27,7 +27,7 @@ export default defineEventHandler(async (event) => {
       accessToken: 'test-access-token',
       refreshToken: 'test-refresh-token',
       loggedInAt: new Date(),
-    });
+    })
 
     return {
       success: true,
@@ -40,11 +40,11 @@ export default defineEventHandler(async (event) => {
         avatar,
         provider,
       },
-    };
+    }
   } catch (error) {
     throw createError({
       statusCode: 500,
       statusMessage: `Failed to create test session: ${error}`,
-    });
+    })
   }
-});
+})

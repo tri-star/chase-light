@@ -1,17 +1,17 @@
-import { getUserSession } from '~/server/utils/session';
+import { getUserSession } from '~/server/utils/session'
 
 export default defineEventHandler(async (event) => {
   try {
-    const session = await getUserSession(event);
+    const session = await getUserSession(event)
 
     if (!session) {
       return {
         data: null,
-      };
+      }
     }
 
     // セキュリティ上、トークンは除外してクライアントに返す
-    const { _accessToken, _refreshToken, ...safeSession } = session;
+    const { _accessToken, _refreshToken, ...safeSession } = session
 
     return {
       data: {
@@ -25,11 +25,11 @@ export default defineEventHandler(async (event) => {
         loggedInAt:
           safeSession.loggedInAt?.toISOString() || new Date().toISOString(),
       },
-    };
+    }
   } catch (err) {
-    console.error('Session fetch error:', err);
+    console.error('Session fetch error:', err)
     return {
       data: null,
-    };
+    }
   }
-});
+})

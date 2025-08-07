@@ -1,11 +1,11 @@
-import { requireUserSession } from '~/server/utils/session';
+import { requireUserSession } from '~/server/utils/session'
 
 export default defineEventHandler(async (event) => {
   // セッション認証を要求
-  const session = await requireUserSession(event);
+  const session = await requireUserSession(event)
 
   // Simulate API processing delay
-  await new Promise((resolve) => setTimeout(resolve, 1000));
+  await new Promise((resolve) => setTimeout(resolve, 1000))
 
   // 認証されたユーザーの情報とテストデータを返す
   return {
@@ -23,5 +23,5 @@ export default defineEventHandler(async (event) => {
       expiresAt: session.expiresAt,
       loggedInAt: session.loggedInAt,
     },
-  };
-});
+  }
+})

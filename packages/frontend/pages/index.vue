@@ -86,7 +86,7 @@
 </template>
 
 <script setup>
-const { user, isLoggedIn, login, logout } = useAuth();
+const { user, isLoggedIn, login, logout } = useAuth()
 
 // メタ情報
 useHead({
@@ -98,5 +98,5 @@ useHead({
         'Track GitHub repository activity, get notifications, and analyze trends with Chase Light.',
     },
   ],
-});
+})
 </script>

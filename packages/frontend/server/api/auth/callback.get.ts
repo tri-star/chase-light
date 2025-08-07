@@ -1,17 +1,17 @@
-import { exchangeCodeForTokens, getUserInfo } from '~/server/utils/auth0';
-import { setUserSession } from '~/server/utils/session';
+import { exchangeCodeForTokens, getUserInfo } from '~/server/utils/auth0'
+import { setUserSession } from '~/server/utils/session'
 
 export default defineEventHandler(async (event) => {
-  const query = getQuery(event);
-  const { code, state, error } = query;
+  const query = getQuery(event)
+  const { code, state, error } = query
 
   // エラーチェック
   if (error) {
-    console.error('Auth0 callback error:', error);
+    console.error('Auth0 callback error:', error)
     throw createError({
       statusCode: 400,
       statusMessage: `Authentication failed: ${error}`,
-    });
+    })
   }
 
   // 必須パラメータのチェック
@@ -19,24 +19,24 @@ export default defineEventHandler(async (event) => {
     throw createError({
       statusCode: 400,
       statusMessage: 'Missing authorization code',
-    });
+    })
   }
 
   // State パラメータの検証（CSRF対策）
-  const savedState = getCookie(event, 'auth-state');
+  const savedState = getCookie(event, 'auth-state')
   if (!savedState || savedState !== state) {
     throw createError({
       statusCode: 400,
       statusMessage: 'Invalid state parameter',
-    });
+    })
   }
 
   try {
     // 認可コードをトークンに交換
-    const tokens = await exchangeCodeForTokens(code);
+    const tokens = await exchangeCodeForTokens(code)
 
     // ユーザー情報を取得
-    const userInfo = await getUserInfo(tokens.access_token);
+    const userInfo = await getUserInfo(tokens.access_token)
 
     // セッションを作成
     await setUserSession(event, {
@@ -48,18 +48,18 @@ export default defineEventHandler(async (event) => {
       accessToken: tokens.access_token,
       refreshToken: tokens.refresh_token,
       loggedInAt: new Date(),
-    });
+    })
 
     // State クッキーを削除
-    deleteCookie(event, 'auth-state');
+    deleteCookie(event, 'auth-state')
 
     // ダッシュボードにリダイレクト
-    await sendRedirect(event, '/');
+    await sendRedirect(event, '/')
   } catch (err) {
-    console.error('Callback processing error:', err);
+    console.error('Callback processing error:', err)
     throw createError({
       statusCode: 500,
       statusMessage: 'Authentication processing failed',
-    });
+    })
   }
-});
+})
