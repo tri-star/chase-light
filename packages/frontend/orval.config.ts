@@ -16,9 +16,6 @@ export default defineConfig({
         delay: false,
       },
     },
-    hooks: {
-      afterAllFilesWrite: 'prettier --write',
-    },
     override: {
       mutator: {
         path: './generated/api/mutator.ts',
