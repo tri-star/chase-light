@@ -18,7 +18,7 @@ export default defineEventHandler(
     // セッション認証を要求
     const session = await requireUserSession(event)
 
-    if (!session.user) {
+    if (!session.userId) {
       throw createError({
         statusCode: 401,
         statusMessage: 'User session not found',
@@ -51,11 +51,7 @@ export default defineEventHandler(
 
     try {
       // Backend APIを呼び出し
-      const response = await getApiDataSources(cleanParams, {
-        headers: {
-          Authorization: `Bearer ${session.userId}`, // 仮の認証情報
-        },
-      })
+      const response = await getApiDataSources(cleanParams)
 
       if (response.status === 200) {
         // Backend APIからの応答をZodスキーマでバリデーション
