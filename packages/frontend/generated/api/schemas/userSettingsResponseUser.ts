@@ -5,27 +5,27 @@
  * GitHub リポジトリ監視サービス API - TypeScript + Hono + Zod + OpenAPI
  * OpenAPI spec version: 1.0.0
  */
-import type { UserSettingsResponseUserSettings } from './userSettingsResponseUserSettings'
+import type { UserSettingsResponseUserSettings } from './userSettingsResponseUserSettings';
 
 export type UserSettingsResponseUser = {
   /** ユーザーID（UUID） */
-  id: string
+  id: string;
   /** メールアドレス */
-  email: string
+  email: string;
   /** ユーザー名 */
-  name: string
+  name: string;
   /**
    * GitHubユーザー名（オプション）
    * @nullable
    */
-  githubUsername: string | null
+  githubUsername: string | null;
   /** アバター画像URL */
-  avatarUrl: string
+  avatarUrl: string;
   /** タイムゾーン */
-  timezone: string
+  timezone: string;
   /** アカウント作成日時（ISO 8601形式） */
-  createdAt: string
+  createdAt: string;
   /** 最終更新日時（ISO 8601形式） */
-  updatedAt: string
-  settings: UserSettingsResponseUserSettings
-}
+  updatedAt: string;
+  settings: UserSettingsResponseUserSettings;
+};

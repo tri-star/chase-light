@@ -5,15 +5,15 @@
  * GitHub リポジトリ監視サービス API - TypeScript + Hono + Zod + OpenAPI
  * OpenAPI spec version: 1.0.0
  */
-import type { UpdateSettingsRequestLanguage } from './updateSettingsRequestLanguage'
+import type { UpdateSettingsRequestLanguage } from './updateSettingsRequestLanguage';
 
 export interface UpdateSettingsRequest {
   /** タイムゾーン（IANA形式） */
-  timezone?: string
+  timezone?: string;
   /** メール通知の有効/無効 */
-  emailNotifications?: boolean
+  emailNotifications?: boolean;
   /** プッシュ通知の有効/無効 */
-  pushNotifications?: boolean
+  pushNotifications?: boolean;
   /** 表示言語（ja/en） */
-  language?: UpdateSettingsRequestLanguage
+  language?: UpdateSettingsRequestLanguage;
 }

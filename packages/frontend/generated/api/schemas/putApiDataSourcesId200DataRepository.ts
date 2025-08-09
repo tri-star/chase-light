@@ -7,17 +7,17 @@
  */
 
 export type PutApiDataSourcesId200DataRepository = {
-  id: string
-  dataSourceId: string
-  githubId: number
-  fullName: string
-  owner: string
+  id: string;
+  dataSourceId: string;
+  githubId: number;
+  fullName: string;
+  owner: string;
   /** @nullable */
-  language: string | null
-  starsCount: number
-  forksCount: number
-  openIssuesCount: number
-  isFork: boolean
-  createdAt: string
-  updatedAt: string
-}
+  language: string | null;
+  starsCount: number;
+  forksCount: number;
+  openIssuesCount: number;
+  isFork: boolean;
+  createdAt: string;
+  updatedAt: string;
+};

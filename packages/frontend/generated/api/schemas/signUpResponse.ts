@@ -5,12 +5,12 @@
  * GitHub リポジトリ監視サービス API - TypeScript + Hono + Zod + OpenAPI
  * OpenAPI spec version: 1.0.0
  */
-import type { UserResponse } from './userResponse'
+import type { UserResponse } from './userResponse';
 
 export interface SignUpResponse {
-  user: UserResponse
+  user: UserResponse;
   /** 処理結果メッセージ */
-  message: string
+  message: string;
   /** 既存ユーザーの場合はtrue */
-  alreadyExists?: boolean
+  alreadyExists?: boolean;
 }

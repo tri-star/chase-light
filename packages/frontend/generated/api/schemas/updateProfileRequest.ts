@@ -12,13 +12,13 @@ export interface UpdateProfileRequest {
    * @minLength 1
    * @maxLength 100
    */
-  name: string
+  name: string;
   /**
    * メールアドレス
    * @minLength 1
    * @maxLength 255
    */
-  email: string
+  email: string;
   /** タイムゾーン（IANA形式） */
-  timezone?: string
+  timezone?: string;
 }

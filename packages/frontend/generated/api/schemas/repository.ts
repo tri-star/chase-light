@@ -8,28 +8,28 @@
 
 export interface Repository {
   /** リポジトリID */
-  id: string
+  id: string;
   /** データソースID */
-  dataSourceId: string
+  dataSourceId: string;
   /** GitHub リポジトリID */
-  githubId: number
+  githubId: number;
   /** リポジトリのフルネーム */
-  fullName: string
+  fullName: string;
   /**
    * 主要プログラミング言語
    * @nullable
    */
-  language: string | null
+  language: string | null;
   /** スター数 */
-  starsCount: number
+  starsCount: number;
   /** フォーク数 */
-  forksCount: number
+  forksCount: number;
   /** 未解決イシュー数 */
-  openIssuesCount: number
+  openIssuesCount: number;
   /** フォークリポジトリかどうか */
-  isFork: boolean
+  isFork: boolean;
   /** 作成日時 */
-  createdAt: string
+  createdAt: string;
   /** 更新日時 */
-  updatedAt: string
+  updatedAt: string;
 }

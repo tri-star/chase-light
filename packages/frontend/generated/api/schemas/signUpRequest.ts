@@ -11,5 +11,5 @@ export interface SignUpRequest {
    * Auth0から取得したIDトークン
    * @minLength 1
    */
-  idToken: string
+  idToken: string;
 }

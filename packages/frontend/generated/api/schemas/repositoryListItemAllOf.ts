@@ -8,5 +8,5 @@
 
 export type RepositoryListItemAllOf = {
   /** GitHubリポジトリのオーナー名（fullNameから抽出） */
-  owner: string
-}
+  owner: string;
+};

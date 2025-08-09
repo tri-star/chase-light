@@ -11,17 +11,17 @@ export interface CreateDataSourceRequest {
    * GitHubリポジトリのURL
    * @minLength 1
    */
-  repositoryUrl: string
+  repositoryUrl: string;
   /** カスタム表示名（省略時はリポジトリ名を使用） */
-  name?: string
+  name?: string;
   /** カスタム説明（省略時はリポジトリの説明を使用） */
-  description?: string
+  description?: string;
   /** 通知を有効にするか（デフォルト: true） */
-  notificationEnabled?: boolean
+  notificationEnabled?: boolean;
   /** リリースを監視するか（デフォルト: true） */
-  watchReleases?: boolean
+  watchReleases?: boolean;
   /** イシューを監視するか（デフォルト: false） */
-  watchIssues?: boolean
+  watchIssues?: boolean;
   /** プルリクエストを監視するか（デフォルト: false） */
-  watchPullRequests?: boolean
+  watchPullRequests?: boolean;
 }

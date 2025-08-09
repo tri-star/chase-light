@@ -5,68 +5,68 @@
  * GitHub リポジトリ監視サービス API - TypeScript + Hono + Zod + OpenAPI
  * OpenAPI spec version: 1.0.0
  */
-import type { GetApiDataSourcesSortBy } from './getApiDataSourcesSortBy'
-import type { GetApiDataSourcesSortOrder } from './getApiDataSourcesSortOrder'
+import type { GetApiDataSourcesSortBy } from './getApiDataSourcesSortBy';
+import type { GetApiDataSourcesSortOrder } from './getApiDataSourcesSortOrder';
 
 export type GetApiDataSourcesParams = {
-  /**
-   * データソース名での部分一致検索
-   */
-  name?: string
-  /**
-   * GitHubオーナー名での部分一致検索
-   */
-  owner?: string
-  /**
-   * フリーワード検索（name, description, url, fullName対象）
-   */
-  search?: string
-  /**
-   * データソースタイプでの絞り込み
-   */
-  sourceType?: string
-  /**
-   * プライベート/パブリック絞り込み
-   * @nullable
-   */
-  isPrivate?: boolean | null
-  /**
-   * プログラミング言語での絞り込み
-   */
-  language?: string
-  /**
-   * 登録日（これ以降）ISO8601形式
-   */
-  createdAfter?: string
-  /**
-   * 登録日（これ以前）ISO8601形式
-   */
-  createdBefore?: string
-  /**
-   * 更新日（これ以降）ISO8601形式
-   */
-  updatedAfter?: string
-  /**
-   * 更新日（これ以前）ISO8601形式
-   */
-  updatedBefore?: string
-  /**
-   * ソート基準
-   */
-  sortBy?: GetApiDataSourcesSortBy
-  /**
-   * ソート順（昇順・降順）
-   */
-  sortOrder?: GetApiDataSourcesSortOrder
-  /**
-   * ページ番号（1ベース）
-   * @minimum 1
-   */
-  page?: number
-  /**
-   * 1ページあたりの件数（1-100）
-   * @minimum 1
-   * @maximum 100
-   */
-  perPage?: number
-}
+/**
+ * データソース名での部分一致検索
+ */
+name?: string;
+/**
+ * GitHubオーナー名での部分一致検索
+ */
+owner?: string;
+/**
+ * フリーワード検索（name, description, url, fullName対象）
+ */
+search?: string;
+/**
+ * データソースタイプでの絞り込み
+ */
+sourceType?: string;
+/**
+ * プライベート/パブリック絞り込み
+ * @nullable
+ */
+isPrivate?: boolean | null;
+/**
+ * プログラミング言語での絞り込み
+ */
+language?: string;
+/**
+ * 登録日（これ以降）ISO8601形式
+ */
+createdAfter?: string;
+/**
+ * 登録日（これ以前）ISO8601形式
+ */
+createdBefore?: string;
+/**
+ * 更新日（これ以降）ISO8601形式
+ */
+updatedAfter?: string;
+/**
+ * 更新日（これ以前）ISO8601形式
+ */
+updatedBefore?: string;
+/**
+ * ソート基準
+ */
+sortBy?: GetApiDataSourcesSortBy;
+/**
+ * ソート順（昇順・降順）
+ */
+sortOrder?: GetApiDataSourcesSortOrder;
+/**
+ * ページ番号（1ベース）
+ * @minimum 1
+ */
+page?: number;
+/**
+ * 1ページあたりの件数（1-100）
+ * @minimum 1
+ * @maximum 100
+ */
+perPage?: number;
+};

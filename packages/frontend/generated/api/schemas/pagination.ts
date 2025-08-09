@@ -14,25 +14,25 @@ export interface Pagination {
    * 現在のページ番号（1ベース）
    * @minimum 1
    */
-  page: number
+  page: number;
   /**
    * 1ページあたりの件数
    * @minimum 1
    * @maximum 100
    */
-  perPage: number
+  perPage: number;
   /**
    * 総件数
    * @minimum 0
    */
-  total: number
+  total: number;
   /**
    * 総ページ数
    * @minimum 0
    */
-  totalPages: number
+  totalPages: number;
   /** 次のページが存在するか */
-  hasNext: boolean
+  hasNext: boolean;
   /** 前のページが存在するか */
-  hasPrev: boolean
+  hasPrev: boolean;
 }

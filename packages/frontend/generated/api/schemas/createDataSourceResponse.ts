@@ -5,11 +5,11 @@
  * GitHub リポジトリ監視サービス API - TypeScript + Hono + Zod + OpenAPI
  * OpenAPI spec version: 1.0.0
  */
-import type { CreateDataSourceResponseData } from './createDataSourceResponseData'
+import type { CreateDataSourceResponseData } from './createDataSourceResponseData';
 
 export interface CreateDataSourceResponse {
   /** 成功フラグ */
-  success: boolean
+  success: boolean;
   /** 作成されたデータ */
-  data: CreateDataSourceResponseData
+  data: CreateDataSourceResponseData;
 }

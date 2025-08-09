@@ -21,8 +21,9 @@ import type {
   UpdateSettingsRequest,
   UserErrorResponse,
   UserProfileResponse,
-  UserSettingsResponse,
-} from './schemas'
+  UserSettingsResponse
+} from './schemas';
+
 
 /**
  * Auth0のIDトークンを使用してユーザー登録を行います
@@ -52,42 +53,40 @@ export type postApiAuthSignupResponse500 = {
   data: AuthErrorResponse
   status: 500
 }
-
-export type postApiAuthSignupResponseComposite =
-  | postApiAuthSignupResponse200
-  | postApiAuthSignupResponse201
-  | postApiAuthSignupResponse400
-  | postApiAuthSignupResponse401
-  | postApiAuthSignupResponse500
-
+    
+export type postApiAuthSignupResponseComposite = postApiAuthSignupResponse200 | postApiAuthSignupResponse201 | postApiAuthSignupResponse400 | postApiAuthSignupResponse401 | postApiAuthSignupResponse500;
+    
 export type postApiAuthSignupResponse = postApiAuthSignupResponseComposite & {
-  headers: Headers
+  headers: Headers;
 }
 
 export const getPostApiAuthSignupUrl = () => {
+
+
+  
+
   return `/api/auth/signup`
 }
 
-export const postApiAuthSignup = async (
-  signUpRequest: SignUpRequest,
-  options?: RequestInit
-): Promise<postApiAuthSignupResponse> => {
-  const res = await fetch(getPostApiAuthSignupUrl(), {
+export const postApiAuthSignup = async (signUpRequest: SignUpRequest, options?: RequestInit): Promise<postApiAuthSignupResponse> => {
+  
+  const res = await fetch(getPostApiAuthSignupUrl(),
+  {      
     ...options,
     method: 'POST',
     headers: { 'Content-Type': 'application/json', ...options?.headers },
-    body: JSON.stringify(signUpRequest),
-  })
+    body: JSON.stringify(
+      signUpRequest,)
+  }
+)
 
   const body = [204, 205, 304].includes(res.status) ? null : await res.text()
   const data: postApiAuthSignupResponse['data'] = body ? JSON.parse(body) : {}
 
-  return {
-    data,
-    status: res.status,
-    headers: res.headers,
-  } as postApiAuthSignupResponse
+  return { data, status: res.status, headers: res.headers } as postApiAuthSignupResponse
 }
+
+
 
 /**
  * 認証済みユーザーのプロフィール情報を取得します
@@ -122,40 +121,39 @@ export type getApiUsersProfileResponse500 = {
   data: UserErrorResponse
   status: 500
 }
-
-export type getApiUsersProfileResponseComposite =
-  | getApiUsersProfileResponse200
-  | getApiUsersProfileResponse400
-  | getApiUsersProfileResponse401
-  | getApiUsersProfileResponse404
-  | getApiUsersProfileResponse409
-  | getApiUsersProfileResponse500
-
+    
+export type getApiUsersProfileResponseComposite = getApiUsersProfileResponse200 | getApiUsersProfileResponse400 | getApiUsersProfileResponse401 | getApiUsersProfileResponse404 | getApiUsersProfileResponse409 | getApiUsersProfileResponse500;
+    
 export type getApiUsersProfileResponse = getApiUsersProfileResponseComposite & {
-  headers: Headers
+  headers: Headers;
 }
 
 export const getGetApiUsersProfileUrl = () => {
+
+
+  
+
   return `/api/users/profile`
 }
 
-export const getApiUsersProfile = async (
-  options?: RequestInit
-): Promise<getApiUsersProfileResponse> => {
-  const res = await fetch(getGetApiUsersProfileUrl(), {
+export const getApiUsersProfile = async ( options?: RequestInit): Promise<getApiUsersProfileResponse> => {
+  
+  const res = await fetch(getGetApiUsersProfileUrl(),
+  {      
     ...options,
-    method: 'GET',
-  })
+    method: 'GET'
+    
+    
+  }
+)
 
   const body = [204, 205, 304].includes(res.status) ? null : await res.text()
   const data: getApiUsersProfileResponse['data'] = body ? JSON.parse(body) : {}
 
-  return {
-    data,
-    status: res.status,
-    headers: res.headers,
-  } as getApiUsersProfileResponse
+  return { data, status: res.status, headers: res.headers } as getApiUsersProfileResponse
 }
+
+
 
 /**
  * 認証済みユーザーのプロフィール情報を更新します
@@ -190,43 +188,40 @@ export type putApiUsersProfileResponse500 = {
   data: UserErrorResponse
   status: 500
 }
-
-export type putApiUsersProfileResponseComposite =
-  | putApiUsersProfileResponse200
-  | putApiUsersProfileResponse400
-  | putApiUsersProfileResponse401
-  | putApiUsersProfileResponse404
-  | putApiUsersProfileResponse409
-  | putApiUsersProfileResponse500
-
+    
+export type putApiUsersProfileResponseComposite = putApiUsersProfileResponse200 | putApiUsersProfileResponse400 | putApiUsersProfileResponse401 | putApiUsersProfileResponse404 | putApiUsersProfileResponse409 | putApiUsersProfileResponse500;
+    
 export type putApiUsersProfileResponse = putApiUsersProfileResponseComposite & {
-  headers: Headers
+  headers: Headers;
 }
 
 export const getPutApiUsersProfileUrl = () => {
+
+
+  
+
   return `/api/users/profile`
 }
 
-export const putApiUsersProfile = async (
-  updateProfileRequest: UpdateProfileRequest,
-  options?: RequestInit
-): Promise<putApiUsersProfileResponse> => {
-  const res = await fetch(getPutApiUsersProfileUrl(), {
+export const putApiUsersProfile = async (updateProfileRequest: UpdateProfileRequest, options?: RequestInit): Promise<putApiUsersProfileResponse> => {
+  
+  const res = await fetch(getPutApiUsersProfileUrl(),
+  {      
     ...options,
     method: 'PUT',
     headers: { 'Content-Type': 'application/json', ...options?.headers },
-    body: JSON.stringify(updateProfileRequest),
-  })
+    body: JSON.stringify(
+      updateProfileRequest,)
+  }
+)
 
   const body = [204, 205, 304].includes(res.status) ? null : await res.text()
   const data: putApiUsersProfileResponse['data'] = body ? JSON.parse(body) : {}
 
-  return {
-    data,
-    status: res.status,
-    headers: res.headers,
-  } as putApiUsersProfileResponse
+  return { data, status: res.status, headers: res.headers } as putApiUsersProfileResponse
 }
+
+
 
 /**
  * 認証済みユーザーの設定情報を取得します
@@ -261,41 +256,39 @@ export type getApiUsersSettingsResponse500 = {
   data: UserErrorResponse
   status: 500
 }
-
-export type getApiUsersSettingsResponseComposite =
-  | getApiUsersSettingsResponse200
-  | getApiUsersSettingsResponse400
-  | getApiUsersSettingsResponse401
-  | getApiUsersSettingsResponse404
-  | getApiUsersSettingsResponse409
-  | getApiUsersSettingsResponse500
-
-export type getApiUsersSettingsResponse =
-  getApiUsersSettingsResponseComposite & {
-    headers: Headers
-  }
+    
+export type getApiUsersSettingsResponseComposite = getApiUsersSettingsResponse200 | getApiUsersSettingsResponse400 | getApiUsersSettingsResponse401 | getApiUsersSettingsResponse404 | getApiUsersSettingsResponse409 | getApiUsersSettingsResponse500;
+    
+export type getApiUsersSettingsResponse = getApiUsersSettingsResponseComposite & {
+  headers: Headers;
+}
 
 export const getGetApiUsersSettingsUrl = () => {
+
+
+  
+
   return `/api/users/settings`
 }
 
-export const getApiUsersSettings = async (
-  options?: RequestInit
-): Promise<getApiUsersSettingsResponse> => {
-  const res = await fetch(getGetApiUsersSettingsUrl(), {
+export const getApiUsersSettings = async ( options?: RequestInit): Promise<getApiUsersSettingsResponse> => {
+  
+  const res = await fetch(getGetApiUsersSettingsUrl(),
+  {      
     ...options,
-    method: 'GET',
-  })
+    method: 'GET'
+    
+    
+  }
+)
 
   const body = [204, 205, 304].includes(res.status) ? null : await res.text()
   const data: getApiUsersSettingsResponse['data'] = body ? JSON.parse(body) : {}
 
-  return {
-    data,
-    status: res.status,
-    headers: res.headers,
-  } as getApiUsersSettingsResponse
+  return { data, status: res.status, headers: res.headers } as getApiUsersSettingsResponse
 }
+
+
 
 /**
  * 認証済みユーザーの設定情報を更新します
@@ -330,44 +323,40 @@ export type putApiUsersSettingsResponse500 = {
   data: UserErrorResponse
   status: 500
 }
-
-export type putApiUsersSettingsResponseComposite =
-  | putApiUsersSettingsResponse200
-  | putApiUsersSettingsResponse400
-  | putApiUsersSettingsResponse401
-  | putApiUsersSettingsResponse404
-  | putApiUsersSettingsResponse409
-  | putApiUsersSettingsResponse500
-
-export type putApiUsersSettingsResponse =
-  putApiUsersSettingsResponseComposite & {
-    headers: Headers
-  }
+    
+export type putApiUsersSettingsResponseComposite = putApiUsersSettingsResponse200 | putApiUsersSettingsResponse400 | putApiUsersSettingsResponse401 | putApiUsersSettingsResponse404 | putApiUsersSettingsResponse409 | putApiUsersSettingsResponse500;
+    
+export type putApiUsersSettingsResponse = putApiUsersSettingsResponseComposite & {
+  headers: Headers;
+}
 
 export const getPutApiUsersSettingsUrl = () => {
+
+
+  
+
   return `/api/users/settings`
 }
 
-export const putApiUsersSettings = async (
-  updateSettingsRequest: UpdateSettingsRequest,
-  options?: RequestInit
-): Promise<putApiUsersSettingsResponse> => {
-  const res = await fetch(getPutApiUsersSettingsUrl(), {
+export const putApiUsersSettings = async (updateSettingsRequest: UpdateSettingsRequest, options?: RequestInit): Promise<putApiUsersSettingsResponse> => {
+  
+  const res = await fetch(getPutApiUsersSettingsUrl(),
+  {      
     ...options,
     method: 'PUT',
     headers: { 'Content-Type': 'application/json', ...options?.headers },
-    body: JSON.stringify(updateSettingsRequest),
-  })
+    body: JSON.stringify(
+      updateSettingsRequest,)
+  }
+)
 
   const body = [204, 205, 304].includes(res.status) ? null : await res.text()
   const data: putApiUsersSettingsResponse['data'] = body ? JSON.parse(body) : {}
 
-  return {
-    data,
-    status: res.status,
-    headers: res.headers,
-  } as putApiUsersSettingsResponse
+  return { data, status: res.status, headers: res.headers } as putApiUsersSettingsResponse
 }
+
+
 
 /**
  * ユーザーが監視中のデータソース一覧を取得します。フィルタリング、ソート、ページネーションに対応しています
@@ -402,53 +391,46 @@ export type getApiDataSourcesResponse500 = {
   data: DataSourceError
   status: 500
 }
-
-export type getApiDataSourcesResponseComposite =
-  | getApiDataSourcesResponse200
-  | getApiDataSourcesResponse400
-  | getApiDataSourcesResponse401
-  | getApiDataSourcesResponse404
-  | getApiDataSourcesResponse409
-  | getApiDataSourcesResponse500
-
+    
+export type getApiDataSourcesResponseComposite = getApiDataSourcesResponse200 | getApiDataSourcesResponse400 | getApiDataSourcesResponse401 | getApiDataSourcesResponse404 | getApiDataSourcesResponse409 | getApiDataSourcesResponse500;
+    
 export type getApiDataSourcesResponse = getApiDataSourcesResponseComposite & {
-  headers: Headers
+  headers: Headers;
 }
 
-export const getGetApiDataSourcesUrl = (params?: GetApiDataSourcesParams) => {
-  const normalizedParams = new URLSearchParams()
+export const getGetApiDataSourcesUrl = (params?: GetApiDataSourcesParams,) => {
+  const normalizedParams = new URLSearchParams();
 
   Object.entries(params || {}).forEach(([key, value]) => {
+    
     if (value !== undefined) {
       normalizedParams.append(key, value === null ? 'null' : value.toString())
     }
-  })
+  });
 
-  const stringifiedParams = normalizedParams.toString()
+  const stringifiedParams = normalizedParams.toString();
 
-  return stringifiedParams.length > 0
-    ? `/api/data-sources?${stringifiedParams}`
-    : `/api/data-sources`
+  return stringifiedParams.length > 0 ? `/api/data-sources?${stringifiedParams}` : `/api/data-sources`
 }
 
-export const getApiDataSources = async (
-  params?: GetApiDataSourcesParams,
-  options?: RequestInit
-): Promise<getApiDataSourcesResponse> => {
-  const res = await fetch(getGetApiDataSourcesUrl(params), {
+export const getApiDataSources = async (params?: GetApiDataSourcesParams, options?: RequestInit): Promise<getApiDataSourcesResponse> => {
+  
+  const res = await fetch(getGetApiDataSourcesUrl(params),
+  {      
     ...options,
-    method: 'GET',
-  })
+    method: 'GET'
+    
+    
+  }
+)
 
   const body = [204, 205, 304].includes(res.status) ? null : await res.text()
   const data: getApiDataSourcesResponse['data'] = body ? JSON.parse(body) : {}
 
-  return {
-    data,
-    status: res.status,
-    headers: res.headers,
-  } as getApiDataSourcesResponse
+  return { data, status: res.status, headers: res.headers } as getApiDataSourcesResponse
 }
+
+
 
 /**
  * GitHubリポジトリをデータソースとして登録し、ユーザーの監視対象に追加します
@@ -483,43 +465,40 @@ export type postApiDataSourcesResponse500 = {
   data: DataSourceError
   status: 500
 }
-
-export type postApiDataSourcesResponseComposite =
-  | postApiDataSourcesResponse201
-  | postApiDataSourcesResponse400
-  | postApiDataSourcesResponse401
-  | postApiDataSourcesResponse404
-  | postApiDataSourcesResponse409
-  | postApiDataSourcesResponse500
-
+    
+export type postApiDataSourcesResponseComposite = postApiDataSourcesResponse201 | postApiDataSourcesResponse400 | postApiDataSourcesResponse401 | postApiDataSourcesResponse404 | postApiDataSourcesResponse409 | postApiDataSourcesResponse500;
+    
 export type postApiDataSourcesResponse = postApiDataSourcesResponseComposite & {
-  headers: Headers
+  headers: Headers;
 }
 
 export const getPostApiDataSourcesUrl = () => {
+
+
+  
+
   return `/api/data-sources`
 }
 
-export const postApiDataSources = async (
-  createDataSourceRequest: CreateDataSourceRequest,
-  options?: RequestInit
-): Promise<postApiDataSourcesResponse> => {
-  const res = await fetch(getPostApiDataSourcesUrl(), {
+export const postApiDataSources = async (createDataSourceRequest: CreateDataSourceRequest, options?: RequestInit): Promise<postApiDataSourcesResponse> => {
+  
+  const res = await fetch(getPostApiDataSourcesUrl(),
+  {      
     ...options,
     method: 'POST',
     headers: { 'Content-Type': 'application/json', ...options?.headers },
-    body: JSON.stringify(createDataSourceRequest),
-  })
+    body: JSON.stringify(
+      createDataSourceRequest,)
+  }
+)
 
   const body = [204, 205, 304].includes(res.status) ? null : await res.text()
   const data: postApiDataSourcesResponse['data'] = body ? JSON.parse(body) : {}
 
-  return {
-    data,
-    status: res.status,
-    headers: res.headers,
-  } as postApiDataSourcesResponse
+  return { data, status: res.status, headers: res.headers } as postApiDataSourcesResponse
 }
+
+
 
 /**
  * 指定されたIDのデータソース詳細情報を取得します。認証ユーザーがWatch中のデータソースのみアクセス可能です
@@ -554,42 +533,39 @@ export type getApiDataSourcesIdResponse500 = {
   data: DataSourceError
   status: 500
 }
+    
+export type getApiDataSourcesIdResponseComposite = getApiDataSourcesIdResponse200 | getApiDataSourcesIdResponse400 | getApiDataSourcesIdResponse401 | getApiDataSourcesIdResponse404 | getApiDataSourcesIdResponse409 | getApiDataSourcesIdResponse500;
+    
+export type getApiDataSourcesIdResponse = getApiDataSourcesIdResponseComposite & {
+  headers: Headers;
+}
 
-export type getApiDataSourcesIdResponseComposite =
-  | getApiDataSourcesIdResponse200
-  | getApiDataSourcesIdResponse400
-  | getApiDataSourcesIdResponse401
-  | getApiDataSourcesIdResponse404
-  | getApiDataSourcesIdResponse409
-  | getApiDataSourcesIdResponse500
+export const getGetApiDataSourcesIdUrl = (id: string,) => {
 
-export type getApiDataSourcesIdResponse =
-  getApiDataSourcesIdResponseComposite & {
-    headers: Headers
-  }
 
-export const getGetApiDataSourcesIdUrl = (id: string) => {
+  
+
   return `/api/data-sources/${id}`
 }
 
-export const getApiDataSourcesId = async (
-  id: string,
-  options?: RequestInit
-): Promise<getApiDataSourcesIdResponse> => {
-  const res = await fetch(getGetApiDataSourcesIdUrl(id), {
+export const getApiDataSourcesId = async (id: string, options?: RequestInit): Promise<getApiDataSourcesIdResponse> => {
+  
+  const res = await fetch(getGetApiDataSourcesIdUrl(id),
+  {      
     ...options,
-    method: 'GET',
-  })
+    method: 'GET'
+    
+    
+  }
+)
 
   const body = [204, 205, 304].includes(res.status) ? null : await res.text()
   const data: getApiDataSourcesIdResponse['data'] = body ? JSON.parse(body) : {}
 
-  return {
-    data,
-    status: res.status,
-    headers: res.headers,
-  } as getApiDataSourcesIdResponse
+  return { data, status: res.status, headers: res.headers } as getApiDataSourcesIdResponse
 }
+
+
 
 /**
  * 指定されたIDのデータソース設定を更新します。認証ユーザーがWatch中のデータソースのみ更新可能です
@@ -624,45 +600,41 @@ export type putApiDataSourcesIdResponse500 = {
   data: DataSourceError
   status: 500
 }
+    
+export type putApiDataSourcesIdResponseComposite = putApiDataSourcesIdResponse200 | putApiDataSourcesIdResponse400 | putApiDataSourcesIdResponse401 | putApiDataSourcesIdResponse404 | putApiDataSourcesIdResponse409 | putApiDataSourcesIdResponse500;
+    
+export type putApiDataSourcesIdResponse = putApiDataSourcesIdResponseComposite & {
+  headers: Headers;
+}
 
-export type putApiDataSourcesIdResponseComposite =
-  | putApiDataSourcesIdResponse200
-  | putApiDataSourcesIdResponse400
-  | putApiDataSourcesIdResponse401
-  | putApiDataSourcesIdResponse404
-  | putApiDataSourcesIdResponse409
-  | putApiDataSourcesIdResponse500
+export const getPutApiDataSourcesIdUrl = (id: string,) => {
 
-export type putApiDataSourcesIdResponse =
-  putApiDataSourcesIdResponseComposite & {
-    headers: Headers
-  }
 
-export const getPutApiDataSourcesIdUrl = (id: string) => {
+  
+
   return `/api/data-sources/${id}`
 }
 
-export const putApiDataSourcesId = async (
-  id: string,
-  putApiDataSourcesIdBody: PutApiDataSourcesIdBody,
-  options?: RequestInit
-): Promise<putApiDataSourcesIdResponse> => {
-  const res = await fetch(getPutApiDataSourcesIdUrl(id), {
+export const putApiDataSourcesId = async (id: string,
+    putApiDataSourcesIdBody: PutApiDataSourcesIdBody, options?: RequestInit): Promise<putApiDataSourcesIdResponse> => {
+  
+  const res = await fetch(getPutApiDataSourcesIdUrl(id),
+  {      
     ...options,
     method: 'PUT',
     headers: { 'Content-Type': 'application/json', ...options?.headers },
-    body: JSON.stringify(putApiDataSourcesIdBody),
-  })
+    body: JSON.stringify(
+      putApiDataSourcesIdBody,)
+  }
+)
 
   const body = [204, 205, 304].includes(res.status) ? null : await res.text()
   const data: putApiDataSourcesIdResponse['data'] = body ? JSON.parse(body) : {}
 
-  return {
-    data,
-    status: res.status,
-    headers: res.headers,
-  } as putApiDataSourcesIdResponse
+  return { data, status: res.status, headers: res.headers } as putApiDataSourcesIdResponse
 }
+
+
 
 /**
  * 指定されたIDのデータソース監視を削除します。認証ユーザーがWatch中のデータソースのみ削除可能です
@@ -697,41 +669,37 @@ export type deleteApiDataSourcesIdResponse500 = {
   data: DataSourceError
   status: 500
 }
+    
+export type deleteApiDataSourcesIdResponseComposite = deleteApiDataSourcesIdResponse204 | deleteApiDataSourcesIdResponse400 | deleteApiDataSourcesIdResponse401 | deleteApiDataSourcesIdResponse404 | deleteApiDataSourcesIdResponse409 | deleteApiDataSourcesIdResponse500;
+    
+export type deleteApiDataSourcesIdResponse = deleteApiDataSourcesIdResponseComposite & {
+  headers: Headers;
+}
 
-export type deleteApiDataSourcesIdResponseComposite =
-  | deleteApiDataSourcesIdResponse204
-  | deleteApiDataSourcesIdResponse400
-  | deleteApiDataSourcesIdResponse401
-  | deleteApiDataSourcesIdResponse404
-  | deleteApiDataSourcesIdResponse409
-  | deleteApiDataSourcesIdResponse500
+export const getDeleteApiDataSourcesIdUrl = (id: string,) => {
 
-export type deleteApiDataSourcesIdResponse =
-  deleteApiDataSourcesIdResponseComposite & {
-    headers: Headers
-  }
 
-export const getDeleteApiDataSourcesIdUrl = (id: string) => {
+  
+
   return `/api/data-sources/${id}`
 }
 
-export const deleteApiDataSourcesId = async (
-  id: string,
-  options?: RequestInit
-): Promise<deleteApiDataSourcesIdResponse> => {
-  const res = await fetch(getDeleteApiDataSourcesIdUrl(id), {
+export const deleteApiDataSourcesId = async (id: string, options?: RequestInit): Promise<deleteApiDataSourcesIdResponse> => {
+  
+  const res = await fetch(getDeleteApiDataSourcesIdUrl(id),
+  {      
     ...options,
-    method: 'DELETE',
-  })
+    method: 'DELETE'
+    
+    
+  }
+)
 
   const body = [204, 205, 304].includes(res.status) ? null : await res.text()
-  const data: deleteApiDataSourcesIdResponse['data'] = body
-    ? JSON.parse(body)
-    : {}
+  const data: deleteApiDataSourcesIdResponse['data'] = body ? JSON.parse(body) : {}
 
-  return {
-    data,
-    status: res.status,
-    headers: res.headers,
-  } as deleteApiDataSourcesIdResponse
+  return { data, status: res.status, headers: res.headers } as deleteApiDataSourcesIdResponse
 }
+
+
+

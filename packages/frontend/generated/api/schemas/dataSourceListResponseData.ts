@@ -5,14 +5,14 @@
  * GitHub リポジトリ監視サービス API - TypeScript + Hono + Zod + OpenAPI
  * OpenAPI spec version: 1.0.0
  */
-import type { DataSourceListItem } from './dataSourceListItem'
-import type { Pagination } from './pagination'
+import type { DataSourceListItem } from './dataSourceListItem';
+import type { Pagination } from './pagination';
 
 /**
  * レスポンスデータ
  */
 export type DataSourceListResponseData = {
   /** データソース一覧 */
-  items: DataSourceListItem[]
-  pagination: Pagination
-}
+  items: DataSourceListItem[];
+  pagination: Pagination;
+};

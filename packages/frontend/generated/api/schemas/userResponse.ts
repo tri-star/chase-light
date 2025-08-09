@@ -8,15 +8,15 @@
 
 export interface UserResponse {
   /** ユーザーID（UUID） */
-  id: string
+  id: string;
   /** メールアドレス */
-  email: string
+  email: string;
   /** ユーザー名 */
-  name: string
+  name: string;
   /** GitHubユーザー名（オプション） */
-  githubUsername?: string
+  githubUsername?: string;
   /** アバター画像URL */
-  avatarUrl: string
+  avatarUrl: string;
   /** アカウント作成日時（ISO 8601形式） */
-  createdAt: string
+  createdAt: string;
 }

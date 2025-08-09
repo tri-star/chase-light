@@ -5,10 +5,10 @@
  * GitHub リポジトリ監視サービス API - TypeScript + Hono + Zod + OpenAPI
  * OpenAPI spec version: 1.0.0
  */
-import type { DataSourceListItem } from './dataSourceListItem'
+import type { DataSourceListItem } from './dataSourceListItem';
 
 export interface DataSourceDetailResponse {
   /** API実行の成功フラグ */
-  success: boolean
-  data: DataSourceListItem
+  success: boolean;
+  data: DataSourceListItem;
 }

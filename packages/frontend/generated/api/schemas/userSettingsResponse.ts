@@ -5,8 +5,8 @@
  * GitHub リポジトリ監視サービス API - TypeScript + Hono + Zod + OpenAPI
  * OpenAPI spec version: 1.0.0
  */
-import type { UserSettingsResponseUser } from './userSettingsResponseUser'
+import type { UserSettingsResponseUser } from './userSettingsResponseUser';
 
 export interface UserSettingsResponse {
-  user: UserSettingsResponseUser
+  user: UserSettingsResponseUser;
 }

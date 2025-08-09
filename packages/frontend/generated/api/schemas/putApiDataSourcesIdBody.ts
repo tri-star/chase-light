@@ -12,18 +12,18 @@ export type PutApiDataSourcesIdBody = {
    * @minLength 1
    * @maxLength 255
    */
-  name?: string
+  name?: string;
   /**
    * データソースの説明（カスタマイズ可能）
    * @maxLength 1000
    */
-  description?: string
+  description?: string;
   /** 通知の有効/無効 */
-  notificationEnabled?: boolean
+  notificationEnabled?: boolean;
   /** リリース監視の有効/無効 */
-  watchReleases?: boolean
+  watchReleases?: boolean;
   /** Issue監視の有効/無効 */
-  watchIssues?: boolean
+  watchIssues?: boolean;
   /** PR監視の有効/無効 */
-  watchPullRequests?: boolean
-}
+  watchPullRequests?: boolean;
+};

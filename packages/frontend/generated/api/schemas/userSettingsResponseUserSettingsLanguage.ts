@@ -9,11 +9,11 @@
 /**
  * 表示言語
  */
-export type UserSettingsResponseUserSettingsLanguage =
-  (typeof UserSettingsResponseUserSettingsLanguage)[keyof typeof UserSettingsResponseUserSettingsLanguage]
+export type UserSettingsResponseUserSettingsLanguage = typeof UserSettingsResponseUserSettingsLanguage[keyof typeof UserSettingsResponseUserSettingsLanguage];
+
 
 // eslint-disable-next-line @typescript-eslint/no-redeclare
 export const UserSettingsResponseUserSettingsLanguage = {
   ja: 'ja',
   en: 'en',
-} as const
+} as const;

@@ -8,21 +8,21 @@
 
 export interface DataSource {
   /** データソースID */
-  id: string
+  id: string;
   /** データソースタイプ */
-  sourceType: string
+  sourceType: string;
   /** 外部サービスでのID */
-  sourceId: string
+  sourceId: string;
   /** データソース名 */
-  name: string
+  name: string;
   /** データソースの説明 */
-  description: string
+  description: string;
   /** データソースのURL */
-  url: string
+  url: string;
   /** プライベートリポジトリかどうか */
-  isPrivate: boolean
+  isPrivate: boolean;
   /** 作成日時 */
-  createdAt: string
+  createdAt: string;
   /** 更新日時 */
-  updatedAt: string
+  updatedAt: string;
 }

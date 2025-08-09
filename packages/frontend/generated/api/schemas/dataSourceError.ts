@@ -5,11 +5,11 @@
  * GitHub リポジトリ監視サービス API - TypeScript + Hono + Zod + OpenAPI
  * OpenAPI spec version: 1.0.0
  */
-import type { DataSourceErrorError } from './dataSourceErrorError'
+import type { DataSourceErrorError } from './dataSourceErrorError';
 
 export interface DataSourceError {
   /** 成功フラグ（常にfalse） */
-  success: boolean
+  success: boolean;
   /** エラー情報 */
-  error: DataSourceErrorError
+  error: DataSourceErrorError;
 }

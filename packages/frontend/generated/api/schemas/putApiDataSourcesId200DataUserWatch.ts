@@ -7,12 +7,12 @@
  */
 
 export type PutApiDataSourcesId200DataUserWatch = {
-  id: string
-  userId: string
-  dataSourceId: string
-  notificationEnabled: boolean
-  watchReleases: boolean
-  watchIssues: boolean
-  watchPullRequests: boolean
-  addedAt: string
-}
+  id: string;
+  userId: string;
+  dataSourceId: string;
+  notificationEnabled: boolean;
+  watchReleases: boolean;
+  watchIssues: boolean;
+  watchPullRequests: boolean;
+  addedAt: string;
+};

@@ -5,11 +5,11 @@
  * GitHub リポジトリ監視サービス API - TypeScript + Hono + Zod + OpenAPI
  * OpenAPI spec version: 1.0.0
  */
-import type { AuthErrorResponseError } from './authErrorResponseError'
+import type { AuthErrorResponseError } from './authErrorResponseError';
 
 export interface AuthErrorResponse {
   /** エラー時は常にfalse */
-  success: boolean
+  success: boolean;
   /** エラー情報 */
-  error: AuthErrorResponseError
+  error: AuthErrorResponseError;
 }

@@ -8,19 +8,19 @@
 
 export interface UserWatch {
   /** ユーザーウォッチID */
-  id: string
+  id: string;
   /** ユーザーID */
-  userId: string
+  userId: string;
   /** データソースID */
-  dataSourceId: string
+  dataSourceId: string;
   /** 通知が有効かどうか */
-  notificationEnabled: boolean
+  notificationEnabled: boolean;
   /** リリースを監視するか */
-  watchReleases: boolean
+  watchReleases: boolean;
   /** イシューを監視するか */
-  watchIssues: boolean
+  watchIssues: boolean;
   /** プルリクエストを監視するか */
-  watchPullRequests: boolean
+  watchPullRequests: boolean;
   /** 追加日時 */
-  addedAt: string
+  addedAt: string;
 }

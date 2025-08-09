@@ -5,15 +5,15 @@
  * GitHub リポジトリ監視サービス API - TypeScript + Hono + Zod + OpenAPI
  * OpenAPI spec version: 1.0.0
  */
-import type { UserSettingsResponseUserSettingsLanguage } from './userSettingsResponseUserSettingsLanguage'
+import type { UserSettingsResponseUserSettingsLanguage } from './userSettingsResponseUserSettingsLanguage';
 
 export type UserSettingsResponseUserSettings = {
   /** タイムゾーン */
-  timezone: string
+  timezone: string;
   /** メール通知の有効/無効 */
-  emailNotifications: boolean
+  emailNotifications: boolean;
   /** プッシュ通知の有効/無効 */
-  pushNotifications: boolean
+  pushNotifications: boolean;
   /** 表示言語 */
-  language: UserSettingsResponseUserSettingsLanguage
-}
+  language: UserSettingsResponseUserSettingsLanguage;
+};

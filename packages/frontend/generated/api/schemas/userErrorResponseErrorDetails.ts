@@ -10,4 +10,4 @@
  * エラーの詳細情報
  * @nullable
  */
-export type UserErrorResponseErrorDetails = unknown | null
+export type UserErrorResponseErrorDetails = unknown | null;

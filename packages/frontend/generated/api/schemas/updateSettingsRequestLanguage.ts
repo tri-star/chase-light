@@ -9,11 +9,11 @@
 /**
  * 表示言語（ja/en）
  */
-export type UpdateSettingsRequestLanguage =
-  (typeof UpdateSettingsRequestLanguage)[keyof typeof UpdateSettingsRequestLanguage]
+export type UpdateSettingsRequestLanguage = typeof UpdateSettingsRequestLanguage[keyof typeof UpdateSettingsRequestLanguage];
+
 
 // eslint-disable-next-line @typescript-eslint/no-redeclare
 export const UpdateSettingsRequestLanguage = {
   ja: 'ja',
   en: 'en',
-} as const
+} as const;

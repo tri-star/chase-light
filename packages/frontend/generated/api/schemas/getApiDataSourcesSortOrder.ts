@@ -6,11 +6,11 @@
  * OpenAPI spec version: 1.0.0
  */
 
-export type GetApiDataSourcesSortOrder =
-  (typeof GetApiDataSourcesSortOrder)[keyof typeof GetApiDataSourcesSortOrder]
+export type GetApiDataSourcesSortOrder = typeof GetApiDataSourcesSortOrder[keyof typeof GetApiDataSourcesSortOrder];
+
 
 // eslint-disable-next-line @typescript-eslint/no-redeclare
 export const GetApiDataSourcesSortOrder = {
   asc: 'asc',
   desc: 'desc',
-} as const
+} as const;

@@ -5,15 +5,15 @@
  * GitHub リポジトリ監視サービス API - TypeScript + Hono + Zod + OpenAPI
  * OpenAPI spec version: 1.0.0
  */
-import type { DataSource } from './dataSource'
-import type { Repository } from './repository'
-import type { UserWatch } from './userWatch'
+import type { DataSource } from './dataSource';
+import type { Repository } from './repository';
+import type { UserWatch } from './userWatch';
 
 /**
  * 作成されたデータ
  */
 export type CreateDataSourceResponseData = {
-  dataSource: DataSource
-  repository: Repository
-  userWatch: UserWatch
-}
+  dataSource: DataSource;
+  repository: Repository;
+  userWatch: UserWatch;
+};

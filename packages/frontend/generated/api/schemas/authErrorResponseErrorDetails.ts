@@ -10,4 +10,4 @@
  * エラーの詳細情報
  * @nullable
  */
-export type AuthErrorResponseErrorDetails = unknown | null
+export type AuthErrorResponseErrorDetails = unknown | null;

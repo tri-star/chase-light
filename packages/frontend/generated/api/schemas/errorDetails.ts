@@ -11,7 +11,7 @@
  */
 export interface ErrorDetails {
   /** エラーが発生したフィールド名 */
-  field?: string
+  field?: string;
   /** エラーが発生した値 */
-  value?: string
+  value?: string;
 }

@@ -7,13 +7,13 @@
  */
 
 export type PutApiDataSourcesId200DataDataSource = {
-  id: string
-  sourceType: string
-  sourceId: string
-  name: string
-  description: string
-  url: string
-  isPrivate: boolean
-  createdAt: string
-  updatedAt: string
-}
+  id: string;
+  sourceType: string;
+  sourceId: string;
+  name: string;
+  description: string;
+  url: string;
+  isPrivate: boolean;
+  createdAt: string;
+  updatedAt: string;
+};

@@ -5,15 +5,15 @@
  * GitHub リポジトリ監視サービス API - TypeScript + Hono + Zod + OpenAPI
  * OpenAPI spec version: 1.0.0
  */
-import type { ErrorDetails } from './errorDetails'
+import type { ErrorDetails } from './errorDetails';
 
 /**
  * エラー情報
  */
 export type DataSourceErrorError = {
   /** エラーコード */
-  code: string
+  code: string;
   /** エラーメッセージ */
-  message: string
-  details?: ErrorDetails
-}
+  message: string;
+  details?: ErrorDetails;
+};

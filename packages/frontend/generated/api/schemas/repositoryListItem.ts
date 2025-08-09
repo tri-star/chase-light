@@ -5,7 +5,7 @@
  * GitHub リポジトリ監視サービス API - TypeScript + Hono + Zod + OpenAPI
  * OpenAPI spec version: 1.0.0
  */
-import type { Repository } from './repository'
-import type { RepositoryListItemAllOf } from './repositoryListItemAllOf'
+import type { Repository } from './repository';
+import type { RepositoryListItemAllOf } from './repositoryListItemAllOf';
 
-export type RepositoryListItem = Repository & RepositoryListItemAllOf
+export type RepositoryListItem = Repository & RepositoryListItemAllOf;
