@@ -12,15 +12,25 @@ export default defineConfig({
       mode: 'split',
       mock: {
         type: 'msw',
-        output: './generated/api/mocks',
         delay: false,
       },
-    },
-    override: {
-      mutator: {
-        path: './generated/api/mutator.ts',
-        name: 'customFetch',
+      override: {
+        mutator: {
+          path: './generated/api/mutator.ts',
+          name: 'customFetch',
+        },
       },
+    },
+  },
+  backendZod: {
+    input: {
+      target: 'http://localhost:3001/doc',
+    },
+    output: {
+      target: './generated/api/zod',
+      client: 'zod',
+      fileExtension: '.zod.ts',
+      mode: 'split',
     },
   },
 })

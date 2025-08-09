@@ -41,7 +41,7 @@ export const customFetch = <T>(
     // Zodスキーマが提供されている場合はバリデーションを実行
     if (options?.zodSchema) {
       try {
-        return options.zodSchema.parse(responseData)
+        return options.zodSchema.parse(responseData) as T
       } catch (zodError) {
         console.error('Response validation failed:', zodError)
         const error = new Error('Response validation failed')
