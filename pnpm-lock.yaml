@@ -150,6 +150,9 @@ importers:
       '@storybook/addon-docs':
         specifier: 9.0.5
         version: 9.0.5(@types/react@18.3.23)(storybook@9.0.5(@testing-library/dom@10.4.0)(prettier@3.6.2))
+      dotenv:
+        specifier: ^16.6.1
+        version: 16.6.1
       eslint:
         specifier: ^9.28.0
         version: 9.32.0(jiti@2.5.1)
