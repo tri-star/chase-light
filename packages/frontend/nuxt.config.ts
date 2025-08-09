@@ -33,4 +33,5 @@ export default defineNuxtConfig({
     typeCheck: true, // ビルド時の型チェックを有効化
     strict: true,
   },
+  sourcemap: { client: 'hidden', server: true }
 })
