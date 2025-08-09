@@ -20,8 +20,6 @@ export default withNuxt(
       // Prettierが自動的に閉じタグを挿入するため、Vueの自動閉じタグルールを無効化
       'vue/html-self-closing': ['off'],
     },
-    ignores: [
-      '**/generated/**/*'
-    ]
+    ignores: ['**/generated/**/*'],
   }
 )

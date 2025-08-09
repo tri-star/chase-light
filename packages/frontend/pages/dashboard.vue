@@ -171,6 +171,43 @@
               </div>
             </div>
           </div>
+
+          <!-- データソース追加 -->
+          <div class="mt-8">
+            <h3 class="text-lg font-medium text-gray-900 mb-4">
+              データソースを追加
+            </h3>
+            <div class="space-y-4">
+              <div class="flex space-x-4">
+                <input
+                  v-model="newRepositoryUrl"
+                  type="text"
+                  placeholder="https://github.com/owner/repo"
+                  class="flex-1 border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  :disabled="addLoading"
+                />
+                <button
+                  class="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded disabled:opacity-50"
+                  :disabled="addLoading || !newRepositoryUrl"
+                  data-testid="add-data-source-button"
+                  @click="addDataSource"
+                >
+                  {{ addLoading ? '追加中...' : '追加' }}
+                </button>
+              </div>
+
+              <div v-if="addError" class="bg-red-100 p-4 rounded text-red-700">
+                エラー: {{ addError }}
+              </div>
+
+              <div
+                v-if="addSuccess"
+                class="bg-green-100 p-4 rounded text-green-700"
+              >
+                データソースが正常に追加されました！
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </main>
@@ -189,6 +226,12 @@ const { user, logout } = useAuth()
 const dataSourcesLoading = ref(false)
 const dataSources = ref<DataSourceListResponse | null>(null)
 const dataSourcesError = ref('')
+
+// データソース追加用の状態
+const newRepositoryUrl = ref('')
+const addLoading = ref(false)
+const addError = ref('')
+const addSuccess = ref(false)
 
 const fetchDataSources = async () => {
   dataSourcesLoading.value = true
@@ -209,6 +252,41 @@ const fetchDataSources = async () => {
       error instanceof Error ? error.message : 'Unknown error'
   } finally {
     dataSourcesLoading.value = false
+  }
+}
+
+const addDataSource = async () => {
+  if (!newRepositoryUrl.value) return
+
+  addLoading.value = true
+  addError.value = ''
+  addSuccess.value = false
+
+  try {
+    await $fetch('/api/data-sources', {
+      method: 'POST',
+      body: {
+        repositoryUrl: newRepositoryUrl.value,
+        notificationEnabled: true,
+        watchReleases: true,
+        watchIssues: false,
+        watchPullRequests: false,
+      },
+    })
+
+    addSuccess.value = true
+    newRepositoryUrl.value = ''
+
+    // データソース一覧を再取得
+    setTimeout(() => {
+      fetchDataSources()
+      addSuccess.value = false
+    }, 2000)
+  } catch (error) {
+    console.error('Add data source error:', error)
+    addError.value = error instanceof Error ? error.message : 'Unknown error'
+  } finally {
+    addLoading.value = false
   }
 }
 </script>

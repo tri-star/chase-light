@@ -12,7 +12,7 @@
 export type UpdateSettingsRequestLanguage = typeof UpdateSettingsRequestLanguage[keyof typeof UpdateSettingsRequestLanguage];
 
 
-// eslint-disable-next-line @typescript-eslint/no-redeclare
+ 
 export const UpdateSettingsRequestLanguage = {
   ja: 'ja',
   en: 'en',

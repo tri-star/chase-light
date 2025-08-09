@@ -24,6 +24,7 @@ import type {
   UserSettingsResponse
 } from './schemas';
 
+import { customFetch } from './mutator';
 
 /**
  * Auth0のIDトークンを使用してユーザー登録を行います
@@ -70,7 +71,7 @@ export const getPostApiAuthSignupUrl = () => {
 
 export const postApiAuthSignup = async (signUpRequest: SignUpRequest, options?: RequestInit): Promise<postApiAuthSignupResponse> => {
   
-  const res = await fetch(getPostApiAuthSignupUrl(),
+  return customFetch<postApiAuthSignupResponse>(getPostApiAuthSignupUrl(),
   {      
     ...options,
     method: 'POST',
@@ -78,13 +79,7 @@ export const postApiAuthSignup = async (signUpRequest: SignUpRequest, options?: 
     body: JSON.stringify(
       signUpRequest,)
   }
-)
-
-  const body = [204, 205, 304].includes(res.status) ? null : await res.text()
-  const data: postApiAuthSignupResponse['data'] = body ? JSON.parse(body) : {}
-
-  return { data, status: res.status, headers: res.headers } as postApiAuthSignupResponse
-}
+);}
 
 
 
@@ -138,20 +133,14 @@ export const getGetApiUsersProfileUrl = () => {
 
 export const getApiUsersProfile = async ( options?: RequestInit): Promise<getApiUsersProfileResponse> => {
   
-  const res = await fetch(getGetApiUsersProfileUrl(),
+  return customFetch<getApiUsersProfileResponse>(getGetApiUsersProfileUrl(),
   {      
     ...options,
     method: 'GET'
     
     
   }
-)
-
-  const body = [204, 205, 304].includes(res.status) ? null : await res.text()
-  const data: getApiUsersProfileResponse['data'] = body ? JSON.parse(body) : {}
-
-  return { data, status: res.status, headers: res.headers } as getApiUsersProfileResponse
-}
+);}
 
 
 
@@ -205,7 +194,7 @@ export const getPutApiUsersProfileUrl = () => {
 
 export const putApiUsersProfile = async (updateProfileRequest: UpdateProfileRequest, options?: RequestInit): Promise<putApiUsersProfileResponse> => {
   
-  const res = await fetch(getPutApiUsersProfileUrl(),
+  return customFetch<putApiUsersProfileResponse>(getPutApiUsersProfileUrl(),
   {      
     ...options,
     method: 'PUT',
@@ -213,13 +202,7 @@ export const putApiUsersProfile = async (updateProfileRequest: UpdateProfileRequ
     body: JSON.stringify(
       updateProfileRequest,)
   }
-)
-
-  const body = [204, 205, 304].includes(res.status) ? null : await res.text()
-  const data: putApiUsersProfileResponse['data'] = body ? JSON.parse(body) : {}
-
-  return { data, status: res.status, headers: res.headers } as putApiUsersProfileResponse
-}
+);}
 
 
 
@@ -273,20 +256,14 @@ export const getGetApiUsersSettingsUrl = () => {
 
 export const getApiUsersSettings = async ( options?: RequestInit): Promise<getApiUsersSettingsResponse> => {
   
-  const res = await fetch(getGetApiUsersSettingsUrl(),
+  return customFetch<getApiUsersSettingsResponse>(getGetApiUsersSettingsUrl(),
   {      
     ...options,
     method: 'GET'
     
     
   }
-)
-
-  const body = [204, 205, 304].includes(res.status) ? null : await res.text()
-  const data: getApiUsersSettingsResponse['data'] = body ? JSON.parse(body) : {}
-
-  return { data, status: res.status, headers: res.headers } as getApiUsersSettingsResponse
-}
+);}
 
 
 
@@ -340,7 +317,7 @@ export const getPutApiUsersSettingsUrl = () => {
 
 export const putApiUsersSettings = async (updateSettingsRequest: UpdateSettingsRequest, options?: RequestInit): Promise<putApiUsersSettingsResponse> => {
   
-  const res = await fetch(getPutApiUsersSettingsUrl(),
+  return customFetch<putApiUsersSettingsResponse>(getPutApiUsersSettingsUrl(),
   {      
     ...options,
     method: 'PUT',
@@ -348,13 +325,7 @@ export const putApiUsersSettings = async (updateSettingsRequest: UpdateSettingsR
     body: JSON.stringify(
       updateSettingsRequest,)
   }
-)
-
-  const body = [204, 205, 304].includes(res.status) ? null : await res.text()
-  const data: putApiUsersSettingsResponse['data'] = body ? JSON.parse(body) : {}
-
-  return { data, status: res.status, headers: res.headers } as putApiUsersSettingsResponse
-}
+);}
 
 
 
@@ -415,20 +386,14 @@ export const getGetApiDataSourcesUrl = (params?: GetApiDataSourcesParams,) => {
 
 export const getApiDataSources = async (params?: GetApiDataSourcesParams, options?: RequestInit): Promise<getApiDataSourcesResponse> => {
   
-  const res = await fetch(getGetApiDataSourcesUrl(params),
+  return customFetch<getApiDataSourcesResponse>(getGetApiDataSourcesUrl(params),
   {      
     ...options,
     method: 'GET'
     
     
   }
-)
-
-  const body = [204, 205, 304].includes(res.status) ? null : await res.text()
-  const data: getApiDataSourcesResponse['data'] = body ? JSON.parse(body) : {}
-
-  return { data, status: res.status, headers: res.headers } as getApiDataSourcesResponse
-}
+);}
 
 
 
@@ -482,7 +447,7 @@ export const getPostApiDataSourcesUrl = () => {
 
 export const postApiDataSources = async (createDataSourceRequest: CreateDataSourceRequest, options?: RequestInit): Promise<postApiDataSourcesResponse> => {
   
-  const res = await fetch(getPostApiDataSourcesUrl(),
+  return customFetch<postApiDataSourcesResponse>(getPostApiDataSourcesUrl(),
   {      
     ...options,
     method: 'POST',
@@ -490,13 +455,7 @@ export const postApiDataSources = async (createDataSourceRequest: CreateDataSour
     body: JSON.stringify(
       createDataSourceRequest,)
   }
-)
-
-  const body = [204, 205, 304].includes(res.status) ? null : await res.text()
-  const data: postApiDataSourcesResponse['data'] = body ? JSON.parse(body) : {}
-
-  return { data, status: res.status, headers: res.headers } as postApiDataSourcesResponse
-}
+);}
 
 
 
@@ -550,20 +509,14 @@ export const getGetApiDataSourcesIdUrl = (id: string,) => {
 
 export const getApiDataSourcesId = async (id: string, options?: RequestInit): Promise<getApiDataSourcesIdResponse> => {
   
-  const res = await fetch(getGetApiDataSourcesIdUrl(id),
+  return customFetch<getApiDataSourcesIdResponse>(getGetApiDataSourcesIdUrl(id),
   {      
     ...options,
     method: 'GET'
     
     
   }
-)
-
-  const body = [204, 205, 304].includes(res.status) ? null : await res.text()
-  const data: getApiDataSourcesIdResponse['data'] = body ? JSON.parse(body) : {}
-
-  return { data, status: res.status, headers: res.headers } as getApiDataSourcesIdResponse
-}
+);}
 
 
 
@@ -618,7 +571,7 @@ export const getPutApiDataSourcesIdUrl = (id: string,) => {
 export const putApiDataSourcesId = async (id: string,
     putApiDataSourcesIdBody: PutApiDataSourcesIdBody, options?: RequestInit): Promise<putApiDataSourcesIdResponse> => {
   
-  const res = await fetch(getPutApiDataSourcesIdUrl(id),
+  return customFetch<putApiDataSourcesIdResponse>(getPutApiDataSourcesIdUrl(id),
   {      
     ...options,
     method: 'PUT',
@@ -626,13 +579,7 @@ export const putApiDataSourcesId = async (id: string,
     body: JSON.stringify(
       putApiDataSourcesIdBody,)
   }
-)
-
-  const body = [204, 205, 304].includes(res.status) ? null : await res.text()
-  const data: putApiDataSourcesIdResponse['data'] = body ? JSON.parse(body) : {}
-
-  return { data, status: res.status, headers: res.headers } as putApiDataSourcesIdResponse
-}
+);}
 
 
 
@@ -686,20 +633,14 @@ export const getDeleteApiDataSourcesIdUrl = (id: string,) => {
 
 export const deleteApiDataSourcesId = async (id: string, options?: RequestInit): Promise<deleteApiDataSourcesIdResponse> => {
   
-  const res = await fetch(getDeleteApiDataSourcesIdUrl(id),
+  return customFetch<deleteApiDataSourcesIdResponse>(getDeleteApiDataSourcesIdUrl(id),
   {      
     ...options,
     method: 'DELETE'
     
     
   }
-)
-
-  const body = [204, 205, 304].includes(res.status) ? null : await res.text()
-  const data: deleteApiDataSourcesIdResponse['data'] = body ? JSON.parse(body) : {}
-
-  return { data, status: res.status, headers: res.headers } as deleteApiDataSourcesIdResponse
-}
+);}
 
 
 
