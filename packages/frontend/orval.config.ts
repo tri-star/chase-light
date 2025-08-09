@@ -1,4 +1,8 @@
+import { config } from 'dotenv'
 import { defineConfig } from 'orval'
+
+// .env ファイルをロード
+config()
 
 export default defineConfig({
   backend: {
@@ -10,6 +14,7 @@ export default defineConfig({
       client: 'fetch',
       schemas: './generated/api/schemas',
       mode: 'split',
+      baseUrl: process.env.BACKEND_API_URL || 'missing backend url',
       mock: {
         type: 'msw',
         delay: false,
