@@ -38,9 +38,9 @@ export const customFetch = async <T>(
 
   // Authorizationヘッダーが既に設定されていない場合のみアクセストークンを追加
   const hasAuthHeader =
-    isHeadersRecord(fetchOptions.headers) &&
-    (fetchOptions.headers['Authorization'] ||
-      fetchOptions.headers['authorization']) ||
+    (isHeadersRecord(fetchOptions.headers) &&
+      (fetchOptions.headers['Authorization'] ||
+        fetchOptions.headers['authorization'])) ||
     (fetchOptions.headers instanceof Headers &&
       fetchOptions.headers.has('Authorization'))
 
