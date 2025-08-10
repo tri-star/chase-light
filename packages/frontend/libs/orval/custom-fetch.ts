@@ -17,6 +17,18 @@ async function getAccessToken(): Promise<string | null> {
   return null
 }
 
+// ヘッダーが Record<string, string> 型かどうかをチェックするヘルパー関数
+const isHeadersRecord = (
+  headers: HeadersInit | undefined
+): headers is Record<string, string> => {
+  return (
+    headers !== undefined &&
+    typeof headers === 'object' &&
+    !Array.isArray(headers) &&
+    !(headers instanceof Headers)
+  )
+}
+
 export const customFetch = async <T>(
   url: string,
   options?: FetchOptions
@@ -25,10 +37,14 @@ export const customFetch = async <T>(
   const fetchOptions: RequestInit = { ...options }
 
   // Authorizationヘッダーが既に設定されていない場合のみアクセストークンを追加
-  if (
-    !fetchOptions.headers?.['Authorization'] &&
-    !fetchOptions.headers?.['authorization']
-  ) {
+  const hasAuthHeader =
+    isHeadersRecord(fetchOptions.headers) &&
+    (fetchOptions.headers['Authorization'] ||
+      fetchOptions.headers['authorization']) ||
+    (fetchOptions.headers instanceof Headers &&
+      fetchOptions.headers.has('Authorization'))
+
+  if (!hasAuthHeader) {
     const accessToken = await getAccessToken()
     if (accessToken) {
       fetchOptions.headers = {
