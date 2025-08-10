@@ -1,109 +1,109 @@
-# Chase Light Frontend
+# Chase Light フロントエンド
 
-GitHub Repository Activity Tracker - Frontend Application
+GitHub リポジトリアクティビティトラッカー - フロントエンドアプリケーション
 
-## Overview
+## 概要
 
-This is the frontend application for Chase Light, built with Nuxt.js and implementing server-side authentication with Auth0 and PostgreSQL session management.
+Chase Light のフロントエンドアプリケーションです。Nuxt.js で構築されており、Auth0 と PostgreSQL を用いたサーバーサイド認証（セッション管理）を実装しています。
 
-## Features
+## 機能
 
-- 🔒 **Server-Side Authentication**: Auth0 integration with PostgreSQL session storage
-- 🎨 **Modern UI**: Built with Tailwind CSS and Vue 3 Composition API
-- 🔐 **Protected Routes**: Route-level authentication middleware
-- 🌐 **GitHub API Integration**: Proxy endpoints for secure API calls
-- 📱 **Responsive Design**: Mobile-first responsive design
+- 🔒 **サーバーサイド認証**: Auth0 と PostgreSQL によるセッションストレージ
+- 🎨 **モダンUI**: Tailwind CSS と Vue 3 Composition API
+- 🔐 **保護されたルート**: ルート単位の認証ミドルウェア
+- 🌐 **GitHub API 連携**: 安全なプロキシエンドポイント
+- 📱 **レスポンシブデザイン**: モバイルファースト
 
-## Prerequisites
+## 前提条件
 
 - Node.js 18+
-- PostgreSQL database
-- Auth0 account and application setup
+- PostgreSQL データベース
+- Auth0 アカウントとアプリケーション設定
 
-## Environment Setup
+## 環境設定
 
-1. Copy the environment file:
+1. 環境ファイルをコピー:
 
 ```bash
 cp .env.example .env
 ```
 
-2. Configure the following environment variables:
+2. 以下の環境変数を設定:
 
 ```env
-# Auth0 Configuration
+# Auth0 設定
 AUTH0_DOMAIN=your-auth0-domain.auth0.com
 AUTH0_CLIENT_ID=your-auth0-client-id
 AUTH0_CLIENT_SECRET=your-auth0-client-secret
 AUTH0_AUDIENCE=your-auth0-api-identifier
 
-# Session Secret (generate a secure random string)
+# セッションシークレット（十分に長い乱数文字列を生成）
 NUXT_SESSION_SECRET=your-very-long-random-session-secret-key-here
 
-# Database Connection
+# データベース接続
 DATABASE_URL=postgresql://username:password@localhost:5432/database_name
 
-# Application URL
+# アプリケーションURL
 NUXT_PUBLIC_BASE_URL=http://localhost:3000
 
-# Authentication Logging (Optional - for debugging)
+# 認証ログ（任意・デバッグ用途）
 AUTH_LOG_LEVEL=info                # error/warn/info/debug
-AUTH_DEBUG_SENSITIVE=false         # Enable sensitive info logging (dev only)
+AUTH_DEBUG_SENSITIVE=false         # センシティブ情報のログ（開発のみ）
 ```
 
-## Installation
+## インストール
 
-Install dependencies:
+依存関係をインストール:
 
 ```bash
 pnpm install
 ```
 
-## Database Setup
+## データベースセットアップ
 
-1. Ensure PostgreSQL is running
-2. Create the database and tables using the SQL scripts in `/database/init/`
-3. Update the DATABASE_URL in your .env file
+1. PostgreSQL が起動していることを確認
+2. `/database/init/` の SQL スクリプトを用いて DB とテーブルを作成
+3. `.env` の `DATABASE_URL` を更新
 
-## Development Server
+## 開発サーバー
 
-Start the development server on `http://localhost:3000`:
+開発サーバーを `http://localhost:3000` で起動:
 
 ```bash
 pnpm dev
 ```
 
-## Authentication Flow
+## 認証フロー
 
-1. **Login**: Users are redirected to Auth0 for authentication
-2. **Callback**: Auth0 callback creates a server-side session in PostgreSQL
-3. **Session Management**: Encrypted cookies manage session state
-4. **Protected Routes**: Middleware validates sessions for protected pages
-5. **API Access**: GitHub API access via authenticated proxy endpoints
+1. **ログイン**: 認証のため Auth0 にリダイレクト
+2. **コールバック**: Auth0 のコールバックで PostgreSQL にサーバーサイドセッションを作成
+3. **セッション管理**: 暗号化クッキーでセッション状態を管理
+4. **保護ルート**: ミドルウェアで保護ページのセッションを検証
+5. **API アクセス**: 認証付きのプロキシ経由で GitHub API にアクセス
 
-## Available Routes
+## 利用可能なページ
 
-- `/` - Public home page
-- `/dashboard` - Protected dashboard (requires authentication)
-- `/profile` - Protected user profile page (requires authentication)
-- `/auth/login` - Initiate Auth0 login flow
-- `/auth/test-login` - Test login page (development only) - automatically creates session and redirects to dashboard
+- `/` - 公開ホームページ
+- `/dashboard` - 保護されたダッシュボード（要認証）
+- `/profile` - 保護されたプロフィール（要認証）
+- `/auth/login` - Auth0 ログインフローの開始
+- `/auth/test-login` - テスト用ログインページ（開発限定）: 自動でセッションを作成しダッシュボードへ遷移
 
-## API Endpoints
+## API エンドポイント
 
-### Authentication
+### 認証系
 
-- `GET /api/auth/callback` - Handle Auth0 callback
-- `POST /api/auth/logout` - Logout and clear session
-- `GET /api/auth/session` - Get current session info
+- `GET /api/auth/callback` - Auth0 コールバック処理
+- `POST /api/auth/logout` - ログアウトしてセッションを破棄
+- `GET /api/auth/session` - 現在のセッション情報を取得
 
-### Protected APIs
+### 保護API
 
-- `GET /api/protected/test` - Test protected endpoint
-- `GET /api/github/user` - Get GitHub user info (proxied)
-- `GET /api/github/repos` - Get GitHub repositories (proxied)
+- `GET /api/protected/test` - 保護エンドポイントのテスト
+- `GET /api/github/user` - GitHub ユーザー情報取得（プロキシ）
+- `GET /api/github/repos` - GitHub リポジトリ一覧取得（プロキシ）
 
-## Architecture
+## アーキテクチャ
 
 ```
 Frontend (Nuxt.js)
@@ -114,30 +114,30 @@ Frontend (Nuxt.js)
 └── Responsive UI Components
 ```
 
-## Security Features
+## セキュリティ機能
 
-- Server-side session management
-- Encrypted session cookies (httpOnly, secure, sameSite)
-- CSRF protection with state parameters
-- Token validation and refresh
-- Automatic session cleanup
+- サーバーサイドのセッション管理
+- 暗号化クッキー（httpOnly, secure, sameSite）
+- State パラメータによる CSRF 対策
+- トークンの検証とリフレッシュ
+- 期限切れセッションの自動クリーンアップ
 
-## Production
+## 本番運用
 
-Build the application for production:
+本番ビルドの作成:
 
 ```bash
 pnpm build
 ```
 
-Preview production build:
+本番ビルドのプレビュー:
 
 ```bash
 pnpm preview
 ```
 
-## Documentation
+## ドキュメント
 
-For more information about the authentication architecture, see `/docs/adr/ADR001-auth.md`.
+認証アーキテクチャの詳細は `/docs/adr/ADR001-auth.md` を参照してください。
 
-Check out the [Nuxt documentation](https://nuxt.com/docs/getting-started/introduction) for framework details.
+フレームワークの詳細は [Nuxt ドキュメント](https://nuxt.com/docs/getting-started/introduction) を参照してください。
