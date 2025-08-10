@@ -73,6 +73,32 @@ pnpm install
 pnpm dev
 ```
 
+## 開発時に利用するコマンド一覧
+
+- 開発サーバー起動: `pnpm dev`
+- 単体テスト実行: `pnpm test`
+- Lint 実行: `pnpm lint`
+- フォーマット実行: `pnpm format`
+- Storybook 起動: `pnpm storybook`
+- APIクライアント自動生成: `pnpm generate:api` **※packages/backendとの連携が必要なので注意**
+
+### OrvalのHTTPクライアント生成手順
+
+Backend の OpenAPI 定義からフロントエンド用の HTTP クライアント（型・Zod スキーマ含む）を生成します。
+
+1. `packages/backend` で API を起動し、OpenAPI を保存
+
+```bash
+pnpm dev                 # http://localhost:3001/doc を提供
+pnpm openapi:pull        # packages/backend/openapi.json を保存
+```
+
+2. `packages/frontend` でクライアント生成
+
+```bash
+pnpm generate:api        # generated/api 配下にクライアントとスキーマを生成
+```
+
 ## 認証フロー
 
 1. **ログイン**: 認証のため Auth0 にリダイレクト
