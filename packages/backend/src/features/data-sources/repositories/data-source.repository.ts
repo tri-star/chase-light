@@ -39,7 +39,7 @@ export class DataSourceRepository {
   async save(data: DataSourceCreationInput): Promise<DataSource> {
     const now = new Date()
     const id = randomUUID()
-    const connection = TransactionManager.getConnection()
+    const connection = await TransactionManager.getConnection()
 
     const [result] = await connection
       .insert(dataSources)
@@ -73,7 +73,7 @@ export class DataSourceRepository {
    * IDでデータソースを検索
    */
   async findById(id: string): Promise<DataSource | null> {
-    const connection = TransactionManager.getConnection()
+    const connection = await TransactionManager.getConnection()
     const result = await connection
       .select()
       .from(dataSources)
@@ -89,7 +89,7 @@ export class DataSourceRepository {
     sourceType: string,
     sourceId: string,
   ): Promise<DataSource | null> {
-    const connection = TransactionManager.getConnection()
+    const connection = await TransactionManager.getConnection()
     const result = await connection
       .select()
       .from(dataSources)
@@ -107,7 +107,7 @@ export class DataSourceRepository {
    * 複数のデータソースを検索
    */
   async findMany(filters?: { sourceType?: string }): Promise<DataSource[]> {
-    const connection = TransactionManager.getConnection()
+    const connection = await TransactionManager.getConnection()
     let query = connection.select().from(dataSources).$dynamic()
 
     if (filters?.sourceType) {
@@ -122,7 +122,7 @@ export class DataSourceRepository {
    * データソースを削除
    */
   async delete(id: string): Promise<boolean> {
-    const connection = TransactionManager.getConnection()
+    const connection = await TransactionManager.getConnection()
     const result = await connection
       .delete(dataSources)
       .where(eq(dataSources.id, id))
@@ -138,7 +138,7 @@ export class DataSourceRepository {
     userId: string,
     updateData: DataSourceUpdateInput,
   ): Promise<DataSource | null> {
-    const connection = TransactionManager.getConnection()
+    const connection = await TransactionManager.getConnection()
     // まず権限チェック - ユーザーがこのデータソースをウォッチしているか確認
     const accessCheck = await connection
       .select({ dataSourceId: dataSources.id })
@@ -181,7 +181,7 @@ export class DataSourceRepository {
     id: string,
     userId: string,
   ): Promise<DataSourceListItem | null> {
-    const connection = TransactionManager.getConnection()
+    const connection = await TransactionManager.getConnection()
     const results = await connection
       .select({
         // データソース
@@ -272,7 +272,7 @@ export class DataSourceRepository {
     userId: string,
     filters: DataSourceListFilters = {},
   ): Promise<DataSourceListResult> {
-    const connection = TransactionManager.getConnection()
+    const connection = await TransactionManager.getConnection()
     // 基本的なクエリ構築
     let query = connection
       .select({
@@ -419,7 +419,7 @@ export class DataSourceRepository {
     const total = Number(totalCount)
 
     // 結果を変換
-    const items = results.map((row) => ({
+    const items = results.map((row: (typeof results)[number]) => ({
       dataSource: {
         id: row.dataSourceId,
         sourceType: row.dataSourceType,
@@ -470,7 +470,7 @@ export class DataSourceRepository {
     dataSourceId: string,
     userId: string,
   ): Promise<boolean> {
-    const connection = TransactionManager.getConnection()
+    const connection = await TransactionManager.getConnection()
 
     // まず権限チェック - ユーザーがこのデータソースをウォッチしているか確認
     const accessCheck = await connection
