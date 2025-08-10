@@ -24,7 +24,7 @@ import type {
   UserSettingsResponse
 } from './schemas';
 
-import { customFetch } from './mutator';
+import { customFetch } from '../../libs/orval/custom-fetch';
 
 /**
  * Auth0のIDトークンを使用してユーザー登録を行います

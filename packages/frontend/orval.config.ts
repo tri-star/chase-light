@@ -21,7 +21,7 @@ export default defineConfig({
       },
       override: {
         mutator: {
-          path: './generated/api/mutator.ts',
+          path: './libs/orval/custom-fetch.ts',
           name: 'customFetch',
         },
       },
