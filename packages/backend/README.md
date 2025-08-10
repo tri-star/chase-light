@@ -13,6 +13,21 @@ Chase LightのバックエンドAPIサーバーです。Hono + TypeScript + Open
 - **Scalar UI**: http://localhost:3001/scalar
 - **OpenAPI JSON**: http://localhost:3001/doc
 
+### OpenAPI スキーマの取得（保存）
+
+ローカルの OpenAPI 定義を JSON として保存するスクリプトを用意しています。
+
+```bash
+# リポジトリルートから実行
+pnpm --filter backend openapi:pull
+
+# backend ディレクトリ内から実行
+pnpm openapi:pull
+```
+
+出力先: `packages/backend/openapi.json`
+
+
 ### 主要なAPIエンドポイント
 
 #### GitHub API統合 (`/api/datasource`)

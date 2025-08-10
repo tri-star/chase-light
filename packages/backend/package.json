@@ -7,6 +7,7 @@
     "dev": "tsx src/server.ts",
     "zip": "zip -j lambda.zip dist/index.js",
     "deploy": "run-s build zip update",
+    "openapi:pull": "curl -fsSL -H 'Accept: application/json' http://localhost:3001/doc | jq > openapi.json",
     "test": "run-s test:migrate && vitest run",
     "test:run": "vitest run",
     "test:watch": "vitest",
