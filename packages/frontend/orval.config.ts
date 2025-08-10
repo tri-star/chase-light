@@ -7,7 +7,7 @@ config()
 export default defineConfig({
   backend: {
     input: {
-      target: 'http://localhost:3001/doc',
+      target: '../backend/openapi.json',
     },
     output: {
       target: './generated/api/backend.ts',
@@ -29,7 +29,7 @@ export default defineConfig({
   },
   backendZod: {
     input: {
-      target: 'http://localhost:3001/doc',
+      target: '../backend/openapi.json',
     },
     output: {
       target: './generated/api/zod',

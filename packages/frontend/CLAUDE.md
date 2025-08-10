@@ -11,6 +11,10 @@
 - API クライアント: Orval 生成物（`generated/api`）+ Zod スキーマ
 - テスト: Vitest（Unit）/ Playwright（E2E）/ Storybook（UIドキュメント）
 
+## 開発時に利用するコマンド
+
+@packages/frontend/README.md 参照
+
 ## 開発ガイドライン
 
 本プロジェクトでは、以下のガイドラインに従って開発を進めてください：
