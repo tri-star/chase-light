@@ -14,6 +14,7 @@ vi.mock("../../utils/auth-config", () => ({
   getAuth0Config: () => ({
     domain: "test-domain.auth0.com",
     audience: "test-audience",
+    appAudience: "test-app-audience",
     issuer: "https://test-domain.auth0.com/",
     jwksUri: "https://test-domain.auth0.com/.well-known/jwks.json",
     algorithms: ["RS256"],
@@ -22,7 +23,7 @@ vi.mock("../../utils/auth-config", () => ({
 
 // モックの設定
 const mockJWTValidator = {
-  validateAccessToken: vi.fn(),
+  validateIdToken: vi.fn(),
 } as unknown as JWTValidator
 
 const mockUserRepository = {
@@ -52,7 +53,7 @@ describe("AuthSignupService", () => {
     const validPayload: JWTPayload = {
       iss: "https://test-domain.auth0.com/",
       sub: "auth0|github|testuser",
-      aud: "test-audience",
+      aud: "test-app-audience",
       iat: Math.floor(Date.now() / 1000),
       exp: Math.floor(Date.now() / 1000) + 3600,
       email: "test@example.com",
@@ -68,7 +69,7 @@ describe("AuthSignupService", () => {
           valid: true,
           payload: validPayload,
         }
-        vi.mocked(mockJWTValidator.validateAccessToken).mockResolvedValue(
+        vi.mocked(mockJWTValidator.validateIdToken).mockResolvedValue(
           mockValidationResult,
         )
 
@@ -93,7 +94,7 @@ describe("AuthSignupService", () => {
         const result = await authSignupService.signUp({ idToken: validIdToken })
 
         // 検証
-        expect(mockJWTValidator.validateAccessToken).toHaveBeenCalledWith(
+        expect(mockJWTValidator.validateIdToken).toHaveBeenCalledWith(
           validIdToken,
         )
         expect(mockUserRepository.findByAuth0Id).toHaveBeenCalledWith(
@@ -128,7 +129,7 @@ describe("AuthSignupService", () => {
           valid: true,
           payload: validPayload,
         }
-        vi.mocked(mockJWTValidator.validateAccessToken).mockResolvedValue(
+        vi.mocked(mockJWTValidator.validateIdToken).mockResolvedValue(
           mockValidationResult,
         )
 
@@ -216,7 +217,7 @@ describe("AuthSignupService", () => {
             valid: true,
             payload,
           }
-          vi.mocked(mockJWTValidator.validateAccessToken).mockResolvedValue(
+          vi.mocked(mockJWTValidator.validateIdToken).mockResolvedValue(
             mockValidationResult,
           )
 
@@ -264,7 +265,7 @@ describe("AuthSignupService", () => {
           valid: false,
           error: "Invalid token signature",
         }
-        vi.mocked(mockJWTValidator.validateAccessToken).mockResolvedValue(
+        vi.mocked(mockJWTValidator.validateIdToken).mockResolvedValue(
           mockValidationResult,
         )
 
@@ -273,7 +274,7 @@ describe("AuthSignupService", () => {
           authSignupService.signUp({ idToken: "invalid.token" }),
         ).rejects.toThrow(AuthError)
 
-        expect(mockJWTValidator.validateAccessToken).toHaveBeenCalledWith(
+        expect(mockJWTValidator.validateIdToken).toHaveBeenCalledWith(
           "invalid.token",
         )
         expect(vi.mocked(mockUserRepository.save)).not.toHaveBeenCalled()
@@ -285,7 +286,7 @@ describe("AuthSignupService", () => {
           valid: true,
           payload: undefined,
         }
-        vi.mocked(mockJWTValidator.validateAccessToken).mockResolvedValue(
+        vi.mocked(mockJWTValidator.validateIdToken).mockResolvedValue(
           mockValidationResult,
         )
 
@@ -330,7 +331,7 @@ describe("AuthSignupService", () => {
               valid: true,
               payload,
             }
-            vi.mocked(mockJWTValidator.validateAccessToken).mockResolvedValue(
+            vi.mocked(mockJWTValidator.validateIdToken).mockResolvedValue(
               mockValidationResult,
             )
 
@@ -350,7 +351,7 @@ describe("AuthSignupService", () => {
           valid: true,
           payload: validPayload,
         }
-        vi.mocked(mockJWTValidator.validateAccessToken).mockResolvedValue(
+        vi.mocked(mockJWTValidator.validateIdToken).mockResolvedValue(
           mockValidationResult,
         )
 
@@ -391,7 +392,7 @@ describe("AuthSignupService", () => {
             valid: false,
             error: expectedError,
           }
-          vi.mocked(mockJWTValidator.validateAccessToken).mockResolvedValue(
+          vi.mocked(mockJWTValidator.validateIdToken).mockResolvedValue(
             mockValidationResult,
           )
 

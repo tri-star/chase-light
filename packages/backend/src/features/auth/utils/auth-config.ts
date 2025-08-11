@@ -11,6 +11,7 @@ import type { Auth0Config } from "../types/auth.types.js"
 export function getAuth0Config(): Auth0Config {
   const domain = process.env.AUTH0_DOMAIN
   const audience = process.env.AUTH0_AUDIENCE
+  const appAudience = process.env.AUTH0_APP_AUDIENCE
 
   if (!domain) {
     throw new Error("AUTH0_DOMAIN environment variable is required")
@@ -20,12 +21,17 @@ export function getAuth0Config(): Auth0Config {
     throw new Error("AUTH0_AUDIENCE environment variable is required")
   }
 
+  if (!appAudience) {
+    throw new Error("AUTH0_APP_AUDIENCE environment variable is required")
+  }
+
   // ドメインの形式チェック（https://プレフィックスを除去）
   const cleanDomain = domain.replace(/^https?:\/\//, "")
 
   return {
     domain: cleanDomain,
     audience,
+    appAudience,
     issuer: `https://${cleanDomain}/`,
     jwksUri: `https://${cleanDomain}/.well-known/jwks.json`,
     algorithms: ["RS256"], // Auth0のデフォルト
@@ -42,6 +48,10 @@ export function validateAuth0Config(config: Auth0Config): void {
 
   if (!config.audience) {
     throw new Error("Auth0 audience is required")
+  }
+
+  if (!config.appAudience) {
+    throw new Error("Auth0 app audience is required")
   }
 
   if (!config.issuer) {

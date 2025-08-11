@@ -22,7 +22,7 @@ export class UserRepository {
       .insert(users)
       .values({ ...data, updatedAt: new Date() })
       .onConflictDoUpdate({
-        target: users.id,
+        target: users.auth0UserId,
         set: { ...updateFields, updatedAt: new Date() },
       })
   }

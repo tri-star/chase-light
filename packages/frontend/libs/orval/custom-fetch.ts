@@ -29,6 +29,10 @@ const isHeadersRecord = (
   )
 }
 
+// Orval mutator 期待仕様:
+//   - 生成側は customFetch<T>() の T 自体が { data, status, headers } を含む合成レスポンス型 (union) になる
+//   - したがって customFetch は『追加でラップせず』 Promise<T> を返す必要がある
+// 現実装では二重ラップしていたため修正
 export const customFetch = async <T>(
   url: string,
   options?: FetchOptions
@@ -70,26 +74,46 @@ export const customFetch = async <T>(
       }
 
       const error = new Error(`HTTP ${response.status}: ${response.statusText}`)
-      ;(error as unknown as { status: number; data: unknown }).status =
-        response.status
-      ;(error as unknown as { status: number; data: unknown }).data =
-        errorDetails
+      ;(
+        error as unknown as { status: number; data: unknown; headers: Headers }
+      ).status = response.status
+      ;(
+        error as unknown as { status: number; data: unknown; headers: Headers }
+      ).data = errorDetails
+      ;(
+        error as unknown as { status: number; data: unknown; headers: Headers }
+      ).headers = response.headers
       throw error
     }
 
-    const contentType = response.headers.get('content-type')
-    let responseData: unknown
-
-    if (contentType && contentType.includes('application/json')) {
-      responseData = await response.json()
-    } else {
-      responseData = await response.text()
+    // 204 / No Content 対応: body が無い場合は undefined
+    let payload: unknown = undefined
+    if (response.status !== 204) {
+      const contentType = response.headers.get('content-type')
+      if (contentType && contentType.includes('application/json')) {
+        try {
+          payload = await response.json()
+        } catch {
+          // JSON 期待だったが parse 失敗 → 生テキスト
+          try {
+            payload = await response.text()
+          } catch {
+            payload = undefined
+          }
+        }
+      } else {
+        try {
+          payload = await response.text()
+        } catch {
+          payload = undefined
+        }
+      }
     }
 
-    // Zodスキーマが提供されている場合はバリデーションを実行
+    // Zod バリデーション (成功時のみ上書き)
     if (options?.zodSchema) {
       try {
-        return options.zodSchema.parse(responseData) as T
+        payload = options.zodSchema.parse(payload)
       } catch (zodError) {
         console.error('Response validation failed:', zodError)
         const error = new Error('Response validation failed')
@@ -113,11 +137,17 @@ export const customFetch = async <T>(
             details: unknown
             response: unknown
           }
-        ).response = responseData
+        ).response = payload
         throw error
       }
     }
 
-    return responseData as T
+    // 合成レスポンス型 T にキャストして返却
+    const composite = {
+      data: payload,
+      status: response.status,
+      headers: response.headers,
+    } as unknown as T
+    return composite
   })
 }
