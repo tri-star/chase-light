@@ -74,9 +74,9 @@ export class AuthSignupService {
     const isNewUser = !existingUser
 
     // ユーザーの作成または更新（既存の場合は更新）
-    const newUserId = uuidv7()
+    const userId = existingUser ? existingUser.id : uuidv7()
     await this.userRepository.save({
-      id: newUserId,
+      id: userId,
       auth0UserId: userInfo.auth0UserId,
       email: userInfo.email,
       name: userInfo.name,
@@ -87,10 +87,10 @@ export class AuthSignupService {
       updatedAt: new Date(),
     })
 
-    const user = await this.userRepository.findById(newUserId)
+    const user = await this.userRepository.findById(userId)
     if (!user) {
       console.error("ユーザーの作成に失敗しました", {
-        userId: newUserId,
+        userId,
         auth0UserId: userInfo.auth0UserId,
       })
       throw Error("ユーザーの作成に失敗しました")
