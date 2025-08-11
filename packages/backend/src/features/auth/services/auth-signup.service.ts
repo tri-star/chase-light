@@ -56,7 +56,7 @@ export class AuthSignupService {
    */
   async signUp(request: SignUpRequest): Promise<SignUpResponse> {
     // IDトークンの検証
-    const validationResult = await this.jwtValidator.validateAccessToken(
+    const validationResult = await this.jwtValidator.validateIdToken(
       request.idToken,
     )
 
