@@ -1,5 +1,5 @@
 import { AsyncLocalStorage } from "node:async_hooks"
-import { db } from "../../db/connection"
+import { connectDb, db } from "../../db/connection"
 
 type TransactionType = Parameters<Parameters<typeof db.transaction>[0]>[0]
 
@@ -18,9 +18,13 @@ export class TransactionManager {
    * トランザクション内であればそのトランザクションを、
    * そうでなければ通常のデータベース接続を返す
    */
-  static getConnection(): typeof db | TransactionType {
+  static async getConnection(): Promise<typeof db | TransactionType> {
     const transaction = this.asyncLocalStorage.getStore()
-    return transaction ?? db
+    if (!transaction) {
+      await connectDb()
+      return db
+    }
+    return transaction
   }
 
   /**

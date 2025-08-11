@@ -27,10 +27,12 @@ export default defineNuxtConfig({
   nitro: {
     experimental: {
       wasm: true,
+      asyncContext: true,
     },
   },
   typescript: {
     typeCheck: true, // ビルド時の型チェックを有効化
     strict: true,
   },
+  sourcemap: { client: 'hidden', server: true },
 })

@@ -1,0 +1,2054 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "version": "1.0.0",
+    "title": "Chase Light API",
+    "description": "GitHub リポジトリ監視サービス API - TypeScript + Hono + Zod + OpenAPI"
+  },
+  "servers": [
+    {
+      "url": "http://localhost:3001",
+      "description": "Chase Light API Server"
+    }
+  ],
+  "components": {
+    "schemas": {
+      "UserResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "example": "550e8400-e29b-41d4-a716-446655440000",
+            "description": "ユーザーID（UUID）"
+          },
+          "email": {
+            "type": "string",
+            "format": "email",
+            "example": "user@example.com",
+            "description": "メールアドレス"
+          },
+          "name": {
+            "type": "string",
+            "example": "田中太郎",
+            "description": "ユーザー名"
+          },
+          "githubUsername": {
+            "type": "string",
+            "example": "tanaka-taro",
+            "description": "GitHubユーザー名（オプション）"
+          },
+          "avatarUrl": {
+            "type": "string",
+            "format": "uri",
+            "example": "https://avatars.githubusercontent.com/u/12345?v=4",
+            "description": "アバター画像URL"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2024-01-01T00:00:00.000Z",
+            "description": "アカウント作成日時（ISO 8601形式）"
+          }
+        },
+        "required": [
+          "id",
+          "email",
+          "name",
+          "avatarUrl",
+          "createdAt"
+        ]
+      },
+      "SignUpResponse": {
+        "type": "object",
+        "properties": {
+          "user": {
+            "$ref": "#/components/schemas/UserResponse"
+          },
+          "message": {
+            "type": "string",
+            "example": "ユーザー登録が完了しました",
+            "description": "処理結果メッセージ"
+          },
+          "alreadyExists": {
+            "type": "boolean",
+            "example": false,
+            "description": "既存ユーザーの場合はtrue"
+          }
+        },
+        "required": [
+          "user",
+          "message"
+        ]
+      },
+      "AuthErrorResponse": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "example": false,
+            "description": "エラー時は常にfalse"
+          },
+          "error": {
+            "type": "object",
+            "properties": {
+              "code": {
+                "type": "string",
+                "example": "TOKEN_INVALID",
+                "description": "エラーコード"
+              },
+              "message": {
+                "type": "string",
+                "example": "無効なIDトークンです",
+                "description": "エラーメッセージ"
+              },
+              "details": {
+                "nullable": true,
+                "description": "エラーの詳細情報"
+              }
+            },
+            "required": [
+              "code",
+              "message"
+            ],
+            "description": "エラー情報"
+          }
+        },
+        "required": [
+          "success",
+          "error"
+        ]
+      },
+      "SignUpRequest": {
+        "type": "object",
+        "properties": {
+          "idToken": {
+            "type": "string",
+            "minLength": 1,
+            "example": "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6...",
+            "description": "Auth0から取得したIDトークン"
+          }
+        },
+        "required": [
+          "idToken"
+        ]
+      },
+      "UserProfileResponse": {
+        "type": "object",
+        "properties": {
+          "user": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "format": "uuid",
+                "example": "550e8400-e29b-41d4-a716-446655440000",
+                "description": "ユーザーID（UUID）"
+              },
+              "email": {
+                "type": "string",
+                "format": "email",
+                "example": "user@example.com",
+                "description": "メールアドレス"
+              },
+              "name": {
+                "type": "string",
+                "example": "田中太郎",
+                "description": "ユーザー名"
+              },
+              "githubUsername": {
+                "type": "string",
+                "nullable": true,
+                "example": "tanaka-taro",
+                "description": "GitHubユーザー名（オプション）"
+              },
+              "avatarUrl": {
+                "type": "string",
+                "format": "uri",
+                "example": "https://avatars.githubusercontent.com/u/12345?v=4",
+                "description": "アバター画像URL"
+              },
+              "timezone": {
+                "type": "string",
+                "example": "Asia/Tokyo",
+                "description": "タイムゾーン"
+              },
+              "createdAt": {
+                "type": "string",
+                "format": "date-time",
+                "example": "2024-01-01T00:00:00.000Z",
+                "description": "アカウント作成日時（ISO 8601形式）"
+              },
+              "updatedAt": {
+                "type": "string",
+                "format": "date-time",
+                "example": "2024-01-01T00:00:00.000Z",
+                "description": "最終更新日時（ISO 8601形式）"
+              }
+            },
+            "required": [
+              "id",
+              "email",
+              "name",
+              "githubUsername",
+              "avatarUrl",
+              "timezone",
+              "createdAt",
+              "updatedAt"
+            ]
+          }
+        },
+        "required": [
+          "user"
+        ]
+      },
+      "UserErrorResponse": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "example": false,
+            "description": "エラー時は常にfalse"
+          },
+          "error": {
+            "type": "object",
+            "properties": {
+              "code": {
+                "type": "string",
+                "example": "USER_NOT_FOUND",
+                "description": "エラーコード"
+              },
+              "message": {
+                "type": "string",
+                "example": "ユーザーが見つかりません",
+                "description": "エラーメッセージ"
+              },
+              "details": {
+                "nullable": true,
+                "description": "エラーの詳細情報"
+              }
+            },
+            "required": [
+              "code",
+              "message"
+            ],
+            "description": "エラー情報"
+          }
+        },
+        "required": [
+          "success",
+          "error"
+        ]
+      },
+      "UpdateProfileRequest": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 100,
+            "example": "田中太郎",
+            "description": "ユーザー名"
+          },
+          "email": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 255,
+            "example": "tanaka@example.com",
+            "description": "メールアドレス"
+          },
+          "timezone": {
+            "type": "string",
+            "example": "Asia/Tokyo",
+            "description": "タイムゾーン（IANA形式）"
+          }
+        },
+        "required": [
+          "name",
+          "email"
+        ]
+      },
+      "UserSettingsResponse": {
+        "type": "object",
+        "properties": {
+          "user": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "format": "uuid",
+                "example": "550e8400-e29b-41d4-a716-446655440000",
+                "description": "ユーザーID（UUID）"
+              },
+              "email": {
+                "type": "string",
+                "format": "email",
+                "example": "user@example.com",
+                "description": "メールアドレス"
+              },
+              "name": {
+                "type": "string",
+                "example": "田中太郎",
+                "description": "ユーザー名"
+              },
+              "githubUsername": {
+                "type": "string",
+                "nullable": true,
+                "example": "tanaka-taro",
+                "description": "GitHubユーザー名（オプション）"
+              },
+              "avatarUrl": {
+                "type": "string",
+                "format": "uri",
+                "example": "https://avatars.githubusercontent.com/u/12345?v=4",
+                "description": "アバター画像URL"
+              },
+              "timezone": {
+                "type": "string",
+                "example": "Asia/Tokyo",
+                "description": "タイムゾーン"
+              },
+              "createdAt": {
+                "type": "string",
+                "format": "date-time",
+                "example": "2024-01-01T00:00:00.000Z",
+                "description": "アカウント作成日時（ISO 8601形式）"
+              },
+              "updatedAt": {
+                "type": "string",
+                "format": "date-time",
+                "example": "2024-01-01T00:00:00.000Z",
+                "description": "最終更新日時（ISO 8601形式）"
+              },
+              "settings": {
+                "type": "object",
+                "properties": {
+                  "timezone": {
+                    "type": "string",
+                    "example": "Asia/Tokyo",
+                    "description": "タイムゾーン"
+                  },
+                  "emailNotifications": {
+                    "type": "boolean",
+                    "example": true,
+                    "description": "メール通知の有効/無効"
+                  },
+                  "pushNotifications": {
+                    "type": "boolean",
+                    "example": false,
+                    "description": "プッシュ通知の有効/無効"
+                  },
+                  "language": {
+                    "type": "string",
+                    "enum": [
+                      "ja",
+                      "en"
+                    ],
+                    "example": "ja",
+                    "description": "表示言語"
+                  }
+                },
+                "required": [
+                  "timezone",
+                  "emailNotifications",
+                  "pushNotifications",
+                  "language"
+                ]
+              }
+            },
+            "required": [
+              "id",
+              "email",
+              "name",
+              "githubUsername",
+              "avatarUrl",
+              "timezone",
+              "createdAt",
+              "updatedAt",
+              "settings"
+            ]
+          }
+        },
+        "required": [
+          "user"
+        ]
+      },
+      "UpdateSettingsRequest": {
+        "type": "object",
+        "properties": {
+          "timezone": {
+            "type": "string",
+            "example": "Asia/Tokyo",
+            "description": "タイムゾーン（IANA形式）"
+          },
+          "emailNotifications": {
+            "type": "boolean",
+            "example": true,
+            "description": "メール通知の有効/無効"
+          },
+          "pushNotifications": {
+            "type": "boolean",
+            "example": false,
+            "description": "プッシュ通知の有効/無効"
+          },
+          "language": {
+            "type": "string",
+            "enum": [
+              "ja",
+              "en"
+            ],
+            "example": "ja",
+            "description": "表示言語（ja/en）"
+          }
+        }
+      },
+      "DataSource": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "example": "01234567-89ab-cdef-0123-456789abcdef",
+            "description": "データソースID"
+          },
+          "sourceType": {
+            "type": "string",
+            "example": "github",
+            "description": "データソースタイプ"
+          },
+          "sourceId": {
+            "type": "string",
+            "example": "123456789",
+            "description": "外部サービスでのID"
+          },
+          "name": {
+            "type": "string",
+            "example": "React",
+            "description": "データソース名"
+          },
+          "description": {
+            "type": "string",
+            "example": "A declarative, efficient, and flexible JavaScript library for building user interfaces.",
+            "description": "データソースの説明"
+          },
+          "url": {
+            "type": "string",
+            "example": "https://github.com/facebook/react",
+            "description": "データソースのURL"
+          },
+          "isPrivate": {
+            "type": "boolean",
+            "example": false,
+            "description": "プライベートリポジトリかどうか"
+          },
+          "createdAt": {
+            "type": "string",
+            "example": "2024-07-08T10:00:00.000Z",
+            "description": "作成日時"
+          },
+          "updatedAt": {
+            "type": "string",
+            "example": "2024-07-08T10:00:00.000Z",
+            "description": "更新日時"
+          }
+        },
+        "required": [
+          "id",
+          "sourceType",
+          "sourceId",
+          "name",
+          "description",
+          "url",
+          "isPrivate",
+          "createdAt",
+          "updatedAt"
+        ]
+      },
+      "Repository": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "example": "01234567-89ab-cdef-0123-456789abcdef",
+            "description": "リポジトリID"
+          },
+          "dataSourceId": {
+            "type": "string",
+            "example": "01234567-89ab-cdef-0123-456789abcdef",
+            "description": "データソースID"
+          },
+          "githubId": {
+            "type": "number",
+            "example": 10270250,
+            "description": "GitHub リポジトリID"
+          },
+          "fullName": {
+            "type": "string",
+            "example": "facebook/react",
+            "description": "リポジトリのフルネーム"
+          },
+          "language": {
+            "type": "string",
+            "nullable": true,
+            "example": "JavaScript",
+            "description": "主要プログラミング言語"
+          },
+          "starsCount": {
+            "type": "number",
+            "example": 230000,
+            "description": "スター数"
+          },
+          "forksCount": {
+            "type": "number",
+            "example": 47000,
+            "description": "フォーク数"
+          },
+          "openIssuesCount": {
+            "type": "number",
+            "example": 1500,
+            "description": "未解決イシュー数"
+          },
+          "isFork": {
+            "type": "boolean",
+            "example": false,
+            "description": "フォークリポジトリかどうか"
+          },
+          "createdAt": {
+            "type": "string",
+            "example": "2024-07-08T10:00:00.000Z",
+            "description": "作成日時"
+          },
+          "updatedAt": {
+            "type": "string",
+            "example": "2024-07-08T10:00:00.000Z",
+            "description": "更新日時"
+          }
+        },
+        "required": [
+          "id",
+          "dataSourceId",
+          "githubId",
+          "fullName",
+          "language",
+          "starsCount",
+          "forksCount",
+          "openIssuesCount",
+          "isFork",
+          "createdAt",
+          "updatedAt"
+        ]
+      },
+      "RepositoryListItem": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Repository"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "owner": {
+                "type": "string",
+                "example": "facebook",
+                "description": "GitHubリポジトリのオーナー名（fullNameから抽出）"
+              }
+            },
+            "required": [
+              "owner"
+            ]
+          }
+        ]
+      },
+      "UserWatch": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "example": "01234567-89ab-cdef-0123-456789abcdef",
+            "description": "ユーザーウォッチID"
+          },
+          "userId": {
+            "type": "string",
+            "example": "01234567-89ab-cdef-0123-456789abcdef",
+            "description": "ユーザーID"
+          },
+          "dataSourceId": {
+            "type": "string",
+            "example": "01234567-89ab-cdef-0123-456789abcdef",
+            "description": "データソースID"
+          },
+          "notificationEnabled": {
+            "type": "boolean",
+            "example": true,
+            "description": "通知が有効かどうか"
+          },
+          "watchReleases": {
+            "type": "boolean",
+            "example": true,
+            "description": "リリースを監視するか"
+          },
+          "watchIssues": {
+            "type": "boolean",
+            "example": false,
+            "description": "イシューを監視するか"
+          },
+          "watchPullRequests": {
+            "type": "boolean",
+            "example": false,
+            "description": "プルリクエストを監視するか"
+          },
+          "addedAt": {
+            "type": "string",
+            "example": "2024-07-08T10:00:00.000Z",
+            "description": "追加日時"
+          }
+        },
+        "required": [
+          "id",
+          "userId",
+          "dataSourceId",
+          "notificationEnabled",
+          "watchReleases",
+          "watchIssues",
+          "watchPullRequests",
+          "addedAt"
+        ]
+      },
+      "DataSourceListItem": {
+        "type": "object",
+        "properties": {
+          "dataSource": {
+            "$ref": "#/components/schemas/DataSource"
+          },
+          "repository": {
+            "$ref": "#/components/schemas/RepositoryListItem"
+          },
+          "userWatch": {
+            "$ref": "#/components/schemas/UserWatch"
+          }
+        },
+        "required": [
+          "dataSource",
+          "repository",
+          "userWatch"
+        ]
+      },
+      "Pagination": {
+        "type": "object",
+        "properties": {
+          "page": {
+            "type": "integer",
+            "minimum": 1,
+            "example": 1,
+            "description": "現在のページ番号（1ベース）"
+          },
+          "perPage": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 100,
+            "example": 20,
+            "description": "1ページあたりの件数"
+          },
+          "total": {
+            "type": "integer",
+            "minimum": 0,
+            "example": 150,
+            "description": "総件数"
+          },
+          "totalPages": {
+            "type": "integer",
+            "minimum": 0,
+            "example": 8,
+            "description": "総ページ数"
+          },
+          "hasNext": {
+            "type": "boolean",
+            "example": true,
+            "description": "次のページが存在するか"
+          },
+          "hasPrev": {
+            "type": "boolean",
+            "example": false,
+            "description": "前のページが存在するか"
+          }
+        },
+        "required": [
+          "page",
+          "perPage",
+          "total",
+          "totalPages",
+          "hasNext",
+          "hasPrev"
+        ],
+        "description": "ページネーション情報"
+      },
+      "DataSourceListResponse": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "example": true,
+            "description": "成功フラグ"
+          },
+          "data": {
+            "type": "object",
+            "properties": {
+              "items": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/DataSourceListItem"
+                },
+                "description": "データソース一覧"
+              },
+              "pagination": {
+                "$ref": "#/components/schemas/Pagination"
+              }
+            },
+            "required": [
+              "items",
+              "pagination"
+            ],
+            "description": "レスポンスデータ"
+          }
+        },
+        "required": [
+          "success",
+          "data"
+        ]
+      },
+      "ErrorDetails": {
+        "type": "object",
+        "properties": {
+          "field": {
+            "type": "string",
+            "example": "repositoryUrl",
+            "description": "エラーが発生したフィールド名"
+          },
+          "value": {
+            "type": "string",
+            "example": "invalid-url",
+            "description": "エラーが発生した値"
+          }
+        },
+        "description": "エラーの詳細情報"
+      },
+      "DataSourceError": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "example": false,
+            "description": "成功フラグ（常にfalse）"
+          },
+          "error": {
+            "type": "object",
+            "properties": {
+              "code": {
+                "type": "string",
+                "example": "INVALID_REPOSITORY_URL",
+                "description": "エラーコード"
+              },
+              "message": {
+                "type": "string",
+                "example": "無効なGitHubリポジトリURLです",
+                "description": "エラーメッセージ"
+              },
+              "details": {
+                "$ref": "#/components/schemas/ErrorDetails"
+              }
+            },
+            "required": [
+              "code",
+              "message"
+            ],
+            "description": "エラー情報"
+          }
+        },
+        "required": [
+          "success",
+          "error"
+        ]
+      },
+      "DataSourceDetailResponse": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "example": true,
+            "description": "API実行の成功フラグ"
+          },
+          "data": {
+            "$ref": "#/components/schemas/DataSourceListItem"
+          }
+        },
+        "required": [
+          "success",
+          "data"
+        ]
+      },
+      "CreateDataSourceResponse": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "example": true,
+            "description": "成功フラグ"
+          },
+          "data": {
+            "type": "object",
+            "properties": {
+              "dataSource": {
+                "$ref": "#/components/schemas/DataSource"
+              },
+              "repository": {
+                "$ref": "#/components/schemas/Repository"
+              },
+              "userWatch": {
+                "$ref": "#/components/schemas/UserWatch"
+              }
+            },
+            "required": [
+              "dataSource",
+              "repository",
+              "userWatch"
+            ],
+            "description": "作成されたデータ"
+          }
+        },
+        "required": [
+          "success",
+          "data"
+        ]
+      },
+      "CreateDataSourceRequest": {
+        "type": "object",
+        "properties": {
+          "repositoryUrl": {
+            "type": "string",
+            "minLength": 1,
+            "example": "https://github.com/facebook/react",
+            "description": "GitHubリポジトリのURL"
+          },
+          "name": {
+            "type": "string",
+            "example": "React",
+            "description": "カスタム表示名（省略時はリポジトリ名を使用）"
+          },
+          "description": {
+            "type": "string",
+            "example": "A declarative, efficient, and flexible JavaScript library for building user interfaces.",
+            "description": "カスタム説明（省略時はリポジトリの説明を使用）"
+          },
+          "notificationEnabled": {
+            "type": "boolean",
+            "default": true,
+            "example": true,
+            "description": "通知を有効にするか（デフォルト: true）"
+          },
+          "watchReleases": {
+            "type": "boolean",
+            "default": true,
+            "example": true,
+            "description": "リリースを監視するか（デフォルト: true）"
+          },
+          "watchIssues": {
+            "type": "boolean",
+            "default": false,
+            "example": false,
+            "description": "イシューを監視するか（デフォルト: false）"
+          },
+          "watchPullRequests": {
+            "type": "boolean",
+            "default": false,
+            "example": false,
+            "description": "プルリクエストを監視するか（デフォルト: false）"
+          }
+        },
+        "required": [
+          "repositoryUrl"
+        ]
+      }
+    },
+    "parameters": {}
+  },
+  "paths": {
+    "/api/auth/signup": {
+      "post": {
+        "summary": "ユーザー登録",
+        "description": "Auth0のIDトークンを使用してユーザー登録を行います",
+        "tags": [
+          "Auth"
+        ],
+        "requestBody": {
+          "description": "ユーザー登録リクエスト",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SignUpRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "既存ユーザー（情報更新）",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SignUpResponse"
+                }
+              }
+            }
+          },
+          "201": {
+            "description": "ユーザー登録成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SignUpResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "リクエストエラー（無効なIDトークンなど）",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "認証エラー（トークン検証失敗など）",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "サーバーエラー",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/users/profile": {
+      "get": {
+        "summary": "プロフィール取得",
+        "description": "認証済みユーザーのプロフィール情報を取得します",
+        "tags": [
+          "Users"
+        ],
+        "responses": {
+          "200": {
+            "description": "プロフィール情報",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserProfileResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "バリデーションエラー",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "認証エラー",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "リソースが見つかりません",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "競合エラー（重複データなど）",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "内部サーバーエラー",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "summary": "プロフィール更新",
+        "description": "認証済みユーザーのプロフィール情報を更新します",
+        "tags": [
+          "Users"
+        ],
+        "requestBody": {
+          "description": "更新するプロフィール情報",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateProfileRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "更新されたプロフィール情報",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserProfileResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "バリデーションエラー",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "認証エラー",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "リソースが見つかりません",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "競合エラー（重複データなど）",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "内部サーバーエラー",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/users/settings": {
+      "get": {
+        "summary": "ユーザー設定取得",
+        "description": "認証済みユーザーの設定情報を取得します",
+        "tags": [
+          "Users"
+        ],
+        "responses": {
+          "200": {
+            "description": "ユーザー設定情報",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserSettingsResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "バリデーションエラー",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "認証エラー",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "リソースが見つかりません",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "競合エラー（重複データなど）",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "内部サーバーエラー",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "summary": "ユーザー設定更新",
+        "description": "認証済みユーザーの設定情報を更新します",
+        "tags": [
+          "Users"
+        ],
+        "requestBody": {
+          "description": "更新する設定情報",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateSettingsRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "更新された設定情報",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserSettingsResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "バリデーションエラー",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "認証エラー",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "リソースが見つかりません",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "競合エラー（重複データなど）",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "内部サーバーエラー",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/data-sources": {
+      "get": {
+        "summary": "データソース一覧取得",
+        "description": "ユーザーが監視中のデータソース一覧を取得します。フィルタリング、ソート、ページネーションに対応しています",
+        "tags": [
+          "DataSources"
+        ],
+        "security": [
+          {
+            "Bearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "description": "データソース名での部分一致検索",
+              "example": "React"
+            },
+            "required": false,
+            "description": "データソース名での部分一致検索",
+            "name": "name",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "description": "GitHubオーナー名での部分一致検索",
+              "example": "facebook"
+            },
+            "required": false,
+            "description": "GitHubオーナー名での部分一致検索",
+            "name": "owner",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "description": "フリーワード検索（name, description, url, fullName対象）",
+              "example": "javascript library"
+            },
+            "required": false,
+            "description": "フリーワード検索（name, description, url, fullName対象）",
+            "name": "search",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "description": "データソースタイプでの絞り込み",
+              "example": "github"
+            },
+            "required": false,
+            "description": "データソースタイプでの絞り込み",
+            "name": "sourceType",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "boolean",
+              "nullable": true,
+              "description": "プライベート/パブリック絞り込み",
+              "example": false
+            },
+            "required": false,
+            "description": "プライベート/パブリック絞り込み",
+            "name": "isPrivate",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "description": "プログラミング言語での絞り込み",
+              "example": "JavaScript"
+            },
+            "required": false,
+            "description": "プログラミング言語での絞り込み",
+            "name": "language",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "format": "date-time",
+              "description": "登録日（これ以降）ISO8601形式",
+              "example": "2024-01-01T00:00:00.000Z"
+            },
+            "required": false,
+            "description": "登録日（これ以降）ISO8601形式",
+            "name": "createdAfter",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "format": "date-time",
+              "description": "登録日（これ以前）ISO8601形式",
+              "example": "2024-12-31T23:59:59.999Z"
+            },
+            "required": false,
+            "description": "登録日（これ以前）ISO8601形式",
+            "name": "createdBefore",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "format": "date-time",
+              "description": "更新日（これ以降）ISO8601形式",
+              "example": "2024-01-01T00:00:00.000Z"
+            },
+            "required": false,
+            "description": "更新日（これ以降）ISO8601形式",
+            "name": "updatedAfter",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "format": "date-time",
+              "description": "更新日（これ以前）ISO8601形式",
+              "example": "2024-12-31T23:59:59.999Z"
+            },
+            "required": false,
+            "description": "更新日（これ以前）ISO8601形式",
+            "name": "updatedBefore",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "enum": [
+                "name",
+                "createdAt",
+                "updatedAt",
+                "addedAt",
+                "starsCount"
+              ],
+              "default": "createdAt",
+              "description": "ソート基準",
+              "example": "createdAt"
+            },
+            "required": false,
+            "description": "ソート基準",
+            "name": "sortBy",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "enum": [
+                "asc",
+                "desc"
+              ],
+              "default": "desc",
+              "description": "ソート順（昇順・降順）",
+              "example": "desc"
+            },
+            "required": false,
+            "description": "ソート順（昇順・降順）",
+            "name": "sortOrder",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "default": 1,
+              "description": "ページ番号（1ベース）",
+              "example": 1
+            },
+            "required": false,
+            "description": "ページ番号（1ベース）",
+            "name": "page",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 20,
+              "description": "1ページあたりの件数（1-100）",
+              "example": 20
+            },
+            "required": false,
+            "description": "1ページあたりの件数（1-100）",
+            "name": "perPage",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "データソース一覧が正常に取得されました",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DataSourceListResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "バリデーションエラー、無効なリクエスト",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DataSourceError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "認証エラー",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DataSourceError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "リポジトリが見つからない",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DataSourceError"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "重複エラー（リポジトリが既に登録済み）",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DataSourceError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "サーバーエラー",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DataSourceError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "summary": "データソース登録",
+        "description": "GitHubリポジトリをデータソースとして登録し、ユーザーの監視対象に追加します",
+        "tags": [
+          "DataSources"
+        ],
+        "security": [
+          {
+            "Bearer": []
+          }
+        ],
+        "requestBody": {
+          "description": "データソース作成リクエスト",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateDataSourceRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "データソースが正常に作成されました",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CreateDataSourceResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "バリデーションエラー、無効なリクエスト",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DataSourceError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "認証エラー",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DataSourceError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "リポジトリが見つからない",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DataSourceError"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "重複エラー（リポジトリが既に登録済み）",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DataSourceError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "サーバーエラー",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DataSourceError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/data-sources/{id}": {
+      "get": {
+        "summary": "データソース詳細取得",
+        "description": "指定されたIDのデータソース詳細情報を取得します。認証ユーザーがWatch中のデータソースのみアクセス可能です",
+        "tags": [
+          "DataSources"
+        ],
+        "security": [
+          {
+            "Bearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "example": "550e8400-e29b-41d4-a716-446655440000",
+              "description": "データソースID（UUID形式）"
+            },
+            "required": true,
+            "description": "データソースID（UUID形式）",
+            "name": "id",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "データソース詳細が正常に取得されました",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DataSourceDetailResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "バリデーションエラー、無効なリクエスト",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DataSourceError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "認証エラー",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DataSourceError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "リポジトリが見つからない",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DataSourceError"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "重複エラー（リポジトリが既に登録済み）",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DataSourceError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "サーバーエラー",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DataSourceError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "summary": "データソース更新",
+        "description": "指定されたIDのデータソース設定を更新します。認証ユーザーがWatch中のデータソースのみ更新可能です",
+        "tags": [
+          "DataSources"
+        ],
+        "security": [
+          {
+            "Bearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "example": "550e8400-e29b-41d4-a716-446655440000",
+              "description": "データソースID（UUID形式）"
+            },
+            "required": true,
+            "description": "データソースID（UUID形式）",
+            "name": "id",
+            "in": "path"
+          }
+        ],
+        "requestBody": {
+          "description": "データソース更新リクエスト",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 255,
+                    "example": "My Custom Repository Name",
+                    "description": "データソースの表示名（カスタマイズ可能）"
+                  },
+                  "description": {
+                    "type": "string",
+                    "maxLength": 1000,
+                    "example": "This is my customized description for this repository",
+                    "description": "データソースの説明（カスタマイズ可能）"
+                  },
+                  "notificationEnabled": {
+                    "type": "boolean",
+                    "example": true,
+                    "description": "通知の有効/無効"
+                  },
+                  "watchReleases": {
+                    "type": "boolean",
+                    "example": true,
+                    "description": "リリース監視の有効/無効"
+                  },
+                  "watchIssues": {
+                    "type": "boolean",
+                    "example": false,
+                    "description": "Issue監視の有効/無効"
+                  },
+                  "watchPullRequests": {
+                    "type": "boolean",
+                    "example": false,
+                    "description": "PR監視の有効/無効"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "データソースが正常に更新されました",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "enum": [
+                        true
+                      ]
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "dataSource": {
+                          "type": "object",
+                          "properties": {
+                            "id": {
+                              "type": "string",
+                              "format": "uuid"
+                            },
+                            "sourceType": {
+                              "type": "string"
+                            },
+                            "sourceId": {
+                              "type": "string"
+                            },
+                            "name": {
+                              "type": "string"
+                            },
+                            "description": {
+                              "type": "string"
+                            },
+                            "url": {
+                              "type": "string"
+                            },
+                            "isPrivate": {
+                              "type": "boolean"
+                            },
+                            "createdAt": {
+                              "type": "string"
+                            },
+                            "updatedAt": {
+                              "type": "string"
+                            }
+                          },
+                          "required": [
+                            "id",
+                            "sourceType",
+                            "sourceId",
+                            "name",
+                            "description",
+                            "url",
+                            "isPrivate",
+                            "createdAt",
+                            "updatedAt"
+                          ]
+                        },
+                        "repository": {
+                          "type": "object",
+                          "properties": {
+                            "id": {
+                              "type": "string",
+                              "format": "uuid"
+                            },
+                            "dataSourceId": {
+                              "type": "string",
+                              "format": "uuid"
+                            },
+                            "githubId": {
+                              "type": "number"
+                            },
+                            "fullName": {
+                              "type": "string"
+                            },
+                            "owner": {
+                              "type": "string"
+                            },
+                            "language": {
+                              "type": "string",
+                              "nullable": true
+                            },
+                            "starsCount": {
+                              "type": "number"
+                            },
+                            "forksCount": {
+                              "type": "number"
+                            },
+                            "openIssuesCount": {
+                              "type": "number"
+                            },
+                            "isFork": {
+                              "type": "boolean"
+                            },
+                            "createdAt": {
+                              "type": "string"
+                            },
+                            "updatedAt": {
+                              "type": "string"
+                            }
+                          },
+                          "required": [
+                            "id",
+                            "dataSourceId",
+                            "githubId",
+                            "fullName",
+                            "owner",
+                            "language",
+                            "starsCount",
+                            "forksCount",
+                            "openIssuesCount",
+                            "isFork",
+                            "createdAt",
+                            "updatedAt"
+                          ]
+                        },
+                        "userWatch": {
+                          "type": "object",
+                          "properties": {
+                            "id": {
+                              "type": "string",
+                              "format": "uuid"
+                            },
+                            "userId": {
+                              "type": "string",
+                              "format": "uuid"
+                            },
+                            "dataSourceId": {
+                              "type": "string",
+                              "format": "uuid"
+                            },
+                            "notificationEnabled": {
+                              "type": "boolean"
+                            },
+                            "watchReleases": {
+                              "type": "boolean"
+                            },
+                            "watchIssues": {
+                              "type": "boolean"
+                            },
+                            "watchPullRequests": {
+                              "type": "boolean"
+                            },
+                            "addedAt": {
+                              "type": "string"
+                            }
+                          },
+                          "required": [
+                            "id",
+                            "userId",
+                            "dataSourceId",
+                            "notificationEnabled",
+                            "watchReleases",
+                            "watchIssues",
+                            "watchPullRequests",
+                            "addedAt"
+                          ]
+                        }
+                      },
+                      "required": [
+                        "dataSource",
+                        "repository",
+                        "userWatch"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "data"
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "バリデーションエラー、無効なリクエスト",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DataSourceError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "認証エラー",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DataSourceError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "リポジトリが見つからない",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DataSourceError"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "重複エラー（リポジトリが既に登録済み）",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DataSourceError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "サーバーエラー",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DataSourceError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "summary": "データソース削除",
+        "description": "指定されたIDのデータソース監視を削除します。認証ユーザーがWatch中のデータソースのみ削除可能です",
+        "tags": [
+          "DataSources"
+        ],
+        "security": [
+          {
+            "Bearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "example": "550e8400-e29b-41d4-a716-446655440000",
+              "description": "データソースID（UUID形式）"
+            },
+            "required": true,
+            "description": "データソースID（UUID形式）",
+            "name": "id",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "データソースが正常に削除されました"
+          },
+          "400": {
+            "description": "バリデーションエラー、無効なリクエスト",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DataSourceError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "認証エラー",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DataSourceError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "リポジトリが見つからない",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DataSourceError"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "重複エラー（リポジトリが既に登録済み）",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DataSourceError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "サーバーエラー",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DataSourceError"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

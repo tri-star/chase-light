@@ -10,24 +10,21 @@ describe("TransactionManager - Component Test", () => {
   setupComponentTest()
 
   describe("getConnection", () => {
-    it("トランザクション外では通常のdb接続を返す", () => {
-      const connection = TransactionManager.getConnection()
+    it("トランザクション外では通常のdb接続を返す", async () => {
+      const connection = await TransactionManager.getConnection()
       expect(connection).toBeDefined()
       expect(typeof connection.select).toBe("function")
     })
 
     it("トランザクション内ではトランザクションインスタンスを返す", async () => {
-      let connectionInTransaction:
-        | ReturnType<typeof TransactionManager.getConnection>
-        | undefined
-      let connectionOutsideTransaction: ReturnType<
-        typeof TransactionManager.getConnection
-      >
+      type Conn = Awaited<ReturnType<typeof TransactionManager.getConnection>>
+      let connectionInTransaction: Conn | undefined
+      let connectionOutsideTransaction: Conn
 
-      connectionOutsideTransaction = TransactionManager.getConnection()
+      connectionOutsideTransaction = await TransactionManager.getConnection()
 
       await TransactionManager.transaction(async () => {
-        connectionInTransaction = TransactionManager.getConnection()
+        connectionInTransaction = await TransactionManager.getConnection()
       })
 
       // トランザクション内外で異なるインスタンスが返されることを確認
@@ -62,7 +59,7 @@ describe("TransactionManager - Component Test", () => {
 
       // トランザクション内でユーザーを作成
       const result = await TransactionManager.transaction(async () => {
-        const connection = TransactionManager.getConnection()
+        const connection = await TransactionManager.getConnection()
 
         // ユーザーを挿入
         const [insertedUser] = await connection
@@ -80,7 +77,7 @@ describe("TransactionManager - Component Test", () => {
       })
 
       // トランザクション完了後にデータが正しく保存されていることを確認
-      const connection = TransactionManager.getConnection()
+      const connection = await TransactionManager.getConnection()
       const savedUser = await connection
         .select()
         .from(users)
@@ -93,24 +90,19 @@ describe("TransactionManager - Component Test", () => {
     })
 
     it("ネストしたトランザクションでは既存のトランザクションを再利用する", async () => {
-      let outerTransaction:
-        | ReturnType<typeof TransactionManager.getConnection>
-        | undefined
-      let innerTransaction:
-        | ReturnType<typeof TransactionManager.getConnection>
-        | undefined
-      let middleTransaction:
-        | ReturnType<typeof TransactionManager.getConnection>
-        | undefined
+      type Conn = Awaited<ReturnType<typeof TransactionManager.getConnection>>
+      let outerTransaction: Conn | undefined
+      let innerTransaction: Conn | undefined
+      let middleTransaction: Conn | undefined
 
       await TransactionManager.transaction(async () => {
-        outerTransaction = TransactionManager.getConnection()
+        outerTransaction = await TransactionManager.getConnection()
 
         await TransactionManager.transaction(async () => {
-          middleTransaction = TransactionManager.getConnection()
+          middleTransaction = await TransactionManager.getConnection()
 
           await TransactionManager.transaction(async () => {
-            innerTransaction = TransactionManager.getConnection()
+            innerTransaction = await TransactionManager.getConnection()
           })
         })
       })
@@ -129,7 +121,7 @@ describe("TransactionManager - Component Test", () => {
 
       try {
         await TransactionManager.transaction(async () => {
-          const connection = TransactionManager.getConnection()
+          const connection = await TransactionManager.getConnection()
 
           // ユーザーを挿入
           await connection.insert(users).values({
@@ -166,7 +158,7 @@ describe("TransactionManager - Component Test", () => {
       }
 
       // トランザクションがロールバックされていることを確認
-      const connection = TransactionManager.getConnection()
+      const connection = await TransactionManager.getConnection()
 
       const userResult = await connection
         .select()
@@ -187,7 +179,7 @@ describe("TransactionManager - Component Test", () => {
       const dataSourceId = uuidv7()
 
       const result = await TransactionManager.transaction(async () => {
-        const connection = TransactionManager.getConnection()
+        const connection = await TransactionManager.getConnection()
 
         // ユーザーを作成
         const [user] = await connection
@@ -241,7 +233,7 @@ describe("TransactionManager - Component Test", () => {
       })
 
       // トランザクション外からも正しくデータが取得できることを確認
-      const connection = TransactionManager.getConnection()
+      const connection = await TransactionManager.getConnection()
 
       const finalUser = await connection
         .select()

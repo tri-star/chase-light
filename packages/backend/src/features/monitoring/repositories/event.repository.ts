@@ -32,7 +32,7 @@ export class EventRepository {
   }): Promise<{ id: string; isNew: boolean }> {
     const now = new Date()
     const id = data.id || randomUUID()
-    const connection = TransactionManager.getConnection()
+    const connection = await TransactionManager.getConnection()
 
     const insertData = {
       id,
@@ -95,7 +95,7 @@ export class EventRepository {
     }
 
     const now = new Date()
-    const connection = TransactionManager.getConnection()
+    const connection = await TransactionManager.getConnection()
     const insertDataList = dataList.map((data) => ({
       id: data.id || randomUUID(),
       dataSourceId: data.dataSourceId,
@@ -130,7 +130,10 @@ export class EventRepository {
       .returning({ id: events.id })
 
     // 新規作成か既存更新かは判別できないため、全idをnewEventIdsに入れる
-    return { newEventIds: results.map((r) => r.id), updatedCount: 0 }
+    return {
+      newEventIds: results.map((r: (typeof results)[number]) => r.id),
+      updatedCount: 0,
+    }
   }
 
   /**
@@ -140,7 +143,7 @@ export class EventRepository {
   async getLastCheckTimeForDataSource(
     dataSourceId: string,
   ): Promise<Date | null> {
-    const connection = TransactionManager.getConnection()
+    const connection = await TransactionManager.getConnection()
 
     const result = await connection
       .select({ createdAt: events.createdAt })
@@ -160,7 +163,7 @@ export class EventRepository {
       return []
     }
 
-    const connection = TransactionManager.getConnection()
+    const connection = await TransactionManager.getConnection()
 
     const results = await connection
       .select()
@@ -179,7 +182,7 @@ export class EventRepository {
     status: EventStatus,
     statusDetail?: string | null,
   ): Promise<boolean> {
-    const connection = TransactionManager.getConnection()
+    const connection = await TransactionManager.getConnection()
     const now = new Date()
 
     const result = await connection
@@ -204,7 +207,7 @@ export class EventRepository {
     status: EventStatus,
     statusDetail?: string | null,
   ): Promise<boolean> {
-    const connection = TransactionManager.getConnection()
+    const connection = await TransactionManager.getConnection()
     const now = new Date()
 
     const result = await connection
@@ -233,7 +236,7 @@ export class EventRepository {
       return 0
     }
 
-    const connection = TransactionManager.getConnection()
+    const connection = await TransactionManager.getConnection()
     const now = new Date()
 
     const result = await connection
@@ -252,7 +255,7 @@ export class EventRepository {
    * IDでイベントを取得
    */
   async findById(id: string): Promise<Event | null> {
-    const connection = TransactionManager.getConnection()
+    const connection = await TransactionManager.getConnection()
 
     const result = await connection
       .select()
@@ -270,7 +273,7 @@ export class EventRepository {
     status: EventStatus,
     limit = 100,
   ): Promise<Event[]> {
-    const connection = TransactionManager.getConnection()
+    const connection = await TransactionManager.getConnection()
 
     const results = await connection
       .select()
@@ -292,7 +295,7 @@ export class EventRepository {
     startDate: Date,
     endDate: Date,
   ): Promise<number> {
-    const connection = TransactionManager.getConnection()
+    const connection = await TransactionManager.getConnection()
 
     const result = await connection
       .select({ count: sql<number>`count(*)` })

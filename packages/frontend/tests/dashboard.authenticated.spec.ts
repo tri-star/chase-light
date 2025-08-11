@@ -29,59 +29,58 @@ test.describe('Authenticated Dashboard', () => {
     await expect(page.locator('text=github')).toBeVisible()
   })
 
-  test('should be able to test protected API', async ({ page }) => {
+  test('should be able to fetch data sources', async ({ page }) => {
     await page.goto('/dashboard')
     // 短い待機を追加 (デバッグ用)
     await page.waitForTimeout(1000)
 
-    const protectedApiButton = page.locator(
-      '[data-testid="protected-api-button"]'
+    const dataSourcesButton = page.locator(
+      '[data-testid="fetch-data-sources-button"]'
     )
 
-    // 保護されたAPIテストボタンが存在することを確認
-    await expect(protectedApiButton).toBeVisible()
-    await expect(protectedApiButton).toHaveText('Test Protected API')
+    // データソース取得ボタンが存在することを確認
+    await expect(dataSourcesButton).toBeVisible()
+    await expect(dataSourcesButton).toHaveText('データソースを取得')
 
-    // 保護されたAPIテストボタンをクリック
-    await protectedApiButton.click()
+    // データソース取得ボタンをクリック
+    await dataSourcesButton.click()
 
-    // ボタンのテキストが "Testing..." に変わることを確認（ローディング状態）
+    // ボタンのテキストが "読み込み中..." に変わることを確認（ローディング状態）
     await page.waitForFunction(
       (buttonSelector) => {
         const button = document.querySelector(buttonSelector)
-        return button && button.textContent === 'Testing...'
+        return button && button.textContent === '読み込み中...'
       },
-      '[data-testid="protected-api-button"]',
+      '[data-testid="fetch-data-sources-button"]',
       { timeout: 5000 }
     )
 
     // ローディングが完了し、ボタンのテキストが元に戻ることを確認
-    await expect(protectedApiButton).toHaveText('Test Protected API', {
+    await expect(dataSourcesButton).toHaveText('データソースを取得', {
       timeout: 10000,
     })
 
-    // API結果のコンテナが表示されるかチェック
-    const apiResultContainer = page
+    // データソース結果またはエラーが表示されることを確認
+    const dataSourcesContainer = page
       .locator('div')
-      .filter({ hasText: /^(Error:|{)/ })
+      .filter({ hasText: /^(エラー:|データソースが見つかりません|件中)/ })
       .first()
 
-    if (await apiResultContainer.isVisible()) {
-      const apiResponse = await apiResultContainer.locator('pre').textContent()
+    if (await dataSourcesContainer.isVisible()) {
+      const containerText = await dataSourcesContainer.textContent()
 
       // 成功レスポンスかエラーレスポンスかを確認
-      if (apiResponse?.includes('Error:')) {
-        expect(apiResponse).toContain('Error:')
+      if (containerText?.includes('エラー:')) {
+        expect(containerText).toContain('エラー:')
+      } else if (containerText?.includes('データソースが見つかりません')) {
+        expect(containerText).toContain('データソースが見つかりません')
       } else {
-        expect(apiResponse).toContain(
-          'Protected API endpoint accessed successfully'
-        )
-        expect(apiResponse).toContain('test-user-123')
+        expect(containerText).toMatch(/\d+ 件中/)
       }
     } else {
       // APIが応答しなかった場合でも、テストとして処理する
       // ページが適切に表示されていることを確認
-      await expect(protectedApiButton).toBeVisible()
+      await expect(dataSourcesButton).toBeVisible()
     }
   })
 

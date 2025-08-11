@@ -27,21 +27,11 @@ test.describe('Protected API Endpoints', () => {
     expect(data.data.user.name).toBe('Test User')
   })
 
-  test('should access GitHub user API (expect error with test token)', async ({
+  test('should access Data source API (expect error with test token)', async ({
     request,
   }) => {
-    // テスト環境では実際のGitHubトークンがないため、エラーレスポンスを期待
-    const response = await request.get('/api/github/user')
-
-    // 401 (トークンエラー) または 500 (API呼び出しエラー) を期待
-    expect([401, 500]).toContain(response.status())
-  })
-
-  test('should access GitHub repos API (expect error with test token)', async ({
-    request,
-  }) => {
-    // テスト環境では実際のGitHubトークンがないため、エラーレスポンスを期待
-    const response = await request.get('/api/github/repos')
+    // テスト環境ではトークンがないため、エラーレスポンスを期待
+    const response = await request.get('/api/data-sources')
 
     // 401 (トークンエラー) または 500 (API呼び出しエラー) を期待
     expect([401, 500]).toContain(response.status())
