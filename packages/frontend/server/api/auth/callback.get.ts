@@ -1,5 +1,6 @@
 import { exchangeCodeForTokens, getUserInfo } from '~/server/utils/auth0'
 import { setUserSession } from '~/server/utils/session'
+import { postApiAuthSignup } from '~/generated/api/backend'
 
 export default defineEventHandler(async (event) => {
   const query = getQuery(event)
@@ -37,6 +38,34 @@ export default defineEventHandler(async (event) => {
 
     // ユーザー情報を取得
     const userInfo = await getUserInfo(tokens.access_token)
+
+    // Backend APIでユーザー登録を実行
+    try {
+      console.log(`Backend API signup attempt for user: ${userInfo.sub}`)
+      const signupResponse = await postApiAuthSignup({
+        idToken: tokens.id_token,
+      })
+
+      const isExistingUser =
+        signupResponse.status === 200 &&
+        'alreadyExists' in signupResponse.data &&
+        signupResponse.data.alreadyExists
+      console.log(
+        `Backend API signup successful for user: ${userInfo.sub}, status: ${signupResponse.status}${isExistingUser ? ' (existing user)' : ' (new user)'}`
+      )
+    } catch (backendError) {
+      console.error(`Backend API signup failed for user: ${userInfo.sub}`, {
+        error: backendError,
+        userSub: userInfo.sub,
+        userEmail: userInfo.email,
+      })
+
+      // Backend API呼び出し失敗時はセッション作成を中止してログイン失敗とする
+      throw createError({
+        statusCode: 500,
+        statusMessage: 'User registration failed',
+      })
+    }
 
     // セッションを作成
     await setUserSession(event, {
