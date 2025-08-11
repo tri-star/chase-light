@@ -19,22 +19,14 @@ export default defineEventHandler(async (event) => {
 
   try {
     // 入力データをZodスキーマでバリデーション
-    const validatedInput = validateWithZod(
+    const validatedInput = validateWithZod<CreateDataSourceRequest>(
       postApiDataSourcesBody,
       body,
       'data source creation request'
     )
 
     // Backend APIを呼び出し
-    const response = await postApiDataSources(
-      validatedInput as CreateDataSourceRequest,
-      {
-        headers: {
-          Authorization: `Bearer ${session.userId}`, // 仮の認証情報
-          'Content-Type': 'application/json',
-        },
-      }
-    )
+    const response = await postApiDataSources(validatedInput)
 
     if (response.status === 201) {
       // レスポンススキーマが生成されていないので、現時点ではそのまま返す
