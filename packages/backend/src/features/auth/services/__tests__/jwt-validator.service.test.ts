@@ -37,6 +37,7 @@ describe("JWTValidator", () => {
     mockConfig = {
       domain: "test-domain.auth0.com",
       audience: "test-audience",
+      appAudience: "test-app-audience",
       issuer: "https://test-domain.auth0.com/",
       jwksUri: "https://test-domain.auth0.com/.well-known/jwks.json",
       algorithms: ["RS256"],
