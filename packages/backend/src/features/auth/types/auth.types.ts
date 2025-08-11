@@ -40,6 +40,10 @@ export interface Auth0Config {
   domain: string
   /** Auth0 Audience (API Identifier) */
   audience: string
+
+  /** アプリケーションAudience */
+  appAudience: string
+
   /** 発行者URL */
   issuer: string
   /** JWKS URI */

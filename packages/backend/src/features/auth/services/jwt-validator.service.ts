@@ -66,7 +66,7 @@ export class JWTValidator implements JWTValidatorInterface {
       }
 
       // トークンを検証
-      const payload = await this.verifyToken(cleanToken)
+      const payload = await this.verifyToken(cleanToken, this.config.audience)
 
       return {
         valid: true,
@@ -91,7 +91,10 @@ export class JWTValidator implements JWTValidatorInterface {
   /**
    * JWTトークンを検証する（内部メソッド）
    */
-  private async verifyToken(token: string): Promise<JWTPayload> {
+  private async verifyToken(
+    token: string,
+    expectedAudience: string,
+  ): Promise<JWTPayload> {
     return new Promise((resolve, reject) => {
       // 署名キーを取得する関数
       const getKey = (header: JwtHeader, callback: SigningKeyCallback) => {
@@ -122,7 +125,7 @@ export class JWTValidator implements JWTValidatorInterface {
         {
           algorithms: this.config.algorithms as jwt.Algorithm[],
           issuer: this.config.issuer,
-          audience: this.config.audience,
+          audience: expectedAudience,
         },
         (err, decoded) => {
           if (err) {
@@ -158,6 +161,53 @@ export class JWTValidator implements JWTValidatorInterface {
         },
       )
     })
+  }
+
+  /**
+   * IDトークンを検証する
+   * アクセストークンとほぼ同様だが、audienceとしてアプリケーションAudienceを使用する
+   */
+  async validateIdToken(token: string): Promise<TokenValidationResult> {
+    try {
+      if (!token || typeof token !== "string") {
+        throw AuthError.tokenMissing()
+      }
+
+      const cleanToken = token.replace(/^Bearer\s+/i, "").trim()
+      if (!cleanToken) {
+        throw AuthError.tokenMissing()
+      }
+
+      const parts = cleanToken.split(".")
+      if (parts.length !== 3) {
+        throw AuthError.tokenMalformed()
+      }
+
+      try {
+        const headerStr = globalThis.Buffer.from(
+          parts[0],
+          "base64url",
+        ).toString()
+        JSON.parse(headerStr)
+      } catch {
+        throw AuthError.tokenMalformed()
+      }
+
+      const payload = await this.verifyToken(
+        cleanToken,
+        this.config.appAudience,
+      )
+
+      return { valid: true, payload }
+    } catch (error) {
+      if (error instanceof AuthError) {
+        return { valid: false, error: error.message }
+      }
+      return {
+        valid: false,
+        error: `Token validation failed: ${error instanceof Error ? error.message : "Unknown error"}`,
+      }
+    }
   }
 
   /**
