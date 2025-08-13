@@ -1,13 +1,9 @@
-import type { DataSource, Repository } from "../domain"
+import type { GitHubDataSource, DataSourceCreationInput } from "../domain"
 import { DATA_SOURCE_TYPES } from "../domain"
-import type {
-  DataSourceRepository,
-  RepositoryRepository,
-} from "../repositories"
+import type { DataSourceRepository } from "../repositories"
 import { InvalidRepositoryUrlError } from "../errors"
 import type { GitHubApiServiceInterface } from "./interfaces/github-api-service.interface"
 import { createGitHubApiService } from "./github-api-service.factory"
-import { TransactionManager } from "../../../shared/db"
 
 /**
  * データソース作成サービスの入力DTO
@@ -20,20 +16,19 @@ export type CreateDataSourceInputDto = {
 
 /**
  * データソース作成サービスの出力DTO
+ * GitHubDataSourceにはrepository情報が内包されている
  */
 export type CreateDataSourceOutputDto = {
-  dataSource: DataSource
-  repository: Repository
+  dataSource: GitHubDataSource
 }
 
 /**
  * データソース作成サービス
- * GitHub リポジトリ URL からデータソースとリポジトリを作成
+ * GitHub リポジトリ URL からGitHubDataSource（repository内包）を作成
  */
 export class DataSourceCreationService {
   constructor(
     private dataSourceRepository: DataSourceRepository,
-    private repositoryRepository: RepositoryRepository,
     private githubApiService?: GitHubApiServiceInterface,
   ) {
     // githubApiServiceが指定されていない場合はファクトリ関数を使用
@@ -43,56 +38,40 @@ export class DataSourceCreationService {
   }
 
   /**
-   * GitHub リポジトリ URL からデータソースを作成
+   * GitHub リポジトリ URL からGitHubDataSource（repository内包）を作成
    */
   async execute(
     input: CreateDataSourceInputDto,
   ): Promise<CreateDataSourceOutputDto> {
-    return await TransactionManager.transaction(async () => {
-      // GitHub URL から owner/repo を抽出
-      const { owner, repo } = this.parseGitHubUrl(input.repositoryUrl)
+    // GitHub URL から owner/repo を抽出
+    const { owner, repo } = this.parseGitHubUrl(input.repositoryUrl)
 
-      // GitHub API でリポジトリ情報を取得
-      const githubRepo = await this.githubApiService!.getRepository(owner, repo)
+    // GitHub API でリポジトリ情報を取得
+    const githubRepo = await this.githubApiService!.getRepository(owner, repo)
 
-      // 重複チェック: 既存の場合は既存のレコードを返す
-      const existingDataSource =
-        await this.dataSourceRepository.findBySourceTypeAndId(
-          DATA_SOURCE_TYPES.GITHUB,
-          githubRepo.id.toString(),
-        )
+    // 重複チェック: 既存の場合は既存のレコードを返す
+    const existingDataSource =
+      await this.dataSourceRepository.findBySourceTypeAndId(
+        DATA_SOURCE_TYPES.GITHUB,
+        githubRepo.id.toString(),
+      )
 
-      if (existingDataSource) {
-        // 既存のRepositoryも取得
-        const existingRepository =
-          await this.repositoryRepository.findByDataSourceId(
-            existingDataSource.id,
-          )
-        if (!existingRepository) {
-          throw new Error(
-            `Repository record not found for dataSource ${existingDataSource.id}`,
-          )
-        }
-
-        return {
-          dataSource: existingDataSource,
-          repository: existingRepository,
-        }
+    if (existingDataSource) {
+      // 既存のGitHubDataSource（repository内包）を返す
+      return {
+        dataSource: existingDataSource,
       }
+    }
 
-      // データソース作成
-      const dataSource = await this.dataSourceRepository.save({
-        sourceType: DATA_SOURCE_TYPES.GITHUB,
-        sourceId: githubRepo.id.toString(),
-        name: input.name || githubRepo.name,
-        description: input.description || githubRepo.description || "",
-        url: githubRepo.html_url,
-        isPrivate: githubRepo.private,
-      })
-
-      // リポジトリ情報作成
-      const repository = await this.repositoryRepository.save({
-        dataSourceId: dataSource.id,
+    // 新しいGitHubDataSource（repository内包）を作成
+    const dataSourceInput: DataSourceCreationInput = {
+      sourceType: DATA_SOURCE_TYPES.GITHUB,
+      sourceId: githubRepo.id.toString(),
+      name: input.name || githubRepo.name,
+      description: input.description || githubRepo.description || "",
+      url: githubRepo.html_url,
+      isPrivate: githubRepo.private,
+      repository: {
         githubId: githubRepo.id,
         fullName: githubRepo.full_name,
         language: githubRepo.language,
@@ -100,13 +79,16 @@ export class DataSourceCreationService {
         forksCount: githubRepo.forks_count,
         openIssuesCount: githubRepo.open_issues_count,
         isFork: githubRepo.fork,
-      })
+      },
+    }
 
-      return {
-        dataSource,
-        repository,
-      }
-    })
+    // DataSourceRepositoryが内部的にトランザクションを処理し、
+    // data_sourcesとrepositoriesの両方のテーブルを更新
+    const dataSource = await this.dataSourceRepository.save(dataSourceInput)
+
+    return {
+      dataSource: dataSource,
+    }
   }
 
   /**

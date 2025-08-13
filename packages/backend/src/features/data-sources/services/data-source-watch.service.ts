@@ -1,4 +1,4 @@
-import type { DataSource, Repository, UserWatch } from "../domain"
+import type { GitHubDataSource, UserWatch } from "../domain"
 import type { UserWatchRepository } from "../repositories"
 import type { UserRepository } from "../../user/repositories/user.repository"
 import { UserNotFoundError } from "../errors"
@@ -21,10 +21,10 @@ export type CreateDataSourceWatchInputDto = {
 
 /**
  * データソースウォッチサービスの出力DTO
+ * GitHubDataSourceにはrepository情報が内包されている
  */
 export type CreateDataSourceWatchOutputDto = {
-  dataSource: DataSource
-  repository: Repository
+  dataSource: GitHubDataSource
   userWatch: UserWatch
 }
 
@@ -46,13 +46,12 @@ export class DataSourceWatchService {
     input: CreateDataSourceWatchInputDto,
   ): Promise<CreateDataSourceWatchOutputDto> {
     return await TransactionManager.transaction(async () => {
-      // DataSourceCreationServiceを使用してデータソースとリポジトリを作成/取得
-      const { dataSource, repository } =
-        await this.dataSourceCreationService.execute({
-          repositoryUrl: input.repositoryUrl,
-          name: input.name,
-          description: input.description,
-        })
+      // DataSourceCreationServiceを使用してGitHubDataSource（repository内包）を作成/取得
+      const { dataSource } = await this.dataSourceCreationService.execute({
+        repositoryUrl: input.repositoryUrl,
+        name: input.name,
+        description: input.description,
+      })
 
       // Auth0 UserIDからユーザーのDBレコードを取得
       const user = await this.userRepository.findByAuth0Id(input.userId)
@@ -89,7 +88,6 @@ export class DataSourceWatchService {
 
         return {
           dataSource,
-          repository,
           userWatch: updatedUserWatch,
         }
       }
@@ -106,7 +104,6 @@ export class DataSourceWatchService {
 
       return {
         dataSource,
-        repository,
         userWatch,
       }
     })
