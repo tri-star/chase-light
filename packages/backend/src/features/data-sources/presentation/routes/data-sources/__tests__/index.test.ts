@@ -11,7 +11,6 @@ import {
 } from "../../../../services"
 import {
   DataSourceRepository,
-  RepositoryRepository,
   UserWatchRepository,
 } from "../../../../repositories"
 import { UserRepository } from "../../../../../user/repositories/user.repository"
@@ -60,12 +59,10 @@ describe("DataSources API - Component Test", () => {
 
     // 実際のリポジトリとサービスを作成（スタブを注入）
     const dataSourceRepository = new DataSourceRepository()
-    const repositoryRepository = new RepositoryRepository()
     const userWatchRepository = new UserWatchRepository()
     const userRepository = new UserRepository()
     dataSourceCreationService = new DataSourceCreationService(
       dataSourceRepository,
-      repositoryRepository,
       githubStub,
     )
     dataSourceWatchService = new DataSourceWatchService(
@@ -543,13 +540,12 @@ describe("DataSources API - Component Test", () => {
         name: "React",
         sourceId: "10270250",
         sourceType: "github",
-      })
-
-      await TestDataFactory.createTestRepository(testDataSource.id, {
-        fullName: "facebook/react",
-        githubId: 10270250,
-        language: "JavaScript",
-        starsCount: 230000,
+        repository: {
+          fullName: "facebook/react",
+          githubId: 10270250,
+          language: "JavaScript",
+          starsCount: 230000,
+        },
       })
 
       await TestDataFactory.createTestUserWatch(
@@ -592,11 +588,10 @@ describe("DataSources API - Component Test", () => {
         name: "Other Repository",
         sourceId: "other123456",
         sourceType: "github",
-      })
-
-      await TestDataFactory.createTestRepository(otherDataSource.id, {
-        fullName: "other/repo",
-        githubId: 999999999,
+        repository: {
+          fullName: "other/repo",
+          githubId: 999999999,
+        },
       })
 
       await TestDataFactory.createTestUserWatch(
@@ -672,15 +667,11 @@ describe("DataSources API - Component Test", () => {
         name: "Original React",
         sourceId: "10270250",
         sourceType: "github",
-      })
-
-      const testRepository = await TestDataFactory.createTestRepository(
-        testDataSource.id,
-        {
+        repository: {
           githubId: 10270250,
           fullName: "facebook/react",
         },
-      )
+      })
 
       const testUserWatch = await TestDataFactory.createTestUserWatch(
         testUser.id,
@@ -724,12 +715,11 @@ describe("DataSources API - Component Test", () => {
             sourceType: "github",
             sourceId: "10270250",
           },
-          repository: {
-            id: testRepository.id,
+          repository: expect.objectContaining({
             dataSourceId: testDataSource.id,
             githubId: 10270250,
             fullName: "facebook/react",
-          },
+          }),
           userWatch: {
             id: testUserWatch.id,
             userId: testUser.id,
@@ -749,11 +739,10 @@ describe("DataSources API - Component Test", () => {
         name: "Original Name",
         sourceId: "10270250",
         sourceType: "github",
-      })
-
-      await TestDataFactory.createTestRepository(testDataSource.id, {
-        githubId: 10270250,
-        fullName: "facebook/react",
+        repository: {
+          githubId: 10270250,
+          fullName: "facebook/react",
+        },
       })
 
       await TestDataFactory.createTestUserWatch(
@@ -802,11 +791,10 @@ describe("DataSources API - Component Test", () => {
         name: "Other User's DataSource",
         sourceId: "10270250",
         sourceType: "github",
-      })
-
-      await TestDataFactory.createTestRepository(testDataSource.id, {
-        githubId: 10270250,
-        fullName: "facebook/react",
+        repository: {
+          githubId: 10270250,
+          fullName: "facebook/react",
+        },
       })
 
       await TestDataFactory.createTestUserWatch(
@@ -902,11 +890,10 @@ describe("DataSources API - Component Test", () => {
         name: "Original Name",
         sourceId: "10270250",
         sourceType: "github",
-      })
-
-      await TestDataFactory.createTestRepository(testDataSource.id, {
-        githubId: 10270250,
-        fullName: "facebook/react",
+        repository: {
+          githubId: 10270250,
+          fullName: "facebook/react",
+        },
       })
 
       await TestDataFactory.createTestUserWatch(
@@ -951,13 +938,12 @@ describe("DataSources API - Component Test", () => {
         name: "React",
         sourceId: "10270250",
         sourceType: "github",
-      })
-
-      await TestDataFactory.createTestRepository(testDataSource.id, {
-        fullName: "facebook/react",
-        githubId: 10270250,
-        language: "JavaScript",
-        starsCount: 230000,
+        repository: {
+          fullName: "facebook/react",
+          githubId: 10270250,
+          language: "JavaScript",
+          starsCount: 230000,
+        },
       })
 
       await TestDataFactory.createTestUserWatch(
@@ -1039,11 +1025,10 @@ describe("DataSources API - Component Test", () => {
         name: "Other Repository",
         sourceId: "other123456",
         sourceType: "github",
-      })
-
-      await TestDataFactory.createTestRepository(otherDataSource.id, {
-        fullName: "other/repo",
-        githubId: 999999999,
+        repository: {
+          fullName: "other/repo",
+          githubId: 999999999,
+        },
       })
 
       await TestDataFactory.createTestUserWatch(
@@ -1117,11 +1102,10 @@ describe("DataSources API - Component Test", () => {
         name: "Unwatched Repository",
         sourceId: "unwatched123",
         sourceType: "github",
-      })
-
-      await TestDataFactory.createTestRepository(testDataSource.id, {
-        fullName: "unwatched/repo",
-        githubId: 123456789,
+        repository: {
+          fullName: "unwatched/repo",
+          githubId: 123456789,
+        },
       })
 
       const res = await app.request(`/${testDataSource.id}`, {

@@ -1,54 +1,9 @@
 import { z } from "@hono/zod-openapi"
 
 /**
- * データソースレスポンススキーマ
+ * リポジトリレスポンススキーマ（基本版）
  */
-export const dataSourceSchema = z
-  .object({
-    id: z.string().openapi({
-      example: "01234567-89ab-cdef-0123-456789abcdef",
-      description: "データソースID",
-    }),
-    sourceType: z.string().openapi({
-      example: "github",
-      description: "データソースタイプ",
-    }),
-    sourceId: z.string().openapi({
-      example: "123456789",
-      description: "外部サービスでのID",
-    }),
-    name: z.string().openapi({
-      example: "React",
-      description: "データソース名",
-    }),
-    description: z.string().openapi({
-      example:
-        "A declarative, efficient, and flexible JavaScript library for building user interfaces.",
-      description: "データソースの説明",
-    }),
-    url: z.string().openapi({
-      example: "https://github.com/facebook/react",
-      description: "データソースのURL",
-    }),
-    isPrivate: z.boolean().openapi({
-      example: false,
-      description: "プライベートリポジトリかどうか",
-    }),
-    createdAt: z.string().openapi({
-      example: "2024-07-08T10:00:00.000Z",
-      description: "作成日時",
-    }),
-    updatedAt: z.string().openapi({
-      example: "2024-07-08T10:00:00.000Z",
-      description: "更新日時",
-    }),
-  })
-  .openapi("DataSource")
-
-/**
- * リポジトリレスポンススキーマ
- */
-export const repositorySchema = z
+export const repositoryBaseSchema = z
   .object({
     id: z.string().openapi({
       example: "01234567-89ab-cdef-0123-456789abcdef",
@@ -96,6 +51,57 @@ export const repositorySchema = z
     }),
   })
   .openapi("Repository")
+
+/**
+ * データソースレスポンススキーマ（repository内包形式）
+ */
+export const dataSourceSchema = z
+  .object({
+    id: z.string().openapi({
+      example: "01234567-89ab-cdef-0123-456789abcdef",
+      description: "データソースID",
+    }),
+    sourceType: z.string().openapi({
+      example: "github",
+      description: "データソースタイプ",
+    }),
+    sourceId: z.string().openapi({
+      example: "123456789",
+      description: "外部サービスでのID",
+    }),
+    name: z.string().openapi({
+      example: "React",
+      description: "データソース名",
+    }),
+    description: z.string().openapi({
+      example:
+        "A declarative, efficient, and flexible JavaScript library for building user interfaces.",
+      description: "データソースの説明",
+    }),
+    url: z.string().openapi({
+      example: "https://github.com/facebook/react",
+      description: "データソースのURL",
+    }),
+    isPrivate: z.boolean().openapi({
+      example: false,
+      description: "プライベートリポジトリかどうか",
+    }),
+    createdAt: z.string().openapi({
+      example: "2024-07-08T10:00:00.000Z",
+      description: "作成日時",
+    }),
+    updatedAt: z.string().openapi({
+      example: "2024-07-08T10:00:00.000Z",
+      description: "更新日時",
+    }),
+  })
+  .openapi("DataSource")
+
+/**
+ * リポジトリレスポンススキーマ（後方互換用）
+ * @deprecated API互換性のために残しているが、repositoryBaseSchemaを使用することを推奨
+ */
+export const repositorySchema = repositoryBaseSchema
 
 /**
  * ユーザーウォッチレスポンススキーマ
