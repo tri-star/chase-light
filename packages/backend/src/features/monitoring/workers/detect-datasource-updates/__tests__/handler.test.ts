@@ -3,7 +3,6 @@ import type { Context } from "aws-lambda"
 import { handler } from "../handler"
 import { setupComponentTest } from "../../../../../test"
 import { DataSourceRepository } from "../../../../data-sources/repositories/data-source.repository"
-import { RepositoryRepository } from "../../../../data-sources/repositories/repository.repository"
 import { GitHubApiServiceStub } from "../../../../data-sources/services/github-api-service.stub"
 import { EventRepository } from "../../../repositories"
 import { EVENT_STATUS } from "../../../domain/event-status"
@@ -62,7 +61,6 @@ describe("detect-datasource-updates handler", () => {
   setupComponentTest()
 
   let dataSourceRepository: DataSourceRepository
-  let repositoryRepository: RepositoryRepository
   let eventRepository: EventRepository
   let githubApiStub: GitHubApiServiceStub
   let mockContext: Context
@@ -72,7 +70,6 @@ describe("detect-datasource-updates handler", () => {
     // 環境変数をstubEnvでセット
     vi.stubEnv("USE_GITHUB_API_STUB", "true")
     dataSourceRepository = new DataSourceRepository()
-    repositoryRepository = new RepositoryRepository()
     eventRepository = new EventRepository()
     // GitHubApiServiceFactoryから同じインスタンスを取得
     const { createGitHubApiService } = await import(
@@ -85,26 +82,24 @@ describe("detect-datasource-updates handler", () => {
     } as Context
 
     // テストデータのセットアップ
-    const dataSource = await dataSourceRepository.save({
-      sourceType: "github_repository",
+    const _dataSource = await dataSourceRepository.save({
+      sourceType: "github",
       sourceId: "test-owner/test-repo",
       name: "Test Repository",
       description: "Test repository for monitoring",
       url: "https://github.com/test-owner/test-repo",
       isPrivate: false,
+      repository: {
+        githubId: 123456,
+        fullName: "test-owner/test-repo",
+        language: "TypeScript",
+        starsCount: 100,
+        forksCount: 20,
+        openIssuesCount: 5,
+        isFork: false,
+      },
     })
-    testDataSourceId = dataSource.id
-
-    await repositoryRepository.save({
-      dataSourceId: testDataSourceId,
-      githubId: 123456,
-      fullName: "test-owner/test-repo",
-      language: "TypeScript",
-      starsCount: 100,
-      forksCount: 20,
-      openIssuesCount: 5,
-      isFork: false,
-    })
+    testDataSourceId = _dataSource.id
 
     // スタブをリセット
     githubApiStub.resetStubs()
@@ -349,23 +344,6 @@ describe("detect-datasource-updates handler", () => {
     // When & Then: 存在しないデータソースIDでエラーが発生することを確認
     await expect(
       handler({ dataSourceId: "non-existent-id" }, mockContext),
-    ).rejects.toThrow()
-  })
-
-  test("リポジトリ情報が存在しない場合はエラーを投げる", async () => {
-    // Given: リポジトリ情報のないデータソースを作成
-    const dataSourceWithoutRepo = await dataSourceRepository.save({
-      sourceType: "github_repository",
-      sourceId: "no-repo/test",
-      name: "No Repository",
-      description: "Data source without repository",
-      url: "https://github.com/no-repo/test",
-      isPrivate: false,
-    })
-
-    // When & Then: リポジトリ情報がないためエラーが発生することを確認
-    await expect(
-      handler({ dataSourceId: dataSourceWithoutRepo.id }, mockContext),
     ).rejects.toThrow()
   })
 

@@ -47,6 +47,15 @@ describe("process-updates handler", () => {
       description: "Test repository for testing",
       url: "https://github.com/test/repository",
       isPrivate: false,
+      repository: {
+        githubId: 123456,
+        fullName: "test/repository",
+        language: "TypeScript",
+        starsCount: 100,
+        forksCount: 20,
+        openIssuesCount: 5,
+        isFork: false,
+      },
     })
     testDataSourceId = testDataSource.id
 

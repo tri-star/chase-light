@@ -264,12 +264,8 @@ describe("TransactionManager - Component Test", () => {
       const { DataSourceRepository } = await import(
         "../../../features/data-sources/repositories/data-source.repository"
       )
-      const { RepositoryRepository } = await import(
-        "../../../features/data-sources/repositories/repository.repository"
-      )
 
       const dataSourceRepo = new DataSourceRepository()
-      const repositoryRepo = new RepositoryRepository()
 
       const result = await TransactionManager.transaction(async () => {
         // データソース作成
@@ -280,35 +276,28 @@ describe("TransactionManager - Component Test", () => {
           description: "Testing repository pattern with transaction",
           url: "https://github.com/test/repo-pattern",
           isPrivate: false,
+          repository: {
+            githubId: 789123,
+            fullName: "test/repo-pattern",
+            language: "TypeScript",
+            starsCount: 15,
+            forksCount: 3,
+            openIssuesCount: 1,
+            isFork: false,
+          },
         })
 
-        // リポジトリ作成
-        const repository = await repositoryRepo.save({
-          dataSourceId: dataSource.id,
-          githubId: 987654321,
-          fullName: "test/repo-pattern",
-          language: "JavaScript",
-          starsCount: 500,
-          forksCount: 100,
-          openIssuesCount: 10,
-          isFork: false,
-        })
-
-        return { dataSource, repository }
+        return { dataSource }
       })
 
       // トランザクション完了後に実際にデータが保存されていることを確認
       const savedDataSource = await dataSourceRepo.findById(
         result.dataSource.id,
       )
-      const savedRepository = await repositoryRepo.findByDataSourceId(
-        result.dataSource.id,
-      )
 
       expect(savedDataSource).not.toBeNull()
-      expect(savedRepository).not.toBeNull()
       expect(savedDataSource?.name).toBe("Repository Pattern Test")
-      expect(savedRepository?.fullName).toBe("test/repo-pattern")
+      expect(savedDataSource?.repository?.fullName).toBe("test/repo-pattern")
     })
   })
 })

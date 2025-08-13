@@ -2,7 +2,6 @@ import type { Context } from "aws-lambda"
 import { connectDb } from "../../../../db/connection"
 import { TransactionManager } from "../../../../shared/db"
 import { DataSourceRepository } from "../../../data-sources/repositories/data-source.repository"
-import { RepositoryRepository } from "../../../data-sources/repositories/repository.repository"
 import { createGitHubApiService } from "../../../data-sources/services/github-api-service.factory"
 import { EventRepository } from "../../repositories"
 import { DataSourceUpdateDetectorService } from "../../services"
@@ -38,7 +37,6 @@ export const handler = async (
     return await TransactionManager.transaction(async () => {
       // リポジトリとサービスのインスタンス化
       const dataSourceRepository = new DataSourceRepository()
-      const repositoryRepository = new RepositoryRepository()
       const eventRepository = new EventRepository()
 
       // GitHub APIサービス（現時点では認証なし - 認証を追加することでレート制限が緩和される可能性あり）
@@ -48,7 +46,6 @@ export const handler = async (
       // 更新検知サービス
       const updateDetectorService = new DataSourceUpdateDetectorService(
         dataSourceRepository,
-        repositoryRepository,
         eventRepository,
         githubApiService,
       )

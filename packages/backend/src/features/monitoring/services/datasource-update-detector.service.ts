@@ -1,7 +1,7 @@
 import { uuidv7 } from "uuidv7"
 import { DataSourceRepository } from "../../data-sources/repositories"
-import { RepositoryRepository } from "../../data-sources/repositories"
 import type { GitHubApiServiceInterface } from "../../data-sources/services/interfaces/github-api-service.interface"
+import { isGitHubDataSource } from "../../data-sources/domain"
 import { EventRepository } from "../repositories"
 import { EVENT_TYPE } from "../domain/monitoring-types"
 import {
@@ -15,7 +15,6 @@ import {
 export class DataSourceUpdateDetectorService {
   constructor(
     private dataSourceRepository: DataSourceRepository,
-    private repositoryRepository: RepositoryRepository,
     private eventRepository: EventRepository,
     private githubApiService: GitHubApiServiceInterface,
   ) {}
@@ -24,18 +23,19 @@ export class DataSourceUpdateDetectorService {
    * 指定されたデータソースの更新を検知し、新規イベントを保存する
    */
   async detectUpdates(dataSourceId: string): Promise<string[]> {
-    // 1. データソース情報の取得
+    // 1. データソース情報の取得（repository内包）
     const dataSource = await this.dataSourceRepository.findById(dataSourceId)
     if (!dataSource) {
       throw new Error(MONITORING_ERRORS.DATA_SOURCE_NOT_FOUND)
     }
 
-    // 2. リポジトリ情報の取得
-    const repository =
-      await this.repositoryRepository.findByDataSourceId(dataSourceId)
-    if (!repository) {
-      throw new Error(MONITORING_ERRORS.REPOSITORY_NOT_FOUND)
+    // 2. GitHubDataSourceかどうかチェック
+    if (!isGitHubDataSource(dataSource)) {
+      throw new Error("Unsupported data source type")
     }
+
+    const githubDataSource = dataSource
+    const repository = githubDataSource.repository
 
     // 3. 前回実行時刻の取得
     const lastCheckTime =

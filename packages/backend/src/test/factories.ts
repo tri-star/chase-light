@@ -3,8 +3,9 @@ import { db } from "../db/connection"
 import * as schema from "../db/schema"
 import { User } from "../features/user/domain/user"
 import type {
-  DataSource,
+  GitHubDataSource,
   Repository,
+  RepositoryCreationInput,
   UserWatch,
 } from "../features/data-sources/domain"
 import { uuidv7 } from "uuidv7"
@@ -138,16 +139,33 @@ export class TestDataFactory {
   }
 
   /**
-   * テスト用データソースを作成
+   * テスト用データソースを作成（GitHubDataSource構造で）
    */
   static async createTestDataSource(
-    customData?: Partial<DataSource>,
-  ): Promise<DataSource> {
+    customData?: Partial<Omit<GitHubDataSource, "repository">> & {
+      repository?: Partial<RepositoryCreationInput>
+    },
+  ): Promise<GitHubDataSource> {
     const now = new Date()
-    const dataSource: DataSource = {
+    const sourceId = `test_${Date.now()}_${Math.random().toString(36).substring(2, 11)}`
+
+    // デフォルトのリポジトリデータ
+    const defaultRepository: RepositoryCreationInput = {
+      githubId: Math.floor(Math.random() * 1000000000),
+      fullName: "test/repository",
+      language: "TypeScript",
+      starsCount: 100,
+      forksCount: 20,
+      openIssuesCount: 5,
+      isFork: false,
+      ...customData?.repository,
+    }
+
+    // データソース情報
+    const dataSourceData = {
       id: uuidv7(),
-      sourceType: "github",
-      sourceId: `test_${Date.now()}_${Math.random().toString(36).substring(2, 11)}`, // ユニークなIDを生成
+      sourceType: "github" as const,
+      sourceId,
       name: "Test Repository",
       description: "A test repository",
       url: "https://github.com/test/repository",
@@ -157,36 +175,58 @@ export class TestDataFactory {
       ...customData,
     }
 
-    await db.insert(schema.dataSources).values(dataSource)
-    return dataSource
+    // データソースをDBに挿入
+    await db.insert(schema.dataSources).values(dataSourceData)
+
+    // リポジトリをDBに挿入
+    const repositoryId = uuidv7()
+    const repositoryData = {
+      id: repositoryId,
+      dataSourceId: dataSourceData.id,
+      githubId: defaultRepository.githubId,
+      fullName: defaultRepository.fullName,
+      language: defaultRepository.language,
+      starsCount: defaultRepository.starsCount,
+      forksCount: defaultRepository.forksCount,
+      openIssuesCount: defaultRepository.openIssuesCount,
+      isFork: defaultRepository.isFork,
+      createdAt: now,
+      updatedAt: now,
+    }
+
+    await db.insert(schema.repositories).values(repositoryData)
+
+    // GitHubDataSourceとして返す
+    return {
+      ...dataSourceData,
+      repository: {
+        id: repositoryId,
+        githubId: defaultRepository.githubId,
+        fullName: defaultRepository.fullName,
+        owner: defaultRepository.fullName.split("/")[0] || "",
+        language: defaultRepository.language,
+        starsCount: defaultRepository.starsCount,
+        forksCount: defaultRepository.forksCount,
+        openIssuesCount: defaultRepository.openIssuesCount,
+        isFork: defaultRepository.isFork,
+        createdAt: now,
+        updatedAt: now,
+      },
+    }
   }
 
   /**
    * テスト用リポジトリを作成
+   * @deprecated GitHubDataSourceに統合されたため、createTestDataSource()を使用してください
    */
   static async createTestRepository(
-    dataSourceId: string,
-    customData?: Partial<Repository>,
+    _dataSourceId: string,
+    _customData?: Partial<Repository>,
   ): Promise<Repository> {
-    const now = new Date()
-    const repository: Repository = {
-      id: uuidv7(),
-      dataSourceId,
-      githubId: 123456789,
-      fullName: "test/repository",
-      owner: "test",
-      language: "TypeScript",
-      starsCount: 100,
-      forksCount: 20,
-      openIssuesCount: 5,
-      isFork: false,
-      createdAt: now,
-      updatedAt: now,
-      ...customData,
-    }
-
-    await db.insert(schema.repositories).values(repository)
-    return repository
+    // この方法はもはや使用できません - repositoryはGitHubDataSource内に内包されています
+    throw new Error(
+      "createTestRepository is deprecated. Use createTestDataSource() instead - repository is now embedded in GitHubDataSource.",
+    )
   }
 
   /**
@@ -304,20 +344,18 @@ export class TestDataFactory {
   static async createCompleteDataSourceSet(
     userId: string,
     customData?: {
-      dataSource?: Partial<DataSource>
-      repository?: Partial<Repository>
+      dataSource?: Partial<Omit<GitHubDataSource, "repository">> & {
+        repository?: Partial<RepositoryCreationInput>
+      }
       userWatch?: Partial<UserWatch>
     },
   ): Promise<{
-    dataSource: DataSource
+    dataSource: GitHubDataSource
     repository: Repository
     userWatch: UserWatch
   }> {
     const dataSource = await this.createTestDataSource(customData?.dataSource)
-    const repository = await this.createTestRepository(
-      dataSource.id,
-      customData?.repository,
-    )
+    // repository は dataSource に内包されているため、createTestRepository は呼ばない
     const userWatch = await this.createTestUserWatch(
       userId,
       dataSource.id,
@@ -326,7 +364,7 @@ export class TestDataFactory {
 
     return {
       dataSource,
-      repository,
+      repository: dataSource.repository,
       userWatch,
     }
   }
