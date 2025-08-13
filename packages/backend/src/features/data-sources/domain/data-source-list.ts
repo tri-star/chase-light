@@ -1,22 +1,13 @@
 import type { DataSource } from "./data-source"
-import type { Repository } from "./repository"
 import type { UserWatch } from "./user-watch"
 
 /**
- * 検索結果用のリポジトリ型（CQRS Query側）
- * ownerフィールドを追加して利便性を向上
- */
-export type DataSourceListRepository = Repository & {
-  owner: string // fullNameから抽出したオーナー名
-}
-
-/**
  * 検索結果用の複合型（CQRS Query側）
- * データソース、リポジトリ、ユーザーウォッチの情報を統合
+ * DataSource（repository内包）とユーザーウォッチの情報を統合
+ * repositoryフィールドは削除し、DataSource内のrepositoryを使用
  */
 export type DataSourceListItem = {
   dataSource: DataSource
-  repository: DataSourceListRepository
   userWatch: UserWatch
 }
 

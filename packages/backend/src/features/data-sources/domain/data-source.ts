@@ -1,10 +1,42 @@
 /**
- * データソースのドメイン型定義
- * GitHubリポジトリやNPMパッケージなど、各種データソースを抽象化した型
+ * GitHubリポジトリのドメイン型定義（repository.tsから統合）
+ * dataSourceIdフィールドを削除してDataSource内包形式にする
  */
-export type DataSource = {
+export type Repository = {
   id: string
-  sourceType: string
+  githubId: number
+  fullName: string
+  owner: string
+  language: string | null
+  starsCount: number
+  forksCount: number
+  openIssuesCount: number
+  isFork: boolean
+  createdAt: Date
+  updatedAt: Date
+}
+
+/**
+ * リポジトリ作成時の入力型（repository.tsから統合）
+ * dataSourceIdフィールドを削除
+ */
+export type RepositoryCreationInput = {
+  githubId: number
+  fullName: string
+  language: string | null
+  starsCount: number
+  forksCount: number
+  openIssuesCount: number
+  isFork: boolean
+}
+
+/**
+ * GitHubデータソースの型定義（Discriminated Union）
+ * repositoryフィールドを内包してより一貫したデータ構造を提供
+ */
+export type GitHubDataSource = {
+  id: string
+  sourceType: "github"
   sourceId: string
   name: string
   description: string
@@ -12,19 +44,32 @@ export type DataSource = {
   isPrivate: boolean
   createdAt: Date
   updatedAt: Date
+  repository: Repository
 }
 
 /**
- * データソース作成時の入力型
+ * データソースのDiscriminated Union
+ * 将来的にNPMDataSource等を追加予定
  */
-export type DataSourceCreationInput = {
-  sourceType: string
+export type DataSource = GitHubDataSource
+
+/**
+ * GitHubデータソース作成時の入力型
+ */
+export type GitHubDataSourceCreationInput = {
+  sourceType: "github"
   sourceId: string
   name: string
   description: string
   url: string
   isPrivate: boolean
+  repository: RepositoryCreationInput
 }
+
+/**
+ * データソース作成時の入力型（Discriminated Union）
+ */
+export type DataSourceCreationInput = GitHubDataSourceCreationInput
 
 /**
  * データソース更新時の入力型
@@ -44,3 +89,12 @@ export const DATA_SOURCE_TYPES = {
 
 export type DataSourceType =
   (typeof DATA_SOURCE_TYPES)[keyof typeof DATA_SOURCE_TYPES]
+
+/**
+ * 型ガード関数: GitHubDataSourceかどうかを判定
+ */
+export function isGitHubDataSource(
+  dataSource: DataSource,
+): dataSource is GitHubDataSource {
+  return dataSource.sourceType === "github"
+}
