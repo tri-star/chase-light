@@ -26,6 +26,7 @@ import type {
   DataSourceListFilters,
   DataSourceListResult,
   DataSourceListItem,
+  GitHubDataSource,
 } from "../domain"
 
 /**
@@ -35,64 +36,206 @@ import type {
 export class DataSourceRepository {
   /**
    * データソースを保存（作成・更新）
+   * GitHubDataSourceの場合はRepositoryも同時に作成・更新
    */
   async save(data: DataSourceCreationInput): Promise<DataSource> {
-    const now = new Date()
-    const id = randomUUID()
-    const connection = await TransactionManager.getConnection()
+    return await TransactionManager.transaction(async () => {
+      const now = new Date()
+      const dataSourceId = randomUUID()
+      const repositoryId = randomUUID()
+      const connection = await TransactionManager.getConnection()
 
-    const [result] = await connection
-      .insert(dataSources)
-      .values({
-        id,
-        sourceType: data.sourceType,
-        sourceId: data.sourceId,
-        name: data.name,
-        description: data.description,
-        url: data.url,
-        isPrivate: data.isPrivate,
-        createdAt: now,
-        updatedAt: now,
-      })
-      .onConflictDoUpdate({
-        target: [dataSources.sourceType, dataSources.sourceId],
-        set: {
-          name: data.name,
-          description: data.description,
-          url: data.url,
-          isPrivate: data.isPrivate,
-          updatedAt: now,
-        },
-      })
-      .returning()
+      if (data.sourceType === "github") {
+        // 1. data_sourcesテーブルに保存
+        const [dataSourceResult] = await connection
+          .insert(dataSources)
+          .values({
+            id: dataSourceId,
+            sourceType: data.sourceType,
+            sourceId: data.sourceId,
+            name: data.name,
+            description: data.description,
+            url: data.url,
+            isPrivate: data.isPrivate,
+            createdAt: now,
+            updatedAt: now,
+          })
+          .onConflictDoUpdate({
+            target: [dataSources.sourceType, dataSources.sourceId],
+            set: {
+              name: data.name,
+              description: data.description,
+              url: data.url,
+              isPrivate: data.isPrivate,
+              updatedAt: now,
+            },
+          })
+          .returning()
 
-    return this.mapToDomain(result)
+        // 2. repositoriesテーブルに保存
+        const [repositoryResult] = await connection
+          .insert(repositories)
+          .values({
+            id: repositoryId,
+            dataSourceId: dataSourceResult.id,
+            githubId: data.repository.githubId,
+            fullName: data.repository.fullName,
+            language: data.repository.language,
+            starsCount: data.repository.starsCount,
+            forksCount: data.repository.forksCount,
+            openIssuesCount: data.repository.openIssuesCount,
+            isFork: data.repository.isFork,
+            createdAt: now,
+            updatedAt: now,
+          })
+          .onConflictDoUpdate({
+            target: [repositories.githubId],
+            set: {
+              dataSourceId: dataSourceResult.id,
+              fullName: data.repository.fullName,
+              language: data.repository.language,
+              starsCount: data.repository.starsCount,
+              forksCount: data.repository.forksCount,
+              openIssuesCount: data.repository.openIssuesCount,
+              isFork: data.repository.isFork,
+              updatedAt: now,
+            },
+          })
+          .returning()
+
+        // 3. GitHubDataSource型として返す
+        return {
+          id: dataSourceResult.id,
+          sourceType: "github" as const,
+          sourceId: dataSourceResult.sourceId,
+          name: dataSourceResult.name,
+          description: dataSourceResult.description,
+          url: dataSourceResult.url,
+          isPrivate: dataSourceResult.isPrivate,
+          createdAt: dataSourceResult.createdAt,
+          updatedAt: dataSourceResult.updatedAt,
+          repository: {
+            id: repositoryResult.id,
+            githubId: repositoryResult.githubId,
+            fullName: repositoryResult.fullName,
+            owner: repositoryResult.fullName.split("/")[0] || "",
+            language: repositoryResult.language,
+            starsCount: repositoryResult.starsCount,
+            forksCount: repositoryResult.forksCount,
+            openIssuesCount: repositoryResult.openIssuesCount,
+            isFork: repositoryResult.isFork,
+            createdAt: repositoryResult.createdAt!,
+            updatedAt: repositoryResult.updatedAt!,
+          },
+        } as GitHubDataSource
+      }
+
+      throw new Error(`Unsupported sourceType: ${data.sourceType}`)
+    })
   }
 
   /**
-   * IDでデータソースを検索
+   * IDでデータソースを検索（repository情報を内包）
    */
   async findById(id: string): Promise<DataSource | null> {
     const connection = await TransactionManager.getConnection()
-    const result = await connection
-      .select()
+    const results = await connection
+      .select({
+        // データソース
+        dataSourceId: dataSources.id,
+        dataSourceType: dataSources.sourceType,
+        dataSourceSourceId: dataSources.sourceId,
+        dataSourceName: dataSources.name,
+        dataSourceDescription: dataSources.description,
+        dataSourceUrl: dataSources.url,
+        dataSourceIsPrivate: dataSources.isPrivate,
+        dataSourceCreatedAt: dataSources.createdAt,
+        dataSourceUpdatedAt: dataSources.updatedAt,
+        // リポジトリ
+        repositoryId: repositories.id,
+        repositoryGithubId: repositories.githubId,
+        repositoryFullName: repositories.fullName,
+        repositoryLanguage: repositories.language,
+        repositoryStarsCount: repositories.starsCount,
+        repositoryForksCount: repositories.forksCount,
+        repositoryOpenIssuesCount: repositories.openIssuesCount,
+        repositoryIsFork: repositories.isFork,
+        repositoryCreatedAt: repositories.createdAt,
+        repositoryUpdatedAt: repositories.updatedAt,
+      })
       .from(dataSources)
+      .innerJoin(repositories, eq(dataSources.id, repositories.dataSourceId))
       .where(eq(dataSources.id, id))
 
-    return result.length > 0 ? this.mapToDomain(result[0]) : null
+    if (results.length === 0) {
+      return null
+    }
+
+    const row = results[0]
+    if (row.dataSourceType === "github") {
+      return {
+        id: row.dataSourceId,
+        sourceType: "github" as const,
+        sourceId: row.dataSourceSourceId,
+        name: row.dataSourceName,
+        description: row.dataSourceDescription,
+        url: row.dataSourceUrl,
+        isPrivate: row.dataSourceIsPrivate,
+        createdAt: row.dataSourceCreatedAt,
+        updatedAt: row.dataSourceUpdatedAt,
+        repository: {
+          id: row.repositoryId,
+          githubId: row.repositoryGithubId,
+          fullName: row.repositoryFullName,
+          owner: row.repositoryFullName.split("/")[0] || "",
+          language: row.repositoryLanguage,
+          starsCount: row.repositoryStarsCount,
+          forksCount: row.repositoryForksCount,
+          openIssuesCount: row.repositoryOpenIssuesCount,
+          isFork: row.repositoryIsFork,
+          createdAt: row.repositoryCreatedAt!,
+          updatedAt: row.repositoryUpdatedAt!,
+        },
+      } as GitHubDataSource
+    }
+
+    throw new Error(`Unsupported sourceType: ${row.dataSourceType}`)
   }
 
   /**
-   * ソースタイプとソースIDでデータソースを検索
+   * ソースタイプとソースIDでデータソースを検索（repository情報を内包）
    */
   async findBySourceTypeAndId(
     sourceType: string,
     sourceId: string,
   ): Promise<DataSource | null> {
     const connection = await TransactionManager.getConnection()
-    const result = await connection
-      .select()
+    const results = await connection
+      .select({
+        // データソース
+        dataSourceId: dataSources.id,
+        dataSourceType: dataSources.sourceType,
+        dataSourceSourceId: dataSources.sourceId,
+        dataSourceName: dataSources.name,
+        dataSourceDescription: dataSources.description,
+        dataSourceUrl: dataSources.url,
+        dataSourceIsPrivate: dataSources.isPrivate,
+        dataSourceCreatedAt: dataSources.createdAt,
+        dataSourceUpdatedAt: dataSources.updatedAt,
+        // リポジトリ
+        repositoryId: repositories.id,
+        repositoryGithubId: repositories.githubId,
+        repositoryFullName: repositories.fullName,
+        repositoryLanguage: repositories.language,
+        repositoryStarsCount: repositories.starsCount,
+        repositoryForksCount: repositories.forksCount,
+        repositoryOpenIssuesCount: repositories.openIssuesCount,
+        repositoryIsFork: repositories.isFork,
+        repositoryCreatedAt: repositories.createdAt,
+        repositoryUpdatedAt: repositories.updatedAt,
+      })
       .from(dataSources)
+      .innerJoin(repositories, eq(dataSources.id, repositories.dataSourceId))
       .where(
         and(
           eq(dataSources.sourceType, sourceType),
@@ -100,22 +243,108 @@ export class DataSourceRepository {
         ),
       )
 
-    return result.length > 0 ? this.mapToDomain(result[0]) : null
+    if (results.length === 0) {
+      return null
+    }
+
+    const row = results[0]
+    if (row.dataSourceType === "github") {
+      return {
+        id: row.dataSourceId,
+        sourceType: "github" as const,
+        sourceId: row.dataSourceSourceId,
+        name: row.dataSourceName,
+        description: row.dataSourceDescription,
+        url: row.dataSourceUrl,
+        isPrivate: row.dataSourceIsPrivate,
+        createdAt: row.dataSourceCreatedAt,
+        updatedAt: row.dataSourceUpdatedAt,
+        repository: {
+          id: row.repositoryId,
+          githubId: row.repositoryGithubId,
+          fullName: row.repositoryFullName,
+          owner: row.repositoryFullName.split("/")[0] || "",
+          language: row.repositoryLanguage,
+          starsCount: row.repositoryStarsCount,
+          forksCount: row.repositoryForksCount,
+          openIssuesCount: row.repositoryOpenIssuesCount,
+          isFork: row.repositoryIsFork,
+          createdAt: row.repositoryCreatedAt!,
+          updatedAt: row.repositoryUpdatedAt!,
+        },
+      } as GitHubDataSource
+    }
+
+    throw new Error(`Unsupported sourceType: ${row.dataSourceType}`)
   }
 
   /**
-   * 複数のデータソースを検索
+   * 複数のデータソースを検索（repository情報を内包）
    */
   async findMany(filters?: { sourceType?: string }): Promise<DataSource[]> {
     const connection = await TransactionManager.getConnection()
-    let query = connection.select().from(dataSources).$dynamic()
+    let query = connection
+      .select({
+        // データソース
+        dataSourceId: dataSources.id,
+        dataSourceType: dataSources.sourceType,
+        dataSourceSourceId: dataSources.sourceId,
+        dataSourceName: dataSources.name,
+        dataSourceDescription: dataSources.description,
+        dataSourceUrl: dataSources.url,
+        dataSourceIsPrivate: dataSources.isPrivate,
+        dataSourceCreatedAt: dataSources.createdAt,
+        dataSourceUpdatedAt: dataSources.updatedAt,
+        // リポジトリ
+        repositoryId: repositories.id,
+        repositoryGithubId: repositories.githubId,
+        repositoryFullName: repositories.fullName,
+        repositoryLanguage: repositories.language,
+        repositoryStarsCount: repositories.starsCount,
+        repositoryForksCount: repositories.forksCount,
+        repositoryOpenIssuesCount: repositories.openIssuesCount,
+        repositoryIsFork: repositories.isFork,
+        repositoryCreatedAt: repositories.createdAt,
+        repositoryUpdatedAt: repositories.updatedAt,
+      })
+      .from(dataSources)
+      .innerJoin(repositories, eq(dataSources.id, repositories.dataSourceId))
+      .$dynamic()
 
     if (filters?.sourceType) {
       query = query.where(eq(dataSources.sourceType, filters.sourceType))
     }
 
     const results = await query
-    return results.map(this.mapToDomain)
+    return results.map((row) => {
+      if (row.dataSourceType === "github") {
+        return {
+          id: row.dataSourceId,
+          sourceType: "github" as const,
+          sourceId: row.dataSourceSourceId,
+          name: row.dataSourceName,
+          description: row.dataSourceDescription,
+          url: row.dataSourceUrl,
+          isPrivate: row.dataSourceIsPrivate,
+          createdAt: row.dataSourceCreatedAt,
+          updatedAt: row.dataSourceUpdatedAt,
+          repository: {
+            id: row.repositoryId,
+            githubId: row.repositoryGithubId,
+            fullName: row.repositoryFullName,
+            owner: row.repositoryFullName.split("/")[0] || "",
+            language: row.repositoryLanguage,
+            starsCount: row.repositoryStarsCount,
+            forksCount: row.repositoryForksCount,
+            openIssuesCount: row.repositoryOpenIssuesCount,
+            isFork: row.repositoryIsFork,
+            createdAt: row.repositoryCreatedAt!,
+            updatedAt: row.repositoryUpdatedAt!,
+          },
+        } as GitHubDataSource
+      }
+      throw new Error(`Unsupported sourceType: ${row.dataSourceType}`)
+    })
   }
 
   /**
@@ -171,7 +400,12 @@ export class DataSourceRepository {
       .where(eq(dataSources.id, id))
       .returning()
 
-    return result ? this.mapToDomain(result) : null
+    if (!result) {
+      return null
+    }
+
+    // 更新後のデータを取得してGitHubDataSource型で返す
+    return await this.findById(result.id)
   }
 
   /**
@@ -226,43 +460,45 @@ export class DataSourceRepository {
     }
 
     const row = results[0]
-    return {
-      dataSource: {
-        id: row.dataSourceId,
-        sourceType: row.dataSourceType,
-        sourceId: row.dataSourceSourceId,
-        name: row.dataSourceName,
-        description: row.dataSourceDescription,
-        url: row.dataSourceUrl,
-        isPrivate: row.dataSourceIsPrivate,
-        createdAt: row.dataSourceCreatedAt,
-        updatedAt: row.dataSourceUpdatedAt,
-      },
-      repository: {
-        id: row.repositoryId,
-        dataSourceId: row.repositoryDataSourceId,
-        githubId: row.repositoryGithubId,
-        fullName: row.repositoryFullName,
-        owner: row.repositoryFullName.split("/")[0], // ownerフィールドを追加
-        language: row.repositoryLanguage,
-        starsCount: row.repositoryStarsCount,
-        forksCount: row.repositoryForksCount,
-        openIssuesCount: row.repositoryOpenIssuesCount,
-        isFork: row.repositoryIsFork,
-        createdAt: row.repositoryCreatedAt,
-        updatedAt: row.repositoryUpdatedAt,
-      },
-      userWatch: {
-        id: row.userWatchId,
-        userId: row.userWatchUserId,
-        dataSourceId: row.userWatchDataSourceId,
-        notificationEnabled: row.userWatchNotificationEnabled,
-        watchReleases: row.userWatchWatchReleases,
-        watchIssues: row.userWatchWatchIssues,
-        watchPullRequests: row.userWatchWatchPullRequests,
-        addedAt: row.userWatchAddedAt,
-      },
+    if (row.dataSourceType === "github") {
+      return {
+        dataSource: {
+          id: row.dataSourceId,
+          sourceType: "github" as const,
+          sourceId: row.dataSourceSourceId,
+          name: row.dataSourceName,
+          description: row.dataSourceDescription,
+          url: row.dataSourceUrl,
+          isPrivate: row.dataSourceIsPrivate,
+          createdAt: row.dataSourceCreatedAt,
+          updatedAt: row.dataSourceUpdatedAt,
+          repository: {
+            id: row.repositoryId,
+            githubId: row.repositoryGithubId,
+            fullName: row.repositoryFullName,
+            owner: row.repositoryFullName.split("/")[0] || "",
+            language: row.repositoryLanguage,
+            starsCount: row.repositoryStarsCount,
+            forksCount: row.repositoryForksCount,
+            openIssuesCount: row.repositoryOpenIssuesCount,
+            isFork: row.repositoryIsFork,
+            createdAt: row.repositoryCreatedAt!,
+            updatedAt: row.repositoryUpdatedAt!,
+          },
+        } as GitHubDataSource,
+        userWatch: {
+          id: row.userWatchId,
+          userId: row.userWatchUserId,
+          dataSourceId: row.userWatchDataSourceId,
+          notificationEnabled: row.userWatchNotificationEnabled,
+          watchReleases: row.userWatchWatchReleases,
+          watchIssues: row.userWatchWatchIssues,
+          watchPullRequests: row.userWatchWatchPullRequests,
+          addedAt: row.userWatchAddedAt,
+        },
+      }
     }
+    throw new Error(`Unsupported sourceType: ${row.dataSourceType}`)
   }
 
   /**
@@ -419,43 +655,47 @@ export class DataSourceRepository {
     const total = Number(totalCount)
 
     // 結果を変換
-    const items = results.map((row: (typeof results)[number]) => ({
-      dataSource: {
-        id: row.dataSourceId,
-        sourceType: row.dataSourceType,
-        sourceId: row.dataSourceSourceId,
-        name: row.dataSourceName,
-        description: row.dataSourceDescription,
-        url: row.dataSourceUrl,
-        isPrivate: row.dataSourceIsPrivate,
-        createdAt: row.dataSourceCreatedAt,
-        updatedAt: row.dataSourceUpdatedAt,
-      },
-      repository: {
-        id: row.repositoryId,
-        dataSourceId: row.repositoryDataSourceId,
-        githubId: row.repositoryGithubId,
-        fullName: row.repositoryFullName,
-        owner: row.repositoryFullName.split("/")[0], // ownerフィールドを追加
-        language: row.repositoryLanguage,
-        starsCount: row.repositoryStarsCount,
-        forksCount: row.repositoryForksCount,
-        openIssuesCount: row.repositoryOpenIssuesCount,
-        isFork: row.repositoryIsFork,
-        createdAt: row.repositoryCreatedAt,
-        updatedAt: row.repositoryUpdatedAt,
-      },
-      userWatch: {
-        id: row.userWatchId,
-        userId: row.userWatchUserId,
-        dataSourceId: row.userWatchDataSourceId,
-        notificationEnabled: row.userWatchNotificationEnabled,
-        watchReleases: row.userWatchWatchReleases,
-        watchIssues: row.userWatchWatchIssues,
-        watchPullRequests: row.userWatchWatchPullRequests,
-        addedAt: row.userWatchAddedAt,
-      },
-    }))
+    const items = results.map((row: (typeof results)[number]) => {
+      if (row.dataSourceType === "github") {
+        return {
+          dataSource: {
+            id: row.dataSourceId,
+            sourceType: "github" as const,
+            sourceId: row.dataSourceSourceId,
+            name: row.dataSourceName,
+            description: row.dataSourceDescription,
+            url: row.dataSourceUrl,
+            isPrivate: row.dataSourceIsPrivate,
+            createdAt: row.dataSourceCreatedAt,
+            updatedAt: row.dataSourceUpdatedAt,
+            repository: {
+              id: row.repositoryId,
+              githubId: row.repositoryGithubId,
+              fullName: row.repositoryFullName,
+              owner: row.repositoryFullName.split("/")[0] || "",
+              language: row.repositoryLanguage,
+              starsCount: row.repositoryStarsCount,
+              forksCount: row.repositoryForksCount,
+              openIssuesCount: row.repositoryOpenIssuesCount,
+              isFork: row.repositoryIsFork,
+              createdAt: row.repositoryCreatedAt!,
+              updatedAt: row.repositoryUpdatedAt!,
+            },
+          } as GitHubDataSource,
+          userWatch: {
+            id: row.userWatchId,
+            userId: row.userWatchUserId,
+            dataSourceId: row.userWatchDataSourceId,
+            notificationEnabled: row.userWatchNotificationEnabled,
+            watchReleases: row.userWatchWatchReleases,
+            watchIssues: row.userWatchWatchIssues,
+            watchPullRequests: row.userWatchWatchPullRequests,
+            addedAt: row.userWatchAddedAt,
+          },
+        }
+      }
+      throw new Error(`Unsupported sourceType: ${row.dataSourceType}`)
+    })
 
     return {
       items,
@@ -517,22 +757,5 @@ export class DataSourceRepository {
       )
 
     return (deleteResult.rowCount ?? 0) > 0
-  }
-
-  /**
-   * データベース結果をドメイン型に変換
-   */
-  private mapToDomain(row: typeof dataSources.$inferSelect): DataSource {
-    return {
-      id: row.id,
-      sourceType: row.sourceType,
-      sourceId: row.sourceId,
-      name: row.name,
-      description: row.description,
-      url: row.url,
-      isPrivate: row.isPrivate,
-      createdAt: row.createdAt,
-      updatedAt: row.updatedAt,
-    }
   }
 }

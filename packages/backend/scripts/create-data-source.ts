@@ -4,7 +4,6 @@ import { fileURLToPath } from "url"
 import { resolve } from "path"
 import { DataSourceCreationService } from "../src/features/data-sources/services/data-source-creation.service"
 import { DataSourceRepository } from "../src/features/data-sources/repositories/data-source.repository"
-import { RepositoryRepository } from "../src/features/data-sources/repositories/repository.repository"
 import { createGitHubApiService } from "../src/features/data-sources/services/github-api-service.factory"
 import { connectDb, disconnectDb } from "../src/db/connection"
 
@@ -50,7 +49,6 @@ async function main() {
 
     // リポジトリインスタンスを作成
     const dataSourceRepository = new DataSourceRepository()
-    const repositoryRepository = new RepositoryRepository()
 
     // GitHubApiServiceを作成
     const githubApiService = createGitHubApiService()
@@ -58,7 +56,6 @@ async function main() {
     // サービスインスタンスを作成
     const dataSourceCreationService = new DataSourceCreationService(
       dataSourceRepository,
-      repositoryRepository,
       githubApiService,
     )
 
@@ -74,18 +71,18 @@ async function main() {
         ...result.dataSource,
         createdAt: result.dataSource.createdAt.toISOString(),
         updatedAt: result.dataSource.updatedAt.toISOString(),
-      },
-      repository: {
-        ...result.repository,
-        createdAt: result.repository.createdAt.toISOString(),
-        updatedAt: result.repository.updatedAt.toISOString(),
+        repository: {
+          ...result.dataSource.repository,
+          createdAt: result.dataSource.repository.createdAt.toISOString(),
+          updatedAt: result.dataSource.repository.updatedAt.toISOString(),
+        },
       },
     }
 
     console.log(JSON.stringify(output, null, 2))
 
     console.log(
-      `✅ Successfully created data source for ${result.repository.fullName}`,
+      `✅ Successfully created data source for ${result.dataSource.repository.fullName}`,
     )
   } catch (error) {
     console.error("❌ Error creating data source:")

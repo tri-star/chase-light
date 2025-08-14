@@ -51,13 +51,7 @@
             "description": "アカウント作成日時（ISO 8601形式）"
           }
         },
-        "required": [
-          "id",
-          "email",
-          "name",
-          "avatarUrl",
-          "createdAt"
-        ]
+        "required": ["id", "email", "name", "avatarUrl", "createdAt"]
       },
       "SignUpResponse": {
         "type": "object",
@@ -76,10 +70,7 @@
             "description": "既存ユーザーの場合はtrue"
           }
         },
-        "required": [
-          "user",
-          "message"
-        ]
+        "required": ["user", "message"]
       },
       "AuthErrorResponse": {
         "type": "object",
@@ -107,17 +98,11 @@
                 "description": "エラーの詳細情報"
               }
             },
-            "required": [
-              "code",
-              "message"
-            ],
+            "required": ["code", "message"],
             "description": "エラー情報"
           }
         },
-        "required": [
-          "success",
-          "error"
-        ]
+        "required": ["success", "error"]
       },
       "SignUpRequest": {
         "type": "object",
@@ -129,9 +114,7 @@
             "description": "Auth0から取得したIDトークン"
           }
         },
-        "required": [
-          "idToken"
-        ]
+        "required": ["idToken"]
       },
       "UserProfileResponse": {
         "type": "object",
@@ -198,9 +181,7 @@
             ]
           }
         },
-        "required": [
-          "user"
-        ]
+        "required": ["user"]
       },
       "UserErrorResponse": {
         "type": "object",
@@ -228,17 +209,11 @@
                 "description": "エラーの詳細情報"
               }
             },
-            "required": [
-              "code",
-              "message"
-            ],
+            "required": ["code", "message"],
             "description": "エラー情報"
           }
         },
-        "required": [
-          "success",
-          "error"
-        ]
+        "required": ["success", "error"]
       },
       "UpdateProfileRequest": {
         "type": "object",
@@ -263,10 +238,7 @@
             "description": "タイムゾーン（IANA形式）"
           }
         },
-        "required": [
-          "name",
-          "email"
-        ]
+        "required": ["name", "email"]
       },
       "UserSettingsResponse": {
         "type": "object",
@@ -340,10 +312,7 @@
                   },
                   "language": {
                     "type": "string",
-                    "enum": [
-                      "ja",
-                      "en"
-                    ],
+                    "enum": ["ja", "en"],
                     "example": "ja",
                     "description": "表示言語"
                   }
@@ -369,9 +338,7 @@
             ]
           }
         },
-        "required": [
-          "user"
-        ]
+        "required": ["user"]
       },
       "UpdateSettingsRequest": {
         "type": "object",
@@ -393,10 +360,7 @@
           },
           "language": {
             "type": "string",
-            "enum": [
-              "ja",
-              "en"
-            ],
+            "enum": ["ja", "en"],
             "example": "ja",
             "description": "表示言語（ja/en）"
           }
@@ -551,9 +515,7 @@
                 "description": "GitHubリポジトリのオーナー名（fullNameから抽出）"
               }
             },
-            "required": [
-              "owner"
-            ]
+            "required": ["owner"]
           }
         ]
       },
@@ -625,11 +587,7 @@
             "$ref": "#/components/schemas/UserWatch"
           }
         },
-        "required": [
-          "dataSource",
-          "repository",
-          "userWatch"
-        ]
+        "required": ["dataSource", "repository", "userWatch"]
       },
       "Pagination": {
         "type": "object",
@@ -702,17 +660,11 @@
                 "$ref": "#/components/schemas/Pagination"
               }
             },
-            "required": [
-              "items",
-              "pagination"
-            ],
+            "required": ["items", "pagination"],
             "description": "レスポンスデータ"
           }
         },
-        "required": [
-          "success",
-          "data"
-        ]
+        "required": ["success", "data"]
       },
       "ErrorDetails": {
         "type": "object",
@@ -755,17 +707,11 @@
                 "$ref": "#/components/schemas/ErrorDetails"
               }
             },
-            "required": [
-              "code",
-              "message"
-            ],
+            "required": ["code", "message"],
             "description": "エラー情報"
           }
         },
-        "required": [
-          "success",
-          "error"
-        ]
+        "required": ["success", "error"]
       },
       "DataSourceDetailResponse": {
         "type": "object",
@@ -779,10 +725,7 @@
             "$ref": "#/components/schemas/DataSourceListItem"
           }
         },
-        "required": [
-          "success",
-          "data"
-        ]
+        "required": ["success", "data"]
       },
       "CreateDataSourceResponse": {
         "type": "object",
@@ -805,18 +748,11 @@
                 "$ref": "#/components/schemas/UserWatch"
               }
             },
-            "required": [
-              "dataSource",
-              "repository",
-              "userWatch"
-            ],
+            "required": ["dataSource", "repository", "userWatch"],
             "description": "作成されたデータ"
           }
         },
-        "required": [
-          "success",
-          "data"
-        ]
+        "required": ["success", "data"]
       },
       "CreateDataSourceRequest": {
         "type": "object",
@@ -862,9 +798,7 @@
             "description": "プルリクエストを監視するか（デフォルト: false）"
           }
         },
-        "required": [
-          "repositoryUrl"
-        ]
+        "required": ["repositoryUrl"]
       }
     },
     "parameters": {}
@@ -874,9 +808,7 @@
       "post": {
         "summary": "ユーザー登録",
         "description": "Auth0のIDトークンを使用してユーザー登録を行います",
-        "tags": [
-          "Auth"
-        ],
+        "tags": ["Auth"],
         "requestBody": {
           "description": "ユーザー登録リクエスト",
           "content": {
@@ -945,9 +877,7 @@
       "get": {
         "summary": "プロフィール取得",
         "description": "認証済みユーザーのプロフィール情報を取得します",
-        "tags": [
-          "Users"
-        ],
+        "tags": ["Users"],
         "responses": {
           "200": {
             "description": "プロフィール情報",
@@ -1014,9 +944,7 @@
       "put": {
         "summary": "プロフィール更新",
         "description": "認証済みユーザーのプロフィール情報を更新します",
-        "tags": [
-          "Users"
-        ],
+        "tags": ["Users"],
         "requestBody": {
           "description": "更新するプロフィール情報",
           "content": {
@@ -1095,9 +1023,7 @@
       "get": {
         "summary": "ユーザー設定取得",
         "description": "認証済みユーザーの設定情報を取得します",
-        "tags": [
-          "Users"
-        ],
+        "tags": ["Users"],
         "responses": {
           "200": {
             "description": "ユーザー設定情報",
@@ -1164,9 +1090,7 @@
       "put": {
         "summary": "ユーザー設定更新",
         "description": "認証済みユーザーの設定情報を更新します",
-        "tags": [
-          "Users"
-        ],
+        "tags": ["Users"],
         "requestBody": {
           "description": "更新する設定情報",
           "content": {
@@ -1245,9 +1169,7 @@
       "get": {
         "summary": "データソース一覧取得",
         "description": "ユーザーが監視中のデータソース一覧を取得します。フィルタリング、ソート、ページネーションに対応しています",
-        "tags": [
-          "DataSources"
-        ],
+        "tags": ["DataSources"],
         "security": [
           {
             "Bearer": []
@@ -1391,10 +1313,7 @@
           {
             "schema": {
               "type": "string",
-              "enum": [
-                "asc",
-                "desc"
-              ],
+              "enum": ["asc", "desc"],
               "default": "desc",
               "description": "ソート順（昇順・降順）",
               "example": "desc"
@@ -1498,9 +1417,7 @@
       "post": {
         "summary": "データソース登録",
         "description": "GitHubリポジトリをデータソースとして登録し、ユーザーの監視対象に追加します",
-        "tags": [
-          "DataSources"
-        ],
+        "tags": ["DataSources"],
         "security": [
           {
             "Bearer": []
@@ -1584,9 +1501,7 @@
       "get": {
         "summary": "データソース詳細取得",
         "description": "指定されたIDのデータソース詳細情報を取得します。認証ユーザーがWatch中のデータソースのみアクセス可能です",
-        "tags": [
-          "DataSources"
-        ],
+        "tags": ["DataSources"],
         "security": [
           {
             "Bearer": []
@@ -1672,9 +1587,7 @@
       "put": {
         "summary": "データソース更新",
         "description": "指定されたIDのデータソース設定を更新します。認証ユーザーがWatch中のデータソースのみ更新可能です",
-        "tags": [
-          "DataSources"
-        ],
+        "tags": ["DataSources"],
         "security": [
           {
             "Bearer": []
@@ -1749,9 +1662,7 @@
                   "properties": {
                     "success": {
                       "type": "boolean",
-                      "enum": [
-                        true
-                      ]
+                      "enum": [true]
                     },
                     "data": {
                       "type": "object",
@@ -1901,17 +1812,10 @@
                           ]
                         }
                       },
-                      "required": [
-                        "dataSource",
-                        "repository",
-                        "userWatch"
-                      ]
+                      "required": ["dataSource", "repository", "userWatch"]
                     }
                   },
-                  "required": [
-                    "success",
-                    "data"
-                  ]
+                  "required": ["success", "data"]
                 }
               }
             }
@@ -1971,9 +1875,7 @@
       "delete": {
         "summary": "データソース削除",
         "description": "指定されたIDのデータソース監視を削除します。認証ユーザーがWatch中のデータソースのみ削除可能です",
-        "tags": [
-          "DataSources"
-        ],
+        "tags": ["DataSources"],
         "security": [
           {
             "Bearer": []

@@ -1,4 +1,4 @@
-import type { DataSource, Repository, UserWatch } from "../domain"
+import type { GitHubDataSource, UserWatch } from "../domain"
 import type { DataSourceRepository, UserWatchRepository } from "../repositories"
 import type { UserRepository } from "../../user/repositories/user.repository"
 import { DataSourceNotFoundError, UserNotFoundError } from "../errors"
@@ -20,10 +20,10 @@ export type UpdateDataSourceInputDto = {
 
 /**
  * データソース更新サービスの出力DTO
+ * GitHubDataSourceにはrepository情報が内包されている
  */
 export type UpdateDataSourceOutputDto = {
-  dataSource: DataSource
-  repository: Repository
+  dataSource: GitHubDataSource
   userWatch: UserWatch
 }
 
@@ -107,7 +107,6 @@ export class DataSourceUpdateService {
 
       return {
         dataSource: updatedDataSource,
-        repository: currentData.repository,
         userWatch: updatedUserWatch,
       }
     })

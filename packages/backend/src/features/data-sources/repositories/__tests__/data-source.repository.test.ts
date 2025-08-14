@@ -24,6 +24,15 @@ describe("DataSourceRepository - Unit Test", () => {
         description: "テスト用の新規リポジトリです",
         url: "https://github.com/test/newrepo",
         isPrivate: false,
+        repository: {
+          githubId: 987654321,
+          fullName: "test/newrepo",
+          language: "TypeScript",
+          starsCount: 100,
+          forksCount: 20,
+          openIssuesCount: 5,
+          isFork: false,
+        },
       }
 
       // INSERT実行
@@ -41,12 +50,29 @@ describe("DataSourceRepository - Unit Test", () => {
       expect(savedDataSource.createdAt).toBeInstanceOf(Date)
       expect(savedDataSource.updatedAt).toBeInstanceOf(Date)
 
+      // repository情報も確認
+      const githubDataSource = savedDataSource
+      expect(githubDataSource?.repository).toBeDefined()
+      expect(githubDataSource?.repository.githubId).toBe(987654321)
+      expect(githubDataSource?.repository.fullName).toBe("test/newrepo")
+      expect(githubDataSource?.repository.owner).toBe("test")
+      expect(githubDataSource?.repository.language).toBe("TypeScript")
+      expect(githubDataSource?.repository.starsCount).toBe(100)
+      expect(githubDataSource?.repository.forksCount).toBe(20)
+      expect(githubDataSource?.repository.openIssuesCount).toBe(5)
+      expect(githubDataSource?.repository.isFork).toBe(false)
+
       // DBから取得して確認
       const foundDataSource = await dataSourceRepository.findById(
         savedDataSource.id,
       )
       expect(foundDataSource).not.toBeNull()
       expect(foundDataSource?.name).toBe("新規リポジトリ")
+
+      // repository情報も取得されているか確認
+      const foundGitHubDataSource = foundDataSource
+      expect(foundGitHubDataSource?.repository).toBeDefined()
+      expect(foundGitHubDataSource?.repository.fullName).toBe("test/newrepo")
     })
 
     test("既存データソースのUPDATEが正常に動作する（重複キーの場合）", async () => {
@@ -70,6 +96,15 @@ describe("DataSourceRepository - Unit Test", () => {
         description: "更新された説明",
         url: "https://github.com/test/updated",
         isPrivate: true,
+        repository: {
+          githubId: 999999999,
+          fullName: "test/updated",
+          language: "JavaScript",
+          starsCount: 200,
+          forksCount: 40,
+          openIssuesCount: 10,
+          isFork: false,
+        },
       }
 
       const updatedDataSource = await dataSourceRepository.save(updateInput)
@@ -99,6 +134,12 @@ describe("DataSourceRepository - Unit Test", () => {
       expect(foundDataSource?.id).toBe(testDataSource.id)
       expect(foundDataSource?.name).toBe("findByIdテスト")
       expect(foundDataSource?.sourceId).toBe("findbyid_test")
+
+      // repository情報も取得されているか確認
+      const githubDataSource = foundDataSource
+      expect(githubDataSource?.repository).toBeDefined()
+      expect(githubDataSource?.repository.fullName).toBe("test/repository")
+      expect(githubDataSource?.repository.owner).toBe("test")
     })
 
     test("存在しないデータソースIDの場合はnullを返す", async () => {
@@ -127,6 +168,11 @@ describe("DataSourceRepository - Unit Test", () => {
       expect(foundDataSource?.sourceType).toBe("github")
       expect(foundDataSource?.sourceId).toBe("findbytype_test")
       expect(foundDataSource?.name).toBe("findBySourceTypeAndIdテスト")
+
+      // repository情報も取得されているか確認
+      const githubDataSource = foundDataSource
+      expect(githubDataSource?.repository).toBeDefined()
+      expect(githubDataSource?.repository.fullName).toBe("test/repository")
     })
 
     test("存在しないsourceTypeとsourceIdの場合はnullを返す", async () => {
@@ -150,6 +196,13 @@ describe("DataSourceRepository - Unit Test", () => {
 
       expect(dataSources.length).toBeGreaterThanOrEqual(3)
       expect(Array.isArray(dataSources)).toBe(true)
+
+      // 各データソースにrepository情報が含まれていることを確認
+      dataSources.forEach((dataSource) => {
+        const githubDataSource = dataSource
+        expect(githubDataSource?.repository).toBeDefined()
+        expect(githubDataSource?.repository.fullName).toBeDefined()
+      })
     })
 
     test("sourceTypeフィルタが正常に動作する", async () => {
@@ -158,11 +211,7 @@ describe("DataSourceRepository - Unit Test", () => {
         sourceId: "github_test",
         name: "GitHubテスト",
       })
-      await TestDataFactory.createTestDataSource({
-        sourceType: "npm",
-        sourceId: "npm_test",
-        name: "NPMテスト",
-      })
+      // NPMは将来実装予定のため、GitHubのみテスト
 
       const githubDataSources = await dataSourceRepository.findMany({
         sourceType: "github",
@@ -172,6 +221,12 @@ describe("DataSourceRepository - Unit Test", () => {
       expect(githubDataSources.every((ds) => ds.sourceType === "github")).toBe(
         true,
       )
+
+      // repository情報も含まれていることを確認
+      githubDataSources.forEach((dataSource) => {
+        const githubDataSource = dataSource
+        expect(githubDataSource?.repository).toBeDefined()
+      })
     })
   })
 
@@ -207,18 +262,20 @@ describe("DataSourceRepository - Unit Test", () => {
       const testUser =
         await TestDataFactory.createTestUser("detail-test-user-1")
 
-      // テストデータソースとリポジトリを作成
+      // テストデータソース（repository内包）を作成
       const testDataSource = await TestDataFactory.createTestDataSource({
         name: "詳細テスト用リポジトリ",
         sourceId: "detail-123456789",
         sourceType: "github",
-      })
-
-      await TestDataFactory.createTestRepository(testDataSource.id, {
-        fullName: "detail-test/repository",
-        githubId: 987654321,
-        starsCount: 200,
-        language: "TypeScript",
+        repository: {
+          fullName: "detail-test/repository",
+          githubId: 987654321,
+          starsCount: 200,
+          language: "TypeScript",
+          forksCount: 50,
+          openIssuesCount: 10,
+          isFork: false,
+        },
       })
 
       // ユーザーウォッチを作成
@@ -243,10 +300,14 @@ describe("DataSourceRepository - Unit Test", () => {
       expect(result).not.toBeNull()
       expect(result?.dataSource.id).toBe(testDataSource.id)
       expect(result?.dataSource.name).toBe("詳細テスト用リポジトリ")
-      expect(result?.repository.fullName).toBe("detail-test/repository")
-      expect(result?.repository.owner).toBe("detail-test")
-      expect(result?.repository.githubId).toBe(987654321)
-      expect(result?.repository.language).toBe("TypeScript")
+      // repositoryはdataSource内に内包されている
+      const githubDataSource = result?.dataSource
+      expect(githubDataSource?.repository.fullName).toBe(
+        "detail-test/repository",
+      )
+      expect(githubDataSource?.repository.owner).toBe("detail-test")
+      expect(githubDataSource?.repository.githubId).toBe(987654321)
+      expect(githubDataSource?.repository.language).toBe("TypeScript")
       expect(result?.userWatch.userId).toBe(testUser.id)
       expect(result?.userWatch.watchReleases).toBe(true)
       expect(result?.userWatch.watchIssues).toBe(true)
@@ -264,11 +325,15 @@ describe("DataSourceRepository - Unit Test", () => {
         name: "他ユーザーのリポジトリ",
         sourceId: "other-123456789",
         sourceType: "github",
-      })
-
-      await TestDataFactory.createTestRepository(otherDataSource.id, {
-        fullName: "other/repository",
-        githubId: 111111111,
+        repository: {
+          fullName: "other/repository",
+          githubId: 111111111,
+          language: "JavaScript",
+          starsCount: 50,
+          forksCount: 10,
+          openIssuesCount: 2,
+          isFork: false,
+        },
       })
 
       // 他のユーザーのウォッチを作成
@@ -307,18 +372,20 @@ describe("DataSourceRepository - Unit Test", () => {
       // テストユーザーを作成
       const testUser = await TestDataFactory.createTestUser("test-user-1")
 
-      // テストデータソースとリポジトリを作成
+      // テストデータソース（repository内包）を作成
       const testDataSource = await TestDataFactory.createTestDataSource({
         name: "テストリポジトリ",
         sourceId: "123456789",
         sourceType: "github",
-      })
-
-      await TestDataFactory.createTestRepository(testDataSource.id, {
-        fullName: "test/repository",
-        githubId: 123456789,
-        starsCount: 100,
-        language: "JavaScript",
+        repository: {
+          fullName: "test/repository",
+          githubId: 123456789,
+          starsCount: 100,
+          language: "JavaScript",
+          forksCount: 20,
+          openIssuesCount: 5,
+          isFork: false,
+        },
       })
 
       // ユーザーウォッチを作成
@@ -347,9 +414,11 @@ describe("DataSourceRepository - Unit Test", () => {
       )
       expect(item).toBeDefined()
       expect(item?.dataSource.name).toBe("テストリポジトリ")
-      expect(item?.repository.fullName).toBe("test/repository")
-      expect(item?.repository.owner).toBe("test")
-      expect(item?.repository.starsCount).toBe(100)
+      // repositoryはdataSource内に内包されている
+      const githubDataSource = item?.dataSource
+      expect(githubDataSource?.repository.fullName).toBe("test/repository")
+      expect(githubDataSource?.repository.owner).toBe("test")
+      expect(githubDataSource?.repository.starsCount).toBe(100)
       expect(item?.userWatch.watchReleases).toBe(true)
       expect(item?.userWatch.watchIssues).toBe(false)
     })
@@ -363,6 +432,15 @@ describe("DataSourceRepository - Unit Test", () => {
         name: "React Library",
         sourceId: "react_match",
         sourceType: "github",
+        repository: {
+          fullName: "facebook/react",
+          githubId: 10270250,
+          language: "JavaScript",
+          starsCount: 200000,
+          forksCount: 50000,
+          openIssuesCount: 500,
+          isFork: false,
+        },
       })
 
       // マッチしないデータソース
@@ -370,17 +448,15 @@ describe("DataSourceRepository - Unit Test", () => {
         name: "Vue Framework",
         sourceId: "vue_nomatch",
         sourceType: "github",
-      })
-
-      // リポジトリを作成
-      await TestDataFactory.createTestRepository(matchingDataSource.id, {
-        fullName: "facebook/react",
-        githubId: 10270250,
-      })
-
-      await TestDataFactory.createTestRepository(nonMatchingDataSource.id, {
-        fullName: "vuejs/vue",
-        githubId: 11730342,
+        repository: {
+          fullName: "vuejs/vue",
+          githubId: 11730342,
+          language: "JavaScript",
+          starsCount: 180000,
+          forksCount: 30000,
+          openIssuesCount: 300,
+          isFork: false,
+        },
       })
 
       // ユーザーウォッチを作成
@@ -415,6 +491,15 @@ describe("DataSourceRepository - Unit Test", () => {
         name: "React",
         sourceId: "react_owner",
         sourceType: "github",
+        repository: {
+          fullName: "facebook/react",
+          githubId: 10270250,
+          language: "JavaScript",
+          starsCount: 200000,
+          forksCount: 50000,
+          openIssuesCount: 500,
+          isFork: false,
+        },
       })
 
       // マッチしないデータソース
@@ -422,17 +507,15 @@ describe("DataSourceRepository - Unit Test", () => {
         name: "Vue",
         sourceId: "vue_owner",
         sourceType: "github",
-      })
-
-      // リポジトリを作成
-      await TestDataFactory.createTestRepository(matchingDataSource.id, {
-        fullName: "facebook/react",
-        githubId: 10270250,
-      })
-
-      await TestDataFactory.createTestRepository(nonMatchingDataSource.id, {
-        fullName: "vuejs/vue",
-        githubId: 11730342,
+        repository: {
+          fullName: "vuejs/vue",
+          githubId: 11730342,
+          language: "JavaScript",
+          starsCount: 180000,
+          forksCount: 30000,
+          openIssuesCount: 300,
+          isFork: false,
+        },
       })
 
       // ユーザーウォッチを作成
@@ -455,7 +538,8 @@ describe("DataSourceRepository - Unit Test", () => {
       )
 
       expect(result.items.length).toBe(1)
-      expect(result.items[0].repository.owner).toBe("facebook")
+      const githubDataSource = result.items[0].dataSource
+      expect(githubDataSource?.repository.owner).toBe("facebook")
     })
 
     test("フリーワード検索が正常に動作する", async () => {
@@ -468,6 +552,15 @@ describe("DataSourceRepository - Unit Test", () => {
         description: "JavaScript library for building user interfaces",
         sourceId: "react_search",
         sourceType: "github",
+        repository: {
+          fullName: "facebook/react",
+          githubId: 10270250,
+          language: "JavaScript",
+          starsCount: 200000,
+          forksCount: 50000,
+          openIssuesCount: 500,
+          isFork: false,
+        },
       })
 
       // マッチしないデータソース
@@ -476,17 +569,15 @@ describe("DataSourceRepository - Unit Test", () => {
         description: "Progressive web framework",
         sourceId: "vue_search",
         sourceType: "github",
-      })
-
-      // リポジトリを作成
-      await TestDataFactory.createTestRepository(matchingDataSource.id, {
-        fullName: "facebook/react",
-        githubId: 10270250,
-      })
-
-      await TestDataFactory.createTestRepository(nonMatchingDataSource.id, {
-        fullName: "vuejs/vue",
-        githubId: 11730342,
+        repository: {
+          fullName: "vuejs/vue",
+          githubId: 11730342,
+          language: "JavaScript",
+          starsCount: 180000,
+          forksCount: 30000,
+          openIssuesCount: 300,
+          isFork: false,
+        },
       })
 
       // ユーザーウォッチを作成
@@ -521,25 +612,30 @@ describe("DataSourceRepository - Unit Test", () => {
         name: "A Repository",
         sourceId: "a_repo",
         sourceType: "github",
+        repository: {
+          fullName: "test/a-repo",
+          githubId: 1,
+          starsCount: 100,
+          language: "TypeScript",
+          forksCount: 20,
+          openIssuesCount: 5,
+          isFork: false,
+        },
       })
 
       const dataSource2 = await TestDataFactory.createTestDataSource({
         name: "B Repository",
         sourceId: "b_repo",
         sourceType: "github",
-      })
-
-      // リポジトリを作成
-      await TestDataFactory.createTestRepository(dataSource1.id, {
-        fullName: "test/a-repo",
-        githubId: 1,
-        starsCount: 100,
-      })
-
-      await TestDataFactory.createTestRepository(dataSource2.id, {
-        fullName: "test/b-repo",
-        githubId: 2,
-        starsCount: 200,
+        repository: {
+          fullName: "test/b-repo",
+          githubId: 2,
+          starsCount: 200,
+          language: "JavaScript",
+          forksCount: 40,
+          openIssuesCount: 10,
+          isFork: false,
+        },
       })
 
       // ユーザーウォッチを作成
@@ -570,8 +666,10 @@ describe("DataSourceRepository - Unit Test", () => {
       )
 
       expect(descResult.items.length).toBe(2)
-      expect(descResult.items[0].repository.starsCount).toBe(200)
-      expect(descResult.items[1].repository.starsCount).toBe(100)
+      const firstItem = descResult.items[0].dataSource
+      const secondItem = descResult.items[1].dataSource
+      expect(firstItem?.repository.starsCount).toBe(200)
+      expect(secondItem?.repository.starsCount).toBe(100)
     })
 
     test("ページネーションが正常に動作する", async () => {
@@ -585,13 +683,17 @@ describe("DataSourceRepository - Unit Test", () => {
           name: `Repository ${i}`,
           sourceId: `repo_${i}`,
           sourceType: "github",
+          repository: {
+            fullName: `test/repo-${i}`,
+            githubId: i,
+            language: "TypeScript",
+            starsCount: i * 10,
+            forksCount: i * 2,
+            openIssuesCount: i,
+            isFork: false,
+          },
         })
         dataSources.push(dataSource)
-
-        await TestDataFactory.createTestRepository(dataSource.id, {
-          fullName: `test/repo-${i}`,
-          githubId: i,
-        })
 
         await TestDataFactory.createTestUserWatch(testUser.id, dataSource.id)
       }

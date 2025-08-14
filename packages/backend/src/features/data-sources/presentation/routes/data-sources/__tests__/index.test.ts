@@ -11,7 +11,6 @@ import {
 } from "../../../../services"
 import {
   DataSourceRepository,
-  RepositoryRepository,
   UserWatchRepository,
 } from "../../../../repositories"
 import { UserRepository } from "../../../../../user/repositories/user.repository"
@@ -60,12 +59,10 @@ describe("DataSources API - Component Test", () => {
 
     // 実際のリポジトリとサービスを作成（スタブを注入）
     const dataSourceRepository = new DataSourceRepository()
-    const repositoryRepository = new RepositoryRepository()
     const userWatchRepository = new UserWatchRepository()
     const userRepository = new UserRepository()
     dataSourceCreationService = new DataSourceCreationService(
       dataSourceRepository,
-      repositoryRepository,
       githubStub,
     )
     dataSourceWatchService = new DataSourceWatchService(
@@ -155,10 +152,14 @@ describe("DataSources API - Component Test", () => {
       expect(responseBody.data.dataSource.url).toBe(
         "https://github.com/facebook/react",
       )
-      expect(responseBody.data.repository.fullName).toBe("facebook/react")
-      expect(responseBody.data.repository.githubId).toBe(10270250)
-      expect(responseBody.data.repository.language).toBe("JavaScript")
-      expect(responseBody.data.repository.starsCount).toBe(230000)
+      expect(responseBody.data.dataSource.repository.fullName).toBe(
+        "facebook/react",
+      )
+      expect(responseBody.data.dataSource.repository.githubId).toBe(10270250)
+      expect(responseBody.data.dataSource.repository.language).toBe(
+        "JavaScript",
+      )
+      expect(responseBody.data.dataSource.repository.starsCount).toBe(230000)
       expect(responseBody.data.userWatch.userId).toBe(testUser.id)
       expect(responseBody.data.userWatch.notificationEnabled).toBe(true)
       expect(responseBody.data.userWatch.watchReleases).toBe(true)
@@ -205,8 +206,12 @@ describe("DataSources API - Component Test", () => {
       // nameが指定されていない場合、GitHubのnameが使用されることを確認
       expect(responseBody.data.dataSource.name).toBe("TypeScript")
       expect(responseBody.data.dataSource.sourceId).toBe("1234567")
-      expect(responseBody.data.repository.fullName).toBe("microsoft/typescript")
-      expect(responseBody.data.repository.language).toBe("TypeScript")
+      expect(responseBody.data.dataSource.repository.fullName).toBe(
+        "microsoft/typescript",
+      )
+      expect(responseBody.data.dataSource.repository.language).toBe(
+        "TypeScript",
+      )
 
       // デフォルト値での作成を確認
       expect(responseBody.data.userWatch.notificationEnabled).toBe(true)
@@ -304,8 +309,8 @@ describe("DataSources API - Component Test", () => {
       expect(responseBody.data.dataSource.id).toBe(
         firstResponseBody.data.dataSource.id,
       )
-      expect(responseBody.data.repository.id).toBe(
-        firstResponseBody.data.repository.id,
+      expect(responseBody.data.dataSource.repository.id).toBe(
+        firstResponseBody.data.dataSource.repository.id,
       )
       expect(responseBody.data.userWatch.id).toBe(
         firstResponseBody.data.userWatch.id,
@@ -422,9 +427,9 @@ describe("DataSources API - Component Test", () => {
       // レスポンス構造を確認
       const firstItem = responseBody.data.items[0]
       expect(firstItem.dataSource).toBeDefined()
-      expect(firstItem.repository).toBeDefined()
+      expect(firstItem.dataSource.repository).toBeDefined()
       expect(firstItem.userWatch).toBeDefined()
-      expect(firstItem.repository.owner).toBeDefined()
+      expect(firstItem.dataSource.repository.owner).toBeDefined()
     })
 
     test("名前フィルタリングが正常に動作する", async () => {
@@ -475,8 +480,12 @@ describe("DataSources API - Component Test", () => {
       const responseBody = await res.json()
       expect(responseBody.success).toBe(true)
       expect(responseBody.data.items).toHaveLength(2)
-      expect(responseBody.data.items[0].repository.owner).toBe("facebook")
-      expect(responseBody.data.items[1].repository.owner).toBe("facebook")
+      expect(responseBody.data.items[0].dataSource.repository.owner).toBe(
+        "facebook",
+      )
+      expect(responseBody.data.items[1].dataSource.repository.owner).toBe(
+        "facebook",
+      )
     })
 
     test("フリーワード検索が正常に動作する", async () => {
@@ -496,9 +505,9 @@ describe("DataSources API - Component Test", () => {
       const responseBody = await res.json()
       expect(responseBody.success).toBe(true)
       expect(responseBody.data.items).toHaveLength(1)
-      expect(responseBody.data.items[0].repository.fullName).toContain(
-        "facebook",
-      )
+      expect(
+        responseBody.data.items[0].dataSource.repository.fullName,
+      ).toContain("facebook")
     })
 
     test("ページネーションが正常に動作する", async () => {
@@ -543,13 +552,12 @@ describe("DataSources API - Component Test", () => {
         name: "React",
         sourceId: "10270250",
         sourceType: "github",
-      })
-
-      await TestDataFactory.createTestRepository(testDataSource.id, {
-        fullName: "facebook/react",
-        githubId: 10270250,
-        language: "JavaScript",
-        starsCount: 230000,
+        repository: {
+          fullName: "facebook/react",
+          githubId: 10270250,
+          language: "JavaScript",
+          starsCount: 230000,
+        },
       })
 
       await TestDataFactory.createTestUserWatch(
@@ -576,9 +584,11 @@ describe("DataSources API - Component Test", () => {
       expect(responseBody.success).toBe(true)
       expect(responseBody.data.dataSource.id).toBe(testDataSource.id)
       expect(responseBody.data.dataSource.name).toBe("React")
-      expect(responseBody.data.repository.fullName).toBe("facebook/react")
-      expect(responseBody.data.repository.owner).toBe("facebook")
-      expect(responseBody.data.repository.githubId).toBe(10270250)
+      expect(responseBody.data.dataSource.repository.fullName).toBe(
+        "facebook/react",
+      )
+      expect(responseBody.data.dataSource.repository.owner).toBe("facebook")
+      expect(responseBody.data.dataSource.repository.githubId).toBe(10270250)
       expect(responseBody.data.userWatch.userId).toBe(testUser.id)
       expect(responseBody.data.userWatch.watchReleases).toBe(true)
     })
@@ -592,11 +602,10 @@ describe("DataSources API - Component Test", () => {
         name: "Other Repository",
         sourceId: "other123456",
         sourceType: "github",
-      })
-
-      await TestDataFactory.createTestRepository(otherDataSource.id, {
-        fullName: "other/repo",
-        githubId: 999999999,
+        repository: {
+          fullName: "other/repo",
+          githubId: 999999999,
+        },
       })
 
       await TestDataFactory.createTestUserWatch(
@@ -672,15 +681,11 @@ describe("DataSources API - Component Test", () => {
         name: "Original React",
         sourceId: "10270250",
         sourceType: "github",
-      })
-
-      const testRepository = await TestDataFactory.createTestRepository(
-        testDataSource.id,
-        {
+        repository: {
           githubId: 10270250,
           fullName: "facebook/react",
         },
-      )
+      })
 
       const testUserWatch = await TestDataFactory.createTestUserWatch(
         testUser.id,
@@ -723,12 +728,10 @@ describe("DataSources API - Component Test", () => {
             description: "Updated description for React",
             sourceType: "github",
             sourceId: "10270250",
-          },
-          repository: {
-            id: testRepository.id,
-            dataSourceId: testDataSource.id,
-            githubId: 10270250,
-            fullName: "facebook/react",
+            repository: expect.objectContaining({
+              githubId: 10270250,
+              fullName: "facebook/react",
+            }),
           },
           userWatch: {
             id: testUserWatch.id,
@@ -749,11 +752,10 @@ describe("DataSources API - Component Test", () => {
         name: "Original Name",
         sourceId: "10270250",
         sourceType: "github",
-      })
-
-      await TestDataFactory.createTestRepository(testDataSource.id, {
-        githubId: 10270250,
-        fullName: "facebook/react",
+        repository: {
+          githubId: 10270250,
+          fullName: "facebook/react",
+        },
       })
 
       await TestDataFactory.createTestUserWatch(
@@ -802,11 +804,10 @@ describe("DataSources API - Component Test", () => {
         name: "Other User's DataSource",
         sourceId: "10270250",
         sourceType: "github",
-      })
-
-      await TestDataFactory.createTestRepository(testDataSource.id, {
-        githubId: 10270250,
-        fullName: "facebook/react",
+        repository: {
+          githubId: 10270250,
+          fullName: "facebook/react",
+        },
       })
 
       await TestDataFactory.createTestUserWatch(
@@ -902,11 +903,10 @@ describe("DataSources API - Component Test", () => {
         name: "Original Name",
         sourceId: "10270250",
         sourceType: "github",
-      })
-
-      await TestDataFactory.createTestRepository(testDataSource.id, {
-        githubId: 10270250,
-        fullName: "facebook/react",
+        repository: {
+          githubId: 10270250,
+          fullName: "facebook/react",
+        },
       })
 
       await TestDataFactory.createTestUserWatch(
@@ -951,13 +951,12 @@ describe("DataSources API - Component Test", () => {
         name: "React",
         sourceId: "10270250",
         sourceType: "github",
-      })
-
-      await TestDataFactory.createTestRepository(testDataSource.id, {
-        fullName: "facebook/react",
-        githubId: 10270250,
-        language: "JavaScript",
-        starsCount: 230000,
+        repository: {
+          fullName: "facebook/react",
+          githubId: 10270250,
+          language: "JavaScript",
+          starsCount: 230000,
+        },
       })
 
       await TestDataFactory.createTestUserWatch(
@@ -1039,11 +1038,10 @@ describe("DataSources API - Component Test", () => {
         name: "Other Repository",
         sourceId: "other123456",
         sourceType: "github",
-      })
-
-      await TestDataFactory.createTestRepository(otherDataSource.id, {
-        fullName: "other/repo",
-        githubId: 999999999,
+        repository: {
+          fullName: "other/repo",
+          githubId: 999999999,
+        },
       })
 
       await TestDataFactory.createTestUserWatch(
@@ -1117,11 +1115,10 @@ describe("DataSources API - Component Test", () => {
         name: "Unwatched Repository",
         sourceId: "unwatched123",
         sourceType: "github",
-      })
-
-      await TestDataFactory.createTestRepository(testDataSource.id, {
-        fullName: "unwatched/repo",
-        githubId: 123456789,
+        repository: {
+          fullName: "unwatched/repo",
+          githubId: 123456789,
+        },
       })
 
       const res = await app.request(`/${testDataSource.id}`, {

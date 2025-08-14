@@ -1,8 +1,4 @@
-import {
-  DataSourceRepository,
-  RepositoryRepository,
-  UserWatchRepository,
-} from "./repositories"
+import { DataSourceRepository, UserWatchRepository } from "./repositories"
 import { UserRepository } from "../user/repositories/user.repository"
 import {
   DataSourceCreationService,
@@ -24,7 +20,6 @@ import { createDataSourcePresentationRoutes } from "./presentation"
 
 // リポジトリのインスタンス作成
 const dataSourceRepository = new DataSourceRepository()
-const repositoryRepository = new RepositoryRepository()
 const userWatchRepository = new UserWatchRepository()
 const userRepository = new UserRepository()
 
@@ -34,7 +29,6 @@ const githubApiService = createGitHubApiService()
 // サービスの依存性注入
 const dataSourceCreationService = new DataSourceCreationService(
   dataSourceRepository,
-  repositoryRepository,
   githubApiService,
 )
 
