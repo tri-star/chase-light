@@ -86,6 +86,7 @@ export const dataSourceSchema = z
       example: false,
       description: "プライベートリポジトリかどうか",
     }),
+    repository: repositoryBaseSchema.omit({ dataSourceId: true }),
     createdAt: z.string().openapi({
       example: "2024-07-08T10:00:00.000Z",
       description: "作成日時",
@@ -155,7 +156,6 @@ export const createDataSourceResponseSchema = z
     data: z
       .object({
         dataSource: dataSourceSchema,
-        repository: repositorySchema,
         userWatch: userWatchSchema,
       })
       .openapi({

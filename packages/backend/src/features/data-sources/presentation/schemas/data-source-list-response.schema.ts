@@ -1,30 +1,16 @@
 import { z } from "@hono/zod-openapi"
 import {
   dataSourceSchema,
-  repositorySchema,
   userWatchSchema,
 } from "./data-source-response.schema"
 
 /**
- * GitHubリポジトリスキーマ（一覧用）
- * ownerフィールドを追加
- */
-export const repositoryListItemSchema = repositorySchema
-  .extend({
-    owner: z.string().openapi({
-      example: "facebook",
-      description: "GitHubリポジトリのオーナー名（fullNameから抽出）",
-    }),
-  })
-  .openapi("RepositoryListItem")
-
-/**
  * データソース一覧項目スキーマ
+ * repository情報はdataSource内に内包される
  */
 export const dataSourceListItemSchema = z
   .object({
     dataSource: dataSourceSchema,
-    repository: repositoryListItemSchema,
     userWatch: userWatchSchema,
   })
   .openapi("DataSourceListItem")

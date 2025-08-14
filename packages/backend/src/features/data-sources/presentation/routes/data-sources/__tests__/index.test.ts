@@ -152,10 +152,14 @@ describe("DataSources API - Component Test", () => {
       expect(responseBody.data.dataSource.url).toBe(
         "https://github.com/facebook/react",
       )
-      expect(responseBody.data.repository.fullName).toBe("facebook/react")
-      expect(responseBody.data.repository.githubId).toBe(10270250)
-      expect(responseBody.data.repository.language).toBe("JavaScript")
-      expect(responseBody.data.repository.starsCount).toBe(230000)
+      expect(responseBody.data.dataSource.repository.fullName).toBe(
+        "facebook/react",
+      )
+      expect(responseBody.data.dataSource.repository.githubId).toBe(10270250)
+      expect(responseBody.data.dataSource.repository.language).toBe(
+        "JavaScript",
+      )
+      expect(responseBody.data.dataSource.repository.starsCount).toBe(230000)
       expect(responseBody.data.userWatch.userId).toBe(testUser.id)
       expect(responseBody.data.userWatch.notificationEnabled).toBe(true)
       expect(responseBody.data.userWatch.watchReleases).toBe(true)
@@ -202,8 +206,12 @@ describe("DataSources API - Component Test", () => {
       // nameが指定されていない場合、GitHubのnameが使用されることを確認
       expect(responseBody.data.dataSource.name).toBe("TypeScript")
       expect(responseBody.data.dataSource.sourceId).toBe("1234567")
-      expect(responseBody.data.repository.fullName).toBe("microsoft/typescript")
-      expect(responseBody.data.repository.language).toBe("TypeScript")
+      expect(responseBody.data.dataSource.repository.fullName).toBe(
+        "microsoft/typescript",
+      )
+      expect(responseBody.data.dataSource.repository.language).toBe(
+        "TypeScript",
+      )
 
       // デフォルト値での作成を確認
       expect(responseBody.data.userWatch.notificationEnabled).toBe(true)
@@ -301,8 +309,8 @@ describe("DataSources API - Component Test", () => {
       expect(responseBody.data.dataSource.id).toBe(
         firstResponseBody.data.dataSource.id,
       )
-      expect(responseBody.data.repository.id).toBe(
-        firstResponseBody.data.repository.id,
+      expect(responseBody.data.dataSource.repository.id).toBe(
+        firstResponseBody.data.dataSource.repository.id,
       )
       expect(responseBody.data.userWatch.id).toBe(
         firstResponseBody.data.userWatch.id,
@@ -419,9 +427,9 @@ describe("DataSources API - Component Test", () => {
       // レスポンス構造を確認
       const firstItem = responseBody.data.items[0]
       expect(firstItem.dataSource).toBeDefined()
-      expect(firstItem.repository).toBeDefined()
+      expect(firstItem.dataSource.repository).toBeDefined()
       expect(firstItem.userWatch).toBeDefined()
-      expect(firstItem.repository.owner).toBeDefined()
+      expect(firstItem.dataSource.repository.owner).toBeDefined()
     })
 
     test("名前フィルタリングが正常に動作する", async () => {
@@ -472,8 +480,12 @@ describe("DataSources API - Component Test", () => {
       const responseBody = await res.json()
       expect(responseBody.success).toBe(true)
       expect(responseBody.data.items).toHaveLength(2)
-      expect(responseBody.data.items[0].repository.owner).toBe("facebook")
-      expect(responseBody.data.items[1].repository.owner).toBe("facebook")
+      expect(responseBody.data.items[0].dataSource.repository.owner).toBe(
+        "facebook",
+      )
+      expect(responseBody.data.items[1].dataSource.repository.owner).toBe(
+        "facebook",
+      )
     })
 
     test("フリーワード検索が正常に動作する", async () => {
@@ -493,9 +505,9 @@ describe("DataSources API - Component Test", () => {
       const responseBody = await res.json()
       expect(responseBody.success).toBe(true)
       expect(responseBody.data.items).toHaveLength(1)
-      expect(responseBody.data.items[0].repository.fullName).toContain(
-        "facebook",
-      )
+      expect(
+        responseBody.data.items[0].dataSource.repository.fullName,
+      ).toContain("facebook")
     })
 
     test("ページネーションが正常に動作する", async () => {
@@ -572,9 +584,11 @@ describe("DataSources API - Component Test", () => {
       expect(responseBody.success).toBe(true)
       expect(responseBody.data.dataSource.id).toBe(testDataSource.id)
       expect(responseBody.data.dataSource.name).toBe("React")
-      expect(responseBody.data.repository.fullName).toBe("facebook/react")
-      expect(responseBody.data.repository.owner).toBe("facebook")
-      expect(responseBody.data.repository.githubId).toBe(10270250)
+      expect(responseBody.data.dataSource.repository.fullName).toBe(
+        "facebook/react",
+      )
+      expect(responseBody.data.dataSource.repository.owner).toBe("facebook")
+      expect(responseBody.data.dataSource.repository.githubId).toBe(10270250)
       expect(responseBody.data.userWatch.userId).toBe(testUser.id)
       expect(responseBody.data.userWatch.watchReleases).toBe(true)
     })
@@ -714,12 +728,11 @@ describe("DataSources API - Component Test", () => {
             description: "Updated description for React",
             sourceType: "github",
             sourceId: "10270250",
+            repository: expect.objectContaining({
+              githubId: 10270250,
+              fullName: "facebook/react",
+            }),
           },
-          repository: expect.objectContaining({
-            dataSourceId: testDataSource.id,
-            githubId: 10270250,
-            fullName: "facebook/react",
-          }),
           userWatch: {
             id: testUserWatch.id,
             userId: testUser.id,
