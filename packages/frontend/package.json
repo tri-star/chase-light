@@ -28,7 +28,7 @@
     "@nuxt/eslint": "1.4.1",
     "@nuxt/icon": "1.13.0",
     "@nuxtjs/storybook": "8.3.5",
-    "@storybook/addon-docs": "9.1.1",
+    "@storybook/addon-docs": "9.1.2",
     "dotenv": "^16.6.1",
     "eslint": "^9.28.0",
     "jsonwebtoken": "^9.0.2",
