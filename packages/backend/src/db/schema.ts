@@ -301,6 +301,9 @@ export const sessions = pgTable(
     provider: varchar("provider", { length: 50 }),
     accessToken: text("access_token"),
     refreshToken: text("refresh_token"),
+    accessTokenExpiresAt: timestamp("access_token_expires_at", {
+      withTimezone: true,
+    }),
     expiresAt: timestamp("expires_at", { withTimezone: true }).notNull(),
     createdAt: timestamp("created_at", { withTimezone: true })
       .defaultNow()
