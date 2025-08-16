@@ -404,6 +404,74 @@
             "example": false,
             "description": "プライベートリポジトリかどうか"
           },
+          "repository": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "example": "01234567-89ab-cdef-0123-456789abcdef",
+                "description": "リポジトリID"
+              },
+              "githubId": {
+                "type": "number",
+                "example": 10270250,
+                "description": "GitHub リポジトリID"
+              },
+              "fullName": {
+                "type": "string",
+                "example": "facebook/react",
+                "description": "リポジトリのフルネーム"
+              },
+              "language": {
+                "type": "string",
+                "nullable": true,
+                "example": "JavaScript",
+                "description": "主要プログラミング言語"
+              },
+              "starsCount": {
+                "type": "number",
+                "example": 230000,
+                "description": "スター数"
+              },
+              "forksCount": {
+                "type": "number",
+                "example": 47000,
+                "description": "フォーク数"
+              },
+              "openIssuesCount": {
+                "type": "number",
+                "example": 1500,
+                "description": "未解決イシュー数"
+              },
+              "isFork": {
+                "type": "boolean",
+                "example": false,
+                "description": "フォークリポジトリかどうか"
+              },
+              "createdAt": {
+                "type": "string",
+                "example": "2024-07-08T10:00:00.000Z",
+                "description": "作成日時"
+              },
+              "updatedAt": {
+                "type": "string",
+                "example": "2024-07-08T10:00:00.000Z",
+                "description": "更新日時"
+              }
+            },
+            "required": [
+              "id",
+              "githubId",
+              "fullName",
+              "language",
+              "starsCount",
+              "forksCount",
+              "openIssuesCount",
+              "isFork",
+              "createdAt",
+              "updatedAt"
+            ]
+          },
           "createdAt": {
             "type": "string",
             "example": "2024-07-08T10:00:00.000Z",
@@ -423,100 +491,9 @@
           "description",
           "url",
           "isPrivate",
+          "repository",
           "createdAt",
           "updatedAt"
-        ]
-      },
-      "Repository": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string",
-            "example": "01234567-89ab-cdef-0123-456789abcdef",
-            "description": "リポジトリID"
-          },
-          "dataSourceId": {
-            "type": "string",
-            "example": "01234567-89ab-cdef-0123-456789abcdef",
-            "description": "データソースID"
-          },
-          "githubId": {
-            "type": "number",
-            "example": 10270250,
-            "description": "GitHub リポジトリID"
-          },
-          "fullName": {
-            "type": "string",
-            "example": "facebook/react",
-            "description": "リポジトリのフルネーム"
-          },
-          "language": {
-            "type": "string",
-            "nullable": true,
-            "example": "JavaScript",
-            "description": "主要プログラミング言語"
-          },
-          "starsCount": {
-            "type": "number",
-            "example": 230000,
-            "description": "スター数"
-          },
-          "forksCount": {
-            "type": "number",
-            "example": 47000,
-            "description": "フォーク数"
-          },
-          "openIssuesCount": {
-            "type": "number",
-            "example": 1500,
-            "description": "未解決イシュー数"
-          },
-          "isFork": {
-            "type": "boolean",
-            "example": false,
-            "description": "フォークリポジトリかどうか"
-          },
-          "createdAt": {
-            "type": "string",
-            "example": "2024-07-08T10:00:00.000Z",
-            "description": "作成日時"
-          },
-          "updatedAt": {
-            "type": "string",
-            "example": "2024-07-08T10:00:00.000Z",
-            "description": "更新日時"
-          }
-        },
-        "required": [
-          "id",
-          "dataSourceId",
-          "githubId",
-          "fullName",
-          "language",
-          "starsCount",
-          "forksCount",
-          "openIssuesCount",
-          "isFork",
-          "createdAt",
-          "updatedAt"
-        ]
-      },
-      "RepositoryListItem": {
-        "allOf": [
-          {
-            "$ref": "#/components/schemas/Repository"
-          },
-          {
-            "type": "object",
-            "properties": {
-              "owner": {
-                "type": "string",
-                "example": "facebook",
-                "description": "GitHubリポジトリのオーナー名（fullNameから抽出）"
-              }
-            },
-            "required": ["owner"]
-          }
         ]
       },
       "UserWatch": {
@@ -580,14 +557,11 @@
           "dataSource": {
             "$ref": "#/components/schemas/DataSource"
           },
-          "repository": {
-            "$ref": "#/components/schemas/RepositoryListItem"
-          },
           "userWatch": {
             "$ref": "#/components/schemas/UserWatch"
           }
         },
-        "required": ["dataSource", "repository", "userWatch"]
+        "required": ["dataSource", "userWatch"]
       },
       "Pagination": {
         "type": "object",
@@ -741,14 +715,11 @@
               "dataSource": {
                 "$ref": "#/components/schemas/DataSource"
               },
-              "repository": {
-                "$ref": "#/components/schemas/Repository"
-              },
               "userWatch": {
                 "$ref": "#/components/schemas/UserWatch"
               }
             },
-            "required": ["dataSource", "repository", "userWatch"],
+            "required": ["dataSource", "userWatch"],
             "description": "作成されたデータ"
           }
         },
@@ -1692,6 +1663,59 @@
                             "isPrivate": {
                               "type": "boolean"
                             },
+                            "repository": {
+                              "type": "object",
+                              "properties": {
+                                "id": {
+                                  "type": "string",
+                                  "format": "uuid"
+                                },
+                                "githubId": {
+                                  "type": "number"
+                                },
+                                "fullName": {
+                                  "type": "string"
+                                },
+                                "owner": {
+                                  "type": "string"
+                                },
+                                "language": {
+                                  "type": "string",
+                                  "nullable": true
+                                },
+                                "starsCount": {
+                                  "type": "number"
+                                },
+                                "forksCount": {
+                                  "type": "number"
+                                },
+                                "openIssuesCount": {
+                                  "type": "number"
+                                },
+                                "isFork": {
+                                  "type": "boolean"
+                                },
+                                "createdAt": {
+                                  "type": "string"
+                                },
+                                "updatedAt": {
+                                  "type": "string"
+                                }
+                              },
+                              "required": [
+                                "id",
+                                "githubId",
+                                "fullName",
+                                "owner",
+                                "language",
+                                "starsCount",
+                                "forksCount",
+                                "openIssuesCount",
+                                "isFork",
+                                "createdAt",
+                                "updatedAt"
+                              ]
+                            },
                             "createdAt": {
                               "type": "string"
                             },
@@ -1707,64 +1731,7 @@
                             "description",
                             "url",
                             "isPrivate",
-                            "createdAt",
-                            "updatedAt"
-                          ]
-                        },
-                        "repository": {
-                          "type": "object",
-                          "properties": {
-                            "id": {
-                              "type": "string",
-                              "format": "uuid"
-                            },
-                            "dataSourceId": {
-                              "type": "string",
-                              "format": "uuid"
-                            },
-                            "githubId": {
-                              "type": "number"
-                            },
-                            "fullName": {
-                              "type": "string"
-                            },
-                            "owner": {
-                              "type": "string"
-                            },
-                            "language": {
-                              "type": "string",
-                              "nullable": true
-                            },
-                            "starsCount": {
-                              "type": "number"
-                            },
-                            "forksCount": {
-                              "type": "number"
-                            },
-                            "openIssuesCount": {
-                              "type": "number"
-                            },
-                            "isFork": {
-                              "type": "boolean"
-                            },
-                            "createdAt": {
-                              "type": "string"
-                            },
-                            "updatedAt": {
-                              "type": "string"
-                            }
-                          },
-                          "required": [
-                            "id",
-                            "dataSourceId",
-                            "githubId",
-                            "fullName",
-                            "owner",
-                            "language",
-                            "starsCount",
-                            "forksCount",
-                            "openIssuesCount",
-                            "isFork",
+                            "repository",
                             "createdAt",
                             "updatedAt"
                           ]
@@ -1812,7 +1779,7 @@
                           ]
                         }
                       },
-                      "required": ["dataSource", "repository", "userWatch"]
+                      "required": ["dataSource", "userWatch"]
                     }
                   },
                   "required": ["success", "data"]

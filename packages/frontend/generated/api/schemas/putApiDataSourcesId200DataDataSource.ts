@@ -5,6 +5,7 @@
  * GitHub リポジトリ監視サービス API - TypeScript + Hono + Zod + OpenAPI
  * OpenAPI spec version: 1.0.0
  */
+import type { PutApiDataSourcesId200DataDataSourceRepository } from './putApiDataSourcesId200DataDataSourceRepository';
 
 export type PutApiDataSourcesId200DataDataSource = {
   id: string;
@@ -14,6 +15,7 @@ export type PutApiDataSourcesId200DataDataSource = {
   description: string;
   url: string;
   isPrivate: boolean;
+  repository: PutApiDataSourcesId200DataDataSourceRepository;
   createdAt: string;
   updatedAt: string;
 };
