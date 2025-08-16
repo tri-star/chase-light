@@ -9,7 +9,14 @@ async function getAccessToken(): Promise<string | null> {
   try {
     // Server-side環境でのみ実行
     if (typeof window === 'undefined') {
-      return await getAccessTokenFromSession(useEvent())
+      const event = useEvent()
+      if (event) {
+        return await getAccessTokenFromSession(event)
+      }
+      console.warn(
+        'useEvent() returned null; cannot read session-based access token'
+      )
+      return null
     }
   } catch (error) {
     console.warn('Failed to get access token:', error)

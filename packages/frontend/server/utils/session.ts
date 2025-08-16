@@ -55,6 +55,21 @@ const SESSION_CONFIG = {
   sameSite: 'lax' as const,
 }
 
+// 更新を許可するフィールドのマッピング（プロパティ名 -> DBカラム名）
+const ALLOWED_UPDATE_COLUMNS: Record<string, string> = {
+  userId: 'user_id',
+  email: 'email',
+  name: 'name',
+  avatar: 'avatar',
+  provider: 'provider',
+  accessToken: 'access_token',
+  refreshToken: 'refresh_token',
+  accessTokenExpiresAt: 'access_token_expires_at',
+  expiresAt: 'expires_at',
+  updatedAt: 'updated_at',
+  loggedInAt: 'logged_in_at',
+}
+
 /**
  * セッションIDを生成する
  */
@@ -297,23 +312,8 @@ export async function updateUserSession(
     let paramIndex = 1
 
     Object.entries(updates).forEach(([key, value]) => {
-      if (value !== undefined) {
-        const dbColumn =
-          key === 'userId'
-            ? 'user_id'
-            : key === 'accessToken'
-              ? 'access_token'
-              : key === 'refreshToken'
-                ? 'refresh_token'
-                : key === 'accessTokenExpiresAt'
-                  ? 'access_token_expires_at'
-                  : key === 'expiresAt'
-                    ? 'expires_at'
-                    : key === 'updatedAt'
-                      ? 'updated_at'
-                      : key === 'loggedInAt'
-                        ? 'logged_in_at'
-                        : key
+      if (value !== undefined && key in ALLOWED_UPDATE_COLUMNS) {
+        const dbColumn = ALLOWED_UPDATE_COLUMNS[key] || key
 
         updateFields.push(`${dbColumn} = $${paramIndex}`)
         updateValues.push(value)

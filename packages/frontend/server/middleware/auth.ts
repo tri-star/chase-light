@@ -1,16 +1,30 @@
 import { getUserSession, updateUserSession } from '~/server/utils/session'
 import { refreshAccessToken } from '~/server/utils/auth0'
 
+// トークン更新を試みる閾値（ms）
+const TOKEN_REFRESH_THRESHOLD_MS = 60 * 1000 // 1 minute
+
+const EXCLUDED_PATH_PATTERNS: Array<string | RegExp> = [
+  '/api/auth/login',
+  '/api/auth/callback',
+]
+
 export default defineEventHandler(async (event) => {
   const url = getRequestURL(event)
 
-  // APIルート以外は対象外
+  // APIでない場合は処理対象外
   if (!url.pathname.startsWith('/api/')) {
     return
   }
 
-  // ログインエンドポイントは処理対象外
-  if (url.pathname.startsWith('/api/auth/')) {
+  // 除外パターンにマッチするパスはスキップ（ログイン・公開API・静的アセットなど）
+  if (
+    EXCLUDED_PATH_PATTERNS.some((pattern) =>
+      typeof pattern === 'string'
+        ? url.pathname.startsWith(pattern)
+        : pattern.test(url.pathname)
+    )
+  ) {
     return
   }
 
@@ -30,8 +44,7 @@ export default defineEventHandler(async (event) => {
     const expiresAt = new Date(session.accessTokenExpiresAt)
     const timeUntilExpiry = expiresAt.getTime() - now.getTime()
 
-    // 有効期限が1分未満の場合にトークンを更新
-    if (timeUntilExpiry < 60 * 1000) {
+    if (timeUntilExpiry < TOKEN_REFRESH_THRESHOLD_MS) {
       try {
         console.log('Access token is expiring soon, refreshing...', {
           userId: session.userId,
@@ -42,9 +55,13 @@ export default defineEventHandler(async (event) => {
         // リフレッシュトークンで新しいアクセストークンを取得
         const newTokens = await refreshAccessToken(session.refreshToken)
 
+        if (!newTokens || !newTokens.access_token) {
+          throw new Error('refreshAccessToken did not return tokens')
+        }
+
         // 新しいトークンの有効期限を計算
         const newAccessTokenExpiresAt = new Date(
-          Date.now() + newTokens.expires_in * 1000
+          Date.now() + (newTokens.expires_in || 0) * 1000
         )
 
         // セッションを更新
@@ -83,6 +100,4 @@ export default defineEventHandler(async (event) => {
       }
     }
   }
-
-  // ミドルウェア処理完了
 })
