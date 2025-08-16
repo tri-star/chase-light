@@ -4,16 +4,6 @@ import { postApiDataSourcesBody } from '~/generated/api/zod/chaseLightAPI.zod'
 import { validateWithZod } from '~/utils/validation'
 
 export default defineEventHandler(async (event) => {
-  // セッション認証を要求
-  const session = await requireUserSession(event)
-
-  if (!session.userId) {
-    throw createError({
-      statusCode: 401,
-      statusMessage: 'User session not found',
-    })
-  }
-
   // リクエストボディを取得してバリデーション
   const body = await readBody(event)
 

@@ -6,11 +6,9 @@
  * OpenAPI spec version: 1.0.0
  */
 import type { DataSource } from './dataSource';
-import type { RepositoryListItem } from './repositoryListItem';
 import type { UserWatch } from './userWatch';
 
 export interface DataSourceListItem {
   dataSource: DataSource;
-  repository: RepositoryListItem;
   userWatch: UserWatch;
 }

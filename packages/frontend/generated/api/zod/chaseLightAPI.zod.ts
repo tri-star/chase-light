@@ -175,12 +175,8 @@ export const getApiDataSourcesResponse = zod.object({
   "description": zod.string().describe('データソースの説明'),
   "url": zod.string().describe('データソースのURL'),
   "isPrivate": zod.boolean().describe('プライベートリポジトリかどうか'),
-  "createdAt": zod.string().describe('作成日時'),
-  "updatedAt": zod.string().describe('更新日時')
-}),
   "repository": zod.object({
   "id": zod.string().describe('リポジトリID'),
-  "dataSourceId": zod.string().describe('データソースID'),
   "githubId": zod.number().describe('GitHub リポジトリID'),
   "fullName": zod.string().describe('リポジトリのフルネーム'),
   "language": zod.string().nullable().describe('主要プログラミング言語'),
@@ -190,9 +186,10 @@ export const getApiDataSourcesResponse = zod.object({
   "isFork": zod.boolean().describe('フォークリポジトリかどうか'),
   "createdAt": zod.string().describe('作成日時'),
   "updatedAt": zod.string().describe('更新日時')
-}).and(zod.object({
-  "owner": zod.string().describe('GitHubリポジトリのオーナー名（fullNameから抽出）')
-})),
+}),
+  "createdAt": zod.string().describe('作成日時'),
+  "updatedAt": zod.string().describe('更新日時')
+}),
   "userWatch": zod.object({
   "id": zod.string().describe('ユーザーウォッチID'),
   "userId": zod.string().describe('ユーザーID'),
@@ -252,12 +249,8 @@ export const getApiDataSourcesIdResponse = zod.object({
   "description": zod.string().describe('データソースの説明'),
   "url": zod.string().describe('データソースのURL'),
   "isPrivate": zod.boolean().describe('プライベートリポジトリかどうか'),
-  "createdAt": zod.string().describe('作成日時'),
-  "updatedAt": zod.string().describe('更新日時')
-}),
   "repository": zod.object({
   "id": zod.string().describe('リポジトリID'),
-  "dataSourceId": zod.string().describe('データソースID'),
   "githubId": zod.number().describe('GitHub リポジトリID'),
   "fullName": zod.string().describe('リポジトリのフルネーム'),
   "language": zod.string().nullable().describe('主要プログラミング言語'),
@@ -267,9 +260,10 @@ export const getApiDataSourcesIdResponse = zod.object({
   "isFork": zod.boolean().describe('フォークリポジトリかどうか'),
   "createdAt": zod.string().describe('作成日時'),
   "updatedAt": zod.string().describe('更新日時')
-}).and(zod.object({
-  "owner": zod.string().describe('GitHubリポジトリのオーナー名（fullNameから抽出）')
-})),
+}),
+  "createdAt": zod.string().describe('作成日時'),
+  "updatedAt": zod.string().describe('更新日時')
+}),
   "userWatch": zod.object({
   "id": zod.string().describe('ユーザーウォッチID'),
   "userId": zod.string().describe('ユーザーID'),
@@ -316,12 +310,8 @@ export const putApiDataSourcesIdResponse = zod.object({
   "description": zod.string(),
   "url": zod.string(),
   "isPrivate": zod.boolean(),
-  "createdAt": zod.string(),
-  "updatedAt": zod.string()
-}),
   "repository": zod.object({
   "id": zod.uuid(),
-  "dataSourceId": zod.uuid(),
   "githubId": zod.number(),
   "fullName": zod.string(),
   "owner": zod.string(),
@@ -330,6 +320,9 @@ export const putApiDataSourcesIdResponse = zod.object({
   "forksCount": zod.number(),
   "openIssuesCount": zod.number(),
   "isFork": zod.boolean(),
+  "createdAt": zod.string(),
+  "updatedAt": zod.string()
+}),
   "createdAt": zod.string(),
   "updatedAt": zod.string()
 }),

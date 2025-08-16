@@ -38,6 +38,7 @@ export interface UserSession {
   provider?: string
   accessToken?: string
   refreshToken?: string
+  accessTokenExpiresAt?: Date
   expiresAt?: Date
   createdAt: Date
   updatedAt: Date
@@ -52,6 +53,21 @@ const SESSION_CONFIG = {
   secure: process.env.APP_STAGE === 'prod',
   httpOnly: true,
   sameSite: 'lax' as const,
+}
+
+// 更新を許可するフィールドのマッピング（プロパティ名 -> DBカラム名）
+const ALLOWED_UPDATE_COLUMNS: Record<string, string> = {
+  userId: 'user_id',
+  email: 'email',
+  name: 'name',
+  avatar: 'avatar',
+  provider: 'provider',
+  accessToken: 'access_token',
+  refreshToken: 'refresh_token',
+  accessTokenExpiresAt: 'access_token_expires_at',
+  expiresAt: 'expires_at',
+  updatedAt: 'updated_at',
+  loggedInAt: 'logged_in_at',
 }
 
 /**
@@ -139,6 +155,7 @@ export async function getUserSession(
       provider: session.provider,
       accessToken: session.access_token,
       refreshToken: session.refresh_token,
+      accessTokenExpiresAt: session.access_token_expires_at,
       expiresAt: session.expires_at,
       createdAt: session.created_at,
       updatedAt: session.updated_at,
@@ -176,8 +193,8 @@ export async function setUserSession(
     `
     INSERT INTO sessions (
       id, user_id, email, name, avatar, provider,
-      access_token, refresh_token, expires_at, created_at, updated_at, logged_in_at
-    ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
+      access_token, refresh_token, access_token_expires_at, expires_at, created_at, updated_at, logged_in_at
+    ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)
   `,
     [
       session.id,
@@ -188,6 +205,7 @@ export async function setUserSession(
       session.provider,
       session.accessToken,
       session.refreshToken,
+      session.accessTokenExpiresAt,
       session.expiresAt,
       session.createdAt,
       session.updatedAt,
@@ -247,6 +265,103 @@ export async function requireUserSession(event: H3Event): Promise<UserSession> {
   }
 
   return session
+}
+
+/**
+ * セッションからアクセストークンを取得する
+ */
+export async function getAccessTokenFromSession(
+  event: H3Event
+): Promise<string | null> {
+  const session = await getUserSession(event)
+  return session?.accessToken || null
+}
+
+/**
+ * セッションを更新する
+ */
+export async function updateUserSession(
+  event: H3Event,
+  updates: Partial<Omit<UserSession, 'id' | 'createdAt'>>
+): Promise<UserSession | null> {
+  const sessionCookie = getCookie(event, SESSION_CONFIG.cookieName)
+
+  if (!sessionCookie) {
+    return null
+  }
+
+  try {
+    const sessionId = decryptSession(sessionCookie)
+    const pool = getPool()
+
+    // 現在のセッションを取得
+    const currentResult = await pool.query(
+      'SELECT * FROM sessions WHERE id = $1 AND expires_at > NOW()',
+      [sessionId]
+    )
+
+    if (currentResult.rows.length === 0) {
+      return null
+    }
+
+    const now = new Date()
+
+    // 更新対象のフィールドを動的に構築
+    const updateFields: string[] = []
+    const updateValues: unknown[] = []
+    let paramIndex = 1
+
+    Object.entries(updates).forEach(([key, value]) => {
+      if (value !== undefined && key in ALLOWED_UPDATE_COLUMNS) {
+        const dbColumn = ALLOWED_UPDATE_COLUMNS[key] || key
+
+        updateFields.push(`${dbColumn} = $${paramIndex}`)
+        updateValues.push(value)
+        paramIndex++
+      }
+    })
+
+    // updated_atは常に更新
+    updateFields.push(`updated_at = $${paramIndex}`)
+    updateValues.push(now)
+    paramIndex++
+
+    // sessionIdを最後に追加
+    updateValues.push(sessionId)
+
+    const updateQuery = `
+      UPDATE sessions 
+      SET ${updateFields.join(', ')}
+      WHERE id = $${paramIndex}
+      RETURNING *
+    `
+
+    const result = await pool.query(updateQuery, updateValues)
+
+    if (result.rows.length === 0) {
+      return null
+    }
+
+    const updatedSession = result.rows[0]
+    return {
+      id: updatedSession.id,
+      userId: updatedSession.user_id,
+      email: updatedSession.email,
+      name: updatedSession.name,
+      avatar: updatedSession.avatar,
+      provider: updatedSession.provider,
+      accessToken: updatedSession.access_token,
+      refreshToken: updatedSession.refresh_token,
+      accessTokenExpiresAt: updatedSession.access_token_expires_at,
+      expiresAt: updatedSession.expires_at,
+      createdAt: updatedSession.created_at,
+      updatedAt: updatedSession.updated_at,
+      loggedInAt: updatedSession.logged_in_at,
+    }
+  } catch (error) {
+    console.error('Failed to update user session:', error)
+    return null
+  }
 }
 
 /**

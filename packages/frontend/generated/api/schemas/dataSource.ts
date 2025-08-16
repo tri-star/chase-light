@@ -5,6 +5,7 @@
  * GitHub リポジトリ監視サービス API - TypeScript + Hono + Zod + OpenAPI
  * OpenAPI spec version: 1.0.0
  */
+import type { DataSourceRepository } from './dataSourceRepository';
 
 export interface DataSource {
   /** データソースID */
@@ -21,6 +22,7 @@ export interface DataSource {
   url: string;
   /** プライベートリポジトリかどうか */
   isPrivate: boolean;
+  repository: DataSourceRepository;
   /** 作成日時 */
   createdAt: string;
   /** 更新日時 */

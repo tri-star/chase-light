@@ -6,11 +6,9 @@
  * OpenAPI spec version: 1.0.0
  */
 import type { PutApiDataSourcesId200DataDataSource } from './putApiDataSourcesId200DataDataSource';
-import type { PutApiDataSourcesId200DataRepository } from './putApiDataSourcesId200DataRepository';
 import type { PutApiDataSourcesId200DataUserWatch } from './putApiDataSourcesId200DataUserWatch';
 
 export type PutApiDataSourcesId200Data = {
   dataSource: PutApiDataSourcesId200DataDataSource;
-  repository: PutApiDataSourcesId200DataRepository;
   userWatch: PutApiDataSourcesId200DataUserWatch;
 };

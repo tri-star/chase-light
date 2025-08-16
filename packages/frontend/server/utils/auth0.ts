@@ -30,7 +30,7 @@ function getAuth0Config() {
     clientId: config.auth0ClientId!,
     clientSecret: config.auth0ClientSecret!,
     audience: config.auth0Audience!,
-    scope: 'openid profile email',
+    scope: 'openid profile email offline_access',
     redirectUri: `${config.public.baseUrl}/api/auth/callback`,
   }
 }
@@ -281,6 +281,7 @@ export async function exchangeCodeForTokens(
       client_secret: auth0Config.clientSecret,
       code,
       redirect_uri: auth0Config.redirectUri,
+      audience: auth0Config.audience,
     }),
   })
 

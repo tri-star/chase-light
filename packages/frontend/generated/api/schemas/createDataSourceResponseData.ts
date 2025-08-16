@@ -6,7 +6,6 @@
  * OpenAPI spec version: 1.0.0
  */
 import type { DataSource } from './dataSource';
-import type { Repository } from './repository';
 import type { UserWatch } from './userWatch';
 
 /**
@@ -14,6 +13,5 @@ import type { UserWatch } from './userWatch';
  */
 export type CreateDataSourceResponseData = {
   dataSource: DataSource;
-  repository: Repository;
   userWatch: UserWatch;
 };
