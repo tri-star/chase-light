@@ -4,6 +4,11 @@ import { refreshAccessToken } from '~/server/utils/auth0'
 export default defineEventHandler(async (event) => {
   const url = getRequestURL(event)
 
+  // APIルート以外は対象外
+  if (!url.pathname.startsWith('/api/')) {
+    return
+  }
+
   // ログインエンドポイントは処理対象外
   if (url.pathname.startsWith('/api/auth/')) {
     return
