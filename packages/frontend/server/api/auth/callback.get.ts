@@ -67,6 +67,9 @@ export default defineEventHandler(async (event) => {
       })
     }
 
+    // アクセストークンの有効期限を計算
+    const accessTokenExpiresAt = new Date(Date.now() + tokens.expires_in * 1000)
+
     // セッションを作成
     await setUserSession(event, {
       userId: userInfo.sub,
@@ -76,6 +79,7 @@ export default defineEventHandler(async (event) => {
       provider: 'auth0',
       accessToken: tokens.access_token,
       refreshToken: tokens.refresh_token,
+      accessTokenExpiresAt,
       loggedInAt: new Date(),
     })
 

@@ -15,16 +15,6 @@ export default defineEventHandler(
     success: boolean
     data: DataSourceListResponseData
   }> => {
-    // セッション認証を要求
-    const session = await requireUserSession(event)
-
-    if (!session.userId) {
-      throw createError({
-        statusCode: 401,
-        statusMessage: 'User session not found',
-      })
-    }
-
     // クエリパラメータを取得
     const query = getQuery(event)
     const params: GetApiDataSourcesParams = {

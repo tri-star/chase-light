@@ -4,12 +4,12 @@ interface FetchOptions extends RequestInit {
   zodSchema?: ZodSchema<unknown>
 }
 
-// AsyncLocalStorageを使ってアクセストークンを取得
+// セッションからアクセストークンを取得
 async function getAccessToken(): Promise<string | null> {
   try {
     // Server-side環境でのみ実行
     if (typeof window === 'undefined') {
-      return await getAccessTokenFromALS()
+      return await getAccessTokenFromSession(useEvent())
     }
   } catch (error) {
     console.warn('Failed to get access token:', error)
