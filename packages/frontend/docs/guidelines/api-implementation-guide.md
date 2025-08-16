@@ -38,41 +38,39 @@
 
 #### 1. 認証不要のAPI
 
-現時点では @packages/frontend/server/api/github/user.get.ts を参照。
-ただしこのAPIはサンプル実装であり、後日削除する想定です。
+現時点では `@packages/frontend/server/api/auth/_login.get.ts` を参照。
 
 TBD: 実装方法の詳細が決定後、どのファイルを参照するべきかを明記する
 
 #### 2. 認証必須のAPI
 
-現時点では @packages/frontend/server/api/protected/test.get.ts を参照。
-ただしこのAPIはサンプル実装であり、後日削除する想定です。
+以下のファイルを参照
 
-TBD: 実装方法の詳細が決定後、どのファイルを参照するべきかを明記する
-
-#### 3. POSTリクエストの実装例
-
-TBD: 実装方法の詳細が決定後、どのファイルを参照するべきかを明記する
+- @packages/frontend/server/api/data-sources/index.get.ts
+- @packages/frontend/server/api/data-sources/index.post.ts
 
 ## スキーマ検証戦略
 
-TBD: 現時点ではzodをどのように導入するかが未定のため保留(orvalと組み合わせるなど)。確定後に記述する
+- APIルートに渡された値は「境界を跨いで渡された値」であるため、Zodによる実行時も含めたスキーマ検証を行います。
+  - ZodスキーマはOrvalが出力するスキーマを利用します。これは、 `packages/frontend/generated/api/zod/chaseLightAPI.zod.ts` で定義されています。
+  - スキーマを利用したパース処理は、 `validateWithZod` ユーティリティ関数を使用します。
+  - 実装例としては `@packages/frontend/server/api/data-sources/index.post.ts` を参照してください。
 
 ## エラーハンドリング
 
-TBD: 実装を進めながら検討、拡充する
-
-### エラーハンドリングユーティリティ
-
-TBD: 実装を進めながら検討、拡充する
+- エラー発生時はNuxt.jsのユーティリティ関数である `createError` を利用してエラーをスローし、同時に詳細情報を `console.error` でログ記録する方針とします。
+- エラーの原因に応じてステータスコードを以下のように分けます。
+  - ユーザー起因： 4XX (認証エラーの場合401など、適切なステータスコードを使用します)
+  - サーバー起因： 5XX (内部エラーなど)
+- エラーレスポンスには「ブラウザなど一般的なクライアントに返して差し支えない情報」を返すようにします。
+  以下のような情報は極力レスポンスに含めないようにします。
+  - 内部エラーのスタックトレース
+  - 機密性の高い情報(トークン、パスワード)
+- `createError` によるレスポンスには詳細情報を含めない代わりに、`console.error` のエラーには詳細情報を含め、「どのデータに関する処理でエラーが起きたのか」をトレース出来るようにすることを意識します。
 
 ## 認証統合
 
 ### セッション管理パターン
-
-TBD: 実装を進めながら検討、拡充する
-
-### 認証必須APIのパターン
 
 TBD: 実装を進めながら検討、拡充する
 
