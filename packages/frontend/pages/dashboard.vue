@@ -138,12 +138,14 @@
                             {{ item.dataSource.name }}
                           </p>
                           <p class="text-sm text-gray-500 truncate">
-                            {{ item.repository.fullName }}
+                            {{ item.dataSource.repository.fullName }}
                           </p>
                           <p class="text-xs text-gray-400">
-                            スター: {{ item.repository.starsCount }} | フォーク:
-                            {{ item.repository.forksCount }} | 言語:
-                            {{ item.repository.language || 'N/A' }}
+                            スター:
+                            {{ item.dataSource.repository.starsCount }} |
+                            フォーク:
+                            {{ item.dataSource.repository.forksCount }} | 言語:
+                            {{ item.dataSource.repository.language || 'N/A' }}
                           </p>
                         </div>
                         <div class="text-sm text-gray-500">
