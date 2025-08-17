@@ -18,8 +18,14 @@
       "semicolons": "asNeeded"
     }
   },
+  "json": {
+    "formatter": {
+      "trailingCommas": "none"
+    }
+  },
   "files": {
     "includes": [
+      "**/*.json",
       "**/packages/backend/**",
       "**/packages/shared/**",
       "!**/node_modules",

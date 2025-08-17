@@ -1,0 +1,26 @@
+{
+	"folders": [
+		{
+			"path": "."
+		},
+		{
+			"path": "packages/frontend"
+		},
+		{
+			"path": "packages/backend"
+		},
+		{
+			"path": "packages/shared"
+		},
+	],
+	"settings": {
+		"files.exclude": {
+			"packages/frontend": true,
+			"packages/backend": true,
+			"packages/shared": true,
+		},
+		"files.associations": {
+			"*.mjs": "javascript"
+		}
+	}
+}
