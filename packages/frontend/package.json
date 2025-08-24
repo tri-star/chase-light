@@ -21,8 +21,9 @@
     "test:e2e:report": "playwright show-report",
     "test:e2e:install": "playwright install",
     "generate:api": "orval",
-    "predev": "pnpm generate:api",
-    "prebuild": "pnpm generate:api"
+    "generate:tailwind-theme": "tsx scripts/design-token-converter/convert.ts && prettier --write -c .prettierrc assets/css/tailwind.css",
+    "predev": "pnpm generate:api && pnpm generate:tailwind-theme",
+    "prebuild": "pnpm generate:api && pnpm generate:tailwind-theme"
   },
   "dependencies": {
     "@nuxt/eslint": "1.4.1",
@@ -55,11 +56,13 @@
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-storybook": "^9.1.1",
     "happy-dom": "^17.6.3",
+    "memfs": "^4.37.1",
     "msw": "^2.10.4",
     "nitropack": "2.11.13",
     "orval": "^7.11.2",
     "playwright-core": "^1.52.0",
     "prettier": "^3.3.3",
+    "tsx": "^4.20.4",
     "vitest": "^3.2.2",
     "vue-tsc": "^2.2.10"
   }
