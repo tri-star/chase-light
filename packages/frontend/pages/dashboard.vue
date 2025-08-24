@@ -8,6 +8,7 @@
             <h1 class="text-3xl font-bold text-gray-900">Dashboard</h1>
           </div>
           <div class="flex items-center space-x-4">
+            <ThemeSelector />
             <div class="text-sm text-gray-600">Welcome, {{ user?.name }}</div>
             <button
               class="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded"

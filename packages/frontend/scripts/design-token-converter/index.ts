@@ -1,7 +1,7 @@
 import { readFileSync, writeFileSync, mkdirSync, existsSync } from 'fs'
 import { join, dirname } from 'path'
 import { fileURLToPath } from 'url'
-import type { DesignTokens, ParsedToken } from './types'
+import type { DesignTokens, ParsedToken, ThemedTokens } from './types'
 import { TokenParser } from './token-parser'
 import { TailwindGenerator } from './tailwind-generator'
 
@@ -35,17 +35,17 @@ export class DesignTokenConverter {
       const tokens = this.loadDesignTokens()
       console.log('✅ デザイントークンを読み込みました')
 
-      // パース処理
-      const flatTokens = TokenParser.flattenTokens(tokens)
-      const parsedTokens = TokenParser.toCSSVars(flatTokens)
-      const resolvedTokens = TokenParser.resolveReferences(parsedTokens)
-      console.log(`✅ ${resolvedTokens.length}個のトークンを処理しました`)
+      // テーマ別にパース処理
+      const themedTokens = TokenParser.parseThemedTokens(tokens)
+      console.log(
+        `✅ ライト: ${themedTokens.light.length}個、ダーク: ${themedTokens.dark.length}個のトークンを処理しました`
+      )
 
       // 出力ディレクトリを作成
       this.ensureOutputDirectory()
 
-      // Tailwind CSS ファイルを生成
-      await this.generateTailwindCSS(resolvedTokens)
+      // テーマ別Tailwind CSS ファイルを生成
+      await this.generateThemedTailwindCSS(themedTokens)
 
       console.log('🎉 すべての変換が完了しました!')
       console.log(`📁 出力先: ${this.outputDir}`)
@@ -79,7 +79,20 @@ export class DesignTokenConverter {
   }
 
   /**
-   * Tailwind CSS ファイルを生成
+   * テーマ別Tailwind CSS ファイルを生成
+   */
+  private async generateThemedTailwindCSS(
+    themedTokens: ThemedTokens
+  ): Promise<void> {
+    const tailwindCSS =
+      TailwindGenerator.generateThemedTailwindCSS(themedTokens)
+    const cssPath = join(this.outputDir, 'tailwind.css')
+    writeFileSync(cssPath, tailwindCSS, 'utf-8')
+    console.log(`✅ テーマ別 Tailwind CSS を出力しました: ${cssPath}`)
+  }
+
+  /**
+   * Tailwind CSS ファイルを生成（後方互換性）
    */
   private async generateTailwindCSS(tokens: ParsedToken[]): Promise<void> {
     const tailwindCSS = TailwindGenerator.generateTailwindCSS(tokens)

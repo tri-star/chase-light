@@ -1,4 +1,10 @@
-import type { DesignTokens, TokenGroup, FlatToken, ParsedToken } from './types'
+import type {
+  DesignTokens,
+  TokenGroup,
+  FlatToken,
+  ParsedToken,
+  ThemedTokens,
+} from './types'
 
 // eslint-disable-next-line @typescript-eslint/no-extraneous-class
 export class TokenParser {
@@ -124,6 +130,69 @@ export class TokenParser {
     }
 
     return String(value)
+  }
+
+  /**
+   * テーマ別にデザイントークンを解析
+   */
+  static parseThemedTokens(tokens: DesignTokens): ThemedTokens {
+    const lightTokens: FlatToken[] = []
+    const darkTokens: FlatToken[] = []
+
+    // color.semantic.light と color.semantic.dark を分離して解析
+    if (tokens.color?.semantic) {
+      const semanticTokens = tokens.color.semantic as TokenGroup
+
+      if (semanticTokens.light) {
+        const lightFlat = this.flattenTokens({
+          color: {
+            semantic: semanticTokens.light as TokenGroup,
+          },
+        })
+        lightTokens.push(...lightFlat)
+      }
+
+      if (semanticTokens.dark) {
+        const darkFlat = this.flattenTokens({
+          color: {
+            semantic: semanticTokens.dark as TokenGroup,
+          },
+        })
+        darkTokens.push(...darkFlat)
+      }
+    }
+
+    // プリミティブトークンや他のカテゴリも両方のテーマに含める
+    const otherTokens = this.flattenTokens({
+      ...tokens,
+      color: {
+        ...tokens.color,
+        semantic: undefined, // セマンティックトークンは除外
+      },
+    })
+
+    const lightParsed = this.toCSSVars([...lightTokens, ...otherTokens]).map(
+      (token) => ({
+        ...token,
+        theme: 'light' as const,
+      })
+    )
+
+    const darkParsed = this.toCSSVars([...darkTokens, ...otherTokens]).map(
+      (token) => ({
+        ...token,
+        theme: 'dark' as const,
+      })
+    )
+
+    // 参照解決
+    const resolvedLight = this.resolveReferences(lightParsed)
+    const resolvedDark = this.resolveReferences(darkParsed)
+
+    return {
+      light: resolvedLight,
+      dark: resolvedDark,
+    }
   }
 
   /**
