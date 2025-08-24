@@ -211,11 +211,54 @@
 - 必要なプロパティのみアニメーション
 - レンダリング負荷の軽減
 
+## 技術実装詳細
+
+### W3C Design Tokens → Tailwind CSS v4変換スクリプト
+
+プロジェクトには`packages/frontend/scripts/design-token-converter/`にW3C Design Tokens形式のJSONを Tailwind CSS v4 の`@theme inline`形式に変換するスクリプトを実装しています。
+
+**主要な技術的特徴:**
+
+1. **トークン参照解決**: `{color.primitive.blue.500}`のような参照を実際の値に自動解決
+2. **型安全性**: TypeScriptによる厳格な型チェックとunknown型の適切な使用
+3. **CSS変数リセット**: 各ネームスペース（`--color-*`、`--font-*`など）での適切な初期化
+4. **memfsによるテスト**: ファイルシステム操作の安定したテスト環境
+
+**出力形式:**
+```css
+@import "tailwindcss";
+
+@theme inline {
+  --color-*: initial;
+  --font-*: initial;
+  --spacing-*: initial;
+  
+  --color-primitive-blue-500: oklch(53.992% 0.19058 257.48);
+  --color-semantic-primary-default-bg: oklch(53.992% 0.19058 257.48);
+}
+```
+
+**変換フロー:**
+1. W3C Design TokensのJSONパース
+2. ネストした構造のフラット化
+3. CSS変数名への変換（`color.primitive.blue.500` → `--color-primitive-blue-500`）
+4. トークン参照の解決
+5. Tailwind CSS v4 `@theme inline`形式での出力
+
+### ファイル構造
+- `index.ts`: メインコンバータークラス
+- `token-parser.ts`: トークン解析・フラット化・参照解決
+- `tailwind-generator.ts`: Tailwind CSS生成ロジック
+- `types.ts`: TypeScript型定義
+- `__tests__/`: 包括的なテストスイート（memfs使用）
+
 ## 今後の拡張可能性
 
 1. **ダークモード対応**: semantic層での色の差し替え
 2. **ブランドバリエーション**: primitiveレベルでの色相変更
 3. **アクセシビリティ強化**: コントラスト比の動的調整
 4. **レスポンシブ**: ブレイクポイント別のスケール展開
+5. **ビルド統合**: Nuxtビルドプロセスとの自動連携
+6. **デザインツール連携**: FigmaやSketchからの直接インポート
 
 このトークン体系により、一貫性のあるデザインシステムの構築と、効率的な保守・拡張が可能になります。
