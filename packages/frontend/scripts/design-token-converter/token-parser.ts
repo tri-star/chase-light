@@ -53,30 +53,44 @@ export class TokenParser {
    * トークン参照（{color.primitive.blue.500}など）を解決
    */
   static resolveReferences(tokens: ParsedToken[]): ParsedToken[] {
-    const tokenMap = new Map<string, string>()
-
-    // まず全トークンをマップに登録
+    const tokenMap = new Map<string, ParsedToken>()
     tokens.forEach((token) => {
+      tokenMap.set(token.originalPath.join('.'), token)
+    })
+
+    const resolvedCache = new Map<string, string>()
+
+    const resolve = (token: ParsedToken, path: string[] = []): string => {
       const key = token.originalPath.join('.')
-      tokenMap.set(key, token.value)
-    })
-
-    // 参照を解決
-    return tokens.map((token) => {
-      let value = token.value
-
-      // {xxx.yyy.zzz} 形式の参照を解決（不正な閉じ括弧 ) にも対応）
-      const referencePattern = /\{([^}]+)[})]/g
-      value = value.replace(referencePattern, (match, reference) => {
-        const resolvedValue = tokenMap.get(reference)
-        return resolvedValue || match
-      })
-
-      return {
-        ...token,
-        value,
+      if (resolvedCache.has(key)) {
+        return resolvedCache.get(key)!
       }
-    })
+      if (path.includes(key)) {
+        throw new Error(
+          `Circular reference detected: ${[...path, key].join(' -> ')}`
+        )
+      }
+
+      const referencePattern = /\{([^}]+)\}/g
+      const resolvedValue = token.value.replace(
+        referencePattern,
+        (_, reference) => {
+          const referencedToken = tokenMap.get(reference)
+          if (referencedToken) {
+            return resolve(referencedToken, [...path, key])
+          }
+          return `{${reference}}`
+        }
+      )
+
+      resolvedCache.set(key, resolvedValue)
+      return resolvedValue
+    }
+
+    return tokens.map((token) => ({
+      ...token,
+      value: resolve(token),
+    }))
   }
 
   /**

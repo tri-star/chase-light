@@ -77,6 +77,52 @@ describe('TokenParser', () => {
       expect(primaryBgToken?.value).toBe('oklch(53.992% 0.19058 257.48)')
     })
 
+    test('ネストした参照が解決される', () => {
+      const nestedTokens: DesignTokens = {
+        color: {
+          $type: 'color',
+          primitive: { blue: { '500': { value: 'oklch(blue)' } } },
+          alias: { primary: { value: '{color.primitive.blue.500}' } },
+          semantic: { primary: { bg: { value: '{color.alias.primary}' } } },
+        },
+      }
+
+      const flatTokens = TokenParser.flattenTokens(nestedTokens)
+      const cssVars = TokenParser.toCSSVars(flatTokens)
+      const result = TokenParser.resolveReferences(cssVars)
+
+      const semanticToken = result.find(
+        (token) => token.originalPath.join('.') === 'color.semantic.primary.bg'
+      )
+      const aliasToken = result.find(
+        (token) => token.originalPath.join('.') === 'color.alias.primary'
+      )
+
+      expect(semanticToken?.value).toBe('oklch(blue)')
+      expect(aliasToken?.value).toBe('oklch(blue)')
+    })
+
+    test('循環参照を検出する', () => {
+      const circularTokens = [
+        {
+          cssVarName: '--token-a',
+          originalPath: ['token', 'a'],
+          value: '{token.b}',
+          type: 'color',
+        },
+        {
+          cssVarName: '--token-b',
+          originalPath: ['token', 'b'],
+          value: '{token.a}',
+          type: 'color',
+        },
+      ]
+
+      expect(() => TokenParser.resolveReferences(circularTokens)).toThrow(
+        'Circular reference detected'
+      )
+    })
+
     test('解決できない参照は変更されない', () => {
       const tokens = [
         {

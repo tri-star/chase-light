@@ -25,11 +25,11 @@ describe('TailwindGenerator', () => {
   ]
 
   describe('generateTailwindCSS', () => {
-    test('@theme inline形式のTailwind CSSが生成される', () => {
+    test('@theme形式のTailwind CSSが生成される', () => {
       const result = TailwindGenerator.generateTailwindCSS(mockTokens)
 
       expect(result).toContain('@import "tailwindcss";')
-      expect(result).toContain('@theme inline {')
+      expect(result).toContain('@theme {')
       expect(result).toContain(
         '--color-primitive-blue-500: oklch(53.992% 0.19058 257.48);'
       )

@@ -3,7 +3,7 @@ import type { ParsedToken } from './types'
 // eslint-disable-next-line @typescript-eslint/no-extraneous-class
 export class TailwindGenerator {
   /**
-   * Tailwind CSS @theme inline形式でCSSを生成
+   * Tailwind CSS @theme形式でCSSを生成
    */
   static generateTailwindCSS(tokens: ParsedToken[]): string {
     // デフォルトのリセット用変数を生成
@@ -16,7 +16,7 @@ export class TailwindGenerator {
 
     return `@import "tailwindcss";
 
-@theme inline {
+@theme {
 ${resetVars}
 
 ${tokenVars}

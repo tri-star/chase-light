@@ -88,7 +88,7 @@ describe('DesignTokenConverter', () => {
 
       const cssContent = files[cssPath!]
       expect(cssContent).toContain('@import "tailwindcss"')
-      expect(cssContent).toContain('@theme inline {')
+      expect(cssContent).toContain('@theme {')
 
       // コンソールログが出力されることを確認
       expect(consoleSpy).toHaveBeenCalledWith(
@@ -117,7 +117,7 @@ describe('DesignTokenConverter', () => {
       )
       const cssContent = files[cssPath!]
       expect(cssContent).toContain('@import "tailwindcss"')
-      expect(cssContent).toContain('@theme inline {')
+      expect(cssContent).toContain('@theme {')
       expect(cssContent).toContain(
         '--color-primitive-blue-500: oklch(53.992% 0.19058 257.48)'
       )
@@ -189,6 +189,44 @@ describe('DesignTokenConverter', () => {
       expect(cssContent).toContain(
         '--color-semantic-primary-default-bg: oklch(53.992% 0.19058 257.48)'
       )
+    })
+
+    test('ネストした参照が正しく解決される', async () => {
+      // ネストした参照を持つトークンセットを用意
+      const nestedTokens: DesignTokens = {
+        $schema:
+          'https://design-tokens.github.io/community-group/format/tokens.json',
+        color: {
+          $type: 'color',
+          primitive: { blue: { '500': { value: 'oklch(blue)' } } },
+          alias: { primary: { value: '{color.primitive.blue.500}' } },
+          semantic: { primary: { bg: { value: '{color.alias.primary}' } } },
+        },
+      }
+
+      // テスト用のファイルを作成
+      vol.reset()
+      vol.fromJSON({
+        './nested-test-tokens.json': JSON.stringify(nestedTokens),
+      })
+
+      const nestedConverter = new DesignTokenConverter(
+        './nested-test-tokens.json',
+        './nested-test-output'
+      )
+
+      await nestedConverter.convert()
+
+      const files = vol.toJSON()
+      const cssPath = Object.keys(files).find((path) =>
+        path.includes('tailwind.css')
+      )
+      const cssContent = files[cssPath!]
+
+      // ネストした参照が最終的に解決されていることを確認
+      expect(cssContent).toContain('--color-primitive-blue-500: oklch(blue)')
+      expect(cssContent).toContain('--color-alias-primary: oklch(blue)')
+      expect(cssContent).toContain('--color-semantic-primary-bg: oklch(blue)')
     })
 
     test('すべてのデザイントークンが処理される', async () => {
