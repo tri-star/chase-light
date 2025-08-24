@@ -1,4 +1,4 @@
-@import "tailwindcss";
+@import 'tailwindcss';
 
 @theme {
   --color-*: initial;
@@ -68,40 +68,66 @@
   --color-semantic-content-default-text: oklch(27.85% 0.0132 253.04);
   --color-semantic-surface-primary-default-bg: oklch(53.992% 0.19058 257.48);
   --color-semantic-surface-primary-default-text: oklch(100% 0 none);
-  --color-semantic-surface-primary-default-border: oklch(53.992% 0.19058 257.48);
+  --color-semantic-surface-primary-default-border: oklch(
+    53.992% 0.19058 257.48
+  );
   --color-semantic-surface-primary-disabled-bg: oklch(87.585% 0.0123 247.97);
   --color-semantic-surface-primary-disabled-text: oklch(56.511% 0.01888 250.97);
-  --color-semantic-surface-primary-disabled-border: oklch(87.585% 0.0123 247.97);
+  --color-semantic-surface-primary-disabled-border: oklch(
+    87.585% 0.0123 247.97
+  );
   --color-semantic-surface-primary-hovered-bg: oklch(45.095% 0.16414 258.18);
   --color-semantic-surface-primary-hovered-text: oklch(100% 0 none);
-  --color-semantic-surface-primary-hovered-border: oklch(45.095% 0.16414 258.18);
+  --color-semantic-surface-primary-hovered-border: oklch(
+    45.095% 0.16414 258.18
+  );
   --color-semantic-surface-primary-pressed-bg: oklch(37.904% 0.14115 258.7);
   --color-semantic-surface-primary-pressed-text: oklch(100% 0 none);
   --color-semantic-surface-primary-pressed-border: oklch(37.904% 0.14115 258.7);
   --color-semantic-surface-secondary-default-bg: oklch(94.722% 0.00689 247.9);
   --color-semantic-surface-secondary-default-text: oklch(27.85% 0.0132 253.04);
-  --color-semantic-surface-secondary-default-border: oklch(77.83% 0.01628 248.04);
+  --color-semantic-surface-secondary-default-border: oklch(
+    77.83% 0.01628 248.04
+  );
   --color-semantic-surface-secondary-disabled-bg: oklch(94.722% 0.00689 247.9);
-  --color-semantic-surface-secondary-disabled-text: oklch(66.576% 0.01812 250.92);
-  --color-semantic-surface-secondary-disabled-border: oklch(87.585% 0.0123 247.97);
+  --color-semantic-surface-secondary-disabled-text: oklch(
+    66.576% 0.01812 250.92
+  );
+  --color-semantic-surface-secondary-disabled-border: oklch(
+    87.585% 0.0123 247.97
+  );
   --color-semantic-surface-secondary-hovered-bg: oklch(87.585% 0.0123 247.97);
   --color-semantic-surface-secondary-hovered-text: oklch(27.85% 0.0132 253.04);
-  --color-semantic-surface-secondary-hovered-border: oklch(66.576% 0.01812 250.92);
+  --color-semantic-surface-secondary-hovered-border: oklch(
+    66.576% 0.01812 250.92
+  );
   --color-semantic-surface-secondary-pressed-bg: oklch(77.83% 0.01628 248.04);
   --color-semantic-surface-secondary-pressed-text: oklch(27.85% 0.0132 253.04);
-  --color-semantic-surface-secondary-pressed-border: oklch(56.511% 0.01888 250.97);
+  --color-semantic-surface-secondary-pressed-border: oklch(
+    56.511% 0.01888 250.97
+  );
   --color-semantic-surface-outlined-default-bg: transparent;
   --color-semantic-surface-outlined-default-text: oklch(45.095% 0.16414 258.18);
-  --color-semantic-surface-outlined-default-border: oklch(53.992% 0.19058 257.48);
+  --color-semantic-surface-outlined-default-border: oklch(
+    53.992% 0.19058 257.48
+  );
   --color-semantic-surface-outlined-disabled-bg: transparent;
-  --color-semantic-surface-outlined-disabled-text: oklch(66.576% 0.01812 250.92);
-  --color-semantic-surface-outlined-disabled-border: oklch(77.83% 0.01628 248.04);
+  --color-semantic-surface-outlined-disabled-text: oklch(
+    66.576% 0.01812 250.92
+  );
+  --color-semantic-surface-outlined-disabled-border: oklch(
+    77.83% 0.01628 248.04
+  );
   --color-semantic-surface-outlined-hovered-bg: oklch(95.363% 0.02839 228.04);
   --color-semantic-surface-outlined-hovered-text: oklch(37.904% 0.14115 258.7);
-  --color-semantic-surface-outlined-hovered-border: oklch(45.095% 0.16414 258.18);
+  --color-semantic-surface-outlined-hovered-border: oklch(
+    45.095% 0.16414 258.18
+  );
   --color-semantic-surface-outlined-pressed-bg: oklch(89.336% 0.06061 235.67);
   --color-semantic-surface-outlined-pressed-text: oklch(32.103% 0.10845 259.11);
-  --color-semantic-surface-outlined-pressed-border: oklch(37.904% 0.14115 258.7);
+  --color-semantic-surface-outlined-pressed-border: oklch(
+    37.904% 0.14115 258.7
+  );
   --color-semantic-interactive-default-bg: oklch(100% 0 none);
   --color-semantic-interactive-default-text: oklch(27.85% 0.0132 253.04);
   --color-semantic-interactive-default-border: oklch(77.83% 0.01628 248.04);
@@ -141,7 +167,9 @@
   --color-semantic-common-success-subtle-border: oklch(81.192% 0.15403 150.05);
   --color-semantic-common-success-inversed-bg: oklch(31.442% 0.08812 149.27);
   --color-semantic-common-success-inversed-text: oklch(95.744% 0.04868 151.63);
-  --color-semantic-common-success-inversed-border: oklch(43.906% 0.11793 148.07);
+  --color-semantic-common-success-inversed-border: oklch(
+    43.906% 0.11793 148.07
+  );
   --color-semantic-common-warn-default-bg: oklch(90.989% 0.12349 95.67);
   --color-semantic-common-warn-default-text: oklch(32.975% 0.07221 68.311);
   --color-semantic-common-warn-default-border: oklch(74.976% 0.14073 87.063);
@@ -164,24 +192,75 @@
   --color-semantic-common-focus-default-width: 2px;
   --color-semantic-common-focus-default-style: solid;
   --color-semantic-common-focus-default-offset: 2px;
-  --typography-font-family-sans: "Hiragino Sans", "Hiragino Kaku Gothic ProN", "Noto Sans CJK JP", "Noto Sans JP", "Yu Gothic", "YuGothic", "Meiryo", sans-serif;
-  --typography-font-family-mono: "SFMono-Regular", "Consolas", "Liberation Mono", "Menlo", "Courier", monospace;
-  --typography-scale-xs: 400 0.75rem/1.5 "Hiragino Sans", "Hiragino Kaku Gothic ProN", "Noto Sans CJK JP", "Noto Sans JP", "Yu Gothic", "YuGothic", "Meiryo", sans-serif;
-  --typography-scale-sm: 400 0.875rem/1.5 "Hiragino Sans", "Hiragino Kaku Gothic ProN", "Noto Sans CJK JP", "Noto Sans JP", "Yu Gothic", "YuGothic", "Meiryo", sans-serif;
-  --typography-scale-base: 400 1rem/1.6 "Hiragino Sans", "Hiragino Kaku Gothic ProN", "Noto Sans CJK JP", "Noto Sans JP", "Yu Gothic", "YuGothic", "Meiryo", sans-serif;
-  --typography-scale-lg: 400 1.125rem/1.6 "Hiragino Sans", "Hiragino Kaku Gothic ProN", "Noto Sans CJK JP", "Noto Sans JP", "Yu Gothic", "YuGothic", "Meiryo", sans-serif;
-  --typography-scale-xl: 500 1.25rem/1.5 "Hiragino Sans", "Hiragino Kaku Gothic ProN", "Noto Sans CJK JP", "Noto Sans JP", "Yu Gothic", "YuGothic", "Meiryo", sans-serif;
-  --typography-scale-2xl: 600 1.5rem/1.4 "Hiragino Sans", "Hiragino Kaku Gothic ProN", "Noto Sans CJK JP", "Noto Sans JP", "Yu Gothic", "YuGothic", "Meiryo", sans-serif;
-  --typography-scale-3xl: 700 1.875rem/1.3 "Hiragino Sans", "Hiragino Kaku Gothic ProN", "Noto Sans CJK JP", "Noto Sans JP", "Yu Gothic", "YuGothic", "Meiryo", sans-serif;
-  --typography-scale-4xl: 700 2.25rem/1.2 "Hiragino Sans", "Hiragino Kaku Gothic ProN", "Noto Sans CJK JP", "Noto Sans JP", "Yu Gothic", "YuGothic", "Meiryo", sans-serif;
-  --typography-semantic-heading-1: 700 2.25rem/1.2 "Hiragino Sans", "Hiragino Kaku Gothic ProN", "Noto Sans CJK JP", "Noto Sans JP", "Yu Gothic", "YuGothic", "Meiryo", sans-serif;
-  --typography-semantic-heading-2: 700 1.875rem/1.3 "Hiragino Sans", "Hiragino Kaku Gothic ProN", "Noto Sans CJK JP", "Noto Sans JP", "Yu Gothic", "YuGothic", "Meiryo", sans-serif;
-  --typography-semantic-heading-3: 600 1.5rem/1.4 "Hiragino Sans", "Hiragino Kaku Gothic ProN", "Noto Sans CJK JP", "Noto Sans JP", "Yu Gothic", "YuGothic", "Meiryo", sans-serif;
-  --typography-semantic-heading-4: 500 1.25rem/1.5 "Hiragino Sans", "Hiragino Kaku Gothic ProN", "Noto Sans CJK JP", "Noto Sans JP", "Yu Gothic", "YuGothic", "Meiryo", sans-serif;
-  --typography-semantic-body: 400 1rem/1.6 "Hiragino Sans", "Hiragino Kaku Gothic ProN", "Noto Sans CJK JP", "Noto Sans JP", "Yu Gothic", "YuGothic", "Meiryo", sans-serif;
-  --typography-semantic-body-sm: 400 0.875rem/1.5 "Hiragino Sans", "Hiragino Kaku Gothic ProN", "Noto Sans CJK JP", "Noto Sans JP", "Yu Gothic", "YuGothic", "Meiryo", sans-serif;
-  --typography-semantic-caption: 400 0.75rem/1.5 "Hiragino Sans", "Hiragino Kaku Gothic ProN", "Noto Sans CJK JP", "Noto Sans JP", "Yu Gothic", "YuGothic", "Meiryo", sans-serif;
-  --typography-semantic-code: 400 0.875rem/1.6 "SFMono-Regular", "Consolas", "Liberation Mono", "Menlo", "Courier", monospace;
+  --typography-font-family-sans:
+    'Hiragino Sans', 'Hiragino Kaku Gothic ProN', 'Noto Sans CJK JP',
+    'Noto Sans JP', 'Yu Gothic', 'YuGothic', 'Meiryo', sans-serif;
+  --typography-font-family-mono:
+    'SFMono-Regular', 'Consolas', 'Liberation Mono', 'Menlo', 'Courier',
+    monospace;
+  --typography-scale-xs:
+    400 0.75rem/1.5 'Hiragino Sans', 'Hiragino Kaku Gothic ProN',
+    'Noto Sans CJK JP', 'Noto Sans JP', 'Yu Gothic', 'YuGothic', 'Meiryo',
+    sans-serif;
+  --typography-scale-sm:
+    400 0.875rem/1.5 'Hiragino Sans', 'Hiragino Kaku Gothic ProN',
+    'Noto Sans CJK JP', 'Noto Sans JP', 'Yu Gothic', 'YuGothic', 'Meiryo',
+    sans-serif;
+  --typography-scale-base:
+    400 1rem/1.6 'Hiragino Sans', 'Hiragino Kaku Gothic ProN',
+    'Noto Sans CJK JP', 'Noto Sans JP', 'Yu Gothic', 'YuGothic', 'Meiryo',
+    sans-serif;
+  --typography-scale-lg:
+    400 1.125rem/1.6 'Hiragino Sans', 'Hiragino Kaku Gothic ProN',
+    'Noto Sans CJK JP', 'Noto Sans JP', 'Yu Gothic', 'YuGothic', 'Meiryo',
+    sans-serif;
+  --typography-scale-xl:
+    500 1.25rem/1.5 'Hiragino Sans', 'Hiragino Kaku Gothic ProN',
+    'Noto Sans CJK JP', 'Noto Sans JP', 'Yu Gothic', 'YuGothic', 'Meiryo',
+    sans-serif;
+  --typography-scale-2xl:
+    600 1.5rem/1.4 'Hiragino Sans', 'Hiragino Kaku Gothic ProN',
+    'Noto Sans CJK JP', 'Noto Sans JP', 'Yu Gothic', 'YuGothic', 'Meiryo',
+    sans-serif;
+  --typography-scale-3xl:
+    700 1.875rem/1.3 'Hiragino Sans', 'Hiragino Kaku Gothic ProN',
+    'Noto Sans CJK JP', 'Noto Sans JP', 'Yu Gothic', 'YuGothic', 'Meiryo',
+    sans-serif;
+  --typography-scale-4xl:
+    700 2.25rem/1.2 'Hiragino Sans', 'Hiragino Kaku Gothic ProN',
+    'Noto Sans CJK JP', 'Noto Sans JP', 'Yu Gothic', 'YuGothic', 'Meiryo',
+    sans-serif;
+  --typography-semantic-heading-1:
+    700 2.25rem/1.2 'Hiragino Sans', 'Hiragino Kaku Gothic ProN',
+    'Noto Sans CJK JP', 'Noto Sans JP', 'Yu Gothic', 'YuGothic', 'Meiryo',
+    sans-serif;
+  --typography-semantic-heading-2:
+    700 1.875rem/1.3 'Hiragino Sans', 'Hiragino Kaku Gothic ProN',
+    'Noto Sans CJK JP', 'Noto Sans JP', 'Yu Gothic', 'YuGothic', 'Meiryo',
+    sans-serif;
+  --typography-semantic-heading-3:
+    600 1.5rem/1.4 'Hiragino Sans', 'Hiragino Kaku Gothic ProN',
+    'Noto Sans CJK JP', 'Noto Sans JP', 'Yu Gothic', 'YuGothic', 'Meiryo',
+    sans-serif;
+  --typography-semantic-heading-4:
+    500 1.25rem/1.5 'Hiragino Sans', 'Hiragino Kaku Gothic ProN',
+    'Noto Sans CJK JP', 'Noto Sans JP', 'Yu Gothic', 'YuGothic', 'Meiryo',
+    sans-serif;
+  --typography-semantic-body:
+    400 1rem/1.6 'Hiragino Sans', 'Hiragino Kaku Gothic ProN',
+    'Noto Sans CJK JP', 'Noto Sans JP', 'Yu Gothic', 'YuGothic', 'Meiryo',
+    sans-serif;
+  --typography-semantic-body-sm:
+    400 0.875rem/1.5 'Hiragino Sans', 'Hiragino Kaku Gothic ProN',
+    'Noto Sans CJK JP', 'Noto Sans JP', 'Yu Gothic', 'YuGothic', 'Meiryo',
+    sans-serif;
+  --typography-semantic-caption:
+    400 0.75rem/1.5 'Hiragino Sans', 'Hiragino Kaku Gothic ProN',
+    'Noto Sans CJK JP', 'Noto Sans JP', 'Yu Gothic', 'YuGothic', 'Meiryo',
+    sans-serif;
+  --typography-semantic-code:
+    400 0.875rem/1.6 'SFMono-Regular', 'Consolas', 'Liberation Mono', 'Menlo',
+    'Courier', monospace;
   --spacing-0: 0;
   --spacing-1: 0.25rem;
   --spacing-2: 0.5rem;
@@ -271,8 +350,11 @@
   --transition-easing-ease-in-out: 0.4, 0, 0.2, 1;
   --transition-property-none: none;
   --transition-property-all: all;
-  --transition-property-default: color, background-color, border-color, text-decoration-color, fill, stroke, opacity, box-shadow, transform, filter, backdrop-filter;
-  --transition-property-colors: color, background-color, border-color, text-decoration-color, fill, stroke;
+  --transition-property-default:
+    color, background-color, border-color, text-decoration-color, fill, stroke,
+    opacity, box-shadow, transform, filter, backdrop-filter;
+  --transition-property-colors:
+    color, background-color, border-color, text-decoration-color, fill, stroke;
   --transition-property-opacity: opacity;
   --transition-property-shadow: box-shadow;
   --transition-property-transform: transform;
