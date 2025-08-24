@@ -225,7 +225,7 @@
           "subtle": {
             "bg": { "value": "{color.primitive.green.50}" },
             "text": { "value": "{color.primitive.green.700}" },
-            "border": { "value": "{color.primitive.green.200)" }
+            "border": { "value": "{color.primitive.green.200}" }
           },
           "inversed": {
             "bg": { "value": "{color.primitive.green.800}" },
@@ -259,7 +259,7 @@
           "subtle": {
             "bg": { "value": "{color.primitive.red.50}" },
             "text": { "value": "{color.primitive.red.700}" },
-            "border": { "value": "{color.primitive.red.200)" }
+            "border": { "value": "{color.primitive.red.200}" }
           },
           "inversed": {
             "bg": { "value": "{color.primitive.red.800}" },
@@ -285,7 +285,7 @@
       "sans": {
         "value": [
           "\"Hiragino Sans\"",
-          "\"Hiragino Kaku Gothic ProN\"", 
+          "\"Hiragino Kaku Gothic ProN\"",
           "\"Noto Sans CJK JP\"",
           "\"Noto Sans JP\"",
           "\"Yu Gothic\"",
@@ -465,7 +465,7 @@
     }
   },
   "radius": {
-    "$type": "dimension", 
+    "$type": "dimension",
     "$description": "Border radius tokens",
     "none": { "value": "0" },
     "sm": { "value": "0.125rem" },
@@ -561,8 +561,12 @@
       "$type": "other",
       "none": { "value": "none" },
       "all": { "value": "all" },
-      "default": { "value": "color, background-color, border-color, text-decoration-color, fill, stroke, opacity, box-shadow, transform, filter, backdrop-filter" },
-      "colors": { "value": "color, background-color, border-color, text-decoration-color, fill, stroke" },
+      "default": {
+        "value": "color, background-color, border-color, text-decoration-color, fill, stroke, opacity, box-shadow, transform, filter, backdrop-filter"
+      },
+      "colors": {
+        "value": "color, background-color, border-color, text-decoration-color, fill, stroke"
+      },
       "opacity": { "value": "opacity" },
       "shadow": { "value": "box-shadow" },
       "transform": { "value": "transform" }
