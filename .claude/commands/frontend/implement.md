@@ -25,7 +25,7 @@ description: "frontend:Implementフェーズ"
 
 ### 2. DBの構造と設計指針の把握
 
-- API仕様書: http://localhost:3001/doc にアクセスしてSwagger JSONを参照
+- API仕様書: @packages/backend/openapi.json を参照
 - 既存のAPI実装： packages/frontend/server/api 配下の各種ファイル
 - 設計指針: @packages/frontend/docs/guidelines/api-implementation-guide.md
 
