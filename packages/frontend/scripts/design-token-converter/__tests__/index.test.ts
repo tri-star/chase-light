@@ -1,218 +1,209 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
-import { DesignTokenConverter } from '../index'
+import { describe, test, expect, vi, beforeEach, afterEach } from 'vitest'
+import { vol } from 'memfs'
 import type { DesignTokens } from '../types'
 
-// Mock fs module
-vi.mock('fs', () => ({
-  readFileSync: vi.fn(),
-  writeFileSync: vi.fn(), 
-  mkdirSync: vi.fn(),
-  existsSync: vi.fn()
-}))
+// Mock fs module to use memfs
+vi.mock('fs', async () => {
+  const memfs = await import('memfs')
+  return {
+    ...memfs.fs,
+    default: memfs.fs,
+  }
+})
 
-// Import the mocked functions after the mock declaration
-const { readFileSync, writeFileSync, mkdirSync, existsSync } = await import('fs')
+// Mock path.join and path.dirname for memfs compatibility
+vi.mock('path', async () => {
+  const actualPath = await vi.importActual('path')
+  return {
+    ...actualPath,
+    join: (...paths: string[]) => paths.join('/').replace(/\/+/g, '/'),
+    dirname: (path: string) => {
+      const parts = path.split('/')
+      return parts.slice(0, -1).join('/') || '/'
+    },
+  }
+})
 
-const mockReadFileSync = vi.mocked(readFileSync)
-const mockWriteFileSync = vi.mocked(writeFileSync)
-const mockMkdirSync = vi.mocked(mkdirSync)
-const mockExistsSync = vi.mocked(existsSync)
+// Import DesignTokenConverter after mocking fs
+const { DesignTokenConverter } = await import('../index')
 
 describe('DesignTokenConverter', () => {
   const mockTokens: DesignTokens = {
-    $schema: 'https://design-tokens.github.io/community-group/format/tokens.json',
+    $schema:
+      'https://design-tokens.github.io/community-group/format/tokens.json',
     color: {
       $type: 'color',
       primitive: {
         blue: {
-          '500': { value: 'oklch(53.992% 0.19058 257.48)' }
-        }
+          '500': { value: 'oklch(53.992% 0.19058 257.48)' },
+        },
       },
       semantic: {
         primary: {
           default: {
-            bg: { value: '{color.primitive.blue.500}' }
-          }
-        }
-      }
+            bg: { value: '{color.primitive.blue.500}' },
+          },
+        },
+      },
     },
     spacing: {
       $type: 'dimension',
-      '4': { value: '1rem' }
-    }
+      '4': { value: '1rem' },
+    },
   }
 
-  let converter: DesignTokenConverter
+  let converter: InstanceType<typeof DesignTokenConverter>
   let consoleSpy: ReturnType<typeof vi.spyOn>
 
   beforeEach(() => {
+    // Reset memfs volume and set up test files
+    vol.reset()
+
+    // Create test tokens file in memfs
+    vol.fromJSON({
+      './test-tokens.json': JSON.stringify(mockTokens),
+    })
+
     converter = new DesignTokenConverter('./test-tokens.json', './test-output')
     consoleSpy = vi.spyOn(console, 'log').mockImplementation(() => {})
-    
-    // Mock file system
-    mockReadFileSync.mockReturnValue(JSON.stringify(mockTokens))
-    mockExistsSync.mockReturnValue(false)
-    mockWriteFileSync.mockImplementation(() => {})
-    mockMkdirSync.mockImplementation(() => {})
   })
 
   afterEach(() => {
+    // Clean up memfs volume
+    vol.reset()
     vi.clearAllMocks()
     consoleSpy.mockRestore()
   })
 
   describe('convert', () => {
-    it('should successfully convert tokens', async () => {
+    test('トークンの変換が正常に実行される', async () => {
       await converter.convert()
-      
-      // Verify that files were read
-      expect(mockReadFileSync).toHaveBeenCalledWith('./test-tokens.json', 'utf-8')
-      
-      // Verify that output directory was created
-      expect(mockMkdirSync).toHaveBeenCalledWith('./test-output', { recursive: true })
-      
-      // Verify that all output files were written
-      expect(mockWriteFileSync).toHaveBeenCalledTimes(5) // CSS, detailed CSS, config, HTML, manifest
-      
-      // Verify console logs
-      expect(consoleSpy).toHaveBeenCalledWith('🚀 デザイントークン変換を開始します...')
-      expect(consoleSpy).toHaveBeenCalledWith('🎉 すべての変換が完了しました!')
-    })
 
-    it('should create output directory if it does not exist', async () => {
-      mockExistsSync.mockReturnValue(false)
-      
-      await converter.convert()
-      
-      expect(mockMkdirSync).toHaveBeenCalledWith('./test-output', { recursive: true })
-    })
-
-    it('should not create output directory if it already exists', async () => {
-      mockExistsSync.mockReturnValue(true)
-      
-      await converter.convert()
-      
-      expect(mockMkdirSync).not.toHaveBeenCalled()
-    })
-
-    it('should generate CSS variables file', async () => {
-      await converter.convert()
-      
-      const cssCall = (mockWriteFileSync as any).mock.calls.find((call: any) => 
-        call[0].endsWith('design-tokens.css')
+      // memfsに出力ファイルが作成されていることを確認
+      const files = vol.toJSON()
+      const cssPath = Object.keys(files).find((path) =>
+        path.includes('tailwind.css')
       )
-      expect(cssCall).toBeDefined()
-      expect(cssCall[1]).toContain(':root {')
-      expect(cssCall[1]).toContain('--color-primitive-blue-500')
-    })
+      expect(cssPath).toBeDefined()
 
-    it('should generate detailed CSS file with comments', async () => {
-      await converter.convert()
-      
-      const detailedCssCall = (mockWriteFileSync as any).mock.calls.find((call: any) => 
-        call[0].endsWith('design-tokens-detailed.css')
+      const cssContent = files[cssPath!]
+      expect(cssContent).toContain('@import "tailwindcss"')
+      expect(cssContent).toContain('@theme inline {')
+
+      // コンソールログが出力されることを確認
+      expect(consoleSpy).toHaveBeenCalledWith(
+        '🚀 デザイントークン変換を開始します...'
       )
-      expect(detailedCssCall).toBeDefined()
-      expect(detailedCssCall[1]).toContain('/* COLOR */')
     })
 
-    it('should generate Tailwind config file', async () => {
+    test('出力ディレクトリが存在しない場合に作成される', async () => {
+      // memfsは自動的にディレクトリを作成する
       await converter.convert()
-      
-      const configCall = (mockWriteFileSync as any).mock.calls.find((call: any) => 
-        call[0].endsWith('tailwind.config.js')
+
+      // ファイル付きの出力ディレクトリが作成されることを確認
+      const files = vol.toJSON()
+      const cssPath = Object.keys(files).find((path) =>
+        path.includes('tailwind.css')
       )
-      expect(configCall).toBeDefined()
-      expect(configCall[1]).toContain('export default {')
-      expect(configCall[1]).toContain('theme: {')
+      expect(cssPath).toBeDefined()
     })
 
-    it('should generate HTML documentation', async () => {
+    test('デザイントークンを含むCSSが生成される', async () => {
       await converter.convert()
-      
-      const htmlCall = (mockWriteFileSync as any).mock.calls.find((call: any) => 
-        call[0].endsWith('design-tokens-documentation.html')
+
+      const files = vol.toJSON()
+      const cssPath = Object.keys(files).find((path) =>
+        path.includes('tailwind.css')
       )
-      expect(htmlCall).toBeDefined()
-      expect(htmlCall[1]).toContain('<!DOCTYPE html>')
-      expect(htmlCall[1]).toContain('Chase Light Design Tokens')
+      const cssContent = files[cssPath!]
+      expect(cssContent).toContain('@import "tailwindcss"')
+      expect(cssContent).toContain('@theme inline {')
+      expect(cssContent).toContain(
+        '--color-primitive-blue-500: oklch(53.992% 0.19058 257.48)'
+      )
     })
 
-    it('should generate manifest file', async () => {
+    test('リセット変数を含むCSSが生成される', async () => {
       await converter.convert()
-      
-      const manifestCall = (mockWriteFileSync as any).mock.calls.find((call: any) => 
-        call[0].endsWith('manifest.json')
+
+      const files = vol.toJSON()
+      const cssPath = Object.keys(files).find((path) =>
+        path.includes('tailwind.css')
       )
-      expect(manifestCall).toBeDefined()
-      
-      const manifest = JSON.parse(manifestCall[1])
-      expect(manifest).toHaveProperty('generatedAt')
-      expect(manifest).toHaveProperty('totalTokens')
-      expect(manifest).toHaveProperty('categories')
-      expect(manifest).toHaveProperty('files')
-      expect(manifest.files).toContain('design-tokens.css')
-      expect(manifest.files).toContain('design-tokens-documentation.html')
+      const cssContent = files[cssPath!]
+      expect(cssContent).toContain('--color-*: initial;')
+      expect(cssContent).toContain('--font-*: initial;')
+      expect(cssContent).toContain('--spacing-*: initial;')
     })
 
-    it('should handle file read errors', async () => {
-      mockReadFileSync.mockImplementation(() => {
-        throw new Error('File not found')
+    test('ファイル読み取りエラーが適切に処理される', async () => {
+      // テストトークンファイルを削除してファイル不存在をシミュレート
+      vol.reset()
+
+      await expect(converter.convert()).rejects.toThrow(
+        'デザイントークンファイルの読み込みに失敗しました'
+      )
+    })
+
+    test('不正なJSONが適切に処理される', async () => {
+      // 不正なJSONコンテンツを設定
+      vol.reset()
+      vol.fromJSON({
+        './test-tokens.json': 'invalid json',
       })
-      
-      await expect(converter.convert()).rejects.toThrow('デザイントークンファイルの読み込みに失敗しました')
-    })
 
-    it('should handle invalid JSON', async () => {
-      mockReadFileSync.mockReturnValue('invalid json')
-      
       await expect(converter.convert()).rejects.toThrow()
     })
   })
 
   describe('constructor', () => {
-    it('should use default paths when no arguments provided', () => {
+    test('引数なしでデフォルトパスが使用される', () => {
       const defaultConverter = new DesignTokenConverter()
-      
-      // We can't directly test private properties, but we can test the behavior
+
+      // プライベートプロパティは直接テストできないが、動作をテストできる
       expect(defaultConverter).toBeInstanceOf(DesignTokenConverter)
     })
 
-    it('should use provided paths', () => {
-      const customConverter = new DesignTokenConverter('./custom.json', './custom-output')
-      
+    test('指定されたパスが使用される', () => {
+      const customConverter = new DesignTokenConverter(
+        './custom.json',
+        './custom-output'
+      )
+
       expect(customConverter).toBeInstanceOf(DesignTokenConverter)
     })
   })
 
   describe('integration', () => {
-    it('should resolve token references correctly', async () => {
+    test('トークン参照が正しく解決される', async () => {
       await converter.convert()
-      
-      // Find the manifest and check that references were resolved
-      const manifestCall = (mockWriteFileSync as any).mock.calls.find((call: any) => 
-        call[0].endsWith('manifest.json')
+
+      // 生成されたCSSでトークン参照が解決されていることを確認
+      const files = vol.toJSON()
+      const cssPath = Object.keys(files).find((path) =>
+        path.includes('tailwind.css')
       )
-      const manifest = JSON.parse(manifestCall[1])
-      
-      // Find the semantic color token
-      const colorCategory = manifest.categories.find((cat: any) => cat.name === 'color')
-      const semanticToken = colorCategory.tokens.find((token: any) => 
-        token.name === 'color.semantic.primary.default.bg'
+      const cssContent = files[cssPath!]
+
+      // セマンティックトークンが実際の値に解決されていることを確認
+      expect(cssContent).toContain(
+        '--color-semantic-primary-default-bg: oklch(53.992% 0.19058 257.48)'
       )
-      
-      expect(semanticToken.value).toBe('oklch(53.992% 0.19058 257.48)')
     })
 
-    it('should count tokens correctly', async () => {
+    test('すべてのデザイントークンが処理される', async () => {
       await converter.convert()
-      
-      const manifestCall = (mockWriteFileSync as any).mock.calls.find((call: any) => 
-        call[0].endsWith('manifest.json')
+
+      const files = vol.toJSON()
+      const cssPath = Object.keys(files).find((path) =>
+        path.includes('tailwind.css')
       )
-      const manifest = JSON.parse(manifestCall[1])
-      
-      expect(manifest.totalTokens).toBe(3) // blue.500, primary.bg, spacing.4
+      const cssContent = files[cssPath!]
+
+      // すべてのトークンが存在することを確認
+      expect(cssContent).toContain('--color-primitive-blue-500')
+      expect(cssContent).toContain('--color-semantic-primary-default-bg')
+      expect(cssContent).toContain('--spacing-4')
     })
   })
 })

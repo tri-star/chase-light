@@ -1,4 +1,4 @@
-import { describe, it, expect } from 'vitest'
+import { describe, test, expect } from 'vitest'
 import { TailwindGenerator } from '../tailwind-generator'
 import type { ParsedToken } from '../types'
 
@@ -8,36 +8,38 @@ describe('TailwindGenerator', () => {
       cssVarName: '--color-primitive-blue-500',
       originalPath: ['color', 'primitive', 'blue', '500'],
       value: 'oklch(53.992% 0.19058 257.48)',
-      type: 'color'
+      type: 'color',
     },
     {
       cssVarName: '--spacing-4',
       originalPath: ['spacing', '4'],
       value: '1rem',
-      type: 'dimension'
+      type: 'dimension',
     },
     {
       cssVarName: '--radius-default',
       originalPath: ['radius', 'default'],
       value: '0.25rem',
-      type: 'dimension'
-    }
+      type: 'dimension',
+    },
   ]
 
   describe('generateTailwindCSS', () => {
-    it('should generate Tailwind CSS with @theme inline format', () => {
+    test('@theme inline形式のTailwind CSSが生成される', () => {
       const result = TailwindGenerator.generateTailwindCSS(mockTokens)
-      
+
       expect(result).toContain('@import "tailwindcss";')
       expect(result).toContain('@theme inline {')
-      expect(result).toContain('--color-primitive-blue-500: oklch(53.992% 0.19058 257.48);')
+      expect(result).toContain(
+        '--color-primitive-blue-500: oklch(53.992% 0.19058 257.48);'
+      )
       expect(result).toContain('--spacing-4: 1rem;')
       expect(result).toContain('}')
     })
 
-    it('should include reset variables', () => {
+    test('リセット変数が含まれる', () => {
       const result = TailwindGenerator.generateTailwindCSS(mockTokens)
-      
+
       expect(result).toContain('--color-*: initial;')
       expect(result).toContain('--font-*: initial;')
       expect(result).toContain('--spacing-*: initial;')
@@ -45,30 +47,33 @@ describe('TailwindGenerator', () => {
   })
 
   describe('generateTailwindTheme', () => {
-    it('should create nested theme object', () => {
+    test('ネストしたテーマオブジェクトが作成される', () => {
       const result = TailwindGenerator.generateTailwindTheme(mockTokens)
-      
+
       expect(result).toHaveProperty('color')
       expect(result).toHaveProperty('spacing')
       expect(result).toHaveProperty('radius')
-      expect(result.color.primitive.blue['500']).toBe('var(--color-primitive-blue-500)')
+      expect(
+        (result.color as Record<string, Record<string, Record<string, string>>>)
+          .primitive.blue['500']
+      ).toBe('var(--color-primitive-blue-500)')
     })
   })
 
   describe('generateTailwindConfig', () => {
-    it('should generate valid Tailwind config', () => {
+    test('有効なTailwind設定が生成される', () => {
       const result = TailwindGenerator.generateTailwindConfig(mockTokens)
-      
-      expect(result).toContain('/** @type {import(\'tailwindcss\').Config} */')
+
+      expect(result).toContain("/** @type {import('tailwindcss').Config} */")
       expect(result).toContain('export default {')
       expect(result).toContain('content: [')
       expect(result).toContain('theme: {')
       expect(result).toContain('extend:')
     })
 
-    it('should include common file patterns in content array', () => {
+    test('content配列に一般的なファイルパターンが含まれる', () => {
       const result = TailwindGenerator.generateTailwindConfig(mockTokens)
-      
+
       expect(result).toContain('./components/**/*.{js,vue,ts}')
       expect(result).toContain('./pages/**/*.vue')
       expect(result).toContain('./app.vue')
@@ -76,9 +81,9 @@ describe('TailwindGenerator', () => {
   })
 
   describe('generateDetailedCSS', () => {
-    it('should generate CSS with category comments', () => {
+    test('カテゴリコメント付きCSSが生成される', () => {
       const result = TailwindGenerator.generateDetailedCSS(mockTokens)
-      
+
       expect(result).toContain('/* COLOR */')
       expect(result).toContain('/* SPACING */')
       expect(result).toContain('/* RADIUS */')
@@ -86,46 +91,46 @@ describe('TailwindGenerator', () => {
   })
 
   describe('generateUtilityMapping', () => {
-    it('should generate utility class mappings', () => {
+    test('ユーティリティクラスマッピングが生成される', () => {
       const colorToken: ParsedToken = {
         cssVarName: '--color-primitive-blue-500',
         originalPath: ['color', 'primitive', 'blue', '500'],
         value: 'oklch(53.992% 0.19058 257.48)',
-        type: 'color'
+        type: 'color',
       }
-      
+
       const result = TailwindGenerator.generateUtilityMapping([colorToken])
-      
+
       expect(result).toHaveProperty('text-blue-500')
       expect(result).toHaveProperty('bg-blue-500')
       expect(result).toHaveProperty('border-blue-500')
       expect(result['text-blue-500']).toBe('var(--color-primitive-blue-500)')
     })
 
-    it('should handle spacing tokens', () => {
+    test('spacingトークンが処理される', () => {
       const spacingToken: ParsedToken = {
         cssVarName: '--spacing-4',
         originalPath: ['spacing', '4'],
         value: '1rem',
-        type: 'dimension'
+        type: 'dimension',
       }
-      
+
       const result = TailwindGenerator.generateUtilityMapping([spacingToken])
-      
+
       expect(result).toHaveProperty('p-4')
       expect(result).toHaveProperty('m-4')
     })
 
-    it('should handle size tokens', () => {
+    test('sizeトークンが処理される', () => {
       const sizeToken: ParsedToken = {
         cssVarName: '--size-full',
         originalPath: ['size', 'full'],
         value: '100%',
-        type: 'dimension'
+        type: 'dimension',
       }
-      
+
       const result = TailwindGenerator.generateUtilityMapping([sizeToken])
-      
+
       expect(result).toHaveProperty('w-full')
       expect(result).toHaveProperty('h-full')
     })
