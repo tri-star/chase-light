@@ -35,4 +35,10 @@ export interface ParsedToken {
   value: string
   type?: string
   description?: string
+  theme?: 'light' | 'dark'
+}
+
+export interface ThemedTokens {
+  light: ParsedToken[]
+  dark: ParsedToken[]
 }

@@ -1,9 +1,47 @@
-import type { ParsedToken } from './types'
+import type { ParsedToken, ThemedTokens } from './types'
 
 // eslint-disable-next-line @typescript-eslint/no-extraneous-class
 export class TailwindGenerator {
   /**
-   * Tailwind CSS @theme形式でCSSを生成
+   * テーマ別Tailwind CSS生成
+   */
+  static generateThemedTailwindCSS(themedTokens: ThemedTokens): string {
+    // デフォルトのリセット用変数を生成
+    const resetVars = this.generateResetVariables()
+
+    // ライトテーマ（デフォルト）のCSS変数
+    const lightTokenVars = themedTokens.light
+      .map((token) => `  ${token.cssVarName}: ${token.value};`)
+      .join('\n')
+
+    // ダークテーマで上書きするセマンティックトークンのみを抽出
+    const darkOverrideTokens = themedTokens.dark.filter(
+      (token) =>
+        token.originalPath.length > 1 &&
+        token.originalPath[0] === 'color' &&
+        token.originalPath[1] === 'semantic'
+    )
+
+    // ダークテーマのCSS変数
+    const darkTokenVars = darkOverrideTokens
+      .map((token) => `  ${token.cssVarName}: ${token.value};`)
+      .join('\n')
+
+    return `@import "tailwindcss";
+
+@theme {
+${resetVars}
+
+${lightTokenVars}
+}
+
+:root[data-theme="dark"] {
+${darkTokenVars}
+}`
+  }
+
+  /**
+   * Tailwind CSS @theme形式でCSSを生成（後方互換性）
    */
   static generateTailwindCSS(tokens: ParsedToken[]): string {
     // デフォルトのリセット用変数を生成

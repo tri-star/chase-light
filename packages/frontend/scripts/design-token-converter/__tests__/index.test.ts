@@ -39,9 +39,18 @@ describe('DesignTokenConverter', () => {
         },
       },
       semantic: {
-        primary: {
-          default: {
-            bg: { value: '{color.primitive.blue.500}' },
+        light: {
+          content: {
+            default: {
+              bg: { value: '{color.primitive.blue.500}' },
+            },
+          },
+        },
+        dark: {
+          content: {
+            default: {
+              bg: { value: '{color.primitive.blue.500}' },
+            },
           },
         },
       },
@@ -187,7 +196,7 @@ describe('DesignTokenConverter', () => {
 
       // セマンティックトークンが実際の値に解決されていることを確認
       expect(cssContent).toContain(
-        '--color-semantic-primary-default-bg: oklch(53.992% 0.19058 257.48)'
+        '--color-semantic-content-default-bg: oklch(53.992% 0.19058 257.48)'
       )
     })
 
@@ -200,7 +209,11 @@ describe('DesignTokenConverter', () => {
           $type: 'color',
           primitive: { blue: { '500': { value: 'oklch(blue)' } } },
           alias: { primary: { value: '{color.primitive.blue.500}' } },
-          semantic: { primary: { bg: { value: '{color.alias.primary}' } } },
+          semantic: {
+            light: {
+              primary: { bg: { value: '{color.alias.primary}' } },
+            },
+          },
         },
       }
 
@@ -240,7 +253,7 @@ describe('DesignTokenConverter', () => {
 
       // すべてのトークンが存在することを確認
       expect(cssContent).toContain('--color-primitive-blue-500')
-      expect(cssContent).toContain('--color-semantic-primary-default-bg')
+      expect(cssContent).toContain('--color-semantic-content-default-bg')
       expect(cssContent).toContain('--spacing-4')
     })
   })

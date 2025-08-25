@@ -1,16 +1,25 @@
 <template>
-  <div class="min-h-screen bg-gray-50">
+  <div
+    class="min-h-screen bg-semantic-content-default-bg text-semantic-content-default-text"
+  >
     <!-- ヘッダー -->
-    <header class="bg-white shadow">
+    <header
+      class="bg-semantic-header-default-bg shadow backdrop-blur-default border-b border-semantic-header-default-border"
+    >
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex justify-between items-center py-6">
           <div class="flex items-center">
-            <h1 class="text-3xl font-bold text-gray-900">Dashboard</h1>
+            <h1 class="text-3xl font-bold text-semantic-header-default-text">
+              Dashboard
+            </h1>
           </div>
           <div class="flex items-center space-x-4">
-            <div class="text-sm text-gray-600">Welcome, {{ user?.name }}</div>
+            <ThemeSelector />
+            <div class="text-sm text-semantic-content-default-text/80">
+              Welcome, {{ user?.name }}
+            </div>
             <button
-              class="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded"
+              class="bg-semantic-common-alert-inversed-bg text-semantic-common-alert-inversed-text font-bold py-2 px-4 rounded"
               @click="logout"
             >
               Logout
@@ -23,35 +32,57 @@
     <!-- メインコンテンツ -->
     <main class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
       <div class="px-4 py-6 sm:px-0">
-        <div class="border-4 border-dashed border-gray-200 rounded-lg p-6">
-          <h2 class="text-2xl font-semibold text-gray-900 mb-4">
+        <div
+          class="border-4 border-dashed border-semantic-surface-secondary-default-border rounded-lg p-6"
+        >
+          <h2
+            class="text-2xl font-semibold text-semantic-content-default-text mb-4"
+          >
             User Information
           </h2>
 
-          <div class="bg-white overflow-hidden shadow rounded-lg">
+          <div
+            class="bg-semantic-surface-secondary-default-bg overflow-hidden shadow rounded-lg border border-semantic-surface-secondary-default-border"
+          >
             <div class="px-4 py-5 sm:p-6">
               <dl class="grid grid-cols-1 gap-x-4 gap-y-6 sm:grid-cols-2">
                 <div>
-                  <dt class="text-sm font-medium text-gray-500">User ID</dt>
-                  <dd class="mt-1 text-sm text-gray-900">
+                  <dt
+                    class="text-sm font-medium text-semantic-content-default-text/60"
+                  >
+                    User ID
+                  </dt>
+                  <dd class="mt-1 text-sm text-semantic-content-default-text">
                     {{ user?.id }}
                   </dd>
                 </div>
                 <div>
-                  <dt class="text-sm font-medium text-gray-500">Email</dt>
-                  <dd class="mt-1 text-sm text-gray-900">
+                  <dt
+                    class="text-sm font-medium text-semantic-content-default-text/60"
+                  >
+                    Email
+                  </dt>
+                  <dd class="mt-1 text-sm text-semantic-content-default-text">
                     {{ user?.email }}
                   </dd>
                 </div>
                 <div>
-                  <dt class="text-sm font-medium text-gray-500">Name</dt>
-                  <dd class="mt-1 text-sm text-gray-900">
+                  <dt
+                    class="text-sm font-medium text-semantic-content-default-text/60"
+                  >
+                    Name
+                  </dt>
+                  <dd class="mt-1 text-sm text-semantic-content-default-text">
                     {{ user?.name }}
                   </dd>
                 </div>
                 <div>
-                  <dt class="text-sm font-medium text-gray-500">Provider</dt>
-                  <dd class="mt-1 text-sm text-gray-900">
+                  <dt
+                    class="text-sm font-medium text-semantic-content-default-text/60"
+                  >
+                    Provider
+                  </dt>
+                  <dd class="mt-1 text-sm text-semantic-content-default-text">
                     {{ user?.provider }}
                   </dd>
                 </div>
@@ -64,7 +95,11 @@
               </dl>
 
               <div v-if="user?.avatar" class="mt-6">
-                <dt class="text-sm font-medium text-gray-500 mb-2">Avatar</dt>
+                <dt
+                  class="text-sm font-medium text-semantic-content-default-text/60 mb-2"
+                >
+                  Avatar
+                </dt>
                 <img
                   :src="user.avatar"
                   :alt="user.name"
@@ -76,12 +111,14 @@
 
           <!-- データソース一覧 -->
           <div class="mt-8">
-            <h3 class="text-lg font-medium text-gray-900 mb-4">
+            <h3
+              class="text-lg font-medium text-semantic-content-default-text mb-4"
+            >
               データソース一覧
             </h3>
             <div class="space-y-4">
               <button
-                class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+                class="bg-semantic-surface-primary-default-bg hover:bg-semantic-surface-primary-hovered-bg text-semantic-surface-primary-default-text font-bold py-2 px-4 rounded"
                 :disabled="dataSourcesLoading"
                 data-testid="fetch-data-sources-button"
                 @click="fetchDataSources"
@@ -93,18 +130,18 @@
 
               <div
                 v-if="dataSourcesError"
-                class="bg-red-100 p-4 rounded text-red-700"
+                class="bg-semantic-common-alert-default-bg text-semantic-common-alert-default-text border border-semantic-common-alert-default-border p-4 rounded"
               >
                 エラー: {{ dataSourcesError }}
               </div>
 
               <div
                 v-if="dataSources && dataSources.data"
-                class="bg-white shadow overflow-hidden sm:rounded-md"
+                class="bg-semantic-surface-secondary-default-bg shadow overflow-hidden sm:rounded-md border border-semantic-surface-secondary-default-border"
               >
                 <div class="px-4 py-5 sm:p-6">
                   <div class="mb-4">
-                    <p class="text-sm text-gray-600">
+                    <p class="text-sm text-semantic-content-default-text/80">
                       {{ dataSources.data.pagination.total }} 件中
                       {{
                         (dataSources.data.pagination.page - 1) *
@@ -125,7 +162,7 @@
 
                   <ul
                     v-if="dataSources.data.items.length > 0"
-                    class="divide-y divide-gray-200"
+                    class="divide-y divide-semantic-surface-secondary-default-border"
                   >
                     <li
                       v-for="item in dataSources.data.items"
@@ -134,13 +171,19 @@
                     >
                       <div class="flex items-center space-x-4">
                         <div class="flex-1 min-w-0">
-                          <p class="text-sm font-medium text-gray-900 truncate">
+                          <p
+                            class="text-sm font-medium text-semantic-content-default-text truncate"
+                          >
                             {{ item.dataSource.name }}
                           </p>
-                          <p class="text-sm text-gray-500 truncate">
+                          <p
+                            class="text-sm text-semantic-content-default-text/80 truncate"
+                          >
                             {{ item.dataSource.repository.fullName }}
                           </p>
-                          <p class="text-xs text-gray-400">
+                          <p
+                            class="text-xs text-semantic-content-default-text/60"
+                          >
                             スター:
                             {{ item.dataSource.repository.starsCount }} |
                             フォーク:
@@ -148,13 +191,15 @@
                             {{ item.dataSource.repository.language || 'N/A' }}
                           </p>
                         </div>
-                        <div class="text-sm text-gray-500">
+                        <div
+                          class="text-sm text-semantic-content-default-text/80"
+                        >
                           <span
                             class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium"
                             :class="
                               item.dataSource.isPrivate
-                                ? 'bg-red-100 text-red-800'
-                                : 'bg-green-100 text-green-800'
+                                ? 'bg-semantic-common-alert-default-bg text-semantic-common-alert-default-text'
+                                : 'bg-semantic-common-success-default-bg text-semantic-common-success-default-text'
                             "
                           >
                             {{
@@ -167,7 +212,9 @@
                   </ul>
 
                   <div v-else class="text-center py-8">
-                    <p class="text-gray-500">データソースが見つかりません</p>
+                    <p class="text-semantic-content-default-text/60">
+                      データソースが見つかりません
+                    </p>
                   </div>
                 </div>
               </div>
@@ -176,7 +223,9 @@
 
           <!-- データソース追加 -->
           <div class="mt-8">
-            <h3 class="text-lg font-medium text-gray-900 mb-4">
+            <h3
+              class="text-lg font-medium text-semantic-content-default-text mb-4"
+            >
               データソースを追加
             </h3>
             <div class="space-y-4">
@@ -185,11 +234,11 @@
                   v-model="newRepositoryUrl"
                   type="text"
                   placeholder="https://github.com/owner/repo"
-                  class="flex-1 border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  class="flex-1 bg-semantic-interactive-default-bg border border-semantic-interactive-default-border text-semantic-interactive-default-text rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-semantic-common-focus-default-color focus:border-semantic-interactive-focused-border"
                   :disabled="addLoading"
                 />
                 <button
-                  class="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded disabled:opacity-50"
+                  class="bg-semantic-common-success-inversed-bg text-semantic-common-success-inversed-text font-bold py-2 px-4 rounded disabled:opacity-50"
                   :disabled="addLoading || !newRepositoryUrl"
                   data-testid="add-data-source-button"
                   @click="addDataSource"
@@ -198,13 +247,16 @@
                 </button>
               </div>
 
-              <div v-if="addError" class="bg-red-100 p-4 rounded text-red-700">
+              <div
+                v-if="addError"
+                class="bg-semantic-common-alert-default-bg text-semantic-common-alert-default-text border border-semantic-common-alert-default-border p-4 rounded"
+              >
                 エラー: {{ addError }}
               </div>
 
               <div
                 v-if="addSuccess"
-                class="bg-green-100 p-4 rounded text-green-700"
+                class="bg-semantic-common-success-default-bg text-semantic-common-success-default-text border border-semantic-common-success-default-border p-4 rounded"
               >
                 データソースが正常に追加されました！
               </div>
