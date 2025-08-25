@@ -14,88 +14,22 @@
     <!-- 現在のテーマを視覚的に表示するインジケーター -->
     <div class="theme-indicator" :data-theme="currentTheme">
       <div class="theme-icon">
-        <component :is="themeIcon" class="w-4 h-4" />
+        <Icon :name="themeIconName" class="w-4 h-4" />
       </div>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-// テーマアイコン（SVGコンポーネント）
-const SunIcon = () =>
-  h(
-    'svg',
-    {
-      viewBox: '0 0 24 24',
-      fill: 'none',
-      stroke: 'currentColor',
-      strokeWidth: '2',
-      strokeLinecap: 'round',
-      strokeLinejoin: 'round',
-    },
-    [
-      h('circle', { cx: '12', cy: '12', r: '5' }),
-      h('line', { x1: '12', y1: '1', x2: '12', y2: '3' }),
-      h('line', { x1: '12', y1: '21', x2: '12', y2: '23' }),
-      h('line', { x1: '4.22', y1: '4.22', x2: '5.64', y2: '5.64' }),
-      h('line', { x1: '18.36', y1: '18.36', x2: '19.78', y2: '19.78' }),
-      h('line', { x1: '1', y1: '12', x2: '3', y2: '12' }),
-      h('line', { x1: '21', y1: '12', x2: '23', y2: '12' }),
-      h('line', { x1: '4.22', y1: '19.78', x2: '5.64', y2: '18.36' }),
-      h('line', { x1: '18.36', y1: '5.64', x2: '19.78', y2: '4.22' }),
-    ]
-  )
-
-const MoonIcon = () =>
-  h(
-    'svg',
-    {
-      viewBox: '0 0 24 24',
-      fill: 'none',
-      stroke: 'currentColor',
-      strokeWidth: '2',
-      strokeLinecap: 'round',
-      strokeLinejoin: 'round',
-    },
-    [
-      h('path', {
-        d: 'm12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z',
-      }),
-    ]
-  )
-
-const MonitorIcon = () =>
-  h(
-    'svg',
-    {
-      viewBox: '0 0 24 24',
-      fill: 'none',
-      stroke: 'currentColor',
-      strokeWidth: '2',
-      strokeLinecap: 'round',
-      strokeLinejoin: 'round',
-    },
-    [
-      h('rect', {
-        x: '2',
-        y: '3',
-        width: '20',
-        height: '14',
-        rx: '2',
-        ry: '2',
-      }),
-      h('line', { x1: '8', y1: '21', x2: '16', y2: '21' }),
-      h('line', { x1: '12', y1: '17', x2: '12', y2: '21' }),
-    ]
-  )
-
 // テーマ管理
 const { theme, setTheme, currentTheme } = useTheme()
 
 // テーマに応じたアイコンを選択
-const themeIcon = computed(() => {
-  if (unref(theme) === 'system') return MonitorIcon
-  return unref(currentTheme) === 'dark' ? MoonIcon : SunIcon
+const themeIconName = computed(() => {
+  if (unref(theme) === 'system') return 'i-heroicons-computer-desktop-20-solid'
+  return unref(currentTheme) === 'dark'
+    ? 'i-heroicons-moon-20-solid'
+    : 'i-heroicons-sun-20-solid'
 })
 
 // テーマ変更ハンドラー
@@ -160,21 +94,11 @@ const handleThemeChange = (event: Event) => {
 
 .theme-indicator[data-theme='light'] .theme-icon {
   color: var(--color-primitive-yellow-600);
-  animation: sun-spin 2s linear infinite;
 }
 
 .theme-indicator[data-theme='dark'] .theme-icon {
   color: var(--color-primitive-blue-300);
   animation: moon-glow 3s ease-in-out infinite alternate;
-}
-
-@keyframes sun-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
 }
 
 @keyframes moon-glow {

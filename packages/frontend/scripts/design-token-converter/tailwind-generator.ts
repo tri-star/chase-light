@@ -14,8 +14,16 @@ export class TailwindGenerator {
       .map((token) => `  ${token.cssVarName}: ${token.value};`)
       .join('\n')
 
+    // ダークテーマで上書きするセマンティックトークンのみを抽出
+    const darkOverrideTokens = themedTokens.dark.filter(
+      (token) =>
+        token.originalPath.length > 1 &&
+        token.originalPath[0] === 'color' &&
+        token.originalPath[1] === 'semantic'
+    )
+
     // ダークテーマのCSS変数
-    const darkTokenVars = themedTokens.dark
+    const darkTokenVars = darkOverrideTokens
       .map((token) => `  ${token.cssVarName}: ${token.value};`)
       .join('\n')
 
