@@ -35,7 +35,9 @@
         <div
           class="border-4 border-dashed border-semantic-surface-secondary-default-border rounded-lg p-6"
         >
-          <h2 class="text-2xl font-semibold text-semantic-content-default-text mb-4">
+          <h2
+            class="text-2xl font-semibold text-semantic-content-default-text mb-4"
+          >
             User Information
           </h2>
 
@@ -45,7 +47,9 @@
             <div class="px-4 py-5 sm:p-6">
               <dl class="grid grid-cols-1 gap-x-4 gap-y-6 sm:grid-cols-2">
                 <div>
-                  <dt class="text-sm font-medium text-semantic-content-default-text/60">
+                  <dt
+                    class="text-sm font-medium text-semantic-content-default-text/60"
+                  >
                     User ID
                   </dt>
                   <dd class="mt-1 text-sm text-semantic-content-default-text">
@@ -53,7 +57,9 @@
                   </dd>
                 </div>
                 <div>
-                  <dt class="text-sm font-medium text-semantic-content-default-text/60">
+                  <dt
+                    class="text-sm font-medium text-semantic-content-default-text/60"
+                  >
                     Email
                   </dt>
                   <dd class="mt-1 text-sm text-semantic-content-default-text">
@@ -61,7 +67,9 @@
                   </dd>
                 </div>
                 <div>
-                  <dt class="text-sm font-medium text-semantic-content-default-text/60">
+                  <dt
+                    class="text-sm font-medium text-semantic-content-default-text/60"
+                  >
                     Name
                   </dt>
                   <dd class="mt-1 text-sm text-semantic-content-default-text">
@@ -69,7 +77,9 @@
                   </dd>
                 </div>
                 <div>
-                  <dt class="text-sm font-medium text-semantic-content-default-text/60">
+                  <dt
+                    class="text-sm font-medium text-semantic-content-default-text/60"
+                  >
                     Provider
                   </dt>
                   <dd class="mt-1 text-sm text-semantic-content-default-text">
@@ -85,7 +95,9 @@
               </dl>
 
               <div v-if="user?.avatar" class="mt-6">
-                <dt class="text-sm font-medium text-semantic-content-default-text/60 mb-2">
+                <dt
+                  class="text-sm font-medium text-semantic-content-default-text/60 mb-2"
+                >
                   Avatar
                 </dt>
                 <img
@@ -99,7 +111,9 @@
 
           <!-- データソース一覧 -->
           <div class="mt-8">
-            <h3 class="text-lg font-medium text-semantic-content-default-text mb-4">
+            <h3
+              class="text-lg font-medium text-semantic-content-default-text mb-4"
+            >
               データソース一覧
             </h3>
             <div class="space-y-4">
@@ -167,7 +181,9 @@
                           >
                             {{ item.dataSource.repository.fullName }}
                           </p>
-                          <p class="text-xs text-semantic-content-default-text/60">
+                          <p
+                            class="text-xs text-semantic-content-default-text/60"
+                          >
                             スター:
                             {{ item.dataSource.repository.starsCount }} |
                             フォーク:
@@ -175,7 +191,9 @@
                             {{ item.dataSource.repository.language || 'N/A' }}
                           </p>
                         </div>
-                        <div class="text-sm text-semantic-content-default-text/80">
+                        <div
+                          class="text-sm text-semantic-content-default-text/80"
+                        >
                           <span
                             class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium"
                             :class="
@@ -205,7 +223,9 @@
 
           <!-- データソース追加 -->
           <div class="mt-8">
-            <h3 class="text-lg font-medium text-semantic-content-default-text mb-4">
+            <h3
+              class="text-lg font-medium text-semantic-content-default-text mb-4"
+            >
               データソースを追加
             </h3>
             <div class="space-y-4">
