@@ -875,22 +875,21 @@ const SemanticColors = {
         },
         {
           name: 'Warning Message',
-          classes:
-            'bg-status-warning text-status-warning border border-status-warning',
+          classes: 'bg-status-warn text-status-warn border border-status-warn',
           classNames: [
-            'bg-status-warning',
-            'text-status-warning',
-            'border-status-warning',
+            'bg-status-warn',
+            'text-status-warn',
+            'border-status-warn',
           ],
         },
         {
           name: 'Error Message',
           classes:
-            'bg-status-error text-status-error border border-status-error',
+            'bg-status-alert text-status-alert border border-status-alert',
           classNames: [
-            'bg-status-error',
-            'text-status-error',
-            'border-status-error',
+            'bg-status-alert',
+            'text-status-alert',
+            'border-status-alert',
           ],
         },
       ],

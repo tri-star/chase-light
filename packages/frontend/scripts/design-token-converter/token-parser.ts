@@ -70,6 +70,22 @@ export class TokenParser {
       const lastSegment = path[path.length - 1]
       const pathWithoutLast = path.slice(2, -1) // 'color', 'semantic' を除く、最後の要素も除く
 
+      // color.semantic.common.* の特別なマッピング
+      if (pathWithoutLast[0] === 'common') {
+        const statusType = pathWithoutLast[1] // info, success, warn, alert
+        switch (lastSegment) {
+          case 'bg':
+            return `--background-color-status-${statusType}`
+          case 'text':
+            return `--text-color-status-${statusType}`
+          case 'border':
+            return `--border-color-status-${statusType}`
+          default:
+            return `--${path.join('-')}`
+        }
+      }
+
+      // その他のsemanticトークンは通常のマッピング
       switch (lastSegment) {
         case 'bg':
           return `--background-color-${pathWithoutLast.join('-')}`
