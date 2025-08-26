@@ -1,6 +1,6 @@
 @import 'tailwindcss';
 
-@theme {
+@theme static {
   --color-*: initial;
   --font-*: initial;
   --text-*: initial;
@@ -332,7 +332,7 @@
   --transition-property-transform: transform;
 }
 
-:root[data-theme='dark'] {
+.dark {
   --background-color-content-default: oklch(27.85% 0.0132 253.04);
   --text-color-content-default: oklch(94.722% 0.00689 247.9);
   --background-color-surface-primary-default: oklch(64.176% 0.19508 254.98);
