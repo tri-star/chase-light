@@ -5,10 +5,17 @@ const config: StorybookConfig = {
     '../components/**/*.mdx',
     '../components/**/*.stories.@(js|jsx|ts|tsx|mdx)',
   ],
-  addons: ['@chromatic-com/storybook', '@storybook/addon-docs'],
+  addons: [
+    '@storybook/addon-essentials',
+    '@chromatic-com/storybook',
+    '@storybook/addon-docs',
+  ],
   framework: {
     name: '@storybook-vue/nuxt',
     options: {},
+  },
+  docs: {
+    autodocs: 'tag',
   },
 }
 export default config
