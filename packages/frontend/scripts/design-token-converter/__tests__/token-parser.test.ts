@@ -94,20 +94,26 @@ describe('TokenParser', () => {
       const result = TokenParser.toCSSVars(flatTokens)
 
       // color.semantic.common.info.default.bg -> --background-color-status-info
-      const infoBg = result.find(token => 
-        token.originalPath.join('.') === 'color.semantic.common.info.default.bg'
+      const infoBg = result.find(
+        (token) =>
+          token.originalPath.join('.') ===
+          'color.semantic.common.info.default.bg'
       )
       expect(infoBg?.cssVarName).toBe('--background-color-status-info')
 
       // color.semantic.common.info.default.text -> --text-color-status-info
-      const infoText = result.find(token => 
-        token.originalPath.join('.') === 'color.semantic.common.info.default.text'
+      const infoText = result.find(
+        (token) =>
+          token.originalPath.join('.') ===
+          'color.semantic.common.info.default.text'
       )
       expect(infoText?.cssVarName).toBe('--text-color-status-info')
 
       // color.semantic.common.success.default.bg -> --background-color-status-success
-      const successBg = result.find(token => 
-        token.originalPath.join('.') === 'color.semantic.common.success.default.bg'
+      const successBg = result.find(
+        (token) =>
+          token.originalPath.join('.') ===
+          'color.semantic.common.success.default.bg'
       )
       expect(successBg?.cssVarName).toBe('--background-color-status-success')
     })

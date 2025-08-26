@@ -1,4 +1,4 @@
-@import "tailwindcss";
+@import 'tailwindcss';
 
 @theme static {
   --color-*: initial;
@@ -164,24 +164,75 @@
   --color-primitive-red-900: oklch(26.486% 0.10588 14.713);
   --color-primitive-black: oklch(23.735% 0.01132 254.06);
   --color-primitive-white: oklch(100% 0 none);
-  --typography-font-family-sans: "Hiragino Sans", "Hiragino Kaku Gothic ProN", "Noto Sans CJK JP", "Noto Sans JP", "Yu Gothic", "YuGothic", "Meiryo", sans-serif;
-  --typography-font-family-mono: "SFMono-Regular", "Consolas", "Liberation Mono", "Menlo", "Courier", monospace;
-  --typography-scale-xs: 400 0.75rem/1.5 "Hiragino Sans", "Hiragino Kaku Gothic ProN", "Noto Sans CJK JP", "Noto Sans JP", "Yu Gothic", "YuGothic", "Meiryo", sans-serif;
-  --typography-scale-sm: 400 0.875rem/1.5 "Hiragino Sans", "Hiragino Kaku Gothic ProN", "Noto Sans CJK JP", "Noto Sans JP", "Yu Gothic", "YuGothic", "Meiryo", sans-serif;
-  --typography-scale-base: 400 1rem/1.6 "Hiragino Sans", "Hiragino Kaku Gothic ProN", "Noto Sans CJK JP", "Noto Sans JP", "Yu Gothic", "YuGothic", "Meiryo", sans-serif;
-  --typography-scale-lg: 400 1.125rem/1.6 "Hiragino Sans", "Hiragino Kaku Gothic ProN", "Noto Sans CJK JP", "Noto Sans JP", "Yu Gothic", "YuGothic", "Meiryo", sans-serif;
-  --typography-scale-xl: 500 1.25rem/1.5 "Hiragino Sans", "Hiragino Kaku Gothic ProN", "Noto Sans CJK JP", "Noto Sans JP", "Yu Gothic", "YuGothic", "Meiryo", sans-serif;
-  --typography-scale-2xl: 600 1.5rem/1.4 "Hiragino Sans", "Hiragino Kaku Gothic ProN", "Noto Sans CJK JP", "Noto Sans JP", "Yu Gothic", "YuGothic", "Meiryo", sans-serif;
-  --typography-scale-3xl: 700 1.875rem/1.3 "Hiragino Sans", "Hiragino Kaku Gothic ProN", "Noto Sans CJK JP", "Noto Sans JP", "Yu Gothic", "YuGothic", "Meiryo", sans-serif;
-  --typography-scale-4xl: 700 2.25rem/1.2 "Hiragino Sans", "Hiragino Kaku Gothic ProN", "Noto Sans CJK JP", "Noto Sans JP", "Yu Gothic", "YuGothic", "Meiryo", sans-serif;
-  --typography-semantic-heading-1: 700 2.25rem/1.2 "Hiragino Sans", "Hiragino Kaku Gothic ProN", "Noto Sans CJK JP", "Noto Sans JP", "Yu Gothic", "YuGothic", "Meiryo", sans-serif;
-  --typography-semantic-heading-2: 700 1.875rem/1.3 "Hiragino Sans", "Hiragino Kaku Gothic ProN", "Noto Sans CJK JP", "Noto Sans JP", "Yu Gothic", "YuGothic", "Meiryo", sans-serif;
-  --typography-semantic-heading-3: 600 1.5rem/1.4 "Hiragino Sans", "Hiragino Kaku Gothic ProN", "Noto Sans CJK JP", "Noto Sans JP", "Yu Gothic", "YuGothic", "Meiryo", sans-serif;
-  --typography-semantic-heading-4: 500 1.25rem/1.5 "Hiragino Sans", "Hiragino Kaku Gothic ProN", "Noto Sans CJK JP", "Noto Sans JP", "Yu Gothic", "YuGothic", "Meiryo", sans-serif;
-  --typography-semantic-body: 400 1rem/1.6 "Hiragino Sans", "Hiragino Kaku Gothic ProN", "Noto Sans CJK JP", "Noto Sans JP", "Yu Gothic", "YuGothic", "Meiryo", sans-serif;
-  --typography-semantic-body-sm: 400 0.875rem/1.5 "Hiragino Sans", "Hiragino Kaku Gothic ProN", "Noto Sans CJK JP", "Noto Sans JP", "Yu Gothic", "YuGothic", "Meiryo", sans-serif;
-  --typography-semantic-caption: 400 0.75rem/1.5 "Hiragino Sans", "Hiragino Kaku Gothic ProN", "Noto Sans CJK JP", "Noto Sans JP", "Yu Gothic", "YuGothic", "Meiryo", sans-serif;
-  --typography-semantic-code: 400 0.875rem/1.6 "SFMono-Regular", "Consolas", "Liberation Mono", "Menlo", "Courier", monospace;
+  --typography-font-family-sans:
+    'Hiragino Sans', 'Hiragino Kaku Gothic ProN', 'Noto Sans CJK JP',
+    'Noto Sans JP', 'Yu Gothic', 'YuGothic', 'Meiryo', sans-serif;
+  --typography-font-family-mono:
+    'SFMono-Regular', 'Consolas', 'Liberation Mono', 'Menlo', 'Courier',
+    monospace;
+  --typography-scale-xs:
+    400 0.75rem/1.5 'Hiragino Sans', 'Hiragino Kaku Gothic ProN',
+    'Noto Sans CJK JP', 'Noto Sans JP', 'Yu Gothic', 'YuGothic', 'Meiryo',
+    sans-serif;
+  --typography-scale-sm:
+    400 0.875rem/1.5 'Hiragino Sans', 'Hiragino Kaku Gothic ProN',
+    'Noto Sans CJK JP', 'Noto Sans JP', 'Yu Gothic', 'YuGothic', 'Meiryo',
+    sans-serif;
+  --typography-scale-base:
+    400 1rem/1.6 'Hiragino Sans', 'Hiragino Kaku Gothic ProN',
+    'Noto Sans CJK JP', 'Noto Sans JP', 'Yu Gothic', 'YuGothic', 'Meiryo',
+    sans-serif;
+  --typography-scale-lg:
+    400 1.125rem/1.6 'Hiragino Sans', 'Hiragino Kaku Gothic ProN',
+    'Noto Sans CJK JP', 'Noto Sans JP', 'Yu Gothic', 'YuGothic', 'Meiryo',
+    sans-serif;
+  --typography-scale-xl:
+    500 1.25rem/1.5 'Hiragino Sans', 'Hiragino Kaku Gothic ProN',
+    'Noto Sans CJK JP', 'Noto Sans JP', 'Yu Gothic', 'YuGothic', 'Meiryo',
+    sans-serif;
+  --typography-scale-2xl:
+    600 1.5rem/1.4 'Hiragino Sans', 'Hiragino Kaku Gothic ProN',
+    'Noto Sans CJK JP', 'Noto Sans JP', 'Yu Gothic', 'YuGothic', 'Meiryo',
+    sans-serif;
+  --typography-scale-3xl:
+    700 1.875rem/1.3 'Hiragino Sans', 'Hiragino Kaku Gothic ProN',
+    'Noto Sans CJK JP', 'Noto Sans JP', 'Yu Gothic', 'YuGothic', 'Meiryo',
+    sans-serif;
+  --typography-scale-4xl:
+    700 2.25rem/1.2 'Hiragino Sans', 'Hiragino Kaku Gothic ProN',
+    'Noto Sans CJK JP', 'Noto Sans JP', 'Yu Gothic', 'YuGothic', 'Meiryo',
+    sans-serif;
+  --typography-semantic-heading-1:
+    700 2.25rem/1.2 'Hiragino Sans', 'Hiragino Kaku Gothic ProN',
+    'Noto Sans CJK JP', 'Noto Sans JP', 'Yu Gothic', 'YuGothic', 'Meiryo',
+    sans-serif;
+  --typography-semantic-heading-2:
+    700 1.875rem/1.3 'Hiragino Sans', 'Hiragino Kaku Gothic ProN',
+    'Noto Sans CJK JP', 'Noto Sans JP', 'Yu Gothic', 'YuGothic', 'Meiryo',
+    sans-serif;
+  --typography-semantic-heading-3:
+    600 1.5rem/1.4 'Hiragino Sans', 'Hiragino Kaku Gothic ProN',
+    'Noto Sans CJK JP', 'Noto Sans JP', 'Yu Gothic', 'YuGothic', 'Meiryo',
+    sans-serif;
+  --typography-semantic-heading-4:
+    500 1.25rem/1.5 'Hiragino Sans', 'Hiragino Kaku Gothic ProN',
+    'Noto Sans CJK JP', 'Noto Sans JP', 'Yu Gothic', 'YuGothic', 'Meiryo',
+    sans-serif;
+  --typography-semantic-body:
+    400 1rem/1.6 'Hiragino Sans', 'Hiragino Kaku Gothic ProN',
+    'Noto Sans CJK JP', 'Noto Sans JP', 'Yu Gothic', 'YuGothic', 'Meiryo',
+    sans-serif;
+  --typography-semantic-body-sm:
+    400 0.875rem/1.5 'Hiragino Sans', 'Hiragino Kaku Gothic ProN',
+    'Noto Sans CJK JP', 'Noto Sans JP', 'Yu Gothic', 'YuGothic', 'Meiryo',
+    sans-serif;
+  --typography-semantic-caption:
+    400 0.75rem/1.5 'Hiragino Sans', 'Hiragino Kaku Gothic ProN',
+    'Noto Sans CJK JP', 'Noto Sans JP', 'Yu Gothic', 'YuGothic', 'Meiryo',
+    sans-serif;
+  --typography-semantic-code:
+    400 0.875rem/1.6 'SFMono-Regular', 'Consolas', 'Liberation Mono', 'Menlo',
+    'Courier', monospace;
   --spacing-0: 0;
   --spacing-1: 0.25rem;
   --spacing-2: 0.5rem;
@@ -271,8 +322,11 @@
   --transition-easing-ease-in-out: 0.4, 0, 0.2, 1;
   --transition-property-none: none;
   --transition-property-all: all;
-  --transition-property-default: color, background-color, border-color, text-decoration-color, fill, stroke, opacity, box-shadow, transform, filter, backdrop-filter;
-  --transition-property-colors: color, background-color, border-color, text-decoration-color, fill, stroke;
+  --transition-property-default:
+    color, background-color, border-color, text-decoration-color, fill, stroke,
+    opacity, box-shadow, transform, filter, backdrop-filter;
+  --transition-property-colors:
+    color, background-color, border-color, text-decoration-color, fill, stroke;
   --transition-property-opacity: opacity;
   --transition-property-shadow: box-shadow;
   --transition-property-transform: transform;
