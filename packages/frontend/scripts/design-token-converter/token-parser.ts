@@ -47,12 +47,43 @@ export class TokenParser {
    */
   static toCSSVars(flatTokens: FlatToken[]): ParsedToken[] {
     return flatTokens.map((token) => ({
-      cssVarName: `--${token.path.join('-')}`,
+      cssVarName: this.generateSemanticCSSVarName(token.path),
       originalPath: token.path,
       value: this.formatValue(token.value),
       type: token.type,
       description: token.description,
     }))
+  }
+
+  /**
+   * セマンティックなCSS変数名を生成
+   * bg/text/border用途に応じて適切なプレフィックスを付与
+   */
+  private static generateSemanticCSSVarName(path: string[]): string {
+    // color.primitive.* の場合はそのまま
+    if (path[0] === 'color' && path[1] === 'primitive') {
+      return `--${path.join('-')}`
+    }
+
+    // color.semantic.* の場合は用途別にマッピング
+    if (path[0] === 'color' && path[1] === 'semantic') {
+      const lastSegment = path[path.length - 1]
+      const pathWithoutLast = path.slice(2, -1) // 'color', 'semantic' を除く、最後の要素も除く
+
+      switch (lastSegment) {
+        case 'bg':
+          return `--background-color-${pathWithoutLast.join('-')}`
+        case 'text':
+          return `--text-color-${pathWithoutLast.join('-')}`
+        case 'border':
+          return `--border-color-${pathWithoutLast.join('-')}`
+        default:
+          return `--${path.join('-')}`
+      }
+    }
+
+    // その他のトークンはそのまま
+    return `--${path.join('-')}`
   }
 
   /**
