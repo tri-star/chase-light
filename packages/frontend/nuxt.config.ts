@@ -1,5 +1,4 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
-const isStorybook = !!process.env.STORYBOOK || !!process.env.NUXT_STORYBOOK
 
 export default defineNuxtConfig({
   compatibilityDate: '2025-05-15',
@@ -11,11 +10,6 @@ export default defineNuxtConfig({
     '@nuxt/test-utils/module',
     '@nuxtjs/tailwindcss',
     '@nuxtjs/storybook',
-  ],
-  css: [
-    isStorybook
-      ? '~/assets/css/tailwind-storybook.css'
-      : '~/assets/css/tailwind.css',
   ],
   runtimeConfig: {
     // Private keys (only available on the server-side)

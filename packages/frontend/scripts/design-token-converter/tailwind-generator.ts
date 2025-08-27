@@ -41,44 +41,6 @@ ${darkTokenVars}
   }
 
   /**
-   * Storybook用のTailwind CSS生成（JIT無効化・静的生成）
-   */
-  static generateStorybookTailwindCSS(themedTokens: ThemedTokens): string {
-    // デフォルトのリセット用変数を生成
-    const resetVars = this.generateResetVariables()
-
-    // ライトテーマ（デフォルト）のCSS変数
-    const lightTokenVars = themedTokens.light
-      .map((token) => `  ${token.cssVarName}: ${token.value};`)
-      .join('\n')
-
-    // ダークテーマで上書きするセマンティックトークンのみを抽出
-    const darkOverrideTokens = themedTokens.dark.filter(
-      (token) =>
-        token.originalPath.length > 1 &&
-        token.originalPath[0] === 'color' &&
-        token.originalPath[1] === 'semantic'
-    )
-
-    // ダークテーマのCSS変数
-    const darkTokenVars = darkOverrideTokens
-      .map((token) => `  ${token.cssVarName}: ${token.value};`)
-      .join('\n')
-
-    return `@import "tailwindcss";
-
-@theme static {
-${resetVars}
-
-${lightTokenVars}
-}
-
-.dark {
-${darkTokenVars}
-}`
-  }
-
-  /**
    * Tailwind CSS @theme形式でCSSを生成（後方互換性）
    */
   static generateTailwindCSS(tokens: ParsedToken[]): string {

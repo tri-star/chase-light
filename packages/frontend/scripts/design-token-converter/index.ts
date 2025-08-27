@@ -47,9 +47,6 @@ export class DesignTokenConverter {
       // テーマ別Tailwind CSS ファイルを生成
       await this.generateThemedTailwindCSS(themedTokens)
 
-      // Storybook用Tailwind CSS ファイルを生成
-      await this.generateStorybookTailwindCSS(themedTokens)
-
       console.log('🎉 すべての変換が完了しました!')
       console.log(`📁 出力先: ${this.outputDir}`)
     } catch (error) {
@@ -92,19 +89,6 @@ export class DesignTokenConverter {
     const cssPath = join(this.outputDir, 'tailwind.css')
     writeFileSync(cssPath, tailwindCSS, 'utf-8')
     console.log(`✅ テーマ別 Tailwind CSS を出力しました: ${cssPath}`)
-  }
-
-  /**
-   * Storybook用Tailwind CSS ファイルを生成
-   */
-  private async generateStorybookTailwindCSS(
-    themedTokens: ThemedTokens
-  ): Promise<void> {
-    const storybookCSS =
-      TailwindGenerator.generateStorybookTailwindCSS(themedTokens)
-    const cssPath = join(this.outputDir, 'tailwind-storybook.css')
-    writeFileSync(cssPath, storybookCSS, 'utf-8')
-    console.log(`✅ Storybook用 Tailwind CSS を出力しました: ${cssPath}`)
   }
 
   /**
