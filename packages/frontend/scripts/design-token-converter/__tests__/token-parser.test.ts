@@ -84,6 +84,9 @@ describe('TokenParser', () => {
                 default: {
                   bg: { value: 'oklch(warn-bg)' },
                 },
+                subtle: {
+                  bg: { value: 'oklch(warn-subtle-bg)' },
+                },
               },
             },
           },
@@ -93,29 +96,41 @@ describe('TokenParser', () => {
       const flatTokens = TokenParser.flattenTokens(commonTokens)
       const result = TokenParser.toCSSVars(flatTokens)
 
-      // color.semantic.common.info.default.bg -> --background-color-status-info
+      // color.semantic.common.info.default.bg -> --background-color-status-info-default
       const infoBg = result.find(
         (token) =>
           token.originalPath.join('.') ===
           'color.semantic.common.info.default.bg'
       )
-      expect(infoBg?.cssVarName).toBe('--background-color-status-info')
+      expect(infoBg?.cssVarName).toBe('--background-color-status-info-default')
 
-      // color.semantic.common.info.default.text -> --text-color-status-info
+      // color.semantic.common.info.default.text -> --text-color-status-info-default
       const infoText = result.find(
         (token) =>
           token.originalPath.join('.') ===
           'color.semantic.common.info.default.text'
       )
-      expect(infoText?.cssVarName).toBe('--text-color-status-info')
+      expect(infoText?.cssVarName).toBe('--text-color-status-info-default')
 
-      // color.semantic.common.success.default.bg -> --background-color-status-success
+      // color.semantic.common.success.default.bg -> --background-color-status-success-default
       const successBg = result.find(
         (token) =>
           token.originalPath.join('.') ===
           'color.semantic.common.success.default.bg'
       )
-      expect(successBg?.cssVarName).toBe('--background-color-status-success')
+      expect(successBg?.cssVarName).toBe(
+        '--background-color-status-success-default'
+      )
+
+      // color.semantic.common.warn.subtle.bg -> --background-color-status-warn-subtle
+      const warnSubtleBg = result.find(
+        (token) =>
+          token.originalPath.join('.') ===
+          'color.semantic.common.warn.subtle.bg'
+      )
+      expect(warnSubtleBg?.cssVarName).toBe(
+        '--background-color-status-warn-subtle'
+      )
     })
   })
 

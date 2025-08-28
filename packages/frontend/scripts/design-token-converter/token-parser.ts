@@ -73,13 +73,14 @@ export class TokenParser {
       // color.semantic.common.* の特別なマッピング
       if (pathWithoutLast[0] === 'common') {
         const statusType = pathWithoutLast[1] // info, success, warn, alert
+        const variant = pathWithoutLast[2] // default, subtle, inversed
         switch (lastSegment) {
           case 'bg':
-            return `--background-color-status-${statusType}`
+            return `--background-color-status-${statusType}-${variant}`
           case 'text':
-            return `--text-color-status-${statusType}`
+            return `--text-color-status-${statusType}-${variant}`
           case 'border':
-            return `--border-color-status-${statusType}`
+            return `--border-color-status-${statusType}-${variant}`
           default:
             return `--${path.join('-')}`
         }
