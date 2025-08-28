@@ -48,8 +48,8 @@ importers:
         specifier: ^1.14.3
         version: 1.19.0(hono@4.9.4)
       '@hono/zod-openapi':
-        specifier: 1.0.0-beta.1
-        version: 1.0.0-beta.1(hono@4.9.4)(zod@4.1.4)
+        specifier: 1.1.0
+        version: 1.1.0(hono@4.9.4)(zod@4.1.4)
       '@hono/zod-validator':
         specifier: ^0.7.0
         version: 0.7.2(hono@4.9.4)(zod@4.1.4)
@@ -328,10 +328,10 @@ packages:
     peerDependencies:
       openapi-types: '>=7'
 
-  '@asteasolutions/zod-to-openapi@8.0.0-beta.4':
-    resolution: {integrity: sha512-om7KH4B6/Rd/jjrxUjV3yC7vUwKKQcM1m7R8jd12uZyBqYd4ihqa1mMHp9MG3Hau8M/ha6teNJLouDUvwZXpNg==}
+  '@asteasolutions/zod-to-openapi@8.1.0':
+    resolution: {integrity: sha512-tQFxVs05J/6QXXqIzj6rTRk3nj1HFs4pe+uThwE95jL5II2JfpVXkK+CqkO7aT0Do5AYqO6LDrKpleLUFXgY+g==}
     peerDependencies:
-      zod: ~3.25.1
+      zod: ^4.0.0
 
   '@asyncapi/specs@6.8.1':
     resolution: {integrity: sha512-czHoAk3PeXTLR+X8IUaD+IpT+g+zUvkcgMDJVothBsan+oHN3jfcFcFUNdOPAAFoUCQN1hXF1dWuphWy05THlA==}
@@ -1355,12 +1355,12 @@ packages:
     peerDependencies:
       hono: ^4
 
-  '@hono/zod-openapi@1.0.0-beta.1':
-    resolution: {integrity: sha512-4GYMrB1+Ni0kCCBLUOPlVEGA5XcYzBShKheoXoxJjpitcxgZPwwoinunhgNqGCOF/VY0oLw5GXOiKtK0tkpOhA==}
+  '@hono/zod-openapi@1.1.0':
+    resolution: {integrity: sha512-S4jVR+A/jI4MA/RKJqmpjdHAN2l/EsqLnKHBv68x3WxV1NGVe3Sh7f6LV6rHEGYNHfiqpD75664A/erc+r9dQA==}
     engines: {node: '>=16.0.0'}
     peerDependencies:
       hono: '>=4.3.6'
-      zod: ^3.25.0
+      zod: ^4.0.0
 
   '@hono/zod-validator@0.7.2':
     resolution: {integrity: sha512-ub5eL/NeZ4eLZawu78JpW/J+dugDAYhwqUIdp9KYScI6PZECij4Hx4UsrthlEUutqDDhPwRI0MscUfNkvn/mqQ==}
@@ -6703,6 +6703,9 @@ packages:
   openapi3-ts@4.4.0:
     resolution: {integrity: sha512-9asTNB9IkKEzWMcHmVZE7Ts3kC9G7AFHfs8i7caD8HbI76gEjdkId4z/AkP83xdZsH7PLAnnbl47qZkXuxpArw==}
 
+  openapi3-ts@4.5.0:
+    resolution: {integrity: sha512-jaL+HgTq2Gj5jRcfdutgRGLosCy/hT8sQf6VOy+P+g36cZOjI1iukdPnijC+4CmeRzg/jEllJUboEic2FhxhtQ==}
+
   openid-client@6.5.0:
     resolution: {integrity: sha512-fAfYaTnOYE2kQCqEJGX9KDObW2aw7IQy4jWpU/+3D3WoCFLbix5Hg6qIPQ6Js9r7f8jDUmsnnguRNCSw4wU/IQ==}
 
@@ -8845,9 +8848,9 @@ snapshots:
       call-me-maybe: 1.0.2
       openapi-types: 12.1.3
 
-  '@asteasolutions/zod-to-openapi@8.0.0-beta.4(zod@4.1.4)':
+  '@asteasolutions/zod-to-openapi@8.1.0(zod@4.1.4)':
     dependencies:
-      openapi3-ts: 4.4.0
+      openapi3-ts: 4.5.0
       zod: 4.1.4
 
   '@asyncapi/specs@6.8.1':
@@ -9991,11 +9994,12 @@ snapshots:
     dependencies:
       hono: 4.9.4
 
-  '@hono/zod-openapi@1.0.0-beta.1(hono@4.9.4)(zod@4.1.4)':
+  '@hono/zod-openapi@1.1.0(hono@4.9.4)(zod@4.1.4)':
     dependencies:
-      '@asteasolutions/zod-to-openapi': 8.0.0-beta.4(zod@4.1.4)
+      '@asteasolutions/zod-to-openapi': 8.1.0(zod@4.1.4)
       '@hono/zod-validator': 0.7.2(hono@4.9.4)(zod@4.1.4)
       hono: 4.9.4
+      openapi3-ts: 4.5.0
       zod: 4.1.4
 
   '@hono/zod-validator@0.7.2(hono@4.9.4)(zod@4.1.4)':
@@ -11147,7 +11151,7 @@ snapshots:
   '@orval/mock@7.11.2(openapi-types@12.1.3)':
     dependencies:
       '@orval/core': 7.11.2(openapi-types@12.1.3)
-      openapi3-ts: 4.4.0
+      openapi3-ts: 4.5.0
     transitivePeerDependencies:
       - encoding
       - openapi-types
@@ -16699,7 +16703,11 @@ snapshots:
 
   openapi3-ts@4.4.0:
     dependencies:
-      yaml: 2.8.0
+      yaml: 2.8.1
+
+  openapi3-ts@4.5.0:
+    dependencies:
+      yaml: 2.8.1
 
   openid-client@6.5.0:
     dependencies:
