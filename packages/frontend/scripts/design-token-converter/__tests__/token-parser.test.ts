@@ -61,6 +61,77 @@ describe('TokenParser', () => {
         // Note: type might be undefined based on token structure
       })
     })
+
+    test('color.semantic.common.*が正しくマッピングされる', () => {
+      const commonTokens: DesignTokens = {
+        color: {
+          $type: 'color',
+          semantic: {
+            common: {
+              info: {
+                default: {
+                  bg: { value: 'oklch(info-bg)' },
+                  text: { value: 'oklch(info-text)' },
+                  border: { value: 'oklch(info-border)' },
+                },
+              },
+              success: {
+                default: {
+                  bg: { value: 'oklch(success-bg)' },
+                },
+              },
+              warn: {
+                default: {
+                  bg: { value: 'oklch(warn-bg)' },
+                },
+                subtle: {
+                  bg: { value: 'oklch(warn-subtle-bg)' },
+                },
+              },
+            },
+          },
+        },
+      }
+
+      const flatTokens = TokenParser.flattenTokens(commonTokens)
+      const result = TokenParser.toCSSVars(flatTokens)
+
+      // color.semantic.common.info.default.bg -> --background-color-status-info-default
+      const infoBg = result.find(
+        (token) =>
+          token.originalPath.join('.') ===
+          'color.semantic.common.info.default.bg'
+      )
+      expect(infoBg?.cssVarName).toBe('--background-color-status-info-default')
+
+      // color.semantic.common.info.default.text -> --text-color-status-info-default
+      const infoText = result.find(
+        (token) =>
+          token.originalPath.join('.') ===
+          'color.semantic.common.info.default.text'
+      )
+      expect(infoText?.cssVarName).toBe('--text-color-status-info-default')
+
+      // color.semantic.common.success.default.bg -> --background-color-status-success-default
+      const successBg = result.find(
+        (token) =>
+          token.originalPath.join('.') ===
+          'color.semantic.common.success.default.bg'
+      )
+      expect(successBg?.cssVarName).toBe(
+        '--background-color-status-success-default'
+      )
+
+      // color.semantic.common.warn.subtle.bg -> --background-color-status-warn-subtle
+      const warnSubtleBg = result.find(
+        (token) =>
+          token.originalPath.join('.') ===
+          'color.semantic.common.warn.subtle.bg'
+      )
+      expect(warnSubtleBg?.cssVarName).toBe(
+        '--background-color-status-warn-subtle'
+      )
+    })
   })
 
   describe('resolveReferences', () => {

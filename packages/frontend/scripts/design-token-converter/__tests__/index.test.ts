@@ -196,7 +196,7 @@ describe('DesignTokenConverter', () => {
 
       // セマンティックトークンが実際の値に解決されていることを確認
       expect(cssContent).toContain(
-        '--color-semantic-content-default-bg: oklch(53.992% 0.19058 257.48)'
+        '--background-color-content-default: oklch(53.992% 0.19058 257.48)'
       )
     })
 
@@ -239,7 +239,7 @@ describe('DesignTokenConverter', () => {
       // ネストした参照が最終的に解決されていることを確認
       expect(cssContent).toContain('--color-primitive-blue-500: oklch(blue)')
       expect(cssContent).toContain('--color-alias-primary: oklch(blue)')
-      expect(cssContent).toContain('--color-semantic-primary-bg: oklch(blue)')
+      expect(cssContent).toContain('--background-color-primary: oklch(blue)')
     })
 
     test('すべてのデザイントークンが処理される', async () => {
@@ -253,7 +253,7 @@ describe('DesignTokenConverter', () => {
 
       // すべてのトークンが存在することを確認
       expect(cssContent).toContain('--color-primitive-blue-500')
-      expect(cssContent).toContain('--color-semantic-content-default-bg')
+      expect(cssContent).toContain('--background-color-content-default')
       expect(cssContent).toContain('--spacing-4')
     })
   })
