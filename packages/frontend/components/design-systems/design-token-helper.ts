@@ -29,6 +29,36 @@ export interface SemanticColorInfo {
   borderClass: string
 }
 
+export interface TypographyFontInfo {
+  name: string
+  cssVar: string
+  value: string
+}
+
+export interface TypographyScaleInfo {
+  name: string
+  cssVar: string
+  value: string
+}
+
+export interface TypographySemanticInfo {
+  name: string
+  cssVar: string
+  value: string
+}
+
+export interface SpacingInfo {
+  name: string
+  cssVar: string
+  value: string
+}
+
+export interface SizeInfo {
+  name: string
+  cssVar: string
+  value: string
+}
+
 // eslint-disable-next-line @typescript-eslint/no-extraneous-class
 export class DesignTokenHelper {
   private static themedTokens: ThemedTokens | null = null
@@ -469,5 +499,150 @@ export class DesignTokenHelper {
   ): string {
     // --background-color-surface-primary-default -> --text-color-surface-primary-default
     return bgCssVar.replace('background-color', `${type}-color`)
+  }
+
+  /**
+   * Typography: フォントファミリーの情報を取得
+   */
+  static getTypographyFonts(): TypographyFontInfo[] {
+    const themedTokens = this.getThemedTokens()
+    const lightTokens = themedTokens.light
+
+    const fonts = lightTokens.filter(
+      (t) =>
+        t.originalPath[0] === 'typography' &&
+        t.originalPath[1] === 'font-family' &&
+        t.originalPath.length === 3
+    )
+
+    const order = ['sans', 'mono']
+    const toInfo = (t: ParsedToken): TypographyFontInfo => ({
+      name: t.originalPath[2],
+      cssVar: t.cssVarName,
+      value: t.value,
+    })
+
+    return fonts
+      .map(toInfo)
+      .sort((a, b) => order.indexOf(a.name) - order.indexOf(b.name))
+  }
+
+  /**
+   * Typography: スケール（xs, sm, base, ...）の情報を取得
+   */
+  static getTypographyScales(): TypographyScaleInfo[] {
+    const themedTokens = this.getThemedTokens()
+    const lightTokens = themedTokens.light
+
+    const scales = lightTokens.filter(
+      (t) =>
+        t.originalPath[0] === 'typography' &&
+        t.originalPath[1] === 'scale' &&
+        t.originalPath.length === 3
+    )
+
+    const order = ['xs', 'sm', 'base', 'lg', 'xl', '2xl', '3xl', '4xl']
+    const orderIndex = (n: string) => {
+      const i = order.indexOf(n)
+      return i === -1 ? Number.MAX_SAFE_INTEGER : i
+    }
+
+    return scales
+      .map((t) => ({
+        name: t.originalPath[2],
+        cssVar: t.cssVarName,
+        value: t.value,
+      }))
+      .sort((a, b) => orderIndex(a.name) - orderIndex(b.name))
+  }
+
+  /**
+   * Typography: セマンティック（heading-x, body, caption, code など）の情報を取得
+   */
+  static getTypographySemantic(): TypographySemanticInfo[] {
+    const themedTokens = this.getThemedTokens()
+    const lightTokens = themedTokens.light
+
+    const semantics = lightTokens.filter(
+      (t) =>
+        t.originalPath[0] === 'typography' &&
+        t.originalPath[1] === 'semantic' &&
+        t.originalPath.length === 3
+    )
+
+    const order = [
+      'heading-1',
+      'heading-2',
+      'heading-3',
+      'heading-4',
+      'body',
+      'body-sm',
+      'caption',
+      'code',
+    ]
+    const idx = (n: string) => {
+      const i = order.indexOf(n)
+      return i === -1 ? Number.MAX_SAFE_INTEGER : i
+    }
+
+    return semantics
+      .map((t) => ({
+        name: t.originalPath[2],
+        cssVar: t.cssVarName,
+        value: t.value,
+      }))
+      .sort((a, b) => idx(a.name) - idx(b.name))
+  }
+
+  /**
+   * Spacing スケールを取得（0, px, 0.5, 1, 2, ...）
+   */
+  static getSpacingScale(): SpacingInfo[] {
+    const themedTokens = this.getThemedTokens()
+    const lightTokens = themedTokens.light
+
+    const spacings = lightTokens.filter(
+      (t) => t.originalPath[0] === 'spacing' && t.originalPath.length === 2
+    )
+
+    const rank = (name: string): number => {
+      if (name === 'px') return 0.25
+      const n = Number(name)
+      return Number.isFinite(n) ? n : Number.MAX_SAFE_INTEGER
+    }
+
+    return spacings
+      .map((t) => ({
+        name: t.originalPath[1],
+        cssVar: t.cssVarName,
+        value: t.value,
+      }))
+      .sort((a, b) => rank(a.name) - rank(b.name))
+  }
+
+  /**
+   * Size スケールを取得（0, px, 0.5, 1, 2, ...）
+   */
+  static getSizeScale(): SizeInfo[] {
+    const themedTokens = this.getThemedTokens()
+    const lightTokens = themedTokens.light
+
+    const sizes = lightTokens.filter(
+      (t) => t.originalPath[0] === 'size' && t.originalPath.length === 2
+    )
+
+    const rank = (name: string): number => {
+      if (name === 'px') return 0.25
+      const n = Number(name)
+      return Number.isFinite(n) ? n : Number.MAX_SAFE_INTEGER
+    }
+
+    return sizes
+      .map((t) => ({
+        name: t.originalPath[1],
+        cssVar: t.cssVarName,
+        value: t.value,
+      }))
+      .sort((a, b) => rank(a.name) - rank(b.name))
   }
 }
