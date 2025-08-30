@@ -1,0 +1,991 @@
+{
+  "color": {
+    "primitive": {
+      "description": "Primitive color palette in OkLCH format",
+      "tokens": {
+        "gray.50": {
+          "tailwindClasses": [
+            "bg-gray-50",
+            "text-gray-50",
+            "border-gray-50"
+          ],
+          "description": "Primitive color palette in OkLCH format"
+        },
+        "gray.100": {
+          "tailwindClasses": [
+            "bg-gray-100",
+            "text-gray-100",
+            "border-gray-100"
+          ],
+          "description": "Primitive color palette in OkLCH format"
+        },
+        "gray.200": {
+          "tailwindClasses": [
+            "bg-gray-200",
+            "text-gray-200",
+            "border-gray-200"
+          ],
+          "description": "Primitive color palette in OkLCH format"
+        },
+        "gray.300": {
+          "tailwindClasses": [
+            "bg-gray-300",
+            "text-gray-300",
+            "border-gray-300"
+          ],
+          "description": "Primitive color palette in OkLCH format"
+        },
+        "gray.400": {
+          "tailwindClasses": [
+            "bg-gray-400",
+            "text-gray-400",
+            "border-gray-400"
+          ],
+          "description": "Primitive color palette in OkLCH format"
+        },
+        "gray.500": {
+          "tailwindClasses": [
+            "bg-gray-500",
+            "text-gray-500",
+            "border-gray-500"
+          ],
+          "description": "Primitive color palette in OkLCH format"
+        },
+        "gray.600": {
+          "tailwindClasses": [
+            "bg-gray-600",
+            "text-gray-600",
+            "border-gray-600"
+          ],
+          "description": "Primitive color palette in OkLCH format"
+        },
+        "gray.700": {
+          "tailwindClasses": [
+            "bg-gray-700",
+            "text-gray-700",
+            "border-gray-700"
+          ],
+          "description": "Primitive color palette in OkLCH format"
+        },
+        "gray.800": {
+          "tailwindClasses": [
+            "bg-gray-800",
+            "text-gray-800",
+            "border-gray-800"
+          ],
+          "description": "Primitive color palette in OkLCH format"
+        },
+        "gray.900": {
+          "tailwindClasses": [
+            "bg-gray-900",
+            "text-gray-900",
+            "border-gray-900"
+          ],
+          "description": "Primitive color palette in OkLCH format"
+        },
+        "blue.50": {
+          "tailwindClasses": [
+            "bg-blue-50",
+            "text-blue-50",
+            "border-blue-50"
+          ],
+          "description": "Primitive color palette in OkLCH format"
+        },
+        "blue.100": {
+          "tailwindClasses": [
+            "bg-blue-100",
+            "text-blue-100",
+            "border-blue-100"
+          ],
+          "description": "Primitive color palette in OkLCH format"
+        },
+        "blue.200": {
+          "tailwindClasses": [
+            "bg-blue-200",
+            "text-blue-200",
+            "border-blue-200"
+          ],
+          "description": "Primitive color palette in OkLCH format"
+        },
+        "blue.300": {
+          "tailwindClasses": [
+            "bg-blue-300",
+            "text-blue-300",
+            "border-blue-300"
+          ],
+          "description": "Primitive color palette in OkLCH format"
+        },
+        "blue.400": {
+          "tailwindClasses": [
+            "bg-blue-400",
+            "text-blue-400",
+            "border-blue-400"
+          ],
+          "description": "Primitive color palette in OkLCH format"
+        },
+        "blue.500": {
+          "tailwindClasses": [
+            "bg-blue-500",
+            "text-blue-500",
+            "border-blue-500"
+          ],
+          "description": "Primitive color palette in OkLCH format"
+        },
+        "blue.600": {
+          "tailwindClasses": [
+            "bg-blue-600",
+            "text-blue-600",
+            "border-blue-600"
+          ],
+          "description": "Primitive color palette in OkLCH format"
+        },
+        "blue.700": {
+          "tailwindClasses": [
+            "bg-blue-700",
+            "text-blue-700",
+            "border-blue-700"
+          ],
+          "description": "Primitive color palette in OkLCH format"
+        },
+        "blue.800": {
+          "tailwindClasses": [
+            "bg-blue-800",
+            "text-blue-800",
+            "border-blue-800"
+          ],
+          "description": "Primitive color palette in OkLCH format"
+        },
+        "blue.900": {
+          "tailwindClasses": [
+            "bg-blue-900",
+            "text-blue-900",
+            "border-blue-900"
+          ],
+          "description": "Primitive color palette in OkLCH format"
+        },
+        "green.50": {
+          "tailwindClasses": [
+            "bg-green-50",
+            "text-green-50",
+            "border-green-50"
+          ],
+          "description": "Primitive color palette in OkLCH format"
+        },
+        "green.100": {
+          "tailwindClasses": [
+            "bg-green-100",
+            "text-green-100",
+            "border-green-100"
+          ],
+          "description": "Primitive color palette in OkLCH format"
+        },
+        "green.200": {
+          "tailwindClasses": [
+            "bg-green-200",
+            "text-green-200",
+            "border-green-200"
+          ],
+          "description": "Primitive color palette in OkLCH format"
+        },
+        "green.300": {
+          "tailwindClasses": [
+            "bg-green-300",
+            "text-green-300",
+            "border-green-300"
+          ],
+          "description": "Primitive color palette in OkLCH format"
+        },
+        "green.400": {
+          "tailwindClasses": [
+            "bg-green-400",
+            "text-green-400",
+            "border-green-400"
+          ],
+          "description": "Primitive color palette in OkLCH format"
+        },
+        "green.500": {
+          "tailwindClasses": [
+            "bg-green-500",
+            "text-green-500",
+            "border-green-500"
+          ],
+          "description": "Primitive color palette in OkLCH format"
+        },
+        "green.600": {
+          "tailwindClasses": [
+            "bg-green-600",
+            "text-green-600",
+            "border-green-600"
+          ],
+          "description": "Primitive color palette in OkLCH format"
+        },
+        "green.700": {
+          "tailwindClasses": [
+            "bg-green-700",
+            "text-green-700",
+            "border-green-700"
+          ],
+          "description": "Primitive color palette in OkLCH format"
+        },
+        "green.800": {
+          "tailwindClasses": [
+            "bg-green-800",
+            "text-green-800",
+            "border-green-800"
+          ],
+          "description": "Primitive color palette in OkLCH format"
+        },
+        "green.900": {
+          "tailwindClasses": [
+            "bg-green-900",
+            "text-green-900",
+            "border-green-900"
+          ],
+          "description": "Primitive color palette in OkLCH format"
+        },
+        "yellow.50": {
+          "tailwindClasses": [
+            "bg-yellow-50",
+            "text-yellow-50",
+            "border-yellow-50"
+          ],
+          "description": "Primitive color palette in OkLCH format"
+        },
+        "yellow.100": {
+          "tailwindClasses": [
+            "bg-yellow-100",
+            "text-yellow-100",
+            "border-yellow-100"
+          ],
+          "description": "Primitive color palette in OkLCH format"
+        },
+        "yellow.200": {
+          "tailwindClasses": [
+            "bg-yellow-200",
+            "text-yellow-200",
+            "border-yellow-200"
+          ],
+          "description": "Primitive color palette in OkLCH format"
+        },
+        "yellow.300": {
+          "tailwindClasses": [
+            "bg-yellow-300",
+            "text-yellow-300",
+            "border-yellow-300"
+          ],
+          "description": "Primitive color palette in OkLCH format"
+        },
+        "yellow.400": {
+          "tailwindClasses": [
+            "bg-yellow-400",
+            "text-yellow-400",
+            "border-yellow-400"
+          ],
+          "description": "Primitive color palette in OkLCH format"
+        },
+        "yellow.500": {
+          "tailwindClasses": [
+            "bg-yellow-500",
+            "text-yellow-500",
+            "border-yellow-500"
+          ],
+          "description": "Primitive color palette in OkLCH format"
+        },
+        "yellow.600": {
+          "tailwindClasses": [
+            "bg-yellow-600",
+            "text-yellow-600",
+            "border-yellow-600"
+          ],
+          "description": "Primitive color palette in OkLCH format"
+        },
+        "yellow.700": {
+          "tailwindClasses": [
+            "bg-yellow-700",
+            "text-yellow-700",
+            "border-yellow-700"
+          ],
+          "description": "Primitive color palette in OkLCH format"
+        },
+        "yellow.800": {
+          "tailwindClasses": [
+            "bg-yellow-800",
+            "text-yellow-800",
+            "border-yellow-800"
+          ],
+          "description": "Primitive color palette in OkLCH format"
+        },
+        "yellow.900": {
+          "tailwindClasses": [
+            "bg-yellow-900",
+            "text-yellow-900",
+            "border-yellow-900"
+          ],
+          "description": "Primitive color palette in OkLCH format"
+        },
+        "red.50": {
+          "tailwindClasses": [
+            "bg-red-50",
+            "text-red-50",
+            "border-red-50"
+          ],
+          "description": "Primitive color palette in OkLCH format"
+        },
+        "red.100": {
+          "tailwindClasses": [
+            "bg-red-100",
+            "text-red-100",
+            "border-red-100"
+          ],
+          "description": "Primitive color palette in OkLCH format"
+        },
+        "red.200": {
+          "tailwindClasses": [
+            "bg-red-200",
+            "text-red-200",
+            "border-red-200"
+          ],
+          "description": "Primitive color palette in OkLCH format"
+        },
+        "red.300": {
+          "tailwindClasses": [
+            "bg-red-300",
+            "text-red-300",
+            "border-red-300"
+          ],
+          "description": "Primitive color palette in OkLCH format"
+        },
+        "red.400": {
+          "tailwindClasses": [
+            "bg-red-400",
+            "text-red-400",
+            "border-red-400"
+          ],
+          "description": "Primitive color palette in OkLCH format"
+        },
+        "red.500": {
+          "tailwindClasses": [
+            "bg-red-500",
+            "text-red-500",
+            "border-red-500"
+          ],
+          "description": "Primitive color palette in OkLCH format"
+        },
+        "red.600": {
+          "tailwindClasses": [
+            "bg-red-600",
+            "text-red-600",
+            "border-red-600"
+          ],
+          "description": "Primitive color palette in OkLCH format"
+        },
+        "red.700": {
+          "tailwindClasses": [
+            "bg-red-700",
+            "text-red-700",
+            "border-red-700"
+          ],
+          "description": "Primitive color palette in OkLCH format"
+        },
+        "red.800": {
+          "tailwindClasses": [
+            "bg-red-800",
+            "text-red-800",
+            "border-red-800"
+          ],
+          "description": "Primitive color palette in OkLCH format"
+        },
+        "red.900": {
+          "tailwindClasses": [
+            "bg-red-900",
+            "text-red-900",
+            "border-red-900"
+          ],
+          "description": "Primitive color palette in OkLCH format"
+        },
+        "black": {
+          "tailwindClasses": [
+            "bg-black",
+            "text-black",
+            "border-black"
+          ],
+          "description": "Primitive color palette in OkLCH format"
+        },
+        "white": {
+          "tailwindClasses": [
+            "bg-white",
+            "text-white",
+            "border-white"
+          ],
+          "description": "Primitive color palette in OkLCH format"
+        }
+      }
+    },
+    "semantic": {
+      "description": "Semantic color tokens for UI components with light and dark theme support",
+      "tokens": {
+        "content.default.bg": {
+          "tailwindClass": "bg-content-default",
+          "description": "Semantic color tokens for UI components with light and dark theme support"
+        },
+        "content.default.text": {
+          "tailwindClass": "text-content-default",
+          "description": "Semantic color tokens for UI components with light and dark theme support"
+        },
+        "surface.primary.default.bg": {
+          "tailwindClass": "bg-surface-primary-default",
+          "description": "Semantic color tokens for UI components with light and dark theme support"
+        },
+        "surface.primary.default.text": {
+          "tailwindClass": "text-surface-primary-default",
+          "description": "Semantic color tokens for UI components with light and dark theme support"
+        },
+        "surface.primary.default.border": {
+          "tailwindClass": "border-surface-primary-default",
+          "description": "Semantic color tokens for UI components with light and dark theme support"
+        },
+        "surface.primary.disabled.bg": {
+          "tailwindClass": "bg-surface-primary-disabled",
+          "description": "Semantic color tokens for UI components with light and dark theme support"
+        },
+        "surface.primary.disabled.text": {
+          "tailwindClass": "text-surface-primary-disabled",
+          "description": "Semantic color tokens for UI components with light and dark theme support"
+        },
+        "surface.primary.disabled.border": {
+          "tailwindClass": "border-surface-primary-disabled",
+          "description": "Semantic color tokens for UI components with light and dark theme support"
+        },
+        "surface.primary.hovered.bg": {
+          "tailwindClass": "bg-surface-primary-hovered",
+          "description": "Semantic color tokens for UI components with light and dark theme support"
+        },
+        "surface.primary.hovered.text": {
+          "tailwindClass": "text-surface-primary-hovered",
+          "description": "Semantic color tokens for UI components with light and dark theme support"
+        },
+        "surface.primary.hovered.border": {
+          "tailwindClass": "border-surface-primary-hovered",
+          "description": "Semantic color tokens for UI components with light and dark theme support"
+        },
+        "surface.primary.pressed.bg": {
+          "tailwindClass": "bg-surface-primary-pressed",
+          "description": "Semantic color tokens for UI components with light and dark theme support"
+        },
+        "surface.primary.pressed.text": {
+          "tailwindClass": "text-surface-primary-pressed",
+          "description": "Semantic color tokens for UI components with light and dark theme support"
+        },
+        "surface.primary.pressed.border": {
+          "tailwindClass": "border-surface-primary-pressed",
+          "description": "Semantic color tokens for UI components with light and dark theme support"
+        },
+        "surface.secondary.default.bg": {
+          "tailwindClass": "bg-surface-secondary-default",
+          "description": "Semantic color tokens for UI components with light and dark theme support"
+        },
+        "surface.secondary.default.text": {
+          "tailwindClass": "text-surface-secondary-default",
+          "description": "Semantic color tokens for UI components with light and dark theme support"
+        },
+        "surface.secondary.default.border": {
+          "tailwindClass": "border-surface-secondary-default",
+          "description": "Semantic color tokens for UI components with light and dark theme support"
+        },
+        "surface.secondary.disabled.bg": {
+          "tailwindClass": "bg-surface-secondary-disabled",
+          "description": "Semantic color tokens for UI components with light and dark theme support"
+        },
+        "surface.secondary.disabled.text": {
+          "tailwindClass": "text-surface-secondary-disabled",
+          "description": "Semantic color tokens for UI components with light and dark theme support"
+        },
+        "surface.secondary.disabled.border": {
+          "tailwindClass": "border-surface-secondary-disabled",
+          "description": "Semantic color tokens for UI components with light and dark theme support"
+        },
+        "surface.secondary.hovered.bg": {
+          "tailwindClass": "bg-surface-secondary-hovered",
+          "description": "Semantic color tokens for UI components with light and dark theme support"
+        },
+        "surface.secondary.hovered.text": {
+          "tailwindClass": "text-surface-secondary-hovered",
+          "description": "Semantic color tokens for UI components with light and dark theme support"
+        },
+        "surface.secondary.hovered.border": {
+          "tailwindClass": "border-surface-secondary-hovered",
+          "description": "Semantic color tokens for UI components with light and dark theme support"
+        },
+        "surface.secondary.pressed.bg": {
+          "tailwindClass": "bg-surface-secondary-pressed",
+          "description": "Semantic color tokens for UI components with light and dark theme support"
+        },
+        "surface.secondary.pressed.text": {
+          "tailwindClass": "text-surface-secondary-pressed",
+          "description": "Semantic color tokens for UI components with light and dark theme support"
+        },
+        "surface.secondary.pressed.border": {
+          "tailwindClass": "border-surface-secondary-pressed",
+          "description": "Semantic color tokens for UI components with light and dark theme support"
+        },
+        "surface.outlined.default.bg": {
+          "tailwindClass": "bg-surface-outlined-default",
+          "description": "Semantic color tokens for UI components with light and dark theme support"
+        },
+        "surface.outlined.default.text": {
+          "tailwindClass": "text-surface-outlined-default",
+          "description": "Semantic color tokens for UI components with light and dark theme support"
+        },
+        "surface.outlined.default.border": {
+          "tailwindClass": "border-surface-outlined-default",
+          "description": "Semantic color tokens for UI components with light and dark theme support"
+        },
+        "surface.outlined.disabled.bg": {
+          "tailwindClass": "bg-surface-outlined-disabled",
+          "description": "Semantic color tokens for UI components with light and dark theme support"
+        },
+        "surface.outlined.disabled.text": {
+          "tailwindClass": "text-surface-outlined-disabled",
+          "description": "Semantic color tokens for UI components with light and dark theme support"
+        },
+        "surface.outlined.disabled.border": {
+          "tailwindClass": "border-surface-outlined-disabled",
+          "description": "Semantic color tokens for UI components with light and dark theme support"
+        },
+        "surface.outlined.hovered.bg": {
+          "tailwindClass": "bg-surface-outlined-hovered",
+          "description": "Semantic color tokens for UI components with light and dark theme support"
+        },
+        "surface.outlined.hovered.text": {
+          "tailwindClass": "text-surface-outlined-hovered",
+          "description": "Semantic color tokens for UI components with light and dark theme support"
+        },
+        "surface.outlined.hovered.border": {
+          "tailwindClass": "border-surface-outlined-hovered",
+          "description": "Semantic color tokens for UI components with light and dark theme support"
+        },
+        "surface.outlined.pressed.bg": {
+          "tailwindClass": "bg-surface-outlined-pressed",
+          "description": "Semantic color tokens for UI components with light and dark theme support"
+        },
+        "surface.outlined.pressed.text": {
+          "tailwindClass": "text-surface-outlined-pressed",
+          "description": "Semantic color tokens for UI components with light and dark theme support"
+        },
+        "surface.outlined.pressed.border": {
+          "tailwindClass": "border-surface-outlined-pressed",
+          "description": "Semantic color tokens for UI components with light and dark theme support"
+        },
+        "interactive.default.bg": {
+          "tailwindClass": "bg-interactive-default",
+          "description": "Semantic color tokens for UI components with light and dark theme support"
+        },
+        "interactive.default.text": {
+          "tailwindClass": "text-interactive-default",
+          "description": "Semantic color tokens for UI components with light and dark theme support"
+        },
+        "interactive.default.border": {
+          "tailwindClass": "border-interactive-default",
+          "description": "Semantic color tokens for UI components with light and dark theme support"
+        },
+        "interactive.disabled.bg": {
+          "tailwindClass": "bg-interactive-disabled",
+          "description": "Semantic color tokens for UI components with light and dark theme support"
+        },
+        "interactive.disabled.text": {
+          "tailwindClass": "text-interactive-disabled",
+          "description": "Semantic color tokens for UI components with light and dark theme support"
+        },
+        "interactive.disabled.border": {
+          "tailwindClass": "border-interactive-disabled",
+          "description": "Semantic color tokens for UI components with light and dark theme support"
+        },
+        "interactive.focused.bg": {
+          "tailwindClass": "bg-interactive-focused",
+          "description": "Semantic color tokens for UI components with light and dark theme support"
+        },
+        "interactive.focused.text": {
+          "tailwindClass": "text-interactive-focused",
+          "description": "Semantic color tokens for UI components with light and dark theme support"
+        },
+        "interactive.focused.border": {
+          "tailwindClass": "border-interactive-focused",
+          "description": "Semantic color tokens for UI components with light and dark theme support"
+        },
+        "interactive.hovered.bg": {
+          "tailwindClass": "bg-interactive-hovered",
+          "description": "Semantic color tokens for UI components with light and dark theme support"
+        },
+        "interactive.hovered.text": {
+          "tailwindClass": "text-interactive-hovered",
+          "description": "Semantic color tokens for UI components with light and dark theme support"
+        },
+        "interactive.hovered.border": {
+          "tailwindClass": "border-interactive-hovered",
+          "description": "Semantic color tokens for UI components with light and dark theme support"
+        },
+        "header.default.bg": {
+          "tailwindClass": "bg-header-default",
+          "description": "Semantic color tokens for UI components with light and dark theme support"
+        },
+        "header.default.text": {
+          "tailwindClass": "text-header-default",
+          "description": "Semantic color tokens for UI components with light and dark theme support"
+        },
+        "header.default.border": {
+          "tailwindClass": "border-header-default",
+          "description": "Semantic color tokens for UI components with light and dark theme support"
+        },
+        "sidebar.default.bg": {
+          "tailwindClass": "bg-sidebar-default",
+          "description": "Semantic color tokens for UI components with light and dark theme support"
+        },
+        "sidebar.default.text": {
+          "tailwindClass": "text-sidebar-default",
+          "description": "Semantic color tokens for UI components with light and dark theme support"
+        },
+        "sidebar.default.border": {
+          "tailwindClass": "border-sidebar-default",
+          "description": "Semantic color tokens for UI components with light and dark theme support"
+        },
+        "dialog.default.bg": {
+          "tailwindClass": "bg-dialog-default",
+          "description": "Semantic color tokens for UI components with light and dark theme support"
+        },
+        "dialog.default.text": {
+          "tailwindClass": "text-dialog-default",
+          "description": "Semantic color tokens for UI components with light and dark theme support"
+        },
+        "dialog.default.border": {
+          "tailwindClass": "border-dialog-default",
+          "description": "Semantic color tokens for UI components with light and dark theme support"
+        },
+        "dialog.backdrop.bg": {
+          "tailwindClass": "bg-dialog-backdrop",
+          "description": "Semantic color tokens for UI components with light and dark theme support"
+        },
+        "common.info.default.bg": {
+          "tailwindClass": "bg-status-info-default",
+          "description": "Semantic color tokens for UI components with light and dark theme support"
+        },
+        "common.info.default.text": {
+          "tailwindClass": "text-status-info-default",
+          "description": "Semantic color tokens for UI components with light and dark theme support"
+        },
+        "common.info.default.border": {
+          "tailwindClass": "border-status-info-default",
+          "description": "Semantic color tokens for UI components with light and dark theme support"
+        },
+        "common.info.subtle.bg": {
+          "tailwindClass": "bg-status-info-subtle",
+          "description": "Semantic color tokens for UI components with light and dark theme support"
+        },
+        "common.info.subtle.text": {
+          "tailwindClass": "text-status-info-subtle",
+          "description": "Semantic color tokens for UI components with light and dark theme support"
+        },
+        "common.info.subtle.border": {
+          "tailwindClass": "border-status-info-subtle",
+          "description": "Semantic color tokens for UI components with light and dark theme support"
+        },
+        "common.info.inversed.bg": {
+          "tailwindClass": "bg-status-info-inversed",
+          "description": "Semantic color tokens for UI components with light and dark theme support"
+        },
+        "common.info.inversed.text": {
+          "tailwindClass": "text-status-info-inversed",
+          "description": "Semantic color tokens for UI components with light and dark theme support"
+        },
+        "common.info.inversed.border": {
+          "tailwindClass": "border-status-info-inversed",
+          "description": "Semantic color tokens for UI components with light and dark theme support"
+        },
+        "common.success.default.bg": {
+          "tailwindClass": "bg-status-success-default",
+          "description": "Semantic color tokens for UI components with light and dark theme support"
+        },
+        "common.success.default.text": {
+          "tailwindClass": "text-status-success-default",
+          "description": "Semantic color tokens for UI components with light and dark theme support"
+        },
+        "common.success.default.border": {
+          "tailwindClass": "border-status-success-default",
+          "description": "Semantic color tokens for UI components with light and dark theme support"
+        },
+        "common.success.subtle.bg": {
+          "tailwindClass": "bg-status-success-subtle",
+          "description": "Semantic color tokens for UI components with light and dark theme support"
+        },
+        "common.success.subtle.text": {
+          "tailwindClass": "text-status-success-subtle",
+          "description": "Semantic color tokens for UI components with light and dark theme support"
+        },
+        "common.success.subtle.border": {
+          "tailwindClass": "border-status-success-subtle",
+          "description": "Semantic color tokens for UI components with light and dark theme support"
+        },
+        "common.success.inversed.bg": {
+          "tailwindClass": "bg-status-success-inversed",
+          "description": "Semantic color tokens for UI components with light and dark theme support"
+        },
+        "common.success.inversed.text": {
+          "tailwindClass": "text-status-success-inversed",
+          "description": "Semantic color tokens for UI components with light and dark theme support"
+        },
+        "common.success.inversed.border": {
+          "tailwindClass": "border-status-success-inversed",
+          "description": "Semantic color tokens for UI components with light and dark theme support"
+        },
+        "common.warn.default.bg": {
+          "tailwindClass": "bg-status-warn-default",
+          "description": "Semantic color tokens for UI components with light and dark theme support"
+        },
+        "common.warn.default.text": {
+          "tailwindClass": "text-status-warn-default",
+          "description": "Semantic color tokens for UI components with light and dark theme support"
+        },
+        "common.warn.default.border": {
+          "tailwindClass": "border-status-warn-default",
+          "description": "Semantic color tokens for UI components with light and dark theme support"
+        },
+        "common.warn.subtle.bg": {
+          "tailwindClass": "bg-status-warn-subtle",
+          "description": "Semantic color tokens for UI components with light and dark theme support"
+        },
+        "common.warn.subtle.text": {
+          "tailwindClass": "text-status-warn-subtle",
+          "description": "Semantic color tokens for UI components with light and dark theme support"
+        },
+        "common.warn.subtle.border": {
+          "tailwindClass": "border-status-warn-subtle",
+          "description": "Semantic color tokens for UI components with light and dark theme support"
+        },
+        "common.warn.inversed.bg": {
+          "tailwindClass": "bg-status-warn-inversed",
+          "description": "Semantic color tokens for UI components with light and dark theme support"
+        },
+        "common.warn.inversed.text": {
+          "tailwindClass": "text-status-warn-inversed",
+          "description": "Semantic color tokens for UI components with light and dark theme support"
+        },
+        "common.warn.inversed.border": {
+          "tailwindClass": "border-status-warn-inversed",
+          "description": "Semantic color tokens for UI components with light and dark theme support"
+        },
+        "common.alert.default.bg": {
+          "tailwindClass": "bg-status-alert-default",
+          "description": "Semantic color tokens for UI components with light and dark theme support"
+        },
+        "common.alert.default.text": {
+          "tailwindClass": "text-status-alert-default",
+          "description": "Semantic color tokens for UI components with light and dark theme support"
+        },
+        "common.alert.default.border": {
+          "tailwindClass": "border-status-alert-default",
+          "description": "Semantic color tokens for UI components with light and dark theme support"
+        },
+        "common.alert.subtle.bg": {
+          "tailwindClass": "bg-status-alert-subtle",
+          "description": "Semantic color tokens for UI components with light and dark theme support"
+        },
+        "common.alert.subtle.text": {
+          "tailwindClass": "text-status-alert-subtle",
+          "description": "Semantic color tokens for UI components with light and dark theme support"
+        },
+        "common.alert.subtle.border": {
+          "tailwindClass": "border-status-alert-subtle",
+          "description": "Semantic color tokens for UI components with light and dark theme support"
+        },
+        "common.alert.inversed.bg": {
+          "tailwindClass": "bg-status-alert-inversed",
+          "description": "Semantic color tokens for UI components with light and dark theme support"
+        },
+        "common.alert.inversed.text": {
+          "tailwindClass": "text-status-alert-inversed",
+          "description": "Semantic color tokens for UI components with light and dark theme support"
+        },
+        "common.alert.inversed.border": {
+          "tailwindClass": "border-status-alert-inversed",
+          "description": "Semantic color tokens for UI components with light and dark theme support"
+        },
+        "common.focus.default.color": {
+          "tailwindClass": "bg-status-focus-default",
+          "description": "Semantic color tokens for UI components with light and dark theme support"
+        },
+        "common.focus.default.width": {
+          "tailwindClass": "bg-status-focus-default",
+          "description": "Semantic color tokens for UI components with light and dark theme support"
+        },
+        "common.focus.default.style": {
+          "tailwindClass": "bg-status-focus-default",
+          "description": "Semantic color tokens for UI components with light and dark theme support"
+        },
+        "common.focus.default.offset": {
+          "tailwindClass": "bg-status-focus-default",
+          "description": "Semantic color tokens for UI components with light and dark theme support"
+        }
+      }
+    }
+  },
+  "typography": {
+    "description": "Typography tokens with Japanese font priority",
+    "tokens": {
+      "font-family.sans": {
+        "tailwindClass": "font-sans"
+      },
+      "font-family.mono": {
+        "tailwindClass": "font-mono"
+      },
+      "scale.xs": {
+        "tailwindClass": "font-scale-xs"
+      },
+      "scale.sm": {
+        "tailwindClass": "font-scale-sm"
+      },
+      "scale.base": {
+        "tailwindClass": "font-scale-base"
+      },
+      "scale.lg": {
+        "tailwindClass": "font-scale-lg"
+      },
+      "scale.xl": {
+        "tailwindClass": "font-scale-xl"
+      },
+      "scale.2xl": {
+        "tailwindClass": "font-scale-2xl"
+      },
+      "scale.3xl": {
+        "tailwindClass": "font-scale-3xl"
+      },
+      "scale.4xl": {
+        "tailwindClass": "font-scale-4xl"
+      },
+      "semantic.heading-1": {
+        "tailwindClass": "font-semantic-heading-1"
+      },
+      "semantic.heading-2": {
+        "tailwindClass": "font-semantic-heading-2"
+      },
+      "semantic.heading-3": {
+        "tailwindClass": "font-semantic-heading-3"
+      },
+      "semantic.heading-4": {
+        "tailwindClass": "font-semantic-heading-4"
+      },
+      "semantic.body": {
+        "tailwindClass": "font-semantic-body"
+      },
+      "semantic.body-sm": {
+        "tailwindClass": "font-semantic-body-sm"
+      },
+      "semantic.caption": {
+        "tailwindClass": "font-semantic-caption"
+      },
+      "semantic.code": {
+        "tailwindClass": "font-semantic-code"
+      }
+    }
+  },
+  "spacing": {
+    "description": "TailwindCSSで利用可能なp-*, m-*, gap-*などを利用可能。値は以下に挙げる値から選択",
+    "values": [
+      "0",
+      "1",
+      "2",
+      "3",
+      "4",
+      "5",
+      "6",
+      "8",
+      "10",
+      "12",
+      "16",
+      "20",
+      "24",
+      "32",
+      "40",
+      "48",
+      "56",
+      "64",
+      "72",
+      "80",
+      "96",
+      "px",
+      "0.5"
+    ]
+  },
+  "sizing": {
+    "description": "TailwindCSSで利用可能なw-*,h-*などを利用可能。値は以下に挙げる値から選択",
+    "values": [
+      "0",
+      "1",
+      "2",
+      "3",
+      "4",
+      "5",
+      "6",
+      "8",
+      "10",
+      "12",
+      "16",
+      "20",
+      "24",
+      "32",
+      "40",
+      "48",
+      "56",
+      "64",
+      "72",
+      "80",
+      "96",
+      "px",
+      "0.5",
+      "auto",
+      "1/2",
+      "full"
+    ]
+  },
+  "borders": {
+    "description": "Border tokens",
+    "width": {
+      "values": [
+        "0",
+        "1",
+        "2",
+        "4",
+        "8"
+      ]
+    },
+    "styles": {
+      "values": [
+        "solid",
+        "dashed",
+        "dotted"
+      ]
+    }
+  },
+  "radius": {
+    "description": "TailwindCSSで利用可能なrounded-*などを利用可能。値は以下に挙げる値から選択",
+    "values": [
+      "none",
+      "sm",
+      "default",
+      "md",
+      "lg",
+      "xl",
+      "2xl",
+      "3xl",
+      "full"
+    ]
+  },
+  "shadows": {
+    "description": "TailwindCSSで利用可能なshadow-*などを利用可能。値は以下に挙げる値から選択",
+    "values": [
+      "sm",
+      "default",
+      "md",
+      "lg",
+      "xl"
+    ]
+  }
+}
