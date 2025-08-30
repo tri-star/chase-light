@@ -49,7 +49,7 @@ const DurationsDemo = {
       </div>
     </section>
   `,
-  setup(props) {
+  setup(props: { globalActive?: boolean }) {
     const durations = DesignTokenHelper.getTransitionDurations()
     const isActive = computed(() => !!props.globalActive)
     const mono = {
@@ -111,7 +111,7 @@ const EasingsDemo = {
       </div>
     </section>
   `,
-  setup(props) {
+  setup(props: { globalActive?: boolean }) {
     const easings = DesignTokenHelper.getTransitionEasings()
     const isActive = computed(() => !!props.globalActive)
     const mono = {

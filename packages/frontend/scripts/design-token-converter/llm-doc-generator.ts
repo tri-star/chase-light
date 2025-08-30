@@ -100,7 +100,7 @@ export class LLMDocGenerator {
             `border-${family}`,
           ],
         } as PrimitiveTokenEntry
-        const tokenDesc = (node.$description as string | undefined) || undefined
+        const tokenDesc = node.$description as string | undefined
         entries[tokenName] = tokenDesc
           ? { ...base, description: tokenDesc }
           : base
@@ -119,7 +119,7 @@ export class LLMDocGenerator {
             `border-${suffix}`,
           ],
         } as PrimitiveTokenEntry
-        const tokenDesc = (leaf.$description as string | undefined) || undefined
+        const tokenDesc = leaf.$description as string | undefined
         const tokenName = `${family}.${shade}`
         entries[tokenName] = tokenDesc
           ? { ...base, description: tokenDesc }
@@ -158,9 +158,9 @@ export class LLMDocGenerator {
               : bodyParts
           const className = `${prefix}-${mappedParts.join('-')}`
 
-          const tokenDesc =
-            ((val as TokenGroup).$description as string | undefined) ||
-            undefined
+          const tokenDesc = (val as TokenGroup).$description as
+            | string
+            | undefined
           out[tokenName] = tokenDesc
             ? { tailwindClass: className, description: tokenDesc }
             : { tailwindClass: className }
