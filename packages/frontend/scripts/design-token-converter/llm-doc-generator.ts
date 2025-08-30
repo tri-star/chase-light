@@ -89,37 +89,42 @@ export class LLMDocGenerator {
     const entries: Record<string, PrimitiveTokenEntry> = {}
 
     families.forEach((family) => {
-      const shadesGroup = (group![family] || {}) as TokenGroup
-      const shades =
-        this.isRecord(shadesGroup) && 'value' in shadesGroup
-          ? ['']
-          : this.listKeys(shadesGroup)
-
-      if (shades.length === 0) {
-        // direct value such as black/white
+      const node = (group![family] || {}) as TokenGroup
+      // direct token (e.g., black/white)
+      if (this.isRecord(node) && 'value' in node) {
         const tokenName = family
-        entries[tokenName] = {
+        const base = {
           tailwindClasses: [
             `bg-${family}`,
             `text-${family}`,
             `border-${family}`,
           ],
-          description,
-        }
-      } else {
-        shades.forEach((shade) => {
-          const tokenName = shade ? `${family}.${shade}` : family
-          const suffix = shade ? `${family}-${shade}` : family
-          entries[tokenName] = {
-            tailwindClasses: [
-              `bg-${suffix}`,
-              `text-${suffix}`,
-              `border-${suffix}`,
-            ],
-            description,
-          }
-        })
+        } as PrimitiveTokenEntry
+        const tokenDesc = (node.$description as string | undefined) || undefined
+        entries[tokenName] = tokenDesc
+          ? { ...base, description: tokenDesc }
+          : base
+        return
       }
+
+      const shadesGroup = node
+      const shades = this.listKeys(shadesGroup)
+      shades.forEach((shade) => {
+        const leaf = (shadesGroup[shade] || {}) as TokenGroup
+        const suffix = `${family}-${shade}`
+        const base = {
+          tailwindClasses: [
+            `bg-${suffix}`,
+            `text-${suffix}`,
+            `border-${suffix}`,
+          ],
+        } as PrimitiveTokenEntry
+        const tokenDesc = (leaf.$description as string | undefined) || undefined
+        const tokenName = `${family}.${shade}`
+        entries[tokenName] = tokenDesc
+          ? { ...base, description: tokenDesc }
+          : base
+      })
     })
 
     return { description, tokens: entries }
@@ -153,7 +158,12 @@ export class LLMDocGenerator {
               : bodyParts
           const className = `${prefix}-${mappedParts.join('-')}`
 
-          out[tokenName] = { tailwindClass: className, description }
+          const tokenDesc =
+            ((val as TokenGroup).$description as string | undefined) ||
+            undefined
+          out[tokenName] = tokenDesc
+            ? { tailwindClass: className, description: tokenDesc }
+            : { tailwindClass: className }
         } else if (this.isRecord(val)) {
           walk(val as TokenGroup, current)
         }
