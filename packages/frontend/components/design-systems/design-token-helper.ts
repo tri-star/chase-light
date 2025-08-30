@@ -59,6 +59,48 @@ export interface SizeInfo {
   value: string
 }
 
+export interface BorderWidthInfo {
+  name: string
+  cssVar: string
+  value: string
+}
+
+export interface BorderStyleInfo {
+  name: string
+  cssVar: string
+  value: string
+}
+
+export interface RadiusInfo {
+  name: string
+  cssVar: string
+  value: string
+}
+
+export interface ShadowInfo {
+  name: string
+  cssVar: string
+  value: string
+}
+
+export interface TransitionDurationInfo {
+  name: string
+  cssVar: string
+  value: string
+}
+
+export interface TransitionEasingInfo {
+  name: string
+  cssVar: string
+  value: string
+}
+
+export interface TransitionPropertyInfo {
+  name: string
+  cssVar: string
+  value: string
+}
+
 // eslint-disable-next-line @typescript-eslint/no-extraneous-class
 export class DesignTokenHelper {
   private static themedTokens: ThemedTokens | null = null
@@ -644,5 +686,184 @@ export class DesignTokenHelper {
         value: t.value,
       }))
       .sort((a, b) => rank(a.name) - rank(b.name))
+  }
+
+  /**
+   * Border width tokens
+   */
+  static getBorderWidths(): BorderWidthInfo[] {
+    const lightTokens = this.getThemedTokens().light
+    const widths = lightTokens.filter(
+      (t) =>
+        t.originalPath[0] === 'border' &&
+        t.originalPath[1] === 'width' &&
+        t.originalPath.length === 3
+    )
+    const order = (n: string) => (Number.isFinite(Number(n)) ? Number(n) : 0)
+    return widths
+      .map((t) => ({
+        name: t.originalPath[2],
+        cssVar: t.cssVarName,
+        value: t.value,
+      }))
+      .sort((a, b) => order(a.name) - order(b.name))
+  }
+
+  /**
+   * Border style tokens
+   */
+  static getBorderStyles(): BorderStyleInfo[] {
+    const lightTokens = this.getThemedTokens().light
+    const styles = lightTokens.filter(
+      (t) =>
+        t.originalPath[0] === 'border' &&
+        t.originalPath[1] === 'style' &&
+        t.originalPath.length === 3
+    )
+    const priority = ['solid', 'dashed', 'dotted']
+    const idx = (n: string) => {
+      const i = priority.indexOf(n)
+      return i === -1 ? Number.MAX_SAFE_INTEGER : i
+    }
+    return styles
+      .map((t) => ({
+        name: t.originalPath[2],
+        cssVar: t.cssVarName,
+        value: t.value,
+      }))
+      .sort((a, b) => idx(a.name) - idx(b.name))
+  }
+
+  /**
+   * Radius tokens
+   */
+  static getRadii(): RadiusInfo[] {
+    const lightTokens = this.getThemedTokens().light
+    const radii = lightTokens.filter(
+      (t) => t.originalPath[0] === 'radius' && t.originalPath.length === 2
+    )
+    const order = [
+      'none',
+      'sm',
+      'default',
+      'md',
+      'lg',
+      'xl',
+      '2xl',
+      '3xl',
+      'full',
+    ]
+    const idx = (n: string) => {
+      const i = order.indexOf(n)
+      return i === -1 ? Number.MAX_SAFE_INTEGER : i
+    }
+    return radii
+      .map((t) => ({
+        name: t.originalPath[1],
+        cssVar: t.cssVarName,
+        value: t.value,
+      }))
+      .sort((a, b) => idx(a.name) - idx(b.name))
+  }
+
+  /**
+   * Shadow tokens
+   */
+  static getShadows(): ShadowInfo[] {
+    const lightTokens = this.getThemedTokens().light
+    const shadows = lightTokens.filter(
+      (t) => t.originalPath[0] === 'shadow' && t.originalPath.length === 2
+    )
+    const order = ['sm', 'default', 'md', 'lg', 'xl']
+    const idx = (n: string) => {
+      const i = order.indexOf(n)
+      return i === -1 ? Number.MAX_SAFE_INTEGER : i
+    }
+    return shadows
+      .map((t) => ({
+        name: t.originalPath[1],
+        cssVar: t.cssVarName,
+        value: t.value,
+      }))
+      .sort((a, b) => idx(a.name) - idx(b.name))
+  }
+
+  /**
+   * Transition duration tokens
+   */
+  static getTransitionDurations(): TransitionDurationInfo[] {
+    const lightTokens = this.getThemedTokens().light
+    const durations = lightTokens.filter(
+      (t) =>
+        t.originalPath[0] === 'transition' &&
+        t.originalPath[1] === 'duration' &&
+        t.originalPath.length === 3
+    )
+    const order = (n: string) => (Number.isFinite(Number(n)) ? Number(n) : 0)
+    return durations
+      .map((t) => ({
+        name: t.originalPath[2],
+        cssVar: t.cssVarName,
+        value: t.value,
+      }))
+      .sort((a, b) => order(a.name) - order(b.name))
+  }
+
+  /**
+   * Transition easing tokens
+   */
+  static getTransitionEasings(): TransitionEasingInfo[] {
+    const lightTokens = this.getThemedTokens().light
+    const easings = lightTokens.filter(
+      (t) =>
+        t.originalPath[0] === 'transition' &&
+        t.originalPath[1] === 'easing' &&
+        t.originalPath.length === 3
+    )
+    const order = ['ease-in', 'ease-out', 'ease-in-out']
+    const idx = (n: string) => {
+      const i = order.indexOf(n)
+      return i === -1 ? Number.MAX_SAFE_INTEGER : i
+    }
+    return easings
+      .map((t) => ({
+        name: t.originalPath[2],
+        cssVar: t.cssVarName,
+        value: t.value,
+      }))
+      .sort((a, b) => idx(a.name) - idx(b.name))
+  }
+
+  /**
+   * Transition property tokens
+   */
+  static getTransitionProperties(): TransitionPropertyInfo[] {
+    const lightTokens = this.getThemedTokens().light
+    const props = lightTokens.filter(
+      (t) =>
+        t.originalPath[0] === 'transition' &&
+        t.originalPath[1] === 'property' &&
+        t.originalPath.length === 3
+    )
+    const order = [
+      'none',
+      'all',
+      'default',
+      'colors',
+      'opacity',
+      'shadow',
+      'transform',
+    ]
+    const idx = (n: string) => {
+      const i = order.indexOf(n)
+      return i === -1 ? Number.MAX_SAFE_INTEGER : i
+    }
+    return props
+      .map((t) => ({
+        name: t.originalPath[2],
+        cssVar: t.cssVarName,
+        value: t.value,
+      }))
+      .sort((a, b) => idx(a.name) - idx(b.name))
   }
 }

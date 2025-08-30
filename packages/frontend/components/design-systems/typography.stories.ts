@@ -41,12 +41,15 @@ const TypographyFonts = {
             </div>
           </div>
           <div class="text-xs space-y-1">
-            <div><strong>CSS Var:</strong>
-              <span @click="selectText($event)" :style="mono">
-                {{ font.cssVar }}
-              </span>
+            <div>
+              <strong>CSS Var:</strong>
+              <span @click="selectText($event)" :style="mono">{{ font.cssVar }}</span>
             </div>
-            <div><strong>Value:</strong> <span :style="mono">{{ font.value }}</span></div>
+            <div>
+              <strong>CSS Class:</strong>
+              <span class="cursor-pointer" @click="selectText($event)" :style="mono">{{ fontClass(font.name) }}</span>
+            </div>
+            <div><strong>Resolved:</strong> <span :style="mono">{{ font.value }}</span></div>
           </div>
         </div>
       </div>
@@ -74,7 +77,13 @@ const TypographyFonts = {
       backgroundColor: 'var(--color-primitive-gray-100)',
     }
 
-    return { fonts, selectText, mono }
+    const fontClass = (name: string) => {
+      if (name === 'sans') return 'font-sans'
+      if (name === 'mono') return 'font-mono'
+      return `font-${name}`
+    }
+
+    return { fonts, selectText, mono, fontClass }
   },
 }
 
@@ -97,10 +106,13 @@ const TypographyScales = {
             <div>The quick brown fox jumps over the lazy dog.</div>
           </div>
           <div class="text-xs space-y-1">
-            <div><strong>CSS Var:</strong>
-              <span @click="selectText($event)" :style="mono">
-                {{ scale.cssVar }}
-              </span>
+            <div>
+              <strong>CSS Var:</strong>
+              <span @click="selectText($event)" :style="mono">{{ scale.cssVar }}</span>
+            </div>
+            <div>
+              <strong>CSS Class:</strong>
+              <span class="cursor-pointer" @click="selectText($event)" :style="mono">{{ scaleClass(scale.name) }}</span>
             </div>
             <div><strong>Resolved:</strong> <span :style="mono">{{ scale.value }}</span></div>
           </div>
@@ -130,7 +142,8 @@ const TypographyScales = {
       backgroundColor: 'var(--color-primitive-gray-100)',
     }
 
-    return { scales, selectText, mono }
+    const scaleClass = (name: string) => `font-scale-${name}`
+    return { scales, selectText, mono, scaleClass }
   },
 }
 
@@ -160,10 +173,13 @@ const TypographySemantic = {
             <div>The quick brown fox jumps over the lazy dog.</div>
           </div>
           <div class="text-xs space-y-1">
-            <div><strong>CSS Var:</strong>
-              <span @click="selectText($event)" :style="mono">
-                {{ typo.cssVar }}
-              </span>
+            <div>
+              <strong>CSS Var:</strong>
+              <span @click="selectText($event)" :style="mono">{{ typo.cssVar }}</span>
+            </div>
+            <div>
+              <strong>CSS Class:</strong>
+              <span class="cursor-pointer" @click="selectText($event)" :style="mono">{{ semanticClass(typo.name) }}</span>
             </div>
             <div><strong>Resolved:</strong> <span :style="mono">{{ typo.value }}</span></div>
           </div>
@@ -193,7 +209,8 @@ const TypographySemantic = {
       backgroundColor: 'var(--color-primitive-gray-100)',
     }
 
-    return { semantics, selectText, mono }
+    const semanticClass = (name: string) => `font-semantic-${name}`
+    return { semantics, selectText, mono, semanticClass }
   },
 }
 
