@@ -1,5 +1,6 @@
 import type { StoryObj, Meta } from '@nuxtjs/storybook'
 import { DesignTokenHelper } from './design-token-helper'
+import { mono, selectText } from './parts/story-utils'
 
 const meta: Meta = {
   title: 'Design System/Borders',
@@ -66,28 +67,10 @@ const BorderShowcase = {
     const styles = DesignTokenHelper.getBorderStyles()
     const radii = DesignTokenHelper.getRadii()
 
-    const mono = {
-      fontFamily: 'monospace',
-      backgroundColor: 'var(--color-primitive-gray-100)',
-      borderRadius: '2px',
-      padding: '1px 3px',
-    }
-
     const widthBorder = (w: { cssVar: string }) =>
       'var(' + w.cssVar + ') solid var(--color-primitive-blue-500)'
     const styleBorder = (s: { cssVar: string }) =>
       '2px var(' + s.cssVar + ') var(--color-primitive-blue-500)'
-
-    const selectText = (event: Event) => {
-      const target = event.target as HTMLElement
-      if (!target) return
-      const range = document.createRange()
-      range.selectNodeContents(target)
-      const sel = window.getSelection()
-      if (!sel) return
-      sel.removeAllRanges()
-      sel.addRange(range)
-    }
 
     return { widths, styles, radii, mono, widthBorder, styleBorder, selectText }
   },

@@ -640,37 +640,25 @@ export class DesignTokenHelper {
    * Spacing スケールを取得（0, px, 0.5, 1, 2, ...）
    */
   static getSpacingScale(): SpacingInfo[] {
-    const themedTokens = this.getThemedTokens()
-    const lightTokens = themedTokens.light
-
-    const spacings = lightTokens.filter(
-      (t) => t.originalPath[0] === 'spacing' && t.originalPath.length === 2
-    )
-
-    const rank = (name: string): number => {
-      if (name === 'px') return 0.25
-      const n = Number(name)
-      return Number.isFinite(n) ? n : Number.MAX_SAFE_INTEGER
-    }
-
-    return spacings
-      .map((t) => ({
-        name: t.originalPath[1],
-        cssVar: t.cssVarName,
-        value: t.value,
-      }))
-      .sort((a, b) => rank(a.name) - rank(b.name))
+    return this.getScale('spacing') as SpacingInfo[]
   }
 
   /**
    * Size スケールを取得（0, px, 0.5, 1, 2, ...）
    */
   static getSizeScale(): SizeInfo[] {
-    const themedTokens = this.getThemedTokens()
-    const lightTokens = themedTokens.light
+    return this.getScale('size') as SizeInfo[]
+  }
 
-    const sizes = lightTokens.filter(
-      (t) => t.originalPath[0] === 'size' && t.originalPath.length === 2
+  /**
+   * 共通: spacing/size スケールの列挙
+   */
+  private static getScale(
+    category: 'spacing' | 'size'
+  ): Array<{ name: string; cssVar: string; value: string }> {
+    const lightTokens = this.getThemedTokens().light
+    const tokens = lightTokens.filter(
+      (t) => t.originalPath[0] === category && t.originalPath.length === 2
     )
 
     const rank = (name: string): number => {
@@ -679,7 +667,7 @@ export class DesignTokenHelper {
       return Number.isFinite(n) ? n : Number.MAX_SAFE_INTEGER
     }
 
-    return sizes
+    return tokens
       .map((t) => ({
         name: t.originalPath[1],
         cssVar: t.cssVarName,

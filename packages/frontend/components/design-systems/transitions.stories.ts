@@ -1,5 +1,6 @@
 import type { StoryObj, Meta } from '@nuxtjs/storybook'
 import { DesignTokenHelper } from './design-token-helper'
+import { mono, selectText } from './parts/story-utils'
 
 const meta: Meta = {
   title: 'Design System/Transitions',
@@ -52,27 +53,11 @@ const DurationsDemo = {
   setup(props: { globalActive?: boolean }) {
     const durations = DesignTokenHelper.getTransitionDurations()
     const isActive = computed(() => !!props.globalActive)
-    const mono = {
-      fontFamily: 'monospace',
-      backgroundColor: 'var(--color-primitive-gray-100)',
-      borderRadius: '2px',
-      padding: '1px 3px',
-    }
     const stickyStyle = {
       position: 'sticky',
       top: '0px',
       background: 'var(--background-color-content-default)',
       borderBottom: '1px solid var(--border-color-interactive-hovered)',
-    }
-    const selectText = (event: Event) => {
-      const target = event.target as HTMLElement
-      if (!target) return
-      const range = document.createRange()
-      range.selectNodeContents(target)
-      const sel = window.getSelection()
-      if (!sel) return
-      sel.removeAllRanges()
-      sel.addRange(range)
     }
     return { durations, isActive, mono, stickyStyle, selectText }
   },
@@ -114,27 +99,11 @@ const EasingsDemo = {
   setup(props: { globalActive?: boolean }) {
     const easings = DesignTokenHelper.getTransitionEasings()
     const isActive = computed(() => !!props.globalActive)
-    const mono = {
-      fontFamily: 'monospace',
-      backgroundColor: 'var(--color-primitive-gray-100)',
-      borderRadius: '2px',
-      padding: '1px 3px',
-    }
     const stickyStyle = {
       position: 'sticky',
       top: '0px',
       background: 'var(--background-color-content-default)',
       borderBottom: '1px solid var(--border-color-interactive-hovered)',
-    }
-    const selectText = (event: Event) => {
-      const target = event.target as HTMLElement
-      if (!target) return
-      const range = document.createRange()
-      range.selectNodeContents(target)
-      const sel = window.getSelection()
-      if (!sel) return
-      sel.removeAllRanges()
-      sel.addRange(range)
     }
     return { easings, isActive, mono, stickyStyle, selectText }
   },

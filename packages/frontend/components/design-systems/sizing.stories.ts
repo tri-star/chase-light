@@ -1,5 +1,6 @@
 import type { StoryObj, Meta } from '@nuxtjs/storybook'
 import { DesignTokenHelper } from './design-token-helper'
+import { mono, selectText } from './parts/story-utils'
 
 const meta: Meta = {
   title: 'Design System/Sizing',
@@ -47,25 +48,6 @@ const SizingList = {
   `,
   setup() {
     const sizes = DesignTokenHelper.getSizeScale()
-
-    const selectText = (event: Event) => {
-      const target = event.target as HTMLElement
-      if (!target) return
-      const range = document.createRange()
-      range.selectNodeContents(target)
-      const sel = window.getSelection()
-      if (!sel) return
-      sel.removeAllRanges()
-      sel.addRange(range)
-    }
-
-    const mono = {
-      fontFamily: 'monospace',
-      cursor: 'pointer',
-      padding: '1px 3px',
-      borderRadius: '2px',
-      backgroundColor: 'var(--color-primitive-gray-100)',
-    }
 
     const gaugeWidth = (item: { value: string }) => {
       const v = String(item.value).trim()

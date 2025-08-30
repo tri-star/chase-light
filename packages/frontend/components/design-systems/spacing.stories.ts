@@ -1,5 +1,6 @@
 import type { StoryObj, Meta } from '@nuxtjs/storybook'
 import { DesignTokenHelper } from './design-token-helper'
+import { mono, selectText } from './parts/story-utils'
 
 const meta: Meta = {
   title: 'Design System/Spacing',
@@ -52,25 +53,6 @@ const SpacingList = {
   `,
   setup() {
     const spacings = DesignTokenHelper.getSpacingScale()
-
-    const selectText = (event: Event) => {
-      const target = event.target as HTMLElement
-      if (!target) return
-      const range = document.createRange()
-      range.selectNodeContents(target)
-      const sel = window.getSelection()
-      if (!sel) return
-      sel.removeAllRanges()
-      sel.addRange(range)
-    }
-
-    const mono = {
-      fontFamily: 'monospace',
-      cursor: 'pointer',
-      padding: '1px 3px',
-      borderRadius: '2px',
-      backgroundColor: 'var(--color-primitive-gray-100)',
-    }
 
     const barWidth = (item: { value: string }) => {
       const v = String(item.value).trim()

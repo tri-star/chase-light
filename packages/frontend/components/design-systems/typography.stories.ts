@@ -1,5 +1,6 @@
 import type { StoryObj, Meta } from '@nuxtjs/storybook'
 import { DesignTokenHelper } from './design-token-helper'
+import { monoMd, selectText } from './parts/story-utils'
 
 const meta: Meta = {
   title: 'Design System/Typography',
@@ -58,32 +59,13 @@ const TypographyFonts = {
   setup() {
     const fonts = DesignTokenHelper.getTypographyFonts()
 
-    const selectText = (event: Event) => {
-      const target = event.target as HTMLElement
-      if (!target) return
-      const range = document.createRange()
-      range.selectNodeContents(target)
-      const sel = window.getSelection()
-      if (!sel) return
-      sel.removeAllRanges()
-      sel.addRange(range)
-    }
-
-    const mono = {
-      fontFamily: 'monospace',
-      cursor: 'pointer',
-      padding: '2px 4px',
-      borderRadius: '2px',
-      backgroundColor: 'var(--color-primitive-gray-100)',
-    }
-
     const fontClass = (name: string) => {
       if (name === 'sans') return 'font-sans'
       if (name === 'mono') return 'font-mono'
       return `font-${name}`
     }
 
-    return { fonts, selectText, mono, fontClass }
+    return { fonts, selectText, mono: monoMd, fontClass }
   },
 }
 
@@ -123,27 +105,8 @@ const TypographyScales = {
   setup() {
     const scales = DesignTokenHelper.getTypographyScales()
 
-    const selectText = (event: Event) => {
-      const target = event.target as HTMLElement
-      if (!target) return
-      const range = document.createRange()
-      range.selectNodeContents(target)
-      const sel = window.getSelection()
-      if (!sel) return
-      sel.removeAllRanges()
-      sel.addRange(range)
-    }
-
-    const mono = {
-      fontFamily: 'monospace',
-      cursor: 'pointer',
-      padding: '2px 4px',
-      borderRadius: '2px',
-      backgroundColor: 'var(--color-primitive-gray-100)',
-    }
-
     const scaleClass = (name: string) => `font-scale-${name}`
-    return { scales, selectText, mono, scaleClass }
+    return { scales, selectText, mono: monoMd, scaleClass }
   },
 }
 
@@ -190,27 +153,8 @@ const TypographySemantic = {
   setup() {
     const semantics = DesignTokenHelper.getTypographySemantic()
 
-    const selectText = (event: Event) => {
-      const target = event.target as HTMLElement
-      if (!target) return
-      const range = document.createRange()
-      range.selectNodeContents(target)
-      const sel = window.getSelection()
-      if (!sel) return
-      sel.removeAllRanges()
-      sel.addRange(range)
-    }
-
-    const mono = {
-      fontFamily: 'monospace',
-      cursor: 'pointer',
-      padding: '2px 4px',
-      borderRadius: '2px',
-      backgroundColor: 'var(--color-primitive-gray-100)',
-    }
-
     const semanticClass = (name: string) => `font-semantic-${name}`
-    return { semantics, selectText, mono, semanticClass }
+    return { semantics, selectText, mono: monoMd, semanticClass }
   },
 }
 

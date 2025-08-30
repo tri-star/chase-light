@@ -1,5 +1,6 @@
 import type { StoryObj, Meta } from '@nuxtjs/storybook'
 import { DesignTokenHelper } from './design-token-helper'
+import { mono, selectText } from './parts/story-utils'
 
 const meta: Meta = {
   title: 'Design System/Shadows',
@@ -50,22 +51,6 @@ const ShadowShowcase = {
   `,
   setup() {
     const shadows = DesignTokenHelper.getShadows()
-    const mono = {
-      fontFamily: 'monospace',
-      backgroundColor: 'var(--color-primitive-gray-100)',
-      borderRadius: '2px',
-      padding: '1px 3px',
-    }
-    const selectText = (event: Event) => {
-      const target = event.target as HTMLElement
-      if (!target) return
-      const range = document.createRange()
-      range.selectNodeContents(target)
-      const sel = window.getSelection()
-      if (!sel) return
-      sel.removeAllRanges()
-      sel.addRange(range)
-    }
     return { shadows, mono, selectText }
   },
 }
