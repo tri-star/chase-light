@@ -4,9 +4,11 @@ import { fileURLToPath } from 'url'
 import type { DesignTokens, ParsedToken, ThemedTokens } from './types'
 import { TokenParser } from './token-parser'
 import { TailwindGenerator } from './tailwind-generator'
+import { LLMDocGenerator } from './llm-doc-generator'
 
 const DESIGN_TOKENS_PATH = '../../design-tokens.json'
 const OUTPUT_DIR = '../../assets/css'
+const LLM_DOC_OUTPUT = '../../docs/design/tailwind-utilities.json'
 
 // ES module equivalent of __dirname
 const __filename = fileURLToPath(import.meta.url)
@@ -47,6 +49,9 @@ export class DesignTokenConverter {
       // テーマ別Tailwind CSS ファイルを生成
       await this.generateThemedTailwindCSS(themedTokens)
 
+      // LLM ドキュメントを生成
+      await this.generateLLMUtilitiesDoc(tokens)
+
       console.log('🎉 すべての変換が完了しました!')
       console.log(`📁 出力先: ${this.outputDir}`)
     } catch (error) {
@@ -76,6 +81,20 @@ export class DesignTokenConverter {
     if (!existsSync(this.outputDir)) {
       mkdirSync(this.outputDir, { recursive: true })
     }
+  }
+
+  /**
+   * LLM向けユーティリティドキュメントを生成
+   */
+  private async generateLLMUtilitiesDoc(tokens: DesignTokens): Promise<void> {
+    const doc = LLMDocGenerator.generateUtilitiesDoc(tokens)
+    const docPath = join(__dirname, LLM_DOC_OUTPUT)
+    const outDir = dirname(docPath)
+    if (!existsSync(outDir)) {
+      mkdirSync(outDir, { recursive: true })
+    }
+    writeFileSync(docPath, JSON.stringify(doc, null, 2), 'utf-8')
+    console.log(`✅ LLM utilities JSON を出力しました: ${docPath}`)
   }
 
   /**

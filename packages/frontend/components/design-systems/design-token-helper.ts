@@ -29,6 +29,78 @@ export interface SemanticColorInfo {
   borderClass: string
 }
 
+export interface TypographyFontInfo {
+  name: string
+  cssVar: string
+  value: string
+}
+
+export interface TypographyScaleInfo {
+  name: string
+  cssVar: string
+  value: string
+}
+
+export interface TypographySemanticInfo {
+  name: string
+  cssVar: string
+  value: string
+}
+
+export interface SpacingInfo {
+  name: string
+  cssVar: string
+  value: string
+}
+
+export interface SizeInfo {
+  name: string
+  cssVar: string
+  value: string
+}
+
+export interface BorderWidthInfo {
+  name: string
+  cssVar: string
+  value: string
+}
+
+export interface BorderStyleInfo {
+  name: string
+  cssVar: string
+  value: string
+}
+
+export interface RadiusInfo {
+  name: string
+  cssVar: string
+  value: string
+}
+
+export interface ShadowInfo {
+  name: string
+  cssVar: string
+  value: string
+}
+
+export interface TransitionDurationInfo {
+  name: string
+  cssVar: string
+  value: string
+}
+
+export interface TransitionEasingInfo {
+  name: string
+  cssVar: string
+  value: string
+}
+
+export interface TransitionPropertyInfo {
+  name: string
+  cssVar: string
+  value: string
+}
+
 // eslint-disable-next-line @typescript-eslint/no-extraneous-class
 export class DesignTokenHelper {
   private static themedTokens: ThemedTokens | null = null
@@ -469,5 +541,317 @@ export class DesignTokenHelper {
   ): string {
     // --background-color-surface-primary-default -> --text-color-surface-primary-default
     return bgCssVar.replace('background-color', `${type}-color`)
+  }
+
+  /**
+   * Typography: フォントファミリーの情報を取得
+   */
+  static getTypographyFonts(): TypographyFontInfo[] {
+    const themedTokens = this.getThemedTokens()
+    const lightTokens = themedTokens.light
+
+    const fonts = lightTokens.filter(
+      (t) =>
+        t.originalPath[0] === 'typography' &&
+        t.originalPath[1] === 'font-family' &&
+        t.originalPath.length === 3
+    )
+
+    const order = ['sans', 'mono']
+    const toInfo = (t: ParsedToken): TypographyFontInfo => ({
+      name: t.originalPath[2],
+      cssVar: t.cssVarName,
+      value: t.value,
+    })
+
+    return fonts
+      .map(toInfo)
+      .sort((a, b) => order.indexOf(a.name) - order.indexOf(b.name))
+  }
+
+  /**
+   * Typography: スケール（xs, sm, base, ...）の情報を取得
+   */
+  static getTypographyScales(): TypographyScaleInfo[] {
+    const themedTokens = this.getThemedTokens()
+    const lightTokens = themedTokens.light
+
+    const scales = lightTokens.filter(
+      (t) =>
+        t.originalPath[0] === 'typography' &&
+        t.originalPath[1] === 'scale' &&
+        t.originalPath.length === 3
+    )
+
+    const order = ['xs', 'sm', 'base', 'lg', 'xl', '2xl', '3xl', '4xl']
+    const orderIndex = (n: string) => {
+      const i = order.indexOf(n)
+      return i === -1 ? Number.MAX_SAFE_INTEGER : i
+    }
+
+    return scales
+      .map((t) => ({
+        name: t.originalPath[2],
+        cssVar: t.cssVarName,
+        value: t.value,
+      }))
+      .sort((a, b) => orderIndex(a.name) - orderIndex(b.name))
+  }
+
+  /**
+   * Typography: セマンティック（heading-x, body, caption, code など）の情報を取得
+   */
+  static getTypographySemantic(): TypographySemanticInfo[] {
+    const themedTokens = this.getThemedTokens()
+    const lightTokens = themedTokens.light
+
+    const semantics = lightTokens.filter(
+      (t) =>
+        t.originalPath[0] === 'typography' &&
+        t.originalPath[1] === 'semantic' &&
+        t.originalPath.length === 3
+    )
+
+    const order = [
+      'heading-1',
+      'heading-2',
+      'heading-3',
+      'heading-4',
+      'body',
+      'body-sm',
+      'caption',
+      'code',
+    ]
+    const idx = (n: string) => {
+      const i = order.indexOf(n)
+      return i === -1 ? Number.MAX_SAFE_INTEGER : i
+    }
+
+    return semantics
+      .map((t) => ({
+        name: t.originalPath[2],
+        cssVar: t.cssVarName,
+        value: t.value,
+      }))
+      .sort((a, b) => idx(a.name) - idx(b.name))
+  }
+
+  /**
+   * Spacing スケールを取得（0, px, 0.5, 1, 2, ...）
+   */
+  static getSpacingScale(): SpacingInfo[] {
+    return this.getScale('spacing') as SpacingInfo[]
+  }
+
+  /**
+   * Size スケールを取得（0, px, 0.5, 1, 2, ...）
+   */
+  static getSizeScale(): SizeInfo[] {
+    return this.getScale('size') as SizeInfo[]
+  }
+
+  /**
+   * 共通: spacing/size スケールの列挙
+   */
+  private static getScale(
+    category: 'spacing' | 'size'
+  ): Array<{ name: string; cssVar: string; value: string }> {
+    const lightTokens = this.getThemedTokens().light
+    const tokens = lightTokens.filter(
+      (t) => t.originalPath[0] === category && t.originalPath.length === 2
+    )
+
+    const rank = (name: string): number => {
+      if (name === 'px') return 0.25
+      const n = Number(name)
+      return Number.isFinite(n) ? n : Number.MAX_SAFE_INTEGER
+    }
+
+    return tokens
+      .map((t) => ({
+        name: t.originalPath[1],
+        cssVar: t.cssVarName,
+        value: t.value,
+      }))
+      .sort((a, b) => rank(a.name) - rank(b.name))
+  }
+
+  /**
+   * Border width tokens
+   */
+  static getBorderWidths(): BorderWidthInfo[] {
+    const lightTokens = this.getThemedTokens().light
+    const widths = lightTokens.filter(
+      (t) =>
+        t.originalPath[0] === 'border' &&
+        t.originalPath[1] === 'width' &&
+        t.originalPath.length === 3
+    )
+    const order = (n: string) => (Number.isFinite(Number(n)) ? Number(n) : 0)
+    return widths
+      .map((t) => ({
+        name: t.originalPath[2],
+        cssVar: t.cssVarName,
+        value: t.value,
+      }))
+      .sort((a, b) => order(a.name) - order(b.name))
+  }
+
+  /**
+   * Border style tokens
+   */
+  static getBorderStyles(): BorderStyleInfo[] {
+    const lightTokens = this.getThemedTokens().light
+    const styles = lightTokens.filter(
+      (t) =>
+        t.originalPath[0] === 'border' &&
+        t.originalPath[1] === 'style' &&
+        t.originalPath.length === 3
+    )
+    const priority = ['solid', 'dashed', 'dotted']
+    const idx = (n: string) => {
+      const i = priority.indexOf(n)
+      return i === -1 ? Number.MAX_SAFE_INTEGER : i
+    }
+    return styles
+      .map((t) => ({
+        name: t.originalPath[2],
+        cssVar: t.cssVarName,
+        value: t.value,
+      }))
+      .sort((a, b) => idx(a.name) - idx(b.name))
+  }
+
+  /**
+   * Radius tokens
+   */
+  static getRadii(): RadiusInfo[] {
+    const lightTokens = this.getThemedTokens().light
+    const radii = lightTokens.filter(
+      (t) => t.originalPath[0] === 'radius' && t.originalPath.length === 2
+    )
+    const order = [
+      'none',
+      'sm',
+      'default',
+      'md',
+      'lg',
+      'xl',
+      '2xl',
+      '3xl',
+      'full',
+    ]
+    const idx = (n: string) => {
+      const i = order.indexOf(n)
+      return i === -1 ? Number.MAX_SAFE_INTEGER : i
+    }
+    return radii
+      .map((t) => ({
+        name: t.originalPath[1],
+        cssVar: t.cssVarName,
+        value: t.value,
+      }))
+      .sort((a, b) => idx(a.name) - idx(b.name))
+  }
+
+  /**
+   * Shadow tokens
+   */
+  static getShadows(): ShadowInfo[] {
+    const lightTokens = this.getThemedTokens().light
+    const shadows = lightTokens.filter(
+      (t) => t.originalPath[0] === 'shadow' && t.originalPath.length === 2
+    )
+    const order = ['sm', 'default', 'md', 'lg', 'xl']
+    const idx = (n: string) => {
+      const i = order.indexOf(n)
+      return i === -1 ? Number.MAX_SAFE_INTEGER : i
+    }
+    return shadows
+      .map((t) => ({
+        name: t.originalPath[1],
+        cssVar: t.cssVarName,
+        value: t.value,
+      }))
+      .sort((a, b) => idx(a.name) - idx(b.name))
+  }
+
+  /**
+   * Transition duration tokens
+   */
+  static getTransitionDurations(): TransitionDurationInfo[] {
+    const lightTokens = this.getThemedTokens().light
+    const durations = lightTokens.filter(
+      (t) =>
+        t.originalPath[0] === 'transition' &&
+        t.originalPath[1] === 'duration' &&
+        t.originalPath.length === 3
+    )
+    const order = (n: string) => (Number.isFinite(Number(n)) ? Number(n) : 0)
+    return durations
+      .map((t) => ({
+        name: t.originalPath[2],
+        cssVar: t.cssVarName,
+        value: t.value,
+      }))
+      .sort((a, b) => order(a.name) - order(b.name))
+  }
+
+  /**
+   * Transition easing tokens
+   */
+  static getTransitionEasings(): TransitionEasingInfo[] {
+    const lightTokens = this.getThemedTokens().light
+    const easings = lightTokens.filter(
+      (t) =>
+        t.originalPath[0] === 'transition' &&
+        t.originalPath[1] === 'easing' &&
+        t.originalPath.length === 3
+    )
+    const order = ['ease-in', 'ease-out', 'ease-in-out']
+    const idx = (n: string) => {
+      const i = order.indexOf(n)
+      return i === -1 ? Number.MAX_SAFE_INTEGER : i
+    }
+    return easings
+      .map((t) => ({
+        name: t.originalPath[2],
+        cssVar: t.cssVarName,
+        value: t.value,
+      }))
+      .sort((a, b) => idx(a.name) - idx(b.name))
+  }
+
+  /**
+   * Transition property tokens
+   */
+  static getTransitionProperties(): TransitionPropertyInfo[] {
+    const lightTokens = this.getThemedTokens().light
+    const props = lightTokens.filter(
+      (t) =>
+        t.originalPath[0] === 'transition' &&
+        t.originalPath[1] === 'property' &&
+        t.originalPath.length === 3
+    )
+    const order = [
+      'none',
+      'all',
+      'default',
+      'colors',
+      'opacity',
+      'shadow',
+      'transform',
+    ]
+    const idx = (n: string) => {
+      const i = order.indexOf(n)
+      return i === -1 ? Number.MAX_SAFE_INTEGER : i
+    }
+    return props
+      .map((t) => ({
+        name: t.originalPath[2],
+        cssVar: t.cssVarName,
+        value: t.value,
+      }))
+      .sort((a, b) => idx(a.name) - idx(b.name))
   }
 }

@@ -97,7 +97,7 @@ describe('DesignTokenConverter', () => {
 
       const cssContent = files[cssPath!]
       expect(cssContent).toContain('@import "tailwindcss"')
-      expect(cssContent).toContain('@theme {')
+      expect(cssContent).toContain('@theme static {')
 
       // コンソールログが出力されることを確認
       expect(consoleSpy).toHaveBeenCalledWith(
@@ -126,7 +126,7 @@ describe('DesignTokenConverter', () => {
       )
       const cssContent = files[cssPath!]
       expect(cssContent).toContain('@import "tailwindcss"')
-      expect(cssContent).toContain('@theme {')
+      expect(cssContent).toContain('@theme static {')
       expect(cssContent).toContain(
         '--color-primitive-blue-500: oklch(53.992% 0.19058 257.48)'
       )

@@ -1,6 +1,6 @@
 @import 'tailwindcss';
 
-@theme {
+@theme static {
   --color-*: initial;
   --font-*: initial;
   --text-*: initial;
