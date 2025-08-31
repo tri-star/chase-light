@@ -20,7 +20,7 @@
     "test:e2e:report": "playwright show-report",
     "test:e2e:install": "playwright install",
     "generate:api": "orval",
-    "generate:tailwind-theme": "tsx scripts/design-token-converter/convert.ts && prettier --write -c .prettierrc assets/css/tailwind.css",
+    "generate:tailwind-theme": "tsx scripts/design-token-converter/convert.ts && prettier --write -c .prettierrc .",
     "predev": "pnpm generate:api && pnpm generate:tailwind-theme",
     "prebuild": "pnpm generate:api && pnpm generate:tailwind-theme"
   },

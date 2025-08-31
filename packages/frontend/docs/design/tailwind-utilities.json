@@ -4,67 +4,151 @@
       "description": "Primitive color palette in OkLCH format",
       "tokens": {
         "gray.50": {
-          "tailwindClasses": ["bg-gray-50", "text-gray-50", "border-gray-50"]
+          "tailwindClasses": [
+            "bg-gray-50",
+            "text-gray-50",
+            "border-gray-50"
+          ]
         },
         "gray.100": {
-          "tailwindClasses": ["bg-gray-100", "text-gray-100", "border-gray-100"]
+          "tailwindClasses": [
+            "bg-gray-100",
+            "text-gray-100",
+            "border-gray-100"
+          ]
         },
         "gray.200": {
-          "tailwindClasses": ["bg-gray-200", "text-gray-200", "border-gray-200"]
+          "tailwindClasses": [
+            "bg-gray-200",
+            "text-gray-200",
+            "border-gray-200"
+          ]
         },
         "gray.300": {
-          "tailwindClasses": ["bg-gray-300", "text-gray-300", "border-gray-300"]
+          "tailwindClasses": [
+            "bg-gray-300",
+            "text-gray-300",
+            "border-gray-300"
+          ]
         },
         "gray.400": {
-          "tailwindClasses": ["bg-gray-400", "text-gray-400", "border-gray-400"]
+          "tailwindClasses": [
+            "bg-gray-400",
+            "text-gray-400",
+            "border-gray-400"
+          ]
         },
         "gray.500": {
-          "tailwindClasses": ["bg-gray-500", "text-gray-500", "border-gray-500"]
+          "tailwindClasses": [
+            "bg-gray-500",
+            "text-gray-500",
+            "border-gray-500"
+          ]
         },
         "gray.600": {
-          "tailwindClasses": ["bg-gray-600", "text-gray-600", "border-gray-600"]
+          "tailwindClasses": [
+            "bg-gray-600",
+            "text-gray-600",
+            "border-gray-600"
+          ]
         },
         "gray.700": {
-          "tailwindClasses": ["bg-gray-700", "text-gray-700", "border-gray-700"]
+          "tailwindClasses": [
+            "bg-gray-700",
+            "text-gray-700",
+            "border-gray-700"
+          ]
         },
         "gray.800": {
-          "tailwindClasses": ["bg-gray-800", "text-gray-800", "border-gray-800"]
+          "tailwindClasses": [
+            "bg-gray-800",
+            "text-gray-800",
+            "border-gray-800"
+          ]
         },
         "gray.900": {
-          "tailwindClasses": ["bg-gray-900", "text-gray-900", "border-gray-900"]
+          "tailwindClasses": [
+            "bg-gray-900",
+            "text-gray-900",
+            "border-gray-900"
+          ]
         },
         "blue.50": {
-          "tailwindClasses": ["bg-blue-50", "text-blue-50", "border-blue-50"]
+          "tailwindClasses": [
+            "bg-blue-50",
+            "text-blue-50",
+            "border-blue-50"
+          ]
         },
         "blue.100": {
-          "tailwindClasses": ["bg-blue-100", "text-blue-100", "border-blue-100"]
+          "tailwindClasses": [
+            "bg-blue-100",
+            "text-blue-100",
+            "border-blue-100"
+          ]
         },
         "blue.200": {
-          "tailwindClasses": ["bg-blue-200", "text-blue-200", "border-blue-200"]
+          "tailwindClasses": [
+            "bg-blue-200",
+            "text-blue-200",
+            "border-blue-200"
+          ]
         },
         "blue.300": {
-          "tailwindClasses": ["bg-blue-300", "text-blue-300", "border-blue-300"]
+          "tailwindClasses": [
+            "bg-blue-300",
+            "text-blue-300",
+            "border-blue-300"
+          ]
         },
         "blue.400": {
-          "tailwindClasses": ["bg-blue-400", "text-blue-400", "border-blue-400"]
+          "tailwindClasses": [
+            "bg-blue-400",
+            "text-blue-400",
+            "border-blue-400"
+          ]
         },
         "blue.500": {
-          "tailwindClasses": ["bg-blue-500", "text-blue-500", "border-blue-500"]
+          "tailwindClasses": [
+            "bg-blue-500",
+            "text-blue-500",
+            "border-blue-500"
+          ]
         },
         "blue.600": {
-          "tailwindClasses": ["bg-blue-600", "text-blue-600", "border-blue-600"]
+          "tailwindClasses": [
+            "bg-blue-600",
+            "text-blue-600",
+            "border-blue-600"
+          ]
         },
         "blue.700": {
-          "tailwindClasses": ["bg-blue-700", "text-blue-700", "border-blue-700"]
+          "tailwindClasses": [
+            "bg-blue-700",
+            "text-blue-700",
+            "border-blue-700"
+          ]
         },
         "blue.800": {
-          "tailwindClasses": ["bg-blue-800", "text-blue-800", "border-blue-800"]
+          "tailwindClasses": [
+            "bg-blue-800",
+            "text-blue-800",
+            "border-blue-800"
+          ]
         },
         "blue.900": {
-          "tailwindClasses": ["bg-blue-900", "text-blue-900", "border-blue-900"]
+          "tailwindClasses": [
+            "bg-blue-900",
+            "text-blue-900",
+            "border-blue-900"
+          ]
         },
         "green.50": {
-          "tailwindClasses": ["bg-green-50", "text-green-50", "border-green-50"]
+          "tailwindClasses": [
+            "bg-green-50",
+            "text-green-50",
+            "border-green-50"
+          ]
         },
         "green.100": {
           "tailwindClasses": [
@@ -200,40 +284,88 @@
           ]
         },
         "red.50": {
-          "tailwindClasses": ["bg-red-50", "text-red-50", "border-red-50"]
+          "tailwindClasses": [
+            "bg-red-50",
+            "text-red-50",
+            "border-red-50"
+          ]
         },
         "red.100": {
-          "tailwindClasses": ["bg-red-100", "text-red-100", "border-red-100"]
+          "tailwindClasses": [
+            "bg-red-100",
+            "text-red-100",
+            "border-red-100"
+          ]
         },
         "red.200": {
-          "tailwindClasses": ["bg-red-200", "text-red-200", "border-red-200"]
+          "tailwindClasses": [
+            "bg-red-200",
+            "text-red-200",
+            "border-red-200"
+          ]
         },
         "red.300": {
-          "tailwindClasses": ["bg-red-300", "text-red-300", "border-red-300"]
+          "tailwindClasses": [
+            "bg-red-300",
+            "text-red-300",
+            "border-red-300"
+          ]
         },
         "red.400": {
-          "tailwindClasses": ["bg-red-400", "text-red-400", "border-red-400"]
+          "tailwindClasses": [
+            "bg-red-400",
+            "text-red-400",
+            "border-red-400"
+          ]
         },
         "red.500": {
-          "tailwindClasses": ["bg-red-500", "text-red-500", "border-red-500"]
+          "tailwindClasses": [
+            "bg-red-500",
+            "text-red-500",
+            "border-red-500"
+          ]
         },
         "red.600": {
-          "tailwindClasses": ["bg-red-600", "text-red-600", "border-red-600"]
+          "tailwindClasses": [
+            "bg-red-600",
+            "text-red-600",
+            "border-red-600"
+          ]
         },
         "red.700": {
-          "tailwindClasses": ["bg-red-700", "text-red-700", "border-red-700"]
+          "tailwindClasses": [
+            "bg-red-700",
+            "text-red-700",
+            "border-red-700"
+          ]
         },
         "red.800": {
-          "tailwindClasses": ["bg-red-800", "text-red-800", "border-red-800"]
+          "tailwindClasses": [
+            "bg-red-800",
+            "text-red-800",
+            "border-red-800"
+          ]
         },
         "red.900": {
-          "tailwindClasses": ["bg-red-900", "text-red-900", "border-red-900"]
+          "tailwindClasses": [
+            "bg-red-900",
+            "text-red-900",
+            "border-red-900"
+          ]
         },
         "black": {
-          "tailwindClasses": ["bg-black", "text-black", "border-black"]
+          "tailwindClasses": [
+            "bg-black",
+            "text-black",
+            "border-black"
+          ]
         },
         "white": {
-          "tailwindClasses": ["bg-white", "text-white", "border-white"]
+          "tailwindClasses": [
+            "bg-white",
+            "text-white",
+            "border-white"
+          ]
         }
       }
     },
@@ -664,18 +796,44 @@
   "borders": {
     "description": "Border tokens",
     "width": {
-      "values": ["0", "1", "2", "4", "8"]
+      "values": [
+        "0",
+        "1",
+        "2",
+        "4",
+        "8"
+      ]
     },
     "styles": {
-      "values": ["solid", "dashed", "dotted"]
+      "values": [
+        "solid",
+        "dashed",
+        "dotted"
+      ]
     }
   },
   "radius": {
     "description": "TailwindCSSで利用可能なrounded-*などを利用可能。値は以下に挙げる値から選択",
-    "values": ["none", "sm", "default", "md", "lg", "xl", "2xl", "3xl", "full"]
+    "values": [
+      "none",
+      "sm",
+      "default",
+      "md",
+      "lg",
+      "xl",
+      "2xl",
+      "3xl",
+      "full"
+    ]
   },
   "shadows": {
     "description": "TailwindCSSで利用可能なshadow-*などを利用可能。値は以下に挙げる値から選択",
-    "values": ["sm", "default", "md", "lg", "xl"]
+    "values": [
+      "sm",
+      "default",
+      "md",
+      "lg",
+      "xl"
+    ]
   }
 }
