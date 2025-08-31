@@ -30,12 +30,12 @@ description: "bacckend:Planフェーズ"
 
 ### 3. 既存のコードの実装を把握
 
-- フォルダ構成: TBD
-- 命名規則: TBD
+- フォルダ構成: @packages/frontend/docs/guidelines/folder-structure.md
+- 命名規則: @packages/frontend/docs/guidelines/file-naming-conventions.md
 - テスト戦略: @packages/frontend/docs/testing-strategy.md
 - API実装ガイドライン: @packages/frontend/docs/guidelines/api-implementation-guide.md
-- コンポーネント実装ガイドライン: TBD
-- ページ実装ガイドライン: TBD
+- コンポーネント実装ガイドライン: @packages/frontend/docs/guidelines/component-implementation-guide.md
+- ページ実装ガイドライン: @packages/frontend/docs/guidelines/page-implementation-guide.md
 
 上記の方針で実装した既存コードは以下を参照
 

@@ -27,8 +27,10 @@
 
 ### composables/
 
-- 既存実装に合わせて例外運用: `use` + CamelCase（例: `useAuth.ts`）
-- エクスポート: `export const useXxx = () => { ... }`（関数名は `use` + PascalCase）
+- ファイル名: kebab-case（例: `use-auth.ts`, `use-dashboard-page.ts`）
+- エクスポート: `export const useAuth = () => { ... }`（関数名は `use` + PascalCase）
+- ページ専用のcomposableは `components/pages/<page>/use-<page>-page.ts` に併置
+- 横断的に再利用するcomposableは `composables/use-xxx.ts` に配置
 
 ### middleware/
 

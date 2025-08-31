@@ -54,8 +54,10 @@ packages/frontend
 
 ### `composables/`（Composition API）
 
-- 役割: `useXxx` 形式のロジック共有（例: `useAuth.ts`）。SSR/CSR の差異に注意して実装（`import.meta.client/server`）。
+- 役割: `useXxx` 形式のロジック共有。SSR/CSR の差異に注意して実装（`import.meta.client/server`）。
 - 責務: UI と分離し、副作用は明示。サーバに依存する処理は `server/` に逃がす。
+- 命名: ファイル名は kebab-case（例: `use-auth.ts`, `use-dashboard-page.ts`）。関数名は `useAuth` のように `use` + PascalCase。
+- ページ専用のcomposableは対応ページ配下に併置（例: `components/pages/<page>/use-<page>-page.ts`）。横断的なものは `composables/` 直下に配置。
 
 ### `pages/`（ページ/ルーティング）
 
