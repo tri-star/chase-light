@@ -1,0 +1,681 @@
+{
+  "color": {
+    "primitive": {
+      "description": "Primitive color palette in OkLCH format",
+      "tokens": {
+        "gray.50": {
+          "tailwindClasses": ["bg-gray-50", "text-gray-50", "border-gray-50"]
+        },
+        "gray.100": {
+          "tailwindClasses": ["bg-gray-100", "text-gray-100", "border-gray-100"]
+        },
+        "gray.200": {
+          "tailwindClasses": ["bg-gray-200", "text-gray-200", "border-gray-200"]
+        },
+        "gray.300": {
+          "tailwindClasses": ["bg-gray-300", "text-gray-300", "border-gray-300"]
+        },
+        "gray.400": {
+          "tailwindClasses": ["bg-gray-400", "text-gray-400", "border-gray-400"]
+        },
+        "gray.500": {
+          "tailwindClasses": ["bg-gray-500", "text-gray-500", "border-gray-500"]
+        },
+        "gray.600": {
+          "tailwindClasses": ["bg-gray-600", "text-gray-600", "border-gray-600"]
+        },
+        "gray.700": {
+          "tailwindClasses": ["bg-gray-700", "text-gray-700", "border-gray-700"]
+        },
+        "gray.800": {
+          "tailwindClasses": ["bg-gray-800", "text-gray-800", "border-gray-800"]
+        },
+        "gray.900": {
+          "tailwindClasses": ["bg-gray-900", "text-gray-900", "border-gray-900"]
+        },
+        "blue.50": {
+          "tailwindClasses": ["bg-blue-50", "text-blue-50", "border-blue-50"]
+        },
+        "blue.100": {
+          "tailwindClasses": ["bg-blue-100", "text-blue-100", "border-blue-100"]
+        },
+        "blue.200": {
+          "tailwindClasses": ["bg-blue-200", "text-blue-200", "border-blue-200"]
+        },
+        "blue.300": {
+          "tailwindClasses": ["bg-blue-300", "text-blue-300", "border-blue-300"]
+        },
+        "blue.400": {
+          "tailwindClasses": ["bg-blue-400", "text-blue-400", "border-blue-400"]
+        },
+        "blue.500": {
+          "tailwindClasses": ["bg-blue-500", "text-blue-500", "border-blue-500"]
+        },
+        "blue.600": {
+          "tailwindClasses": ["bg-blue-600", "text-blue-600", "border-blue-600"]
+        },
+        "blue.700": {
+          "tailwindClasses": ["bg-blue-700", "text-blue-700", "border-blue-700"]
+        },
+        "blue.800": {
+          "tailwindClasses": ["bg-blue-800", "text-blue-800", "border-blue-800"]
+        },
+        "blue.900": {
+          "tailwindClasses": ["bg-blue-900", "text-blue-900", "border-blue-900"]
+        },
+        "green.50": {
+          "tailwindClasses": ["bg-green-50", "text-green-50", "border-green-50"]
+        },
+        "green.100": {
+          "tailwindClasses": [
+            "bg-green-100",
+            "text-green-100",
+            "border-green-100"
+          ]
+        },
+        "green.200": {
+          "tailwindClasses": [
+            "bg-green-200",
+            "text-green-200",
+            "border-green-200"
+          ]
+        },
+        "green.300": {
+          "tailwindClasses": [
+            "bg-green-300",
+            "text-green-300",
+            "border-green-300"
+          ]
+        },
+        "green.400": {
+          "tailwindClasses": [
+            "bg-green-400",
+            "text-green-400",
+            "border-green-400"
+          ]
+        },
+        "green.500": {
+          "tailwindClasses": [
+            "bg-green-500",
+            "text-green-500",
+            "border-green-500"
+          ]
+        },
+        "green.600": {
+          "tailwindClasses": [
+            "bg-green-600",
+            "text-green-600",
+            "border-green-600"
+          ]
+        },
+        "green.700": {
+          "tailwindClasses": [
+            "bg-green-700",
+            "text-green-700",
+            "border-green-700"
+          ]
+        },
+        "green.800": {
+          "tailwindClasses": [
+            "bg-green-800",
+            "text-green-800",
+            "border-green-800"
+          ]
+        },
+        "green.900": {
+          "tailwindClasses": [
+            "bg-green-900",
+            "text-green-900",
+            "border-green-900"
+          ]
+        },
+        "yellow.50": {
+          "tailwindClasses": [
+            "bg-yellow-50",
+            "text-yellow-50",
+            "border-yellow-50"
+          ]
+        },
+        "yellow.100": {
+          "tailwindClasses": [
+            "bg-yellow-100",
+            "text-yellow-100",
+            "border-yellow-100"
+          ]
+        },
+        "yellow.200": {
+          "tailwindClasses": [
+            "bg-yellow-200",
+            "text-yellow-200",
+            "border-yellow-200"
+          ]
+        },
+        "yellow.300": {
+          "tailwindClasses": [
+            "bg-yellow-300",
+            "text-yellow-300",
+            "border-yellow-300"
+          ]
+        },
+        "yellow.400": {
+          "tailwindClasses": [
+            "bg-yellow-400",
+            "text-yellow-400",
+            "border-yellow-400"
+          ]
+        },
+        "yellow.500": {
+          "tailwindClasses": [
+            "bg-yellow-500",
+            "text-yellow-500",
+            "border-yellow-500"
+          ]
+        },
+        "yellow.600": {
+          "tailwindClasses": [
+            "bg-yellow-600",
+            "text-yellow-600",
+            "border-yellow-600"
+          ]
+        },
+        "yellow.700": {
+          "tailwindClasses": [
+            "bg-yellow-700",
+            "text-yellow-700",
+            "border-yellow-700"
+          ]
+        },
+        "yellow.800": {
+          "tailwindClasses": [
+            "bg-yellow-800",
+            "text-yellow-800",
+            "border-yellow-800"
+          ]
+        },
+        "yellow.900": {
+          "tailwindClasses": [
+            "bg-yellow-900",
+            "text-yellow-900",
+            "border-yellow-900"
+          ]
+        },
+        "red.50": {
+          "tailwindClasses": ["bg-red-50", "text-red-50", "border-red-50"]
+        },
+        "red.100": {
+          "tailwindClasses": ["bg-red-100", "text-red-100", "border-red-100"]
+        },
+        "red.200": {
+          "tailwindClasses": ["bg-red-200", "text-red-200", "border-red-200"]
+        },
+        "red.300": {
+          "tailwindClasses": ["bg-red-300", "text-red-300", "border-red-300"]
+        },
+        "red.400": {
+          "tailwindClasses": ["bg-red-400", "text-red-400", "border-red-400"]
+        },
+        "red.500": {
+          "tailwindClasses": ["bg-red-500", "text-red-500", "border-red-500"]
+        },
+        "red.600": {
+          "tailwindClasses": ["bg-red-600", "text-red-600", "border-red-600"]
+        },
+        "red.700": {
+          "tailwindClasses": ["bg-red-700", "text-red-700", "border-red-700"]
+        },
+        "red.800": {
+          "tailwindClasses": ["bg-red-800", "text-red-800", "border-red-800"]
+        },
+        "red.900": {
+          "tailwindClasses": ["bg-red-900", "text-red-900", "border-red-900"]
+        },
+        "black": {
+          "tailwindClasses": ["bg-black", "text-black", "border-black"]
+        },
+        "white": {
+          "tailwindClasses": ["bg-white", "text-white", "border-white"]
+        }
+      }
+    },
+    "semantic": {
+      "description": "Semantic color tokens for UI components with light and dark theme support",
+      "tokens": {
+        "content.default.bg": {
+          "tailwindClass": "bg-content-default"
+        },
+        "content.default.text": {
+          "tailwindClass": "text-content-default"
+        },
+        "surface.primary.default.bg": {
+          "tailwindClass": "bg-surface-primary-default"
+        },
+        "surface.primary.default.text": {
+          "tailwindClass": "text-surface-primary-default"
+        },
+        "surface.primary.default.border": {
+          "tailwindClass": "border-surface-primary-default"
+        },
+        "surface.primary.disabled.bg": {
+          "tailwindClass": "bg-surface-primary-disabled"
+        },
+        "surface.primary.disabled.text": {
+          "tailwindClass": "text-surface-primary-disabled"
+        },
+        "surface.primary.disabled.border": {
+          "tailwindClass": "border-surface-primary-disabled"
+        },
+        "surface.primary.hovered.bg": {
+          "tailwindClass": "bg-surface-primary-hovered"
+        },
+        "surface.primary.hovered.text": {
+          "tailwindClass": "text-surface-primary-hovered"
+        },
+        "surface.primary.hovered.border": {
+          "tailwindClass": "border-surface-primary-hovered"
+        },
+        "surface.primary.pressed.bg": {
+          "tailwindClass": "bg-surface-primary-pressed"
+        },
+        "surface.primary.pressed.text": {
+          "tailwindClass": "text-surface-primary-pressed"
+        },
+        "surface.primary.pressed.border": {
+          "tailwindClass": "border-surface-primary-pressed"
+        },
+        "surface.secondary.default.bg": {
+          "tailwindClass": "bg-surface-secondary-default"
+        },
+        "surface.secondary.default.text": {
+          "tailwindClass": "text-surface-secondary-default"
+        },
+        "surface.secondary.default.border": {
+          "tailwindClass": "border-surface-secondary-default"
+        },
+        "surface.secondary.disabled.bg": {
+          "tailwindClass": "bg-surface-secondary-disabled"
+        },
+        "surface.secondary.disabled.text": {
+          "tailwindClass": "text-surface-secondary-disabled"
+        },
+        "surface.secondary.disabled.border": {
+          "tailwindClass": "border-surface-secondary-disabled"
+        },
+        "surface.secondary.hovered.bg": {
+          "tailwindClass": "bg-surface-secondary-hovered"
+        },
+        "surface.secondary.hovered.text": {
+          "tailwindClass": "text-surface-secondary-hovered"
+        },
+        "surface.secondary.hovered.border": {
+          "tailwindClass": "border-surface-secondary-hovered"
+        },
+        "surface.secondary.pressed.bg": {
+          "tailwindClass": "bg-surface-secondary-pressed"
+        },
+        "surface.secondary.pressed.text": {
+          "tailwindClass": "text-surface-secondary-pressed"
+        },
+        "surface.secondary.pressed.border": {
+          "tailwindClass": "border-surface-secondary-pressed"
+        },
+        "surface.outlined.default.bg": {
+          "tailwindClass": "bg-surface-outlined-default"
+        },
+        "surface.outlined.default.text": {
+          "tailwindClass": "text-surface-outlined-default"
+        },
+        "surface.outlined.default.border": {
+          "tailwindClass": "border-surface-outlined-default"
+        },
+        "surface.outlined.disabled.bg": {
+          "tailwindClass": "bg-surface-outlined-disabled"
+        },
+        "surface.outlined.disabled.text": {
+          "tailwindClass": "text-surface-outlined-disabled"
+        },
+        "surface.outlined.disabled.border": {
+          "tailwindClass": "border-surface-outlined-disabled"
+        },
+        "surface.outlined.hovered.bg": {
+          "tailwindClass": "bg-surface-outlined-hovered"
+        },
+        "surface.outlined.hovered.text": {
+          "tailwindClass": "text-surface-outlined-hovered"
+        },
+        "surface.outlined.hovered.border": {
+          "tailwindClass": "border-surface-outlined-hovered"
+        },
+        "surface.outlined.pressed.bg": {
+          "tailwindClass": "bg-surface-outlined-pressed"
+        },
+        "surface.outlined.pressed.text": {
+          "tailwindClass": "text-surface-outlined-pressed"
+        },
+        "surface.outlined.pressed.border": {
+          "tailwindClass": "border-surface-outlined-pressed"
+        },
+        "interactive.default.bg": {
+          "tailwindClass": "bg-interactive-default"
+        },
+        "interactive.default.text": {
+          "tailwindClass": "text-interactive-default"
+        },
+        "interactive.default.border": {
+          "tailwindClass": "border-interactive-default"
+        },
+        "interactive.disabled.bg": {
+          "tailwindClass": "bg-interactive-disabled"
+        },
+        "interactive.disabled.text": {
+          "tailwindClass": "text-interactive-disabled"
+        },
+        "interactive.disabled.border": {
+          "tailwindClass": "border-interactive-disabled"
+        },
+        "interactive.focused.bg": {
+          "tailwindClass": "bg-interactive-focused"
+        },
+        "interactive.focused.text": {
+          "tailwindClass": "text-interactive-focused"
+        },
+        "interactive.focused.border": {
+          "tailwindClass": "border-interactive-focused"
+        },
+        "interactive.hovered.bg": {
+          "tailwindClass": "bg-interactive-hovered"
+        },
+        "interactive.hovered.text": {
+          "tailwindClass": "text-interactive-hovered"
+        },
+        "interactive.hovered.border": {
+          "tailwindClass": "border-interactive-hovered"
+        },
+        "header.default.bg": {
+          "tailwindClass": "bg-header-default"
+        },
+        "header.default.text": {
+          "tailwindClass": "text-header-default"
+        },
+        "header.default.border": {
+          "tailwindClass": "border-header-default"
+        },
+        "sidebar.default.bg": {
+          "tailwindClass": "bg-sidebar-default"
+        },
+        "sidebar.default.text": {
+          "tailwindClass": "text-sidebar-default"
+        },
+        "sidebar.default.border": {
+          "tailwindClass": "border-sidebar-default"
+        },
+        "dialog.default.bg": {
+          "tailwindClass": "bg-dialog-default"
+        },
+        "dialog.default.text": {
+          "tailwindClass": "text-dialog-default"
+        },
+        "dialog.default.border": {
+          "tailwindClass": "border-dialog-default"
+        },
+        "dialog.backdrop.bg": {
+          "tailwindClass": "bg-dialog-backdrop"
+        },
+        "common.info.default.bg": {
+          "tailwindClass": "bg-status-info-default"
+        },
+        "common.info.default.text": {
+          "tailwindClass": "text-status-info-default"
+        },
+        "common.info.default.border": {
+          "tailwindClass": "border-status-info-default"
+        },
+        "common.info.subtle.bg": {
+          "tailwindClass": "bg-status-info-subtle"
+        },
+        "common.info.subtle.text": {
+          "tailwindClass": "text-status-info-subtle"
+        },
+        "common.info.subtle.border": {
+          "tailwindClass": "border-status-info-subtle"
+        },
+        "common.info.inversed.bg": {
+          "tailwindClass": "bg-status-info-inversed"
+        },
+        "common.info.inversed.text": {
+          "tailwindClass": "text-status-info-inversed"
+        },
+        "common.info.inversed.border": {
+          "tailwindClass": "border-status-info-inversed"
+        },
+        "common.success.default.bg": {
+          "tailwindClass": "bg-status-success-default"
+        },
+        "common.success.default.text": {
+          "tailwindClass": "text-status-success-default"
+        },
+        "common.success.default.border": {
+          "tailwindClass": "border-status-success-default"
+        },
+        "common.success.subtle.bg": {
+          "tailwindClass": "bg-status-success-subtle"
+        },
+        "common.success.subtle.text": {
+          "tailwindClass": "text-status-success-subtle"
+        },
+        "common.success.subtle.border": {
+          "tailwindClass": "border-status-success-subtle"
+        },
+        "common.success.inversed.bg": {
+          "tailwindClass": "bg-status-success-inversed"
+        },
+        "common.success.inversed.text": {
+          "tailwindClass": "text-status-success-inversed"
+        },
+        "common.success.inversed.border": {
+          "tailwindClass": "border-status-success-inversed"
+        },
+        "common.warn.default.bg": {
+          "tailwindClass": "bg-status-warn-default"
+        },
+        "common.warn.default.text": {
+          "tailwindClass": "text-status-warn-default"
+        },
+        "common.warn.default.border": {
+          "tailwindClass": "border-status-warn-default"
+        },
+        "common.warn.subtle.bg": {
+          "tailwindClass": "bg-status-warn-subtle"
+        },
+        "common.warn.subtle.text": {
+          "tailwindClass": "text-status-warn-subtle"
+        },
+        "common.warn.subtle.border": {
+          "tailwindClass": "border-status-warn-subtle"
+        },
+        "common.warn.inversed.bg": {
+          "tailwindClass": "bg-status-warn-inversed"
+        },
+        "common.warn.inversed.text": {
+          "tailwindClass": "text-status-warn-inversed"
+        },
+        "common.warn.inversed.border": {
+          "tailwindClass": "border-status-warn-inversed"
+        },
+        "common.alert.default.bg": {
+          "tailwindClass": "bg-status-alert-default"
+        },
+        "common.alert.default.text": {
+          "tailwindClass": "text-status-alert-default"
+        },
+        "common.alert.default.border": {
+          "tailwindClass": "border-status-alert-default"
+        },
+        "common.alert.subtle.bg": {
+          "tailwindClass": "bg-status-alert-subtle"
+        },
+        "common.alert.subtle.text": {
+          "tailwindClass": "text-status-alert-subtle"
+        },
+        "common.alert.subtle.border": {
+          "tailwindClass": "border-status-alert-subtle"
+        },
+        "common.alert.inversed.bg": {
+          "tailwindClass": "bg-status-alert-inversed"
+        },
+        "common.alert.inversed.text": {
+          "tailwindClass": "text-status-alert-inversed"
+        },
+        "common.alert.inversed.border": {
+          "tailwindClass": "border-status-alert-inversed"
+        },
+        "common.focus.default.color": {
+          "tailwindClass": "bg-status-focus-default"
+        },
+        "common.focus.default.width": {
+          "tailwindClass": "bg-status-focus-default"
+        },
+        "common.focus.default.style": {
+          "tailwindClass": "bg-status-focus-default"
+        },
+        "common.focus.default.offset": {
+          "tailwindClass": "bg-status-focus-default"
+        }
+      }
+    }
+  },
+  "typography": {
+    "description": "Typography tokens with Japanese font priority",
+    "tokens": {
+      "font-family.sans": {
+        "tailwindClass": "font-sans"
+      },
+      "font-family.mono": {
+        "tailwindClass": "font-mono"
+      },
+      "scale.xs": {
+        "tailwindClass": "font-scale-xs"
+      },
+      "scale.sm": {
+        "tailwindClass": "font-scale-sm"
+      },
+      "scale.base": {
+        "tailwindClass": "font-scale-base"
+      },
+      "scale.lg": {
+        "tailwindClass": "font-scale-lg"
+      },
+      "scale.xl": {
+        "tailwindClass": "font-scale-xl"
+      },
+      "scale.2xl": {
+        "tailwindClass": "font-scale-2xl"
+      },
+      "scale.3xl": {
+        "tailwindClass": "font-scale-3xl"
+      },
+      "scale.4xl": {
+        "tailwindClass": "font-scale-4xl"
+      },
+      "semantic.heading-1": {
+        "tailwindClass": "font-semantic-heading-1"
+      },
+      "semantic.heading-2": {
+        "tailwindClass": "font-semantic-heading-2"
+      },
+      "semantic.heading-3": {
+        "tailwindClass": "font-semantic-heading-3"
+      },
+      "semantic.heading-4": {
+        "tailwindClass": "font-semantic-heading-4"
+      },
+      "semantic.body": {
+        "tailwindClass": "font-semantic-body"
+      },
+      "semantic.body-sm": {
+        "tailwindClass": "font-semantic-body-sm"
+      },
+      "semantic.caption": {
+        "tailwindClass": "font-semantic-caption"
+      },
+      "semantic.code": {
+        "tailwindClass": "font-semantic-code"
+      }
+    }
+  },
+  "spacing": {
+    "description": "TailwindCSSで利用可能なp-*, m-*, gap-*などを利用可能。値は以下に挙げる値から選択",
+    "values": [
+      "0",
+      "1",
+      "2",
+      "3",
+      "4",
+      "5",
+      "6",
+      "8",
+      "10",
+      "12",
+      "16",
+      "20",
+      "24",
+      "32",
+      "40",
+      "48",
+      "56",
+      "64",
+      "72",
+      "80",
+      "96",
+      "px",
+      "0.5"
+    ]
+  },
+  "sizing": {
+    "description": "TailwindCSSで利用可能なw-*,h-*などを利用可能。値は以下に挙げる値から選択",
+    "values": [
+      "0",
+      "1",
+      "2",
+      "3",
+      "4",
+      "5",
+      "6",
+      "8",
+      "10",
+      "12",
+      "16",
+      "20",
+      "24",
+      "32",
+      "40",
+      "48",
+      "56",
+      "64",
+      "72",
+      "80",
+      "96",
+      "px",
+      "0.5",
+      "auto",
+      "1/2",
+      "full"
+    ]
+  },
+  "borders": {
+    "description": "Border tokens",
+    "width": {
+      "values": ["0", "1", "2", "4", "8"]
+    },
+    "styles": {
+      "values": ["solid", "dashed", "dotted"]
+    }
+  },
+  "radius": {
+    "description": "TailwindCSSで利用可能なrounded-*などを利用可能。値は以下に挙げる値から選択",
+    "values": ["none", "sm", "default", "md", "lg", "xl", "2xl", "3xl", "full"]
+  },
+  "shadows": {
+    "description": "TailwindCSSで利用可能なshadow-*などを利用可能。値は以下に挙げる値から選択",
+    "values": ["sm", "default", "md", "lg", "xl"]
+  }
+}

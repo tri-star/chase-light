@@ -29,7 +29,7 @@ export class TailwindGenerator {
 
     return `@import "tailwindcss";
 
-@theme {
+@theme static {
 ${resetVars}
 
 ${lightTokenVars}
