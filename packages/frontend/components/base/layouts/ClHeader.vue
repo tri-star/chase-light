@@ -1,22 +1,26 @@
 <script setup lang="ts">
-import ClHamburgerButton from './ClHamburgerButton.vue'
-import ClAvatarMenu from './ClAvatarMenu.vue'
+import ClHamburgerButton from '../ClHamburgerButton.vue'
+import ClAvatarMenu from '../ClAvatarMenu.vue'
 
 interface Props {
   brandText?: string
-  showHamburger?: boolean
   sidebarOpen?: boolean
 }
 
 const props = withDefaults(defineProps<Props>(), {
   brandText: 'Chase Light',
-  showHamburger: true,
   sidebarOpen: false,
 })
 
 const emit = defineEmits<{
   (e: 'toggleSidebar'): void
 }>()
+
+// 認証状態に基づいて表示制御
+const { isLoggedIn } = useAuth()
+
+// ハンバーガーメニューはログイン時のみ表示
+const showHamburger = computed(() => isLoggedIn.value)
 </script>
 
 <template>
@@ -26,7 +30,7 @@ const emit = defineEmits<{
         <!-- Left side: Brand and hamburger -->
         <div class="flex items-center space-x-4">
           <ClHamburgerButton
-            v-if="props.showHamburger"
+            v-if="showHamburger"
             :is-open="props.sidebarOpen"
             @click="emit('toggleSidebar')"
           />
@@ -37,7 +41,7 @@ const emit = defineEmits<{
 
         <!-- Right side: Avatar menu -->
         <div class="flex items-center">
-          <ClAvatarMenu />
+          <ClAvatarMenu v-if="isLoggedIn" />
         </div>
       </div>
     </div>

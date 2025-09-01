@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import ClHeader from './ClHeader.vue'
+import ClHeader from '../ClHeader.vue'
 import ClSidebar from './ClSidebar.vue'
 
 interface Props {
@@ -63,7 +63,6 @@ watch(isMobile, (newIsMobile) => {
     <!-- Header -->
     <ClHeader
       :brand-text="props.brandText"
-      :show-hamburger="true"
       :sidebar-open="sidebarOpen"
       @toggle-sidebar="toggleSidebar"
     />
