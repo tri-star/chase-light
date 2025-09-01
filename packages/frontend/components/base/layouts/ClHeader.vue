@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import ClHamburgerButton from '../ClHamburgerButton.vue'
 import ClAvatarMenu from '../ClAvatarMenu.vue'
+import ClThemeSelector from '../ClThemeSelector.vue'
 
 interface Props {
   brandText?: string
@@ -39,8 +40,9 @@ const showHamburger = computed(() => isLoggedIn.value)
           </h1>
         </div>
 
-        <!-- Right side: Avatar menu -->
-        <div class="flex items-center">
+        <!-- Right side: Theme selector and Avatar menu -->
+        <div class="flex items-center space-x-2 sm:space-x-4">
+          <ClThemeSelector size="sm" />
           <ClAvatarMenu v-if="isLoggedIn" />
         </div>
       </div>
