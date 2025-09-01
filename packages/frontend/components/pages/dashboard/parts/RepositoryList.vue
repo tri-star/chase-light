@@ -41,6 +41,7 @@ const formatNumber = (num: number): string => {
     <!-- エラー状態 -->
     <div v-else-if="props.error" class="p-6">
       <div class="text-center">
+        <!-- 警告アイコン: データ読み込みエラーを示す三角形の警告マーク -->
         <svg
           class="mx-auto h-12 w-12 text-status-alert-default"
           fill="none"
@@ -68,6 +69,7 @@ const formatNumber = (num: number): string => {
     <!-- 空の状態 -->
     <div v-else-if="props.repositories.length === 0" class="p-6">
       <div class="text-center">
+        <!-- フォルダアイコン: ウォッチ中のリポジトリがないことを示すアイコン -->
         <svg
           class="mx-auto h-12 w-12 text-content-default opacity-50"
           fill="none"
@@ -105,6 +107,7 @@ const formatNumber = (num: number): string => {
             <div
               class="w-10 h-10 rounded-full bg-surface-primary-default flex items-center justify-center"
             >
+              <!-- GitHubアイコン: リポジトリを表すオクトキャットのロゴ -->
               <svg
                 class="w-6 h-6 text-surface-primary-default"
                 fill="currentColor"
@@ -160,6 +163,7 @@ const formatNumber = (num: number): string => {
               </div>
 
               <div class="flex items-center space-x-1">
+                <!-- スターアイコン: リポジトリのスター数を表示 -->
                 <svg
                   class="w-3 h-3"
                   fill="currentColor"
@@ -177,6 +181,7 @@ const formatNumber = (num: number): string => {
               </div>
 
               <div class="flex items-center space-x-1">
+                <!-- フォークアイコン: リポジトリのフォーク数を表示 -->
                 <svg
                   class="w-3 h-3"
                   fill="currentColor"
@@ -196,6 +201,7 @@ const formatNumber = (num: number): string => {
               </div>
 
               <div class="flex items-center space-x-1">
+                <!-- イシューアイコン: リポジトリのオープンイシュー数を表示 -->
                 <svg
                   class="w-3 h-3"
                   fill="currentColor"

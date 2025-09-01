@@ -8,34 +8,29 @@ const {
   pending,
   error,
   refresh,
-} = await useAsyncData<DataSourceListResponse>(
-  'dashboard-data-sources',
-  () =>
-    $fetch('/api/data-sources', {
-      params: {
+} = await useFetch<DataSourceListResponse>('/api/data-sources', {
+  key: 'dashboard-data-sources',
+  params: {
+    page: 1,
+    perPage: 20,
+  },
+  default: () => ({
+    success: true,
+    data: {
+      items: [],
+      pagination: {
         page: 1,
         perPage: 20,
+        total: 0,
+        totalPages: 0,
+        hasNext: false,
+        hasPrev: false,
       },
-    }),
-  {
-    default: () => ({
-      success: true,
-      data: {
-        items: [],
-        pagination: {
-          page: 1,
-          perPage: 20,
-          total: 0,
-          totalPages: 0,
-          hasNext: false,
-          hasPrev: false,
-        },
-      },
-    }),
-    server: true,
-    lazy: false,
-  }
-)
+    },
+  }),
+  server: true,
+  lazy: false,
+})
 </script>
 
 <template>
@@ -59,6 +54,7 @@ const {
       >
         <div class="flex items-center">
           <div class="flex-shrink-0">
+            <!-- 目のアイコン: ウォッチ中のリポジトリ数を表示するアイコン -->
             <svg
               class="w-8 h-8 text-surface-primary-default"
               fill="none"
@@ -101,6 +97,7 @@ const {
       >
         <div class="flex items-center">
           <div class="flex-shrink-0">
+            <!-- 情報アイコン: 未読通知数を表示する情報マーク -->
             <svg
               class="w-8 h-8 text-status-info-default"
               fill="none"
@@ -135,6 +132,7 @@ const {
       >
         <div class="flex items-center">
           <div class="flex-shrink-0">
+            <!-- チェックマークアイコン: 今日の更新数を表示する成功マーク -->
             <svg
               class="w-8 h-8 text-status-success-default"
               fill="none"
