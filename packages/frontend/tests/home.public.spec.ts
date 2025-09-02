@@ -7,8 +7,10 @@ test.describe('Public Home Page', () => {
     // ページタイトルを確認
     await expect(page).toHaveTitle(/Chase Light/)
 
-    // メインヘッダーを確認
-    await expect(page.locator('h1')).toContainText('Chase Light')
+    // メインヘッダーを確認（メインコンテンツ内のh1を狙い撃ち）
+    await expect(page.locator('main').locator('h1')).toContainText(
+      'Chase Light'
+    )
     await expect(page.locator('p.text-xl.text-gray-600')).toContainText(
       'GitHub Repository Activity Tracker'
     )
@@ -42,8 +44,10 @@ test.describe('Public Home Page', () => {
     await page.setViewportSize({ width: 375, height: 667 })
     await page.goto('/')
 
-    // コンテンツが表示されることを確認
-    await expect(page.locator('h1')).toContainText('Chase Light')
+    // コンテンツが表示されることを確認（メインコンテンツ内のh1を狙い撃ち）
+    await expect(page.locator('main').locator('h1')).toContainText(
+      'Chase Light'
+    )
     await expect(page.locator('text=Login with GitHub')).toBeVisible()
   })
 })
