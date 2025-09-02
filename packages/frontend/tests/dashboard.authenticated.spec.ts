@@ -61,16 +61,40 @@ test.describe('Authenticated Dashboard', () => {
   test('should be able to refresh repository data', async ({ page }) => {
     await page.goto('/dashboard')
 
-    // 更新ボタンをクリック
-    const refreshButton = page.locator('button:has-text("更新")')
-    if (await refreshButton.isVisible()) {
-      await refreshButton.click()
+    // /api/data-sourcesリクエストに遅延を追加してpending状態を確実にキャプチャ
+    await page.route('**/api/data-sources*', async (route) => {
+      // リクエストを500ms遅延させる
+      await new Promise((resolve) => setTimeout(resolve, 500))
+      await route.continue()
+    })
 
-      // ローディング状態の確認（"更新中..."に変わる）
-      await expect(page.locator('text=更新中...')).toBeVisible({
-        timeout: 2000,
-      })
-    }
+    // 更新ボタンが利用可能であることを確認
+    const refreshButton = page.locator('button:has-text("更新")')
+    await expect(refreshButton).toBeVisible()
+    await expect(refreshButton).toBeEnabled()
+
+    // ボタンクリックと同時にpending状態をチェック
+    await refreshButton.click()
+
+    // ローディング状態の確認（"更新中..."に変わることを期待）
+    await expect(page.locator('text=更新中...')).toBeVisible({
+      timeout: 1000,
+    })
+
+    // ボタンがdisabledになることを確認
+    await expect(
+      page.locator('button').filter({ hasText: '更新中...' })
+    ).toBeDisabled({
+      timeout: 1000,
+    })
+
+    // 最終的に「更新」ボタンに戻り、再び有効になることを確認
+    await expect(page.locator('button:has-text("更新")')).toBeVisible({
+      timeout: 3000,
+    })
+    await expect(page.locator('button:has-text("更新")')).toBeEnabled({
+      timeout: 3000,
+    })
   })
 
   // test('should be able to logout', async ({ page }) => {
