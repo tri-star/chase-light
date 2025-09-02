@@ -14,12 +14,7 @@ const sidebarOpen = ref(false)
 const isMobile = ref(false)
 
 const toggleSidebar = () => {
-  console.log('toggleSidebar called:', {
-    before: sidebarOpen.value,
-    isMobile: isMobile.value,
-  })
   sidebarOpen.value = !sidebarOpen.value
-  console.log('toggleSidebar result:', { after: sidebarOpen.value })
 }
 
 const closeSidebar = () => {
@@ -29,13 +24,7 @@ const closeSidebar = () => {
 // Mobile detection using window resize
 const checkIsMobile = () => {
   if (import.meta.client) {
-    const wasMobile = isMobile.value
     isMobile.value = window.innerWidth < 768 // md breakpoint
-    console.log('isMobile check:', {
-      width: window.innerWidth,
-      isMobile: isMobile.value,
-      changed: wasMobile !== isMobile.value,
-    })
   }
 }
 

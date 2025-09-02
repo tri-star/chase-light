@@ -49,7 +49,7 @@ const themeLabel = computed(() => {
       'flex items-center justify-center rounded-full border transition-all duration-300',
 
       'focus:outline-none',
-      'focus:ring-2 focus:ring-blue-500 focus:ring-opacity-20',
+      'focus:ring-2 focus:ring-status-focus-default',
       'active:scale-95 transform',
       buttonSizeClasses.button,
       {
