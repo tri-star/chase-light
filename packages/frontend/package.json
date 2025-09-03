@@ -58,6 +58,7 @@
     "happy-dom": "^18.0.1",
     "memfs": "^4.37.1",
     "msw": "^2.10.4",
+    "msw-storybook-addon": "^2.0.4",
     "nitropack": "2.11.13",
     "orval": "^7.11.2",
     "playwright-core": "^1.52.0",
@@ -65,5 +66,10 @@
     "tsx": "^4.20.4",
     "vitest": "^3.2.2",
     "vue-tsc": "^2.2.10"
+  },
+  "msw": {
+    "workerDirectory": [
+      ".storybook/public"
+    ]
   }
 }
