@@ -3,6 +3,7 @@ import { http, HttpResponse } from 'msw'
 import DashboardPage from './DashboardPage.vue'
 import { getGetApiDataSourcesMockHandler } from '~/generated/api/backend.msw'
 import type { DataSourceListResponse } from '~/generated/api/schemas'
+import { expect, within } from '@storybook/test'
 
 const meta: Meta<typeof DashboardPage> = {
   title: 'Components/Pages/DashboardPage',
@@ -194,6 +195,31 @@ export const Default: Story = {
       handlers: [successHandler],
     },
   },
+  // インタラクションテスト（Storybook Test Runnerで実行）
+  play: async ({ canvasElement, step }) => {
+    const canvas = within(canvasElement)
+
+    await step('ページヘッダが表示される', async () => {
+      await expect(await canvas.findByText('ダッシュボード')).toBeVisible()
+      await expect(
+        await canvas.findByText(
+          'ウォッチ中のリポジトリの最新情報をチェックしましょう'
+        )
+      ).toBeVisible()
+    })
+
+    await step('統計カードとリストが描画される', async () => {
+      await expect(
+        await canvas.findByText('ウォッチ中リポジトリ')
+      ).toBeVisible()
+      // 合計数が8として表示される（モックの件数）
+      await expect(await canvas.findByText('8')).toBeVisible()
+
+      // リアルなダミーの一部が描画されていること
+      await expect(await canvas.findByText('nuxt/nuxt')).toBeVisible()
+      await expect(await canvas.findByText('vuejs/awesome-vue')).toBeVisible()
+    })
+  },
 }
 
 export const Loading: Story = {
@@ -210,6 +236,12 @@ export const Empty: Story = {
       handlers: [emptyHandler],
     },
   },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    await expect(
+      await canvas.findByText('ウォッチ中のリポジトリがありません')
+    ).toBeVisible()
+  },
 }
 
 export const Error: Story = {
@@ -217,6 +249,13 @@ export const Error: Story = {
     msw: {
       handlers: [errorHandler],
     },
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    // エラー文言の表示
+    await expect(
+      await canvas.findByText('データの読み込みに失敗しました')
+    ).toBeVisible()
   },
 }
 
@@ -227,5 +266,10 @@ export const ManyRepositories: Story = {
         getGetApiDataSourcesMockHandler(createRealisticMockResponse(25)),
       ],
     },
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    // 合計が25として表示される
+    await expect(await canvas.findByText('25')).toBeVisible()
   },
 }
