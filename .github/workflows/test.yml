@@ -74,6 +74,28 @@ jobs:
       - name: Frontend Build
         run: pnpm --filter frontend build
 
+      - name: VRT Tests
+        run: pnpm --filter frontend test:vrt
+        env:
+          # CI環境でのVRTテスト実行
+          CI: true
+
+      - name: Upload VRT test results
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        if: failure()
+        with:
+          name: vrt-test-results
+          path: packages/frontend/test-results/
+          retention-days: 30
+
+      - name: Upload VRT Playwright report
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        if: failure()
+        with:
+          name: vrt-playwright-report
+          path: packages/frontend/playwright-report-storybook/
+          retention-days: 30
+
   # Backend テスト（バックエンド変更時のみ）
   test-backend:
     runs-on: ubuntu-latest
