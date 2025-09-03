@@ -1,10 +1,5 @@
 import { expect, test } from '@playwright/test'
 
-// Helper to open a story in the iframe
-const gotoStory = async (path: string, page = test.info().project.name) => {
-  // No-op, kept for possible per-project handling later
-}
-
 const storyUrl = (id: string) => `/iframe.html?id=${id}&viewMode=story`
 
 // Prevent flakiness due to animations/transitions

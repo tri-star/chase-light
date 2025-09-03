@@ -123,7 +123,7 @@ const createRealisticMockResponse = (
             language: repo.language,
             starsCount: repo.starsCount,
             forksCount: Math.floor(repo.starsCount / 10),
-            openIssuesCount: Math.floor(Math.random() * 100),
+            openIssuesCount: 1,
             isFork: false,
             createdAt: new Date(
               Date.now() - Math.random() * 365 * 24 * 60 * 60 * 1000
@@ -145,8 +145,8 @@ const createRealisticMockResponse = (
           dataSourceId: `repo-${i + 1}`,
           notificationEnabled: true,
           watchReleases: true,
-          watchIssues: Math.random() > 0.5,
-          watchPullRequests: Math.random() > 0.5,
+          watchIssues: true,
+          watchPullRequests: true,
           addedAt: new Date(
             Date.now() - Math.random() * 30 * 24 * 60 * 60 * 1000
           ).toISOString(),
