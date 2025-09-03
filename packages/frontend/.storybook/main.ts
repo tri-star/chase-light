@@ -9,6 +9,7 @@ const config: StorybookConfig = {
     '@storybook/addon-essentials',
     '@chromatic-com/storybook',
     '@storybook/addon-docs',
+    'msw-storybook-addon',
   ],
   framework: {
     name: '@storybook-vue/nuxt',
@@ -17,5 +18,6 @@ const config: StorybookConfig = {
   docs: {
     autodocs: 'tag',
   },
+  staticDirs: ['./public'],
 }
 export default config
