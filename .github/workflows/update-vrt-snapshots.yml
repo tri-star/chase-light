@@ -36,11 +36,14 @@ jobs:
           # Check if there are any changes
           if [ -n "$(git status --porcelain)" ]; then
             git add .
-            git commit -m "ci: VRTスナップショットを更新
-
-🤖 Generated with Claude Code
-
-Co-Authored-By: Claude <noreply@anthropic.com>"
+            git commit -m "$(cat <<'EOF'
+          ci: VRTスナップショットを更新
+          
+          🤖 Generated with Claude Code
+          
+          Co-Authored-By: Claude <noreply@anthropic.com>
+          EOF
+          )"
             git push
             echo "VRT snapshots have been updated and committed."
           else
