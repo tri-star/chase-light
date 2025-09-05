@@ -161,42 +161,12 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v4
 
-      - name: Setup pnpm
-        uses: pnpm/action-setup@a7487c7e89a18df4991f7f222e4898a00d66ddda # v4
-        with:
-          run_install: false
-
-      - name: Install CJK fonts
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y --no-install-recommends fonts-noto-cjk fonts-noto-color-emoji
-          sudo fc-cache -f
-
-      - name: Setup Node.js
-        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
-        with:
-          node-version: "24"
-          cache: "pnpm"
-
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile
-
-      - name: Cache Playwright browsers
-        uses: actions/cache@0400d5f644dc74513175e3cd8d07132dd4860809 # v4
-        id: playwright-cache
-        with:
-          path: ~/.cache/ms-playwright
-          key: ${{ runner.os }}-playwright-${{ hashFiles('packages/frontend/pnpm-lock.yaml') }}
-          restore-keys: |
-            ${{ runner.os }}-playwright-
+      - name: Setup Playwright Environment
+        uses: ./.github/actions/setup-playwright-environment
 
       - name: Initialize database
         run: |
           pnpm --filter backend test:migrate
-
-      - name: Install Playwright browsers
-        run: pnpm --filter frontend test:e2e:install
-        # if: steps.playwright-cache.outputs.cache-hit != 'true'
 
       - name: Build frontend
         run: |
