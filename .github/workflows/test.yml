@@ -134,7 +134,7 @@ jobs:
     timeout-minutes: 10
     needs: [detect-changes, test-frontend, test-backend]
     if: |
-      always() && 
+      always() &&
       (
         (needs.detect-changes.outputs.frontend-changed == 'true' && needs.test-frontend.result == 'success') ||
         (needs.detect-changes.outputs.backend-changed == 'true' && needs.test-backend.result == 'success') ||
@@ -165,6 +165,12 @@ jobs:
         uses: pnpm/action-setup@a7487c7e89a18df4991f7f222e4898a00d66ddda # v4
         with:
           run_install: false
+
+      - name: Install CJK fonts
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends fonts-noto-cjk fonts-noto-color-emoji
+          sudo fc-cache -f
 
       - name: Setup Node.js
         uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
