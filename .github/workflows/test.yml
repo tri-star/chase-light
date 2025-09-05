@@ -134,7 +134,7 @@ jobs:
     timeout-minutes: 10
     needs: [detect-changes, test-frontend, test-backend]
     if: |
-      always() && 
+      always() &&
       (
         (needs.detect-changes.outputs.frontend-changed == 'true' && needs.test-frontend.result == 'success') ||
         (needs.detect-changes.outputs.backend-changed == 'true' && needs.test-backend.result == 'success') ||
@@ -161,36 +161,12 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v4
 
-      - name: Setup pnpm
-        uses: pnpm/action-setup@a7487c7e89a18df4991f7f222e4898a00d66ddda # v4
-        with:
-          run_install: false
-
-      - name: Setup Node.js
-        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
-        with:
-          node-version: "24"
-          cache: "pnpm"
-
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile
-
-      - name: Cache Playwright browsers
-        uses: actions/cache@0400d5f644dc74513175e3cd8d07132dd4860809 # v4
-        id: playwright-cache
-        with:
-          path: ~/.cache/ms-playwright
-          key: ${{ runner.os }}-playwright-${{ hashFiles('packages/frontend/pnpm-lock.yaml') }}
-          restore-keys: |
-            ${{ runner.os }}-playwright-
+      - name: Setup Playwright Environment
+        uses: ./.github/actions/setup-playwright-environment
 
       - name: Initialize database
         run: |
           pnpm --filter backend test:migrate
-
-      - name: Install Playwright browsers
-        run: pnpm --filter frontend test:e2e:install
-        # if: steps.playwright-cache.outputs.cache-hit != 'true'
 
       - name: Build frontend
         run: |
@@ -213,6 +189,28 @@ jobs:
       - name: Wait for frontend to be ready
         run: |
           timeout 30 bash -c 'until curl -f http://localhost:3000; do sleep 1; done'
+
+      - name: VRT Tests
+        run: pnpm --filter frontend test:vrt
+        env:
+          # CI環境でのVRTテスト実行
+          CI: true
+
+      - name: Upload VRT test results
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        if: failure()
+        with:
+          name: vrt-test-results
+          path: packages/frontend/test-results/
+          retention-days: 30
+
+      - name: Upload VRT Playwright report
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        if: failure()
+        with:
+          name: vrt-playwright-report
+          path: packages/frontend/playwright-report-storybook/
+          retention-days: 30
 
       - name: Run E2E tests
         run: pnpm --filter frontend test:e2e

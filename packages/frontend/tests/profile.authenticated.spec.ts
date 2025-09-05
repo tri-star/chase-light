@@ -9,8 +9,10 @@ test.describe('Authenticated Profile Page', () => {
     // プロファイルページが表示されることを確認
     await expect(page.locator('text=Profile Information')).toBeVisible()
 
-    // ナビゲーションを確認
-    await expect(page.locator('text=Chase Light')).toBeVisible()
+    // ナビゲーションを確認（ヘッダー内のChase Lightとページ内のChase Lightを区別）
+    await expect(
+      page.locator('header').locator('text=Chase Light')
+    ).toBeVisible()
     await expect(page.locator('text=Dashboard')).toBeVisible()
     await expect(page.locator('text=Profile information')).toBeVisible()
   })
@@ -18,10 +20,11 @@ test.describe('Authenticated Profile Page', () => {
   test('should display user profile details', async ({ page }) => {
     await page.goto('/profile')
 
-    // プロファイル情報の表示を確認
-    await expect(page.locator('text=Test User')).toBeVisible()
-    await expect(page.locator('text=test@example.com')).toBeVisible()
-    await expect(page.locator('text=test-user-123')).toBeVisible()
+    // プロファイル情報の表示を確認（ページ内のメインコンテンツから探す）
+    const mainContent = page.locator('main')
+    await expect(mainContent.locator('text=Test User')).toBeVisible()
+    await expect(mainContent.locator('text=test@example.com')).toBeVisible()
+    await expect(mainContent.locator('text=test-user-123')).toBeVisible()
     await expect(page.locator('[data-testid="auth-provider"]')).toContainText(
       'github'
     )
@@ -35,7 +38,9 @@ test.describe('Authenticated Profile Page', () => {
 
     // ダッシュボードページに移動することを確認
     await page.waitForURL('/dashboard')
-    await expect(page.locator('h1')).toContainText('Dashboard')
+    await expect(
+      page.locator('h1').filter({ hasText: 'ダッシュボード' })
+    ).toBeVisible()
   })
 
   // test('should redirect to login when accessing profile without auth', async ({ browser }) => {

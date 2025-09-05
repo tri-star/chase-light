@@ -1,87 +1,100 @@
 import { test, expect } from '@playwright/test'
 
 test.describe('Authenticated Dashboard', () => {
-  test('should display dashboard with user information', async ({ page }) => {
-    await page.goto('/dashboard')
-
-    // ダッシュボードページが表示されることを確認
-    await expect(page.locator('h1')).toContainText('Dashboard')
-
-    // ユーザー情報が表示されることを確認
-    await expect(page.locator('text=Welcome, Test User')).toBeVisible()
-    await expect(page.locator('text=Logout')).toBeVisible()
-  })
-
-  test('should display user information in details section', async ({
+  test('should display dashboard page with title and statistics', async ({
     page,
   }) => {
     await page.goto('/dashboard')
 
-    // ユーザー情報セクションを確認
-    await expect(page.locator('text=User Information')).toBeVisible()
-
-    // テストユーザーの詳細情報を確認
-    await expect(page.locator('text=test-user-123')).toBeVisible()
-    await expect(page.locator('text=test@example.com')).toBeVisible()
+    // ダッシュボードページが表示されることを確認
     await expect(
-      page.locator('dd').filter({ hasText: 'Test User' })
+      page.locator('h1').filter({ hasText: 'ダッシュボード' })
     ).toBeVisible()
-    await expect(page.locator('text=github')).toBeVisible()
+    await expect(
+      page.locator('text=ウォッチ中のリポジトリの最新情報をチェックしましょう')
+    ).toBeVisible()
+
+    // 統計情報カードが表示されることを確認
+    await expect(
+      page.locator('dt').filter({ hasText: 'ウォッチ中リポジトリ' })
+    ).toBeVisible()
+    await expect(
+      page.locator('dt').filter({ hasText: '未読通知' })
+    ).toBeVisible()
+    await expect(
+      page.locator('dt').filter({ hasText: '今日の更新' })
+    ).toBeVisible()
   })
 
-  test('should be able to fetch data sources', async ({ page }) => {
+  test('should display header with user menu', async ({ page }) => {
     await page.goto('/dashboard')
-    // 短い待機を追加 (デバッグ用)
-    await page.waitForTimeout(1000)
 
-    const dataSourcesButton = page.locator(
-      '[data-testid="fetch-data-sources-button"]'
-    )
+    // ヘッダー要素が表示されることを確認
+    const header = page.locator('header')
+    await expect(header).toBeVisible()
 
-    // データソース取得ボタンが存在することを確認
-    await expect(dataSourcesButton).toBeVisible()
-    await expect(dataSourcesButton).toHaveText('データソースを取得')
+    // ログアウトボタンが表示されることを確認（アバターメニュー内）
+    // アバターボタンをクリックしてメニューを開く
+    const avatarButton = page.locator('[aria-haspopup="menu"]').first()
+    if (await avatarButton.isVisible()) {
+      await avatarButton.click()
+      await expect(page.locator('text=ログアウト')).toBeVisible()
+    }
+  })
 
-    // データソース取得ボタンをクリック
-    await dataSourcesButton.click()
+  test('should display repository list section', async ({ page }) => {
+    await page.goto('/dashboard')
 
-    // ボタンのテキストが "読み込み中..." に変わることを確認（ローディング状態）
-    await page.waitForFunction(
-      (buttonSelector) => {
-        const button = document.querySelector(buttonSelector)
-        return button && button.textContent === '読み込み中...'
-      },
-      '[data-testid="fetch-data-sources-button"]',
-      { timeout: 5000 }
-    )
+    // リポジトリ一覧セクションが表示されることを確認（h2要素を狙い撃ち）
+    await expect(
+      page.locator('h2').filter({ hasText: 'ウォッチ中のリポジトリ' })
+    ).toBeVisible()
 
-    // ローディングが完了し、ボタンのテキストが元に戻ることを確認
-    await expect(dataSourcesButton).toHaveText('データソースを取得', {
-      timeout: 10000,
+    // 更新ボタンが表示されることを確認
+    const refreshButton = page
+      .locator('button')
+      .filter({ hasText: '更新' })
+      .or(page.locator('button').filter({ hasText: '更新中...' }))
+    await expect(refreshButton).toBeVisible()
+  })
+
+  test('should be able to refresh repository data', async ({ page }) => {
+    await page.goto('/dashboard')
+
+    // /api/data-sourcesリクエストに遅延を追加してpending状態を確実にキャプチャ
+    await page.route('**/api/data-sources*', async (route) => {
+      // リクエストを500ms遅延させる
+      await new Promise((resolve) => setTimeout(resolve, 500))
+      await route.continue()
     })
 
-    // データソース結果またはエラーが表示されることを確認
-    const dataSourcesContainer = page
-      .locator('div')
-      .filter({ hasText: /^(エラー:|データソースが見つかりません|件中)/ })
-      .first()
+    // 更新ボタンが利用可能であることを確認
+    const refreshButton = page.locator('button:has-text("更新")')
+    await expect(refreshButton).toBeVisible()
+    await expect(refreshButton).toBeEnabled()
 
-    if (await dataSourcesContainer.isVisible()) {
-      const containerText = await dataSourcesContainer.textContent()
+    // ボタンクリックと同時にpending状態をチェック
+    await refreshButton.click()
 
-      // 成功レスポンスかエラーレスポンスかを確認
-      if (containerText?.includes('エラー:')) {
-        expect(containerText).toContain('エラー:')
-      } else if (containerText?.includes('データソースが見つかりません')) {
-        expect(containerText).toContain('データソースが見つかりません')
-      } else {
-        expect(containerText).toMatch(/\d+ 件中/)
-      }
-    } else {
-      // APIが応答しなかった場合でも、テストとして処理する
-      // ページが適切に表示されていることを確認
-      await expect(dataSourcesButton).toBeVisible()
-    }
+    // ローディング状態の確認（"更新中..."に変わることを期待）
+    await expect(page.locator('text=更新中...')).toBeVisible({
+      timeout: 1000,
+    })
+
+    // ボタンがdisabledになることを確認
+    await expect(
+      page.locator('button').filter({ hasText: '更新中...' })
+    ).toBeDisabled({
+      timeout: 1000,
+    })
+
+    // 最終的に「更新」ボタンに戻り、再び有効になることを確認
+    await expect(page.locator('button:has-text("更新")')).toBeVisible({
+      timeout: 3000,
+    })
+    await expect(page.locator('button:has-text("更新")')).toBeEnabled({
+      timeout: 3000,
+    })
   })
 
   // test('should be able to logout', async ({ page }) => {

@@ -86,6 +86,11 @@
 </template>
 
 <script setup>
+// ゲストレイアウトを使用
+definePageMeta({
+  layout: 'guest',
+})
+
 const { user, isLoggedIn, login, logout } = useAuth()
 
 // メタ情報

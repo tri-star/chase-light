@@ -10,7 +10,9 @@ setup('authenticate', async ({ page }) => {
   await page.waitForURL('/dashboard', { timeout: 10000 })
 
   // ログイン状態であることを確認（ダッシュボードページが表示される）
-  await expect(page.locator('h1')).toContainText('Dashboard', {
+  await expect(
+    page.locator('h1').filter({ hasText: 'ダッシュボード' })
+  ).toBeVisible({
     timeout: 10000,
   })
 
