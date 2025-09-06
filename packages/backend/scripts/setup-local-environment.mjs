@@ -58,7 +58,7 @@ const CONFIG = {
   ),
   stateMachineName: "repository-monitoring-local",
   awsRegion: "us-east-1",
-  samPort: 3001,
+  samPort: 3002,
   dbPort: process.env.DB_PORT || 5432,
 }
 

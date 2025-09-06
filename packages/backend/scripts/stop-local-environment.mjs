@@ -95,19 +95,19 @@ function stopSamLocal() {
   } else {
     // PIDファイルがない場合は、ポートを使用しているプロセスを探して終了
     log.info(
-      "PIDファイルが見つかりません。ポート3001を使用しているプロセスをチェック中...",
+      "PIDファイルが見つかりません。ポート3002を使用しているプロセスをチェック中...",
     )
     try {
-      const result = execSync("lsof -ti:3001", { encoding: "utf8" }).trim()
+      const result = execSync("lsof -ti:3002", { encoding: "utf8" }).trim()
       if (result) {
         log.info("ポート3001を使用しているプロセスを停止中...")
-        execSync("lsof -ti:3001 | xargs kill", { stdio: "ignore" })
-        log.success("ポート3001のプロセス停止完了")
+        execSync("lsof -ti:3002 | xargs kill", { stdio: "ignore" })
+        log.success("ポート3002のプロセス停止完了")
       } else {
-        log.info("ポート3001を使用しているプロセスは見つかりませんでした")
+        log.info("ポート3002を使用しているプロセスは見つかりませんでした")
       }
     } catch (error) {
-      log.info("ポート3001を使用しているプロセスは見つかりませんでした")
+      log.info("ポート3002を使用しているプロセスは見つかりませんでした")
     }
   }
 }

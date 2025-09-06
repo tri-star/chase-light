@@ -36,7 +36,7 @@ services:
     ports:
       - "8083:8083"
     environment:
-      - LAMBDA_ENDPOINT=http://host.docker.internal:3001
+      - LAMBDA_ENDPOINT=http://host.docker.internal:3002
       - SFN_MOCK_CONFIG=/home/stepfunctions/MockConfigFile.json
       - SQS_ENDPOINT=http://elasticmq:9324
     env_file:

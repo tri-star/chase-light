@@ -87,7 +87,7 @@ pnpm local:start --wait
 サービス一覧:
   - PostgreSQL: localhost:5432
   - StepFunctions Local: http://localhost:8083
-  - SAM Local: http://localhost:3001
+  - SAM Local: http://localhost:3002
   - ElasticMQ Web UI: http://localhost:9325
 
 ステートマシンARN: arn:aws:states:us-east-1:123456789012:stateMachine:repository-monitoring-local
@@ -118,7 +118,7 @@ docker compose exec db pg_isready -U postgres -d chase_light
 curl -f http://localhost:8083/
 
 # SAM Local確認
-curl -f http://localhost:3001/2015-03-31/functions/list-datasources/invocations
+curl -f http://localhost:3002/2015-03-31/functions/list-datasources/invocations
 ```
 
 ### 4. StepFunctions実行
