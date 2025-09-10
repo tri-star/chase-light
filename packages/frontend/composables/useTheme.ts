@@ -14,6 +14,7 @@ export function useTheme(): ThemeConfig {
   // リアクティブなテーマ設定
   const theme = ref<'light' | 'dark' | 'system'>('system')
   const systemPrefersDark = ref(false)
+  let cleanup: (() => void) | undefined = undefined
 
   // 現在の実際のテーマ（systemの場合はシステム設定を反映）
   const currentTheme = computed(() => {
@@ -26,7 +27,7 @@ export function useTheme(): ThemeConfig {
   /**
    * システムのprefers-color-schemeを監視
    */
-  const watchSystemTheme = () => {
+  function watchSystemTheme() {
     if (typeof window === 'undefined') return
 
     const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)')
@@ -50,7 +51,7 @@ export function useTheme(): ThemeConfig {
   /**
    * HTML要素にdata-theme属性を適用
    */
-  const applyThemeToDOM = (themeValue: 'light' | 'dark') => {
+  function applyThemeToDOM(themeValue: 'light' | 'dark') {
     if (typeof document === 'undefined') return
 
     const html = document.documentElement
@@ -64,7 +65,7 @@ export function useTheme(): ThemeConfig {
   /**
    * ローカルストレージからテーマ設定を読み込み
    */
-  const loadThemeFromStorage = () => {
+  function loadThemeFromStorage() {
     if (typeof localStorage === 'undefined') return
 
     try {
@@ -80,7 +81,7 @@ export function useTheme(): ThemeConfig {
   /**
    * テーマ設定をローカルストレージに保存
    */
-  const saveThemeToStorage = (themeValue: 'light' | 'dark' | 'system') => {
+  function saveThemeToStorage(themeValue: 'light' | 'dark' | 'system') {
     if (typeof localStorage === 'undefined') return
 
     try {
@@ -93,7 +94,7 @@ export function useTheme(): ThemeConfig {
   /**
    * テーマを設定
    */
-  const setTheme = (newTheme: 'light' | 'dark' | 'system') => {
+  function setTheme(newTheme: 'light' | 'dark' | 'system') {
     // バリデーション
     if (!['light', 'dark', 'system'].includes(newTheme)) {
       console.warn('無効なテーマが指定されました:', newTheme)
@@ -116,12 +117,12 @@ export function useTheme(): ThemeConfig {
   // 初期化処理
   onMounted(() => {
     loadThemeFromStorage()
-    const cleanup = watchSystemTheme()
+    cleanup = watchSystemTheme()
+  })
 
-    // コンポーネントのアンマウント時にクリーンアップ
-    onBeforeUnmount(() => {
-      cleanup?.()
-    })
+  // コンポーネントのアンマウント時にクリーンアップ
+  onBeforeUnmount(() => {
+    cleanup?.()
   })
 
   // SSRの場合は初期値を適用
