@@ -1,34 +1,31 @@
-import type { GitHubDataSource, UserWatch } from "../domain";
-import type {
-  DataSourceRepository,
-  UserWatchRepository,
-} from "../repositories";
-import type { UserRepository } from "../../user/repositories/user.repository";
-import { DataSourceNotFoundError, UserNotFoundError } from "../errors";
-import { TransactionManager } from "../../../core/db";
+import type { GitHubDataSource, UserWatch } from "../domain"
+import type { DataSourceRepository, UserWatchRepository } from "../repositories"
+import type { UserRepository } from "../../user/repositories/user.repository"
+import { DataSourceNotFoundError, UserNotFoundError } from "../errors"
+import { TransactionManager } from "../../../core/db"
 
 /**
  * データソース更新サービスの入力DTO
  */
 export type UpdateDataSourceInputDto = {
-  dataSourceId: string;
-  userId: string;
-  name?: string;
-  description?: string;
-  notificationEnabled?: boolean;
-  watchReleases?: boolean;
-  watchIssues?: boolean;
-  watchPullRequests?: boolean;
-};
+  dataSourceId: string
+  userId: string
+  name?: string
+  description?: string
+  notificationEnabled?: boolean
+  watchReleases?: boolean
+  watchIssues?: boolean
+  watchPullRequests?: boolean
+}
 
 /**
  * データソース更新サービスの出力DTO
  * GitHubDataSourceにはrepository情報が内包されている
  */
 export type UpdateDataSourceOutputDto = {
-  dataSource: GitHubDataSource;
-  userWatch: UserWatch;
-};
+  dataSource: GitHubDataSource
+  userWatch: UserWatch
+}
 
 /**
  * データソース更新サービス
@@ -49,9 +46,9 @@ export class DataSourceUpdateService {
   ): Promise<UpdateDataSourceOutputDto> {
     return await TransactionManager.transaction(async () => {
       // Auth0 UserIDからユーザーのDBレコードを取得
-      const user = await this.userRepository.findByAuth0Id(input.userId);
+      const user = await this.userRepository.findByAuth0Id(input.userId)
       if (!user) {
-        throw new UserNotFoundError(input.userId);
+        throw new UserNotFoundError(input.userId)
       }
 
       // 権限チェック付きでデータソース詳細を取得
@@ -59,14 +56,14 @@ export class DataSourceUpdateService {
         await this.dataSourceRepository.findByIdWithUserAccess(
           input.dataSourceId,
           user.id,
-        );
+        )
 
       if (!currentData) {
-        throw new DataSourceNotFoundError(input.dataSourceId);
+        throw new DataSourceNotFoundError(input.dataSourceId)
       }
 
       // データソース基本情報の更新（name, descriptionが指定されている場合のみ）
-      let updatedDataSource = currentData.dataSource;
+      let updatedDataSource = currentData.dataSource
       if (input.name !== undefined || input.description !== undefined) {
         const updateResult =
           await this.dataSourceRepository.updateByIdWithUserAccess(
@@ -76,15 +73,15 @@ export class DataSourceUpdateService {
               name: input.name,
               description: input.description,
             },
-          );
+          )
 
         if (updateResult) {
-          updatedDataSource = updateResult;
+          updatedDataSource = updateResult
         }
       }
 
       // ユーザーウォッチ設定の更新（監視設定が指定されている場合のみ）
-      let updatedUserWatch = currentData.userWatch;
+      let updatedUserWatch = currentData.userWatch
       if (
         input.notificationEnabled !== undefined ||
         input.watchReleases !== undefined ||
@@ -101,17 +98,17 @@ export class DataSourceUpdateService {
               watchIssues: input.watchIssues,
               watchPullRequests: input.watchPullRequests,
             },
-          );
+          )
 
         if (watchUpdateResult) {
-          updatedUserWatch = watchUpdateResult;
+          updatedUserWatch = watchUpdateResult
         }
       }
 
       return {
         dataSource: updatedDataSource,
         userWatch: updatedUserWatch,
-      };
-    });
+      }
+    })
   }
 }

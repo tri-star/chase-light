@@ -1,13 +1,13 @@
-import { eq, and, desc, sql, inArray } from "drizzle-orm";
-import { randomUUID } from "crypto";
-import { TransactionManager } from "../../../core/db";
-import { events } from "../../../db/schema";
+import { eq, and, desc, sql, inArray } from "drizzle-orm"
+import { randomUUID } from "crypto"
+import { TransactionManager } from "../../../core/db"
+import { events } from "../../../db/schema"
 import {
   type EventStatus,
   type EventType,
   type Event,
   EVENT_STATUS,
-} from "../domain/event";
+} from "../domain/event"
 
 /**
  * イベント情報の保存・更新を行うRepository
@@ -18,21 +18,21 @@ export class EventRepository {
    * GitHub event IDによる重複チェックを行い、既存の場合は更新する
    */
   async upsert(data: {
-    id?: string;
-    dataSourceId: string;
-    githubEventId: string;
-    eventType: EventType;
-    title: string;
-    body: string;
-    version?: string | null;
-    status?: EventStatus;
-    statusDetail?: string | null;
-    githubData?: string | null;
-    createdAt: Date;
+    id?: string
+    dataSourceId: string
+    githubEventId: string
+    eventType: EventType
+    title: string
+    body: string
+    version?: string | null
+    status?: EventStatus
+    statusDetail?: string | null
+    githubData?: string | null
+    createdAt: Date
   }): Promise<{ id: string; isNew: boolean }> {
-    const now = new Date();
-    const id = data.id || randomUUID();
-    const connection = await TransactionManager.getConnection();
+    const now = new Date()
+    const id = data.id || randomUUID()
+    const connection = await TransactionManager.getConnection()
 
     const insertData = {
       id,
@@ -47,7 +47,7 @@ export class EventRepository {
       githubData: data.githubData ?? null,
       createdAt: data.createdAt,
       updatedAt: now,
-    } as const;
+    } as const
 
     // onConflictDoUpdateでアトミックにupsert
     const [result] = await connection
@@ -65,11 +65,11 @@ export class EventRepository {
           updatedAt: insertData.updatedAt,
         },
       })
-      .returning({ id: events.id });
+      .returning({ id: events.id })
 
     // result.idが既存か新規かは判別できないため、isNewは常にfalseにするか、必要なら別途工夫が必要
     // ここでは一旦isNew: falseで返す
-    return { id: result.id, isNew: false };
+    return { id: result.id, isNew: false }
   }
 
   /**
@@ -77,25 +77,25 @@ export class EventRepository {
    */
   async upsertMany(
     dataList: Array<{
-      id?: string;
-      dataSourceId: string;
-      githubEventId: string;
-      eventType: EventType;
-      title: string;
-      body: string;
-      version?: string | null;
-      status?: EventStatus;
-      statusDetail?: string | null;
-      githubData?: string | null;
-      createdAt: Date;
+      id?: string
+      dataSourceId: string
+      githubEventId: string
+      eventType: EventType
+      title: string
+      body: string
+      version?: string | null
+      status?: EventStatus
+      statusDetail?: string | null
+      githubData?: string | null
+      createdAt: Date
     }>,
   ): Promise<{ newEventIds: string[]; updatedCount: number }> {
     if (dataList.length === 0) {
-      return { newEventIds: [], updatedCount: 0 };
+      return { newEventIds: [], updatedCount: 0 }
     }
 
-    const now = new Date();
-    const connection = await TransactionManager.getConnection();
+    const now = new Date()
+    const connection = await TransactionManager.getConnection()
     const insertDataList = dataList.map((data) => ({
       id: data.id || randomUUID(),
       dataSourceId: data.dataSourceId,
@@ -109,7 +109,7 @@ export class EventRepository {
       githubData: data.githubData ?? null,
       createdAt: data.createdAt,
       updatedAt: now,
-    }));
+    }))
 
     // バルクinsert+onConflictDoUpdate
     const results = await connection
@@ -127,13 +127,13 @@ export class EventRepository {
           updatedAt: sql`excluded.updated_at`,
         },
       })
-      .returning({ id: events.id });
+      .returning({ id: events.id })
 
     // 新規作成か既存更新かは判別できないため、全idをnewEventIdsに入れる
     return {
       newEventIds: results.map((r: (typeof results)[number]) => r.id),
       updatedCount: 0,
-    };
+    }
   }
 
   /**
@@ -143,16 +143,16 @@ export class EventRepository {
   async getLastCheckTimeForDataSource(
     dataSourceId: string,
   ): Promise<Date | null> {
-    const connection = await TransactionManager.getConnection();
+    const connection = await TransactionManager.getConnection()
 
     const result = await connection
       .select({ createdAt: events.createdAt })
       .from(events)
       .where(eq(events.dataSourceId, dataSourceId))
       .orderBy(desc(events.createdAt))
-      .limit(1);
+      .limit(1)
 
-    return result.length > 0 ? result[0].createdAt : null;
+    return result.length > 0 ? result[0].createdAt : null
   }
 
   /**
@@ -160,18 +160,18 @@ export class EventRepository {
    */
   async findByIds(eventIds: string[]): Promise<Event[]> {
     if (eventIds.length === 0) {
-      return [];
+      return []
     }
 
-    const connection = await TransactionManager.getConnection();
+    const connection = await TransactionManager.getConnection()
 
     const results = await connection
       .select()
       .from(events)
       .where(inArray(events.id, eventIds))
-      .orderBy(desc(events.createdAt));
+      .orderBy(desc(events.createdAt))
 
-    return results.map(this.mapToDomain);
+    return results.map(this.mapToDomain)
   }
 
   /**
@@ -182,8 +182,8 @@ export class EventRepository {
     status: EventStatus,
     statusDetail?: string | null,
   ): Promise<boolean> {
-    const connection = await TransactionManager.getConnection();
-    const now = new Date();
+    const connection = await TransactionManager.getConnection()
+    const now = new Date()
 
     const result = await connection
       .update(events)
@@ -192,9 +192,9 @@ export class EventRepository {
         statusDetail,
         updatedAt: now,
       })
-      .where(eq(events.id, eventId));
+      .where(eq(events.id, eventId))
 
-    return (result.rowCount ?? 0) > 0;
+    return (result.rowCount ?? 0) > 0
   }
 
   /**
@@ -207,8 +207,8 @@ export class EventRepository {
     status: EventStatus,
     statusDetail?: string | null,
   ): Promise<boolean> {
-    const connection = await TransactionManager.getConnection();
-    const now = new Date();
+    const connection = await TransactionManager.getConnection()
+    const now = new Date()
 
     const result = await connection
       .update(events)
@@ -219,9 +219,9 @@ export class EventRepository {
         statusDetail,
         updatedAt: now,
       })
-      .where(eq(events.id, eventId));
+      .where(eq(events.id, eventId))
 
-    return (result.rowCount ?? 0) > 0;
+    return (result.rowCount ?? 0) > 0
   }
 
   /**
@@ -233,11 +233,11 @@ export class EventRepository {
     statusDetail?: string | null,
   ): Promise<number> {
     if (eventIds.length === 0) {
-      return 0;
+      return 0
     }
 
-    const connection = await TransactionManager.getConnection();
-    const now = new Date();
+    const connection = await TransactionManager.getConnection()
+    const now = new Date()
 
     const result = await connection
       .update(events)
@@ -246,23 +246,23 @@ export class EventRepository {
         statusDetail,
         updatedAt: now,
       })
-      .where(inArray(events.id, eventIds));
+      .where(inArray(events.id, eventIds))
 
-    return result.rowCount ?? 0;
+    return result.rowCount ?? 0
   }
 
   /**
    * IDでイベントを取得
    */
   async findById(id: string): Promise<Event | null> {
-    const connection = await TransactionManager.getConnection();
+    const connection = await TransactionManager.getConnection()
 
     const result = await connection
       .select()
       .from(events)
-      .where(eq(events.id, id));
+      .where(eq(events.id, id))
 
-    return result.length > 0 ? this.mapToDomain(result[0]) : null;
+    return result.length > 0 ? this.mapToDomain(result[0]) : null
   }
 
   /**
@@ -273,7 +273,7 @@ export class EventRepository {
     status: EventStatus,
     limit = 100,
   ): Promise<Event[]> {
-    const connection = await TransactionManager.getConnection();
+    const connection = await TransactionManager.getConnection()
 
     const results = await connection
       .select()
@@ -282,9 +282,9 @@ export class EventRepository {
         and(eq(events.dataSourceId, dataSourceId), eq(events.status, status)),
       )
       .orderBy(desc(events.createdAt))
-      .limit(limit);
+      .limit(limit)
 
-    return results.map(this.mapToDomain);
+    return results.map(this.mapToDomain)
   }
 
   /**
@@ -295,7 +295,7 @@ export class EventRepository {
     startDate: Date,
     endDate: Date,
   ): Promise<number> {
-    const connection = await TransactionManager.getConnection();
+    const connection = await TransactionManager.getConnection()
 
     const result = await connection
       .select({ count: sql<number>`count(*)` })
@@ -306,9 +306,9 @@ export class EventRepository {
           sql`${events.createdAt} >= ${startDate}`,
           sql`${events.createdAt} <= ${endDate}`,
         ),
-      );
+      )
 
-    return Number(result[0].count);
+    return Number(result[0].count)
   }
 
   /**
@@ -328,6 +328,6 @@ export class EventRepository {
       githubData: row.githubData,
       createdAt: row.createdAt,
       updatedAt: row.updatedAt,
-    };
+    }
   }
 }

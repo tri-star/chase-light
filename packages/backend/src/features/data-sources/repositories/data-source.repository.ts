@@ -9,16 +9,16 @@ import {
   asc,
   desc,
   inArray,
-} from "drizzle-orm";
-import { randomUUID } from "crypto";
-import { TransactionManager } from "../../../core/db";
+} from "drizzle-orm"
+import { randomUUID } from "crypto"
+import { TransactionManager } from "../../../core/db"
 import {
   dataSources,
   repositories,
   userWatches,
   events,
   notifications,
-} from "../../../db/schema";
+} from "../../../db/schema"
 import type {
   DataSource,
   DataSourceCreationInput,
@@ -27,7 +27,7 @@ import type {
   DataSourceListResult,
   DataSourceListItem,
   GitHubDataSource,
-} from "../domain";
+} from "../domain"
 
 /**
  * データソースのリポジトリクラス
@@ -40,10 +40,10 @@ export class DataSourceRepository {
    */
   async save(data: DataSourceCreationInput): Promise<DataSource> {
     return await TransactionManager.transaction(async () => {
-      const now = new Date();
-      const dataSourceId = randomUUID();
-      const repositoryId = randomUUID();
-      const connection = await TransactionManager.getConnection();
+      const now = new Date()
+      const dataSourceId = randomUUID()
+      const repositoryId = randomUUID()
+      const connection = await TransactionManager.getConnection()
 
       if (data.sourceType === "github") {
         // 1. data_sourcesテーブルに保存
@@ -70,7 +70,7 @@ export class DataSourceRepository {
               updatedAt: now,
             },
           })
-          .returning();
+          .returning()
 
         // 2. repositoriesテーブルに保存
         const [repositoryResult] = await connection
@@ -101,7 +101,7 @@ export class DataSourceRepository {
               updatedAt: now,
             },
           })
-          .returning();
+          .returning()
 
         // 3. GitHubDataSource型として返す
         return {
@@ -127,18 +127,18 @@ export class DataSourceRepository {
             createdAt: repositoryResult.createdAt!,
             updatedAt: repositoryResult.updatedAt!,
           },
-        } as GitHubDataSource;
+        } as GitHubDataSource
       }
 
-      throw new Error(`Unsupported sourceType: ${data.sourceType}`);
-    });
+      throw new Error(`Unsupported sourceType: ${data.sourceType}`)
+    })
   }
 
   /**
    * IDでデータソースを検索（repository情報を内包）
    */
   async findById(id: string): Promise<DataSource | null> {
-    const connection = await TransactionManager.getConnection();
+    const connection = await TransactionManager.getConnection()
     const results = await connection
       .select({
         // データソース
@@ -165,13 +165,13 @@ export class DataSourceRepository {
       })
       .from(dataSources)
       .innerJoin(repositories, eq(dataSources.id, repositories.dataSourceId))
-      .where(eq(dataSources.id, id));
+      .where(eq(dataSources.id, id))
 
     if (results.length === 0) {
-      return null;
+      return null
     }
 
-    const row = results[0];
+    const row = results[0]
     if (row.dataSourceType === "github") {
       return {
         id: row.dataSourceId,
@@ -196,10 +196,10 @@ export class DataSourceRepository {
           createdAt: row.repositoryCreatedAt!,
           updatedAt: row.repositoryUpdatedAt!,
         },
-      } as GitHubDataSource;
+      } as GitHubDataSource
     }
 
-    throw new Error(`Unsupported sourceType: ${row.dataSourceType}`);
+    throw new Error(`Unsupported sourceType: ${row.dataSourceType}`)
   }
 
   /**
@@ -209,7 +209,7 @@ export class DataSourceRepository {
     sourceType: string,
     sourceId: string,
   ): Promise<DataSource | null> {
-    const connection = await TransactionManager.getConnection();
+    const connection = await TransactionManager.getConnection()
     const results = await connection
       .select({
         // データソース
@@ -241,13 +241,13 @@ export class DataSourceRepository {
           eq(dataSources.sourceType, sourceType),
           eq(dataSources.sourceId, sourceId),
         ),
-      );
+      )
 
     if (results.length === 0) {
-      return null;
+      return null
     }
 
-    const row = results[0];
+    const row = results[0]
     if (row.dataSourceType === "github") {
       return {
         id: row.dataSourceId,
@@ -272,17 +272,17 @@ export class DataSourceRepository {
           createdAt: row.repositoryCreatedAt!,
           updatedAt: row.repositoryUpdatedAt!,
         },
-      } as GitHubDataSource;
+      } as GitHubDataSource
     }
 
-    throw new Error(`Unsupported sourceType: ${row.dataSourceType}`);
+    throw new Error(`Unsupported sourceType: ${row.dataSourceType}`)
   }
 
   /**
    * 複数のデータソースを検索（repository情報を内包）
    */
   async findMany(filters?: { sourceType?: string }): Promise<DataSource[]> {
-    const connection = await TransactionManager.getConnection();
+    const connection = await TransactionManager.getConnection()
     let query = connection
       .select({
         // データソース
@@ -309,13 +309,13 @@ export class DataSourceRepository {
       })
       .from(dataSources)
       .innerJoin(repositories, eq(dataSources.id, repositories.dataSourceId))
-      .$dynamic();
+      .$dynamic()
 
     if (filters?.sourceType) {
-      query = query.where(eq(dataSources.sourceType, filters.sourceType));
+      query = query.where(eq(dataSources.sourceType, filters.sourceType))
     }
 
-    const results = await query;
+    const results = await query
     return results.map((row) => {
       if (row.dataSourceType === "github") {
         return {
@@ -341,22 +341,22 @@ export class DataSourceRepository {
             createdAt: row.repositoryCreatedAt!,
             updatedAt: row.repositoryUpdatedAt!,
           },
-        } as GitHubDataSource;
+        } as GitHubDataSource
       }
-      throw new Error(`Unsupported sourceType: ${row.dataSourceType}`);
-    });
+      throw new Error(`Unsupported sourceType: ${row.dataSourceType}`)
+    })
   }
 
   /**
    * データソースを削除
    */
   async delete(id: string): Promise<boolean> {
-    const connection = await TransactionManager.getConnection();
+    const connection = await TransactionManager.getConnection()
     const result = await connection
       .delete(dataSources)
-      .where(eq(dataSources.id, id));
+      .where(eq(dataSources.id, id))
 
-    return (result.rowCount ?? 0) > 0;
+    return (result.rowCount ?? 0) > 0
   }
 
   /**
@@ -367,30 +367,30 @@ export class DataSourceRepository {
     userId: string,
     updateData: DataSourceUpdateInput,
   ): Promise<DataSource | null> {
-    const connection = await TransactionManager.getConnection();
+    const connection = await TransactionManager.getConnection()
     // まず権限チェック - ユーザーがこのデータソースをウォッチしているか確認
     const accessCheck = await connection
       .select({ dataSourceId: dataSources.id })
       .from(dataSources)
       .innerJoin(userWatches, eq(dataSources.id, userWatches.dataSourceId))
-      .where(and(eq(dataSources.id, id), eq(userWatches.userId, userId)));
+      .where(and(eq(dataSources.id, id), eq(userWatches.userId, userId)))
 
     if (accessCheck.length === 0) {
-      return null; // アクセス権限なし
+      return null // アクセス権限なし
     }
 
     // 更新用オブジェクト作成
-    const now = new Date();
+    const now = new Date()
     const updateFields: Partial<typeof dataSources.$inferInsert> = {
       updatedAt: now,
-    };
+    }
 
     // 指定されたフィールドのみ更新
     if (updateData.name !== undefined) {
-      updateFields.name = updateData.name;
+      updateFields.name = updateData.name
     }
     if (updateData.description !== undefined) {
-      updateFields.description = updateData.description;
+      updateFields.description = updateData.description
     }
 
     // 更新実行
@@ -398,14 +398,14 @@ export class DataSourceRepository {
       .update(dataSources)
       .set(updateFields)
       .where(eq(dataSources.id, id))
-      .returning();
+      .returning()
 
     if (!result) {
-      return null;
+      return null
     }
 
     // 更新後のデータを取得してGitHubDataSource型で返す
-    return await this.findById(result.id);
+    return await this.findById(result.id)
   }
 
   /**
@@ -415,7 +415,7 @@ export class DataSourceRepository {
     id: string,
     userId: string,
   ): Promise<DataSourceListItem | null> {
-    const connection = await TransactionManager.getConnection();
+    const connection = await TransactionManager.getConnection()
     const results = await connection
       .select({
         // データソース
@@ -453,13 +453,13 @@ export class DataSourceRepository {
       .from(dataSources)
       .innerJoin(repositories, eq(dataSources.id, repositories.dataSourceId))
       .innerJoin(userWatches, eq(dataSources.id, userWatches.dataSourceId))
-      .where(and(eq(dataSources.id, id), eq(userWatches.userId, userId)));
+      .where(and(eq(dataSources.id, id), eq(userWatches.userId, userId)))
 
     if (results.length === 0) {
-      return null;
+      return null
     }
 
-    const row = results[0];
+    const row = results[0]
     if (row.dataSourceType === "github") {
       return {
         dataSource: {
@@ -496,9 +496,9 @@ export class DataSourceRepository {
           watchPullRequests: row.userWatchWatchPullRequests,
           addedAt: row.userWatchAddedAt,
         },
-      };
+      }
     }
-    throw new Error(`Unsupported sourceType: ${row.dataSourceType}`);
+    throw new Error(`Unsupported sourceType: ${row.dataSourceType}`)
   }
 
   /**
@@ -508,7 +508,7 @@ export class DataSourceRepository {
     userId: string,
     filters: DataSourceListFilters = {},
   ): Promise<DataSourceListResult> {
-    const connection = await TransactionManager.getConnection();
+    const connection = await TransactionManager.getConnection()
     // 基本的なクエリ構築
     let query = connection
       .select({
@@ -548,14 +548,14 @@ export class DataSourceRepository {
       .innerJoin(repositories, eq(dataSources.id, repositories.dataSourceId))
       .innerJoin(userWatches, eq(dataSources.id, userWatches.dataSourceId))
       .where(eq(userWatches.userId, userId))
-      .$dynamic();
+      .$dynamic()
 
     // WHERE条件の配列
-    const whereConditions = [eq(userWatches.userId, userId)];
+    const whereConditions = [eq(userWatches.userId, userId)]
 
     // フィルタリング条件を動的に追加
     if (filters.name) {
-      whereConditions.push(ilike(dataSources.name, `%${filters.name}%`));
+      whereConditions.push(ilike(dataSources.name, `%${filters.name}%`))
     }
 
     if (filters.owner) {
@@ -565,7 +565,7 @@ export class DataSourceRepository {
           sql`split_part(${repositories.fullName}, '/', 1)`,
           `%${filters.owner}%`,
         ),
-      );
+      )
     }
 
     if (filters.search) {
@@ -575,68 +575,68 @@ export class DataSourceRepository {
         ilike(dataSources.description, `%${filters.search}%`),
         ilike(dataSources.url, `%${filters.search}%`),
         ilike(repositories.fullName, `%${filters.search}%`),
-      );
+      )
       if (searchCondition) {
-        whereConditions.push(searchCondition);
+        whereConditions.push(searchCondition)
       }
     }
 
     if (filters.sourceType) {
-      whereConditions.push(eq(dataSources.sourceType, filters.sourceType));
+      whereConditions.push(eq(dataSources.sourceType, filters.sourceType))
     }
 
     if (filters.isPrivate !== undefined) {
-      whereConditions.push(eq(dataSources.isPrivate, filters.isPrivate));
+      whereConditions.push(eq(dataSources.isPrivate, filters.isPrivate))
     }
 
     if (filters.language) {
-      whereConditions.push(eq(repositories.language, filters.language));
+      whereConditions.push(eq(repositories.language, filters.language))
     }
 
     if (filters.createdAfter) {
-      whereConditions.push(gte(dataSources.createdAt, filters.createdAfter));
+      whereConditions.push(gte(dataSources.createdAt, filters.createdAfter))
     }
 
     if (filters.createdBefore) {
-      whereConditions.push(lte(dataSources.createdAt, filters.createdBefore));
+      whereConditions.push(lte(dataSources.createdAt, filters.createdBefore))
     }
 
     if (filters.updatedAfter) {
-      whereConditions.push(gte(dataSources.updatedAt, filters.updatedAfter));
+      whereConditions.push(gte(dataSources.updatedAt, filters.updatedAfter))
     }
 
     if (filters.updatedBefore) {
-      whereConditions.push(lte(dataSources.updatedAt, filters.updatedBefore));
+      whereConditions.push(lte(dataSources.updatedAt, filters.updatedBefore))
     }
 
     // WHERE条件を適用
     if (whereConditions.length > 0) {
-      query = query.where(and(...whereConditions));
+      query = query.where(and(...whereConditions))
     }
 
     // ソート条件を適用
-    const sortBy = filters.sortBy || "createdAt";
-    const sortOrder = filters.sortOrder || "desc";
-    const sortFunc = sortOrder === "asc" ? asc : desc;
+    const sortBy = filters.sortBy || "createdAt"
+    const sortOrder = filters.sortOrder || "desc"
+    const sortFunc = sortOrder === "asc" ? asc : desc
 
     switch (sortBy) {
       case "name":
-        query = query.orderBy(sortFunc(dataSources.name));
-        break;
+        query = query.orderBy(sortFunc(dataSources.name))
+        break
       case "createdAt":
-        query = query.orderBy(sortFunc(dataSources.createdAt));
-        break;
+        query = query.orderBy(sortFunc(dataSources.createdAt))
+        break
       case "updatedAt":
-        query = query.orderBy(sortFunc(dataSources.updatedAt));
-        break;
+        query = query.orderBy(sortFunc(dataSources.updatedAt))
+        break
       case "addedAt":
-        query = query.orderBy(sortFunc(userWatches.addedAt));
-        break;
+        query = query.orderBy(sortFunc(userWatches.addedAt))
+        break
       case "starsCount":
-        query = query.orderBy(sortFunc(repositories.starsCount));
-        break;
+        query = query.orderBy(sortFunc(repositories.starsCount))
+        break
       default:
-        query = query.orderBy(sortFunc(dataSources.createdAt));
+        query = query.orderBy(sortFunc(dataSources.createdAt))
     }
 
     // 総件数を取得（ページネーション用）
@@ -645,14 +645,14 @@ export class DataSourceRepository {
       .from(dataSources)
       .innerJoin(repositories, eq(dataSources.id, repositories.dataSourceId))
       .innerJoin(userWatches, eq(dataSources.id, userWatches.dataSourceId))
-      .where(whereConditions.length > 0 ? and(...whereConditions) : undefined);
+      .where(whereConditions.length > 0 ? and(...whereConditions) : undefined)
 
     const [results, [{ count: totalCount }]] = await Promise.all([
       query.limit(filters.limit || 20).offset(filters.offset || 0),
       countQuery,
-    ]);
+    ])
 
-    const total = Number(totalCount);
+    const total = Number(totalCount)
 
     // 結果を変換
     const items = results.map((row: (typeof results)[number]) => {
@@ -692,15 +692,15 @@ export class DataSourceRepository {
             watchPullRequests: row.userWatchWatchPullRequests,
             addedAt: row.userWatchAddedAt,
           },
-        };
+        }
       }
-      throw new Error(`Unsupported sourceType: ${row.dataSourceType}`);
-    });
+      throw new Error(`Unsupported sourceType: ${row.dataSourceType}`)
+    })
 
     return {
       items,
       total,
-    };
+    }
   }
 
   /**
@@ -710,7 +710,7 @@ export class DataSourceRepository {
     dataSourceId: string,
     userId: string,
   ): Promise<boolean> {
-    const connection = await TransactionManager.getConnection();
+    const connection = await TransactionManager.getConnection()
 
     // まず権限チェック - ユーザーがこのデータソースをウォッチしているか確認
     const accessCheck = await connection
@@ -721,10 +721,10 @@ export class DataSourceRepository {
           eq(userWatches.dataSourceId, dataSourceId),
           eq(userWatches.userId, userId),
         ),
-      );
+      )
 
     if (accessCheck.length === 0) {
-      return false; // アクセス権限なし
+      return false // アクセス権限なし
     }
 
     // トランザクション内で関連データを削除
@@ -741,12 +741,10 @@ export class DataSourceRepository {
           )`,
         ),
       ),
-    );
+    )
 
     // 2. 対象データソースのイベントを削除
-    await connection
-      .delete(events)
-      .where(eq(events.dataSourceId, dataSourceId));
+    await connection.delete(events).where(eq(events.dataSourceId, dataSourceId))
 
     // 3. ユーザーのウォッチレコードを削除
     const deleteResult = await connection
@@ -756,8 +754,8 @@ export class DataSourceRepository {
           eq(userWatches.dataSourceId, dataSourceId),
           eq(userWatches.userId, userId),
         ),
-      );
+      )
 
-    return (deleteResult.rowCount ?? 0) > 0;
+    return (deleteResult.rowCount ?? 0) > 0
   }
 }

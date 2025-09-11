@@ -1,32 +1,32 @@
-import type { GitHubDataSource, UserWatch } from "../domain";
-import type { UserWatchRepository } from "../repositories";
-import type { UserRepository } from "../../user/repositories/user.repository";
-import { UserNotFoundError } from "../errors";
-import { DataSourceCreationService } from "./data-source-creation.service";
-import { TransactionManager } from "../../../core/db";
+import type { GitHubDataSource, UserWatch } from "../domain"
+import type { UserWatchRepository } from "../repositories"
+import type { UserRepository } from "../../user/repositories/user.repository"
+import { UserNotFoundError } from "../errors"
+import { DataSourceCreationService } from "./data-source-creation.service"
+import { TransactionManager } from "../../../core/db"
 
 /**
  * データソースウォッチサービスの入力DTO
  */
 export type CreateDataSourceWatchInputDto = {
-  repositoryUrl: string;
-  userId: string;
-  name?: string;
-  description?: string;
-  notificationEnabled?: boolean;
-  watchReleases?: boolean;
-  watchIssues?: boolean;
-  watchPullRequests?: boolean;
-};
+  repositoryUrl: string
+  userId: string
+  name?: string
+  description?: string
+  notificationEnabled?: boolean
+  watchReleases?: boolean
+  watchIssues?: boolean
+  watchPullRequests?: boolean
+}
 
 /**
  * データソースウォッチサービスの出力DTO
  * GitHubDataSourceにはrepository情報が内包されている
  */
 export type CreateDataSourceWatchOutputDto = {
-  dataSource: GitHubDataSource;
-  userWatch: UserWatch;
-};
+  dataSource: GitHubDataSource
+  userWatch: UserWatch
+}
 
 /**
  * データソースウォッチサービス
@@ -51,12 +51,12 @@ export class DataSourceWatchService {
         repositoryUrl: input.repositoryUrl,
         name: input.name,
         description: input.description,
-      });
+      })
 
       // Auth0 UserIDからユーザーのDBレコードを取得
-      const user = await this.userRepository.findByAuth0Id(input.userId);
+      const user = await this.userRepository.findByAuth0Id(input.userId)
       if (!user) {
-        throw new UserNotFoundError(input.userId);
+        throw new UserNotFoundError(input.userId)
       }
 
       // 既存のユーザーウォッチをチェック
@@ -64,7 +64,7 @@ export class DataSourceWatchService {
         await this.userWatchRepository.findByUserAndDataSource(
           user.id,
           dataSource.id,
-        );
+        )
 
       if (existingUserWatch) {
         // 既存のウォッチ設定を更新
@@ -78,18 +78,18 @@ export class DataSourceWatchService {
               watchIssues: input.watchIssues,
               watchPullRequests: input.watchPullRequests,
             },
-          );
+          )
 
         if (!updatedUserWatch) {
           throw new Error(
             `Failed to update UserWatch for userId: ${user.id} and dataSourceId: ${dataSource.id}`,
-          );
+          )
         }
 
         return {
           dataSource,
           userWatch: updatedUserWatch,
-        };
+        }
       }
 
       // 新規ユーザーウォッチ作成
@@ -100,12 +100,12 @@ export class DataSourceWatchService {
         watchReleases: input.watchReleases ?? true,
         watchIssues: input.watchIssues ?? false,
         watchPullRequests: input.watchPullRequests ?? false,
-      });
+      })
 
       return {
         dataSource,
         userWatch,
-      };
-    });
+      }
+    })
   }
 }

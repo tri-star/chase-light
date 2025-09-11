@@ -1,12 +1,12 @@
-import { eq, and } from "drizzle-orm";
-import { randomUUID } from "crypto";
-import { TransactionManager } from "../../../core/db";
-import { userWatches } from "../../../db/schema";
+import { eq, and } from "drizzle-orm"
+import { randomUUID } from "crypto"
+import { TransactionManager } from "../../../core/db"
+import { userWatches } from "../../../db/schema"
 import type {
   UserWatch,
   UserWatchCreationInput,
   UserWatchUpdateInput,
-} from "../domain";
+} from "../domain"
 
 /**
  * ユーザーウォッチのリポジトリクラス
@@ -17,12 +17,10 @@ export class UserWatchRepository {
    * ユーザーウォッチを保存（作成・更新）
    */
   async save(data: UserWatchCreationInput): Promise<UserWatch> {
-    const now = new Date();
-    const id = randomUUID();
+    const now = new Date()
+    const id = randomUUID()
 
-    const [result] = await (
-      await TransactionManager.getConnection()
-    )
+    const [result] = await (await TransactionManager.getConnection())
       .insert(userWatches)
       .values({
         id,
@@ -43,9 +41,9 @@ export class UserWatchRepository {
           watchPullRequests: data.watchPullRequests,
         },
       })
-      .returning();
+      .returning()
 
-    return this.mapToDomain(result);
+    return this.mapToDomain(result)
   }
 
   /**
@@ -55,9 +53,9 @@ export class UserWatchRepository {
     const result = await (await TransactionManager.getConnection())
       .select()
       .from(userWatches)
-      .where(eq(userWatches.id, id));
+      .where(eq(userWatches.id, id))
 
-    return result.length > 0 ? this.mapToDomain(result[0]) : null;
+    return result.length > 0 ? this.mapToDomain(result[0]) : null
   }
 
   /**
@@ -67,9 +65,7 @@ export class UserWatchRepository {
     userId: string,
     dataSourceId: string,
   ): Promise<UserWatch | null> {
-    const result = await (
-      await TransactionManager.getConnection()
-    )
+    const result = await (await TransactionManager.getConnection())
       .select()
       .from(userWatches)
       .where(
@@ -77,9 +73,9 @@ export class UserWatchRepository {
           eq(userWatches.userId, userId),
           eq(userWatches.dataSourceId, dataSourceId),
         ),
-      );
+      )
 
-    return result.length > 0 ? this.mapToDomain(result[0]) : null;
+    return result.length > 0 ? this.mapToDomain(result[0]) : null
   }
 
   /**
@@ -89,9 +85,9 @@ export class UserWatchRepository {
     const results = await (await TransactionManager.getConnection())
       .select()
       .from(userWatches)
-      .where(eq(userWatches.userId, userId));
+      .where(eq(userWatches.userId, userId))
 
-    return results.map(this.mapToDomain);
+    return results.map(this.mapToDomain)
   }
 
   /**
@@ -100,9 +96,9 @@ export class UserWatchRepository {
   async delete(id: string): Promise<boolean> {
     const result = await (await TransactionManager.getConnection())
       .delete(userWatches)
-      .where(eq(userWatches.id, id));
+      .where(eq(userWatches.id, id))
 
-    return (result.rowCount ?? 0) > 0;
+    return (result.rowCount ?? 0) > 0
   }
 
   /**
@@ -119,9 +115,9 @@ export class UserWatchRepository {
           eq(userWatches.userId, userId),
           eq(userWatches.dataSourceId, dataSourceId),
         ),
-      );
+      )
 
-    return (result.rowCount ?? 0) > 0;
+    return (result.rowCount ?? 0) > 0
   }
 
   /**
@@ -133,31 +129,29 @@ export class UserWatchRepository {
     updateData: UserWatchUpdateInput,
   ): Promise<UserWatch | null> {
     // 更新用オブジェクト作成
-    const updateFields: Partial<typeof userWatches.$inferInsert> = {};
+    const updateFields: Partial<typeof userWatches.$inferInsert> = {}
 
     // 指定されたフィールドのみ更新
     if (updateData.notificationEnabled !== undefined) {
-      updateFields.notificationEnabled = updateData.notificationEnabled;
+      updateFields.notificationEnabled = updateData.notificationEnabled
     }
     if (updateData.watchReleases !== undefined) {
-      updateFields.watchReleases = updateData.watchReleases;
+      updateFields.watchReleases = updateData.watchReleases
     }
     if (updateData.watchIssues !== undefined) {
-      updateFields.watchIssues = updateData.watchIssues;
+      updateFields.watchIssues = updateData.watchIssues
     }
     if (updateData.watchPullRequests !== undefined) {
-      updateFields.watchPullRequests = updateData.watchPullRequests;
+      updateFields.watchPullRequests = updateData.watchPullRequests
     }
 
     // 更新するフィールドがない場合は現在の値を返す
     if (Object.keys(updateFields).length === 0) {
-      return this.findByUserAndDataSource(userId, dataSourceId);
+      return this.findByUserAndDataSource(userId, dataSourceId)
     }
 
     // 更新実行
-    const [result] = await (
-      await TransactionManager.getConnection()
-    )
+    const [result] = await (await TransactionManager.getConnection())
       .update(userWatches)
       .set(updateFields)
       .where(
@@ -166,9 +160,9 @@ export class UserWatchRepository {
           eq(userWatches.dataSourceId, dataSourceId),
         ),
       )
-      .returning();
+      .returning()
 
-    return result ? this.mapToDomain(result) : null;
+    return result ? this.mapToDomain(result) : null
   }
 
   /**
@@ -184,6 +178,6 @@ export class UserWatchRepository {
       watchIssues: row.watchIssues,
       watchPullRequests: row.watchPullRequests,
       addedAt: row.addedAt!,
-    };
+    }
   }
 }
