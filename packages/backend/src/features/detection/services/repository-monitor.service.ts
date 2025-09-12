@@ -1,20 +1,20 @@
 import { DataSourceRepository } from "../../data-sources/repositories/data-source.repository"
 import type { DataSource } from "../../data-sources/domain"
 
-export type MonitoringDataSourceInputDto = {
+export type DataSourceUpdateDetectionInputDto = {
   sourceType?: string
 }
 
-export type MonitoringDataSourceOutputDto = {
+export type DataSourceUpdateDetectionOutputDto = {
   dataSources: DataSource[]
 }
 
-export class RepositoryMonitorService {
+export class DataSourceUpdateDetectionService {
   constructor(private dataSourceRepository: DataSourceRepository) {}
 
-  async getMonitoringDataSources(
-    input: MonitoringDataSourceInputDto,
-  ): Promise<MonitoringDataSourceOutputDto> {
+  async listDataSources(
+    input: DataSourceUpdateDetectionInputDto,
+  ): Promise<DataSourceUpdateDetectionOutputDto> {
     const dataSources = await this.dataSourceRepository.findMany({
       sourceType: input.sourceType,
     })

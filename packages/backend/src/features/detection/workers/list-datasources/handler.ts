@@ -1,7 +1,7 @@
 import type { Context } from "aws-lambda"
 import { connectDb } from "../../../../db/connection"
 import { DataSourceRepository } from "../../../data-sources/repositories/data-source.repository"
-import { RepositoryMonitorService } from "../../services/repository-monitor.service"
+import { DataSourceUpdateDetectionService } from "../../services/repository-monitor.service"
 
 interface ListDataSourcesInput {
   sourceType?: string
@@ -33,11 +33,11 @@ export const handler = async (
     await connectDb()
 
     const dataSourceRepository = new DataSourceRepository()
-    const repositoryMonitorService = new RepositoryMonitorService(
+    const repositoryMonitorService = new DataSourceUpdateDetectionService(
       dataSourceRepository,
     )
 
-    const result = await repositoryMonitorService.getMonitoringDataSources({
+    const result = await repositoryMonitorService.listDataSources({
       sourceType: event.sourceType,
     })
 
