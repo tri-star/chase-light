@@ -9,7 +9,7 @@ import type {
   DetectUpdatesInput,
   DetectUpdatesOutput,
 } from "../../domain/detection-types"
-import { DETECTION_ERRORS } from "../../constants/monitoring.constants"
+import { DETECTION_ERRORS } from "../../constants/detection.constants"
 
 /**
  * detect-datasource-updates Lambda関数のハンドラー

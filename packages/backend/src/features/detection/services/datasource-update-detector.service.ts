@@ -7,7 +7,7 @@ import { EVENT_TYPE } from "../domain/detection-types"
 import {
   DETECTION_DEFAULTS,
   DETECTION_ERRORS,
-} from "../constants/monitoring.constants"
+} from "../constants/detection.constants"
 
 /**
  * データソースの更新を検知するサービス
