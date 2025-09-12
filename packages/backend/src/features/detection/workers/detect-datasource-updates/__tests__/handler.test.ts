@@ -6,7 +6,7 @@ import { DataSourceRepository } from "../../../../data-sources/repositories/data
 import { GitHubApiServiceStub } from "../../../../data-sources/services/github-api-service.stub"
 import { EventRepository } from "../../../repositories"
 import { EVENT_STATUS } from "../../../domain/event-status"
-import { EVENT_TYPE } from "../../../domain/monitoring-types"
+import { EVENT_TYPE } from "../../../domain/detection-types"
 
 describe("detect-datasource-updates handler", () => {
   test("GitHub APIのIssue取得でエラーが起きた場合、DBにイベントが保存されない（ロールバックされる）", async () => {

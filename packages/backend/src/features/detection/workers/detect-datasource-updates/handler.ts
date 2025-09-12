@@ -1,6 +1,6 @@
 import type { Context } from "aws-lambda"
 import { connectDb } from "../../../../db/connection"
-import { TransactionManager } from "../../../../shared/db"
+import { TransactionManager } from "../../../../core/db"
 import { DataSourceRepository } from "../../../data-sources/repositories/data-source.repository"
 import { createGitHubApiService } from "../../../data-sources/services/github-api-service.factory"
 import { EventRepository } from "../../repositories"
@@ -8,7 +8,7 @@ import { DataSourceUpdateDetectorService } from "../../services"
 import type {
   DetectUpdatesInput,
   DetectUpdatesOutput,
-} from "../../domain/monitoring-types"
+} from "../../domain/detection-types"
 import { MONITORING_ERRORS } from "../../constants/monitoring.constants"
 
 /**

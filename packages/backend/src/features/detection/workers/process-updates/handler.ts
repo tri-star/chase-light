@@ -1,7 +1,7 @@
 import type { Context } from "aws-lambda"
 import { connectDb } from "../../../../db/connection"
-import { TransactionManager } from "../../../../shared/db"
-import { getOpenAiConfig } from "../../../../shared/config/open-ai"
+import { TransactionManager } from "../../../../core/db"
+import { getOpenAiConfig } from "../../../../core/config/open-ai"
 import { EventRepository } from "../../repositories"
 import { ProcessUpdatesService, createTranslationService } from "../../services"
 

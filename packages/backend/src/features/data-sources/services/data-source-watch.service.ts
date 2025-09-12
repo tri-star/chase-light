@@ -3,7 +3,7 @@ import type { UserWatchRepository } from "../repositories"
 import type { UserRepository } from "../../user/repositories/user.repository"
 import { UserNotFoundError } from "../errors"
 import { DataSourceCreationService } from "./data-source-creation.service"
-import { TransactionManager } from "../../../shared/db"
+import { TransactionManager } from "../../../core/db"
 
 /**
  * データソースウォッチサービスの入力DTO

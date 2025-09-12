@@ -2,8 +2,8 @@
 export const lambdaConfigs = {
   "list-datasources": {
     name: "list-datasources-lambda",
-    description: "List data sources for monitoring",
-    entryPoint: "./src/features/monitoring/workers/list-datasources/index.ts",
+    description: "List data sources for detection",
+    entryPoint: "./src/features/detection/workers/list-datasources/index.ts",
     // バンドルから除外するパッケージ（node_modulesにインストールされる）
     externalPackages: ["@aws-sdk/*", "aws-sdk", "pg", "drizzle-orm", "dotenv"],
     // Lambda関数のpackage.jsonに含める依存関係
@@ -18,7 +18,7 @@ export const lambdaConfigs = {
     name: "detect-datasource-updates-lambda",
     description: "Detect updates for a data source",
     entryPoint:
-      "./src/features/monitoring/workers/detect-datasource-updates/index.ts",
+      "./src/features/detection/workers/detect-datasource-updates/index.ts",
     // バンドルから除外するパッケージ（node_modulesにインストールされる）
     externalPackages: [
       "@aws-sdk/*",
@@ -41,7 +41,7 @@ export const lambdaConfigs = {
     name: "process-updates-lambda",
     description:
       "Process updates for events (SQS handler and direct invocation)",
-    entryPoint: "./src/features/monitoring/workers/process-updates/index.ts",
+    entryPoint: "./src/features/detection/workers/process-updates/index.ts",
     // バンドルから除外するパッケージ（node_modulesにインストールされる）
     externalPackages: [
       "@aws-sdk/*",
