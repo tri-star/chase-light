@@ -3,7 +3,7 @@ import { DataSourceRepository } from "../../data-sources/repositories"
 import type { GitHubApiServiceInterface } from "../../data-sources/services/interfaces/github-api-service.interface"
 import { isGitHubDataSource } from "../../data-sources/domain"
 import { EventRepository } from "../repositories"
-import { EVENT_TYPE } from "../domain/monitoring-types"
+import { EVENT_TYPE } from "../domain/detection-types"
 import {
   MONITORING_DEFAULTS,
   MONITORING_ERRORS,

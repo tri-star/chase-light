@@ -8,7 +8,7 @@ import { DataSourceUpdateDetectorService } from "../../services"
 import type {
   DetectUpdatesInput,
   DetectUpdatesOutput,
-} from "../../domain/monitoring-types"
+} from "../../domain/detection-types"
 import { MONITORING_ERRORS } from "../../constants/monitoring.constants"
 
 /**
