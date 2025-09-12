@@ -5,8 +5,8 @@ import { isGitHubDataSource } from "../../data-sources/domain"
 import { EventRepository } from "../repositories"
 import { EVENT_TYPE } from "../domain/detection-types"
 import {
-  MONITORING_DEFAULTS,
-  MONITORING_ERRORS,
+  DETECTION_DEFAULTS,
+  DETECTION_ERRORS,
 } from "../constants/monitoring.constants"
 
 /**
@@ -26,7 +26,7 @@ export class DataSourceUpdateDetectorService {
     // 1. データソース情報の取得（repository内包）
     const dataSource = await this.dataSourceRepository.findById(dataSourceId)
     if (!dataSource) {
-      throw new Error(MONITORING_ERRORS.DATA_SOURCE_NOT_FOUND)
+      throw new Error(DETECTION_ERRORS.DATA_SOURCE_NOT_FOUND)
     }
 
     // 2. GitHubDataSourceかどうかチェック
@@ -61,7 +61,7 @@ export class DataSourceUpdateDetectorService {
       const error = firstRejected.reason
       if (error instanceof Error) {
         throw new Error(
-          `${MONITORING_ERRORS.GITHUB_API_ERROR}: ${error.message}`,
+          `${DETECTION_ERRORS.GITHUB_API_ERROR}: ${error.message}`,
         )
       }
       throw error
@@ -85,7 +85,7 @@ export class DataSourceUpdateDetectorService {
     sinceDate: Date,
   ): Promise<string[]> {
     const releases = await this.githubApiService.getReleases(owner, repo, {
-      perPage: MONITORING_DEFAULTS.PAGE_SIZE,
+      perPage: DETECTION_DEFAULTS.PAGE_SIZE,
     })
 
     // 日付でフィルタリング
@@ -127,7 +127,7 @@ export class DataSourceUpdateDetectorService {
     const issues = await this.githubApiService.getIssues(owner, repo, {
       state: "all",
       since: sinceDate.toISOString(),
-      perPage: MONITORING_DEFAULTS.PAGE_SIZE,
+      perPage: DETECTION_DEFAULTS.PAGE_SIZE,
     })
 
     // イベントとして保存
@@ -162,7 +162,7 @@ export class DataSourceUpdateDetectorService {
       {
         state: "all",
         since: sinceDate.toISOString(),
-        perPage: MONITORING_DEFAULTS.PAGE_SIZE,
+        perPage: DETECTION_DEFAULTS.PAGE_SIZE,
       },
     )
 
@@ -188,7 +188,7 @@ export class DataSourceUpdateDetectorService {
    */
   private getDefaultSinceDate(): Date {
     const date = new Date()
-    date.setDate(date.getDate() - MONITORING_DEFAULTS.INITIAL_LOOKBACK_DAYS)
+    date.setDate(date.getDate() - DETECTION_DEFAULTS.INITIAL_LOOKBACK_DAYS)
     return date
   }
 }

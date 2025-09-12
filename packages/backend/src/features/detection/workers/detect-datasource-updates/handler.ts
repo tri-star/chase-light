@@ -9,7 +9,7 @@ import type {
   DetectUpdatesInput,
   DetectUpdatesOutput,
 } from "../../domain/detection-types"
-import { MONITORING_ERRORS } from "../../constants/monitoring.constants"
+import { DETECTION_ERRORS } from "../../constants/monitoring.constants"
 
 /**
  * detect-datasource-updates Lambda関数のハンドラー
@@ -26,7 +26,7 @@ export const handler = async (
   // 入力検証
   if (!event.dataSourceId) {
     console.error("Missing required parameter: dataSourceId")
-    throw new Error(MONITORING_ERRORS.INVALID_INPUT)
+    throw new Error(DETECTION_ERRORS.INVALID_INPUT)
   }
 
   try {
