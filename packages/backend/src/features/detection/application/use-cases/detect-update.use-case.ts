@@ -1,18 +1,18 @@
 import { uuidv7 } from "uuidv7"
-import { DataSourceRepository } from "../../data-sources/repositories"
-import type { GitHubApiServiceInterface } from "../../data-sources/services/interfaces/github-api-service.interface"
-import { isGitHubDataSource } from "../../data-sources/domain"
-import { ActivityRepository } from "../repositories"
-import { ACTIVITY_TYPE } from "../domain/detection-types"
+import { DataSourceRepository } from "../../../data-sources/repositories"
+import type { GitHubApiServiceInterface } from "../../../data-sources/services/interfaces/github-api-service.interface"
+import { isGitHubDataSource } from "../../../data-sources/domain"
+import { ActivityRepository } from "../../repositories"
+import { ACTIVITY_TYPE } from "../../domain/detection-types"
 import {
   DETECTION_DEFAULTS,
   DETECTION_ERRORS,
-} from "../constants/detection.constants"
+} from "../../constants/detection.constants"
 
 /**
  * データソースの更新を検知するサービス
  */
-export class DataSourceUpdateDetectorService {
+export class DetectUpdateUseCase {
   constructor(
     private dataSourceRepository: DataSourceRepository,
     private activityRepository: ActivityRepository,

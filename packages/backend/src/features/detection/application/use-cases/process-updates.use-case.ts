@@ -1,6 +1,6 @@
-import { ActivityRepository } from "../repositories/event.repository"
-import { TranslationService } from "./translation.service"
-import { ACTIVITY_STATUS, type Activity } from "../domain/event"
+import { ActivityRepository } from "../../repositories/event.repository"
+import { TranslationService } from "../../services/translation.service"
+import { ACTIVITY_STATUS, type Activity } from "../../domain/event"
 
 interface ProcessUpdatesInputDto {
   activityIds: string[]
@@ -20,7 +20,7 @@ interface ProcessactivityResult {
 /**
  * 検知されたイベントのAI翻訳・状態更新を行うサービス
  */
-export class ProcessUpdatesService {
+export class ProcessUpdatesUseCase {
   constructor(
     private activityRepository: ActivityRepository,
     private translationService: TranslationService,

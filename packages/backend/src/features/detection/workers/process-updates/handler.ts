@@ -3,7 +3,8 @@ import { connectDb } from "../../../../db/connection"
 import { TransactionManager } from "../../../../core/db"
 import { getOpenAiConfig } from "../../../../core/config/open-ai"
 import { ActivityRepository } from "../../repositories"
-import { ProcessUpdatesService, createTranslationService } from "../../services"
+import { createTranslationService } from "../../services"
+import { ProcessUpdatesUseCase } from "../../application/use-cases"
 
 interface ProcessUpdatesInput {
   activityId: string
@@ -44,7 +45,7 @@ export const handler = async (
       const activityRepository = new ActivityRepository()
       const translationService = createTranslationService(openAiConfig.apiKey)
 
-      const processUpdatesService = new ProcessUpdatesService(
+      const processUpdatesService = new ProcessUpdatesUseCase(
         activityRepository,
         translationService,
       )

@@ -4,7 +4,7 @@ import { TransactionManager } from "../../../../core/db"
 import { DataSourceRepository } from "../../../data-sources/repositories/data-source.repository"
 import { createGitHubApiService } from "../../../data-sources/services/github-api-service.factory"
 import { ActivityRepository } from "../../repositories"
-import { DataSourceUpdateDetectorService } from "../../services"
+import { DetectUpdateUseCase } from "../../application/use-cases"
 import type {
   DetectUpdatesInput,
   DetectUpdatesOutput,
@@ -44,7 +44,7 @@ export const handler = async (
       const githubApiService = createGitHubApiService()
 
       // 更新検知サービス
-      const updateDetectorService = new DataSourceUpdateDetectorService(
+      const updateDetectorService = new DetectUpdateUseCase(
         dataSourceRepository,
         activityRepository,
         githubApiService,
