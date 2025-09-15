@@ -2,31 +2,35 @@ import { describe, test, beforeEach, expect, vi } from "vitest"
 import type { Context } from "aws-lambda"
 import { handler } from "../handler"
 import { setupComponentTest } from "../../../../../test"
-import { EventRepository } from "../../../repositories"
+import { ActivityRepository } from "../../../repositories"
 import { DataSourceRepository } from "../../../../data-sources/repositories/data-source.repository"
-import { EVENT_STATUS, EVENT_TYPE, type Event } from "../../../domain/event"
+import {
+  ACTIVITY_STATUS,
+  ACTIVITY_TYPE,
+  type Activity,
+} from "../../../domain/event"
 import { DATA_SOURCE_TYPES } from "../../../../data-sources/domain/data-source"
 import { randomUUID } from "crypto"
 
 describe("process-updates handler", () => {
   setupComponentTest()
 
-  let eventRepository: EventRepository
+  let activityRepository: ActivityRepository
   let dataSourceRepository: DataSourceRepository
   let mockContext: Context
   let testDataSourceId: string
 
   // テストイベントデータファクトリ関数
-  const createTestEvent = (overrides: Partial<Event> = {}): Event => {
-    const defaultEvent: Event = {
+  const createTestEvent = (overrides: Partial<Activity> = {}): Activity => {
+    const defaultEvent: Activity = {
       id: randomUUID(),
       dataSourceId: testDataSourceId,
       githubEventId: `test-event-${randomUUID()}`,
-      eventType: EVENT_TYPE.RELEASE,
+      activityType: ACTIVITY_TYPE.RELEASE,
       title: "Test Event",
       body: "Test event body",
       version: "v1.0.0",
-      status: EVENT_STATUS.PENDING,
+      status: ACTIVITY_STATUS.PENDING,
       statusDetail: null,
       githubData: null,
       createdAt: new Date(),
@@ -36,7 +40,7 @@ describe("process-updates handler", () => {
   }
 
   beforeEach(async () => {
-    eventRepository = new EventRepository()
+    activityRepository = new ActivityRepository()
     dataSourceRepository = new DataSourceRepository()
 
     // テスト用データソースを作成
@@ -84,10 +88,10 @@ describe("process-updates handler", () => {
     const event1 = createTestEvent({
       title: "Version 1.0.0",
       body: "Initial release with new features",
-      eventType: EVENT_TYPE.RELEASE,
+      activityType: ACTIVITY_TYPE.RELEASE,
     })
     // イベントを DB に保存
-    await eventRepository.upsert(event1)
+    await activityRepository.upsert(event1)
 
     // TranslationService をスタブ化
     const { TranslationService } = await import(
@@ -101,19 +105,19 @@ describe("process-updates handler", () => {
 
     try {
       // When: process-updates ハンドラーを実行
-      const result = await handler({ eventId: event1.id }, mockContext)
+      const result = await handler({ activityId: event1.id }, mockContext)
 
       // Then: 処理結果を検証
-      expect(result.processedEventIds).toHaveLength(1)
-      expect(result.failedEventIds).toHaveLength(0)
-      expect(result.processedEventIds).toEqual(
+      expect(result.processedActivityIds).toHaveLength(1)
+      expect(result.failedActivityIds).toHaveLength(0)
+      expect(result.processedActivityIds).toEqual(
         expect.arrayContaining([event1.id]),
       )
 
       // DB の状態を確認
-      const updatedEvent = await eventRepository.findById(event1.id)
+      const updatedEvent = await activityRepository.findById(event1.id)
       expect(updatedEvent).not.toBeNull()
-      expect(updatedEvent!.status).toBe(EVENT_STATUS.COMPLETED)
+      expect(updatedEvent!.status).toBe(ACTIVITY_STATUS.COMPLETED)
       expect(updatedEvent!.title).toBe("[翻訳済み] テストタイトル")
       expect(updatedEvent!.body).toBe("[翻訳済み] テスト本文")
     } finally {
@@ -127,12 +131,12 @@ describe("process-updates handler", () => {
     const completedEvent = createTestEvent({
       title: "Already completed",
       body: "This is already processed",
-      eventType: EVENT_TYPE.RELEASE,
-      status: EVENT_STATUS.COMPLETED,
+      activityType: ACTIVITY_TYPE.RELEASE,
+      status: ACTIVITY_STATUS.COMPLETED,
     })
 
     // イベントを DB に保存
-    await eventRepository.upsert(completedEvent)
+    await activityRepository.upsert(completedEvent)
 
     // TranslationService をスタブ化
     const { TranslationService } = await import(
@@ -147,10 +151,13 @@ describe("process-updates handler", () => {
 
     try {
       // When: 両方のイベントIDを指定してハンドラーを実行
-      const result = await handler({ eventId: completedEvent.id }, mockContext)
+      const result = await handler(
+        { activityId: completedEvent.id },
+        mockContext,
+      )
 
       // Then: 完了済みイベントもprocessedEventIdsに含まれる（スキップされるが成功扱い）
-      expect(result.processedEventIds).toHaveLength(1)
+      expect(result.processedActivityIds).toHaveLength(1)
 
       // 翻訳サービスは 呼び出されない
       expect(mockTranslate).toHaveBeenCalledTimes(0)
@@ -163,11 +170,14 @@ describe("process-updates handler", () => {
   test("無効な入力パラメータの場合、エラーをスローする", async () => {
     // When & Then: 無効な入力でエラーをスロー
     await expect(
-      handler({ eventId: null } as unknown as { eventId: string }, mockContext),
-    ).rejects.toThrow("Invalid input: eventId must be a string")
+      handler(
+        { activityId: null } as unknown as { activityId: string },
+        mockContext,
+      ),
+    ).rejects.toThrow("Invalid input: activityId must be a string")
     await expect(
-      handler({} as unknown as { eventId: string }, mockContext),
-    ).rejects.toThrow("Invalid input: eventId must be a string")
+      handler({} as unknown as { activityId: string }, mockContext),
+    ).rejects.toThrow("Invalid input: activityId must be a string")
   })
 
   test("OpenAI APIキーが設定されていない場合、エラーをスローする", async () => {
@@ -176,7 +186,7 @@ describe("process-updates handler", () => {
 
     // When & Then: APIキー未設定エラー
     await expect(
-      handler({ eventId: randomUUID() }, mockContext),
+      handler({ activityId: randomUUID() }, mockContext),
     ).rejects.toThrow("Failed to get OpenAI configuration")
 
     // Cleanup: APIキーを復元

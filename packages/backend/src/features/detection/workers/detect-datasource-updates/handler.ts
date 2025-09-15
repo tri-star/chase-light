@@ -3,7 +3,7 @@ import { connectDb } from "../../../../db/connection"
 import { TransactionManager } from "../../../../core/db"
 import { DataSourceRepository } from "../../../data-sources/repositories/data-source.repository"
 import { createGitHubApiService } from "../../../data-sources/services/github-api-service.factory"
-import { EventRepository } from "../../repositories"
+import { ActivityRepository } from "../../repositories"
 import { DataSourceUpdateDetectorService } from "../../services"
 import type {
   DetectUpdatesInput,
@@ -20,7 +20,7 @@ export const handler = async (
   event: DetectUpdatesInput,
   context: Context,
 ): Promise<DetectUpdatesOutput> => {
-  console.log("Event:", JSON.stringify(event, null, 2))
+  console.log("activity:", JSON.stringify(event, null, 2))
   console.log("Context:", context.awsRequestId)
 
   // 入力検証
@@ -37,7 +37,7 @@ export const handler = async (
     return await TransactionManager.transaction(async () => {
       // リポジトリとサービスのインスタンス化
       const dataSourceRepository = new DataSourceRepository()
-      const eventRepository = new EventRepository()
+      const activityRepository = new ActivityRepository()
 
       // GitHub APIサービス（現時点では認証なし - 認証を追加することでレート制限が緩和される可能性あり）
       // TODO: Implement authentication for GitHub API to increase rate limits and improve reliability.
@@ -46,20 +46,22 @@ export const handler = async (
       // 更新検知サービス
       const updateDetectorService = new DataSourceUpdateDetectorService(
         dataSourceRepository,
-        eventRepository,
+        activityRepository,
         githubApiService,
       )
 
       // 更新検知実行
       console.log(`Detecting updates for dataSource: ${event.dataSourceId}`)
-      const eventIds = await updateDetectorService.detectUpdates(
+      const activityIds = await updateDetectorService.detectUpdates(
         event.dataSourceId,
       )
 
-      console.log(`Detection completed. Found ${eventIds.length} new events`)
+      console.log(
+        `Detection completed. Found ${activityIds.length} new activities`,
+      )
 
       return {
-        eventIds,
+        activityIds,
       }
     })
   } catch (error) {

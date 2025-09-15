@@ -1,2 +1,2 @@
 // ...existing code...
-export { EVENT_STATUS, EventStatus, isTerminalStatus } from "./event"
+export { ACTIVITY_STATUS, ActivityStatus, isTerminalStatus } from "./event"

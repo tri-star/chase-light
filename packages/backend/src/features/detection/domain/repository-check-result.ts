@@ -12,6 +12,6 @@ export type RepositoryCheckResult = {
   dataSourceId: string
   status: CheckResultStatusType
   lastCheckedAt: Date
-  newEventsCount: number
+  newActivitiesCount: number
   errorMessage?: string
 }

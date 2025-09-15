@@ -2,16 +2,16 @@ import type { Context } from "aws-lambda"
 import { connectDb } from "../../../../db/connection"
 import { TransactionManager } from "../../../../core/db"
 import { getOpenAiConfig } from "../../../../core/config/open-ai"
-import { EventRepository } from "../../repositories"
+import { ActivityRepository } from "../../repositories"
 import { ProcessUpdatesService, createTranslationService } from "../../services"
 
 interface ProcessUpdatesInput {
-  eventId: string
+  activityId: string
 }
 
 interface ProcessUpdatesOutput {
-  processedEventIds: string[]
-  failedEventIds: string[]
+  processedActivityIds: string[]
+  failedActivityIds: string[]
 }
 
 /**
@@ -26,9 +26,9 @@ export const handler = async (
   console.log("Context:", context.awsRequestId)
 
   // 入力検証
-  if (!event.eventId) {
-    console.error("Missing or invalid eventId parameter")
-    throw new Error("Invalid input: eventId must be a string")
+  if (!event.activityId) {
+    console.error("Missing or invalid activityId parameter")
+    throw new Error("Invalid input: activityId must be a string")
   }
 
   try {
@@ -41,24 +41,24 @@ export const handler = async (
       const openAiConfig = await getOpenAiConfig()
 
       // リポジトリとサービスのインスタンス化
-      const eventRepository = new EventRepository()
+      const activityRepository = new ActivityRepository()
       const translationService = createTranslationService(openAiConfig.apiKey)
 
       const processUpdatesService = new ProcessUpdatesService(
-        eventRepository,
+        activityRepository,
         translationService,
       )
 
       // イベント処理実行
-      console.log(`Processing 1 event`)
+      console.log(`Processing 1 activity`)
       const result = await processUpdatesService.execute({
-        eventIds: [event.eventId],
+        activityIds: [event.activityId],
       })
 
       console.log(
         `Processing completed. ` +
-          `Processed: ${result.processedEventIds.length}, ` +
-          `Failed: ${result.failedEventIds.length}`,
+          `Processed: ${result.processedActivityIds.length}, ` +
+          `Failed: ${result.failedActivityIds.length}`,
       )
 
       return result

@@ -4,9 +4,9 @@ import { handler } from "../handler"
 import { setupComponentTest } from "../../../../../test"
 import { DataSourceRepository } from "../../../../data-sources/repositories/data-source.repository"
 import { GitHubApiServiceStub } from "../../../../data-sources/services/github-api-service.stub"
-import { EventRepository } from "../../../repositories"
-import { EVENT_STATUS } from "../../../domain/event-status"
-import { EVENT_TYPE } from "../../../domain/detection-types"
+import { ActivityRepository } from "../../../repositories"
+import { ACTIVITY_STATUS } from "../../../domain/event-status"
+import { ACTIVITY_TYPE } from "../../../domain/detection-types"
 
 describe("detect-datasource-updates handler", () => {
   test("GitHub APIのIssue取得でエラーが起きた場合、DBにイベントが保存されない（ロールバックされる）", async () => {
@@ -52,16 +52,16 @@ describe("detect-datasource-updates handler", () => {
       handler({ dataSourceId: testDataSourceId }, mockContext),
     ).rejects.toThrow("issues fetch error")
 
-    const events = await eventRepository.findByDataSourceAndStatus(
+    const activities = await activityRepository.findByDataSourceAndStatus(
       testDataSourceId,
-      EVENT_STATUS.PENDING,
+      ACTIVITY_STATUS.PENDING,
     )
-    expect(events).toHaveLength(0)
+    expect(activities).toHaveLength(0)
   })
   setupComponentTest()
 
   let dataSourceRepository: DataSourceRepository
-  let eventRepository: EventRepository
+  let activityRepository: ActivityRepository
   let githubApiStub: GitHubApiServiceStub
   let mockContext: Context
 
@@ -70,7 +70,7 @@ describe("detect-datasource-updates handler", () => {
     // 環境変数をstubEnvでセット
     vi.stubEnv("USE_GITHUB_API_STUB", "true")
     dataSourceRepository = new DataSourceRepository()
-    eventRepository = new EventRepository()
+    activityRepository = new ActivityRepository()
     // GitHubApiServiceFactoryから同じインスタンスを取得
     const { createGitHubApiService } = await import(
       "../../../../data-sources/services/github-api-service.factory"
@@ -182,30 +182,33 @@ describe("detect-datasource-updates handler", () => {
     )
 
     // Then: 新規イベントが作成されていることを確認
-    expect(result.eventIds).toHaveLength(3) // Release1個、Issue1個、PR1個
+    expect(result.activityIds).toHaveLength(3) // Release1個、Issue1個、PR1個
 
     // 保存されたイベントを確認
-    const releases = await eventRepository.findByDataSourceAndStatus(
+    const releases = await activityRepository.findByDataSourceAndStatus(
       testDataSourceId,
-      EVENT_STATUS.PENDING,
+      ACTIVITY_STATUS.PENDING,
     )
 
     const savedRelease = releases.find(
-      (e) => e.eventType === EVENT_TYPE.RELEASE && e.githubEventId === "1001",
+      (e) =>
+        e.activityType === ACTIVITY_TYPE.RELEASE && e.githubEventId === "1001",
     )
     expect(savedRelease).toBeDefined()
     expect(savedRelease?.title).toBe("Version 1.0.0")
     expect(savedRelease?.version).toBe("v1.0.0")
 
     const savedIssue = releases.find(
-      (e) => e.eventType === EVENT_TYPE.ISSUE && e.githubEventId === "2001",
+      (e) =>
+        e.activityType === ACTIVITY_TYPE.ISSUE && e.githubEventId === "2001",
     )
     expect(savedIssue).toBeDefined()
     expect(savedIssue?.title).toBe("New bug report")
 
     const savedPR = releases.find(
       (e) =>
-        e.eventType === EVENT_TYPE.PULL_REQUEST && e.githubEventId === "3001",
+        e.activityType === ACTIVITY_TYPE.PULL_REQUEST &&
+        e.githubEventId === "3001",
     )
     expect(savedPR).toBeDefined()
     expect(savedPR?.title).toBe("Fix memory leak")
@@ -220,15 +223,15 @@ describe("detect-datasource-updates handler", () => {
     const threeDaysAgo = new Date(
       new Date().getTime() - 3 * 24 * 60 * 60 * 1000,
     )
-    await eventRepository.upsert({
+    await activityRepository.upsert({
       id: "8e04ab78-4fc7-4618-ae25-4009ceae6bb8",
       dataSourceId: testDataSourceId,
       githubEventId: "9999",
-      eventType: EVENT_TYPE.RELEASE,
+      activityType: ACTIVITY_TYPE.RELEASE,
       title: "Old Release",
       body: "Previous release",
       version: "v0.1.0",
-      status: EVENT_STATUS.COMPLETED,
+      status: ACTIVITY_STATUS.COMPLETED,
       createdAt: threeDaysAgo,
     })
 
@@ -274,19 +277,19 @@ describe("detect-datasource-updates handler", () => {
     )
 
     // Then: 新しいイベントのみが作成されていることを確認
-    expect(result.eventIds).toHaveLength(1)
+    expect(result.activityIds).toHaveLength(1)
 
-    const events = await eventRepository.findByDataSourceAndStatus(
+    const activities = await activityRepository.findByDataSourceAndStatus(
       testDataSourceId,
-      EVENT_STATUS.PENDING,
+      ACTIVITY_STATUS.PENDING,
     )
 
-    const newIssue = events.find((e) => e.githubEventId === "2002")
+    const newIssue = activities.find((e) => e.githubEventId === "2002")
     expect(newIssue).toBeDefined()
     expect(newIssue?.title).toBe("New issue after last check")
 
     // 古いイベントは含まれないことを確認
-    const oldIssue = events.find((e) => e.githubEventId === "2003")
+    const oldIssue = activities.find((e) => e.githubEventId === "2003")
     expect(oldIssue).toBeUndefined()
   })
 
@@ -320,7 +323,7 @@ describe("detect-datasource-updates handler", () => {
     )
 
     // Then: 1件作成される
-    expect(result1.eventIds).toHaveLength(1)
+    expect(result1.activityIds).toHaveLength(1)
 
     // When: 2回目の実行（同じデータ）
     const result2 = await handler(
@@ -329,14 +332,14 @@ describe("detect-datasource-updates handler", () => {
     )
 
     // Then: 新規作成は0件（既存データは更新される）
-    expect(result2.eventIds).toHaveLength(0)
+    expect(result2.activityIds).toHaveLength(0)
 
     // イベントが重複していないことを確認
-    const events = await eventRepository.findByDataSourceAndStatus(
+    const activities = await activityRepository.findByDataSourceAndStatus(
       testDataSourceId,
-      EVENT_STATUS.PENDING,
+      ACTIVITY_STATUS.PENDING,
     )
-    const v2Releases = events.filter((e) => e.githubEventId === "1003")
+    const v2Releases = activities.filter((e) => e.githubEventId === "1003")
     expect(v2Releases).toHaveLength(1)
   })
 

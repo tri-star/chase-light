@@ -55,7 +55,7 @@
             },
             "ResultPath": "$.detectUpdatesResult",
             "OutputPath": "$.detectUpdatesResult.Payload",
-            "Next": "CheckForNewEvents",
+            "Next": "CheckForNewActivities",
             "Retry": [
               {
                 "ErrorEquals": [
@@ -85,31 +85,31 @@
             "ResultPath": "$.errorHandled",
             "End": true
           },
-          "CheckForNewEvents": {
+          "CheckForNewActivities": {
             "Type": "Choice",
             "Choices": [
               {
-                "Variable": "$.eventIds",
+                "Variable": "$.activityIds",
                 "IsPresent": true,
-                "Next": "HasNewEvents"
+                "Next": "HasNewActivities"
               }
             ],
-            "Default": "NoNewEvents"
+            "Default": "NoNewActivities"
           },
-          "HasNewEvents": {
+          "HasNewActivities": {
             "Type": "Choice",
             "Choices": [
               {
-                "Variable": "$.eventIds[0]",
+                "Variable": "$.activityIds[0]",
                 "IsPresent": true,
                 "Next": "ProcessUpdates"
               }
             ],
-            "Default": "NoNewEvents"
+            "Default": "NoNewActivities"
           },
           "ProcessUpdates": {
             "Type": "Map",
-            "ItemsPath": "$.eventIds",
+            "ItemsPath": "$.activityIds",
             "MaxConcurrency": 10,
             "Iterator": {
               "StartAt": "SendToQueue",
@@ -120,7 +120,7 @@
                   "Parameters": {
                     "QueueUrl": "${ProcessUpdatesQueueUrl}",
                     "MessageBody": {
-                      "eventId.$": "$"
+                      "activityId.$": "$"
                     }
                   },
                   "Retry": [
@@ -142,16 +142,16 @@
             "Type": "Pass",
             "Parameters": {
               "status": "completed",
-              "message": "Events sent to processing queue successfully",
+              "message": "Activities sent to processing queue successfully",
               "timestamp.$": "$$.State.EnteredTime"
             },
             "End": true
           },
-          "NoNewEvents": {
+          "NoNewActivities": {
             "Type": "Pass",
             "Result": {
               "status": "completed",
-              "message": "No new events to process"
+              "message": "No new activities to process"
             },
             "End": true
           }

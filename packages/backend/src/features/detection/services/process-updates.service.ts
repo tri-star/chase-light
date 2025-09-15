@@ -1,18 +1,18 @@
-import { EventRepository } from "../repositories/event.repository"
+import { ActivityRepository } from "../repositories/event.repository"
 import { TranslationService } from "./translation.service"
-import { EVENT_STATUS, type Event } from "../domain/event"
+import { ACTIVITY_STATUS, type Activity } from "../domain/event"
 
 interface ProcessUpdatesInputDto {
-  eventIds: string[]
+  activityIds: string[]
 }
 
 interface ProcessUpdatesOutputDto {
-  processedEventIds: string[]
-  failedEventIds: string[]
+  processedActivityIds: string[]
+  failedActivityIds: string[]
 }
 
-interface ProcessEventResult {
-  eventId: string
+interface ProcessactivityResult {
+  activityId: string
   success: boolean
   error?: string
 }
@@ -22,7 +22,7 @@ interface ProcessEventResult {
  */
 export class ProcessUpdatesService {
   constructor(
-    private eventRepository: EventRepository,
+    private activityRepository: ActivityRepository,
     private translationService: TranslationService,
   ) {}
 
@@ -32,104 +32,111 @@ export class ProcessUpdatesService {
   async execute(
     input: ProcessUpdatesInputDto,
   ): Promise<ProcessUpdatesOutputDto> {
-    const { eventIds } = input
+    const { activityIds } = input
 
-    if (eventIds.length === 0) {
-      return { processedEventIds: [], failedEventIds: [] }
+    if (activityIds.length === 0) {
+      return { processedActivityIds: [], failedActivityIds: [] }
     }
 
     // イベントデータの取得
-    const events = await this.eventRepository.findByIds(eventIds)
+    const activities = await this.activityRepository.findByIds(activityIds)
 
-    if (events.length === 0) {
-      return { processedEventIds: [], failedEventIds: eventIds }
+    if (activities.length === 0) {
+      return { processedActivityIds: [], failedActivityIds: activityIds }
     }
 
     // 各イベントを個別に処理
     const results = await Promise.allSettled(
-      events.map((event) => this.processEvent(event)),
+      activities.map((activity) => this.processactivity(activity)),
     )
 
     // 結果を集計
-    const processedEventIds: string[] = []
-    const failedEventIds: string[] = []
+    const processedActivityIds: string[] = []
+    const failedActivityIds: string[] = []
 
     results.forEach((result, index) => {
-      const eventId = events[index].id
+      const activityId = activities[index].id
 
       if (result.status === "fulfilled" && result.value.success) {
-        processedEventIds.push(eventId)
+        processedActivityIds.push(activityId)
       } else {
-        failedEventIds.push(eventId)
+        failedActivityIds.push(activityId)
       }
     })
 
-    return { processedEventIds, failedEventIds }
+    return { processedActivityIds, failedActivityIds }
   }
 
   /**
    * 単一イベントの処理
    */
-  private async processEvent(event: Event): Promise<ProcessEventResult> {
+  private async processactivity(
+    activity: Activity,
+  ): Promise<ProcessactivityResult> {
     try {
       // 既に処理済みのイベントはスキップ
-      if (event.status === EVENT_STATUS.COMPLETED) {
-        return { eventId: event.id, success: true }
+      if (activity.status === ACTIVITY_STATUS.COMPLETED) {
+        return { activityId: activity.id, success: true }
       }
 
       // AI翻訳を実行
       const translationResult = await this.translationService.translate(
-        event.eventType,
-        event.title,
-        event.body,
+        activity.activityType,
+        activity.title,
+        activity.body,
       )
 
       // 翻訳結果でイベントを更新
-      const updateSuccess = await this.eventRepository.updateWithTranslation(
-        event.id,
+      const updateSuccess = await this.activityRepository.updateWithTranslation(
+        activity.id,
         translationResult.translatedTitle,
         translationResult.translatedBody,
-        EVENT_STATUS.COMPLETED,
+        ACTIVITY_STATUS.COMPLETED,
         null,
       )
 
       if (!updateSuccess) {
-        throw new Error("Failed to update event with translation result")
+        throw new Error("Failed to update activity with translation result")
       }
 
-      return { eventId: event.id, success: true }
+      return { activityId: activity.id, success: true }
     } catch (error) {
       // エラー時はステータスをFAILEDに更新
       const errorMessage =
         error instanceof Error ? error.message : "Unknown error"
 
       // 詳細なエラーログを出力
-      console.error(`Failed to process event ${event.id}:`, {
-        eventId: event.id,
-        eventType: event.eventType,
-        title: event.title,
+      console.error(`Failed to process activity ${activity.id}:`, {
+        activityId: activity.id,
+        activityType: activity.activityType,
+        title: activity.title,
         errorMessage,
         errorStack: error instanceof Error ? error.stack : undefined,
         timestamp: new Date().toISOString(),
       })
 
-      await this.eventRepository
-        .updateStatus(event.id, EVENT_STATUS.FAILED, errorMessage)
+      await this.activityRepository
+        .updateStatus(activity.id, ACTIVITY_STATUS.FAILED, errorMessage)
         .catch((updateError) => {
           // ステータス更新に失敗してもログに記録するだけで処理は継続
-          console.error(`Failed to update status for event ${event.id}:`, {
-            eventId: event.id,
-            originalError: errorMessage,
-            updateError:
-              updateError instanceof Error ? updateError.message : updateError,
-            updateErrorStack:
-              updateError instanceof Error ? updateError.stack : undefined,
-            timestamp: new Date().toISOString(),
-          })
+          console.error(
+            `Failed to update status for activity ${activity.id}:`,
+            {
+              activityId: activity.id,
+              originalError: errorMessage,
+              updateError:
+                updateError instanceof Error
+                  ? updateError.message
+                  : updateError,
+              updateErrorStack:
+                updateError instanceof Error ? updateError.stack : undefined,
+              timestamp: new Date().toISOString(),
+            },
+          )
         })
 
       return {
-        eventId: event.id,
+        activityId: activity.id,
         success: false,
         error: errorMessage,
       }

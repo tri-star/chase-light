@@ -2,8 +2,8 @@ import { uuidv7 } from "uuidv7"
 import { DataSourceRepository } from "../../data-sources/repositories"
 import type { GitHubApiServiceInterface } from "../../data-sources/services/interfaces/github-api-service.interface"
 import { isGitHubDataSource } from "../../data-sources/domain"
-import { EventRepository } from "../repositories"
-import { EVENT_TYPE } from "../domain/detection-types"
+import { ActivityRepository } from "../repositories"
+import { ACTIVITY_TYPE } from "../domain/detection-types"
 import {
   DETECTION_DEFAULTS,
   DETECTION_ERRORS,
@@ -15,7 +15,7 @@ import {
 export class DataSourceUpdateDetectorService {
   constructor(
     private dataSourceRepository: DataSourceRepository,
-    private eventRepository: EventRepository,
+    private activityRepository: ActivityRepository,
     private githubApiService: GitHubApiServiceInterface,
   ) {}
 
@@ -39,12 +39,12 @@ export class DataSourceUpdateDetectorService {
 
     // 3. 前回実行時刻の取得
     const lastCheckTime =
-      await this.eventRepository.getLastCheckTimeForDataSource(dataSourceId)
+      await this.activityRepository.getLastCheckTimeForDataSource(dataSourceId)
     const sinceDate = lastCheckTime || this.getDefaultSinceDate()
 
     // 4. GitHub APIで更新を取得
     const [owner, repo] = repository.fullName.split("/")
-    const allNewEventIds: string[] = []
+    const allActivityIds: string[] = []
 
     // 並列実行し、どれか一つでもエラーがあればthrowする
     const results = await Promise.allSettled([
@@ -71,8 +71,8 @@ export class DataSourceUpdateDetectorService {
     const [releaseIds, issueIds, prIds] = results.map((r) =>
       r.status === "fulfilled" ? r.value : [],
     )
-    allNewEventIds.push(...releaseIds, ...issueIds, ...prIds)
-    return allNewEventIds
+    allActivityIds.push(...releaseIds, ...issueIds, ...prIds)
+    return allActivityIds
   }
 
   /**
@@ -97,11 +97,11 @@ export class DataSourceUpdateDetectorService {
     })
 
     // イベントとして保存
-    const eventsToSave = newReleases.map((release) => ({
+    const activitiesToSave = newReleases.map((release) => ({
       id: uuidv7(),
       dataSourceId,
       githubEventId: release.id.toString(),
-      eventType: EVENT_TYPE.RELEASE,
+      activityType: ACTIVITY_TYPE.RELEASE,
       title: release.name || release.tag_name,
       body: release.body || "",
       version: release.tag_name,
@@ -111,8 +111,8 @@ export class DataSourceUpdateDetectorService {
         : new Date(release.created_at),
     }))
 
-    const result = await this.eventRepository.upsertMany(eventsToSave)
-    return result.newEventIds
+    const result = await this.activityRepository.upsertMany(activitiesToSave)
+    return result.newActivityIds
   }
 
   /**
@@ -131,11 +131,11 @@ export class DataSourceUpdateDetectorService {
     })
 
     // イベントとして保存
-    const eventsToSave = issues.map((issue) => ({
+    const activitiesToSave = issues.map((issue) => ({
       id: uuidv7(),
       dataSourceId,
       githubEventId: issue.id.toString(),
-      eventType: EVENT_TYPE.ISSUE,
+      activityType: ACTIVITY_TYPE.ISSUE,
       title: issue.title,
       body: issue.body || "",
       version: null,
@@ -143,8 +143,8 @@ export class DataSourceUpdateDetectorService {
       createdAt: new Date(issue.created_at),
     }))
 
-    const result = await this.eventRepository.upsertMany(eventsToSave)
-    return result.newEventIds
+    const result = await this.activityRepository.upsertMany(activitiesToSave)
+    return result.newActivityIds
   }
 
   /**
@@ -167,11 +167,11 @@ export class DataSourceUpdateDetectorService {
     )
 
     // イベントとして保存
-    const eventsToSave = pullRequests.map((pr) => ({
+    const activitiesToSave = pullRequests.map((pr) => ({
       id: uuidv7(),
       dataSourceId,
       githubEventId: pr.id.toString(),
-      eventType: EVENT_TYPE.PULL_REQUEST,
+      activityType: ACTIVITY_TYPE.PULL_REQUEST,
       title: pr.title,
       body: pr.body || "",
       version: null,
@@ -179,8 +179,8 @@ export class DataSourceUpdateDetectorService {
       createdAt: new Date(pr.created_at),
     }))
 
-    const result = await this.eventRepository.upsertMany(eventsToSave)
-    return result.newEventIds
+    const result = await this.activityRepository.upsertMany(activitiesToSave)
+    return result.newActivityIds
   }
 
   /**

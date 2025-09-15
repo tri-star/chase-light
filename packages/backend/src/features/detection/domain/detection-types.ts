@@ -14,7 +14,7 @@ export type DetectUpdatesInput = {
  * detect-datasource-updatesワーカーの出力型
  */
 export type DetectUpdatesOutput = {
-  eventIds: string[]
+  activityIds: string[]
 }
 
 /**
@@ -72,4 +72,4 @@ export type GitHubPullRequest = {
 }
 
 // ...existing code...
-export { EVENT_TYPE, EventType } from "./event"
+export { ACTIVITY_TYPE, ActivityType } from "./event"

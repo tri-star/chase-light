@@ -1,4 +1,4 @@
-import { type EventType } from "../domain/event"
+import { type ActivityType } from "../domain/event"
 
 interface TranslationResponse {
   translatedTitle: string
@@ -11,7 +11,7 @@ interface TranslationResponse {
  */
 export class TranslationServiceStub {
   async translate(
-    eventType: EventType,
+    activityType: ActivityType,
     title: string,
     body: string,
   ): Promise<TranslationResponse> {

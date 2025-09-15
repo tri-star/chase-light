@@ -3,29 +3,29 @@ import { randomUUID } from "crypto"
 import { TransactionManager } from "../../../core/db"
 import { events } from "../../../db/schema"
 import {
-  type EventStatus,
-  type EventType,
-  type Event,
-  EVENT_STATUS,
+  type ActivityStatus,
+  type ActivityType,
+  type Activity,
+  ACTIVITY_STATUS,
 } from "../domain/event"
 
 /**
- * イベント情報の保存・更新を行うRepository
+ * アクティビティ情報の保存・更新を行うRepository
  */
-export class EventRepository {
+export class ActivityRepository {
   /**
-   * 新規イベントの作成またはUpsert
+   * 新規アクティビティの作成またはUpsert
    * GitHub event IDによる重複チェックを行い、既存の場合は更新する
    */
   async upsert(data: {
     id?: string
     dataSourceId: string
     githubEventId: string
-    eventType: EventType
+    activityType: ActivityType
     title: string
     body: string
     version?: string | null
-    status?: EventStatus
+    status?: ActivityStatus
     statusDetail?: string | null
     githubData?: string | null
     createdAt: Date
@@ -38,11 +38,11 @@ export class EventRepository {
       id,
       dataSourceId: data.dataSourceId,
       githubEventId: data.githubEventId,
-      eventType: data.eventType,
+      eventType: data.activityType,
       title: data.title,
       body: data.body,
       version: data.version ?? null,
-      status: data.status || EVENT_STATUS.PENDING,
+      status: data.status || ACTIVITY_STATUS.PENDING,
       statusDetail: data.statusDetail ?? null,
       githubData: data.githubData ?? null,
       createdAt: data.createdAt,
@@ -80,18 +80,18 @@ export class EventRepository {
       id?: string
       dataSourceId: string
       githubEventId: string
-      eventType: EventType
+      activityType: ActivityType
       title: string
       body: string
       version?: string | null
-      status?: EventStatus
+      status?: ActivityStatus
       statusDetail?: string | null
       githubData?: string | null
       createdAt: Date
     }>,
-  ): Promise<{ newEventIds: string[]; updatedCount: number }> {
+  ): Promise<{ newActivityIds: string[]; updatedCount: number }> {
     if (dataList.length === 0) {
-      return { newEventIds: [], updatedCount: 0 }
+      return { newActivityIds: [], updatedCount: 0 }
     }
 
     const now = new Date()
@@ -100,11 +100,11 @@ export class EventRepository {
       id: data.id || randomUUID(),
       dataSourceId: data.dataSourceId,
       githubEventId: data.githubEventId,
-      eventType: data.eventType,
+      eventType: data.activityType, // TODO: eventType -> activityType に統一。別フェーズで実施する
       title: data.title,
       body: data.body,
       version: data.version ?? null,
-      status: data.status || EVENT_STATUS.PENDING,
+      status: data.status || ACTIVITY_STATUS.PENDING,
       statusDetail: data.statusDetail ?? null,
       githubData: data.githubData ?? null,
       createdAt: data.createdAt,
@@ -131,7 +131,7 @@ export class EventRepository {
 
     // 新規作成か既存更新かは判別できないため、全idをnewEventIdsに入れる
     return {
-      newEventIds: results.map((r: (typeof results)[number]) => r.id),
+      newActivityIds: results.map((r: (typeof results)[number]) => r.id),
       updatedCount: 0,
     }
   }
@@ -158,7 +158,7 @@ export class EventRepository {
   /**
    * IDリストによる複数イベントの取得
    */
-  async findByIds(eventIds: string[]): Promise<Event[]> {
+  async findByIds(eventIds: string[]): Promise<Activity[]> {
     if (eventIds.length === 0) {
       return []
     }
@@ -179,7 +179,7 @@ export class EventRepository {
    */
   async updateStatus(
     eventId: string,
-    status: EventStatus,
+    status: ActivityStatus,
     statusDetail?: string | null,
   ): Promise<boolean> {
     const connection = await TransactionManager.getConnection()
@@ -204,7 +204,7 @@ export class EventRepository {
     eventId: string,
     translatedTitle: string,
     translatedBody: string,
-    status: EventStatus,
+    status: ActivityStatus,
     statusDetail?: string | null,
   ): Promise<boolean> {
     const connection = await TransactionManager.getConnection()
@@ -229,7 +229,7 @@ export class EventRepository {
    */
   async updateStatusBatch(
     eventIds: string[],
-    status: EventStatus,
+    status: ActivityStatus,
     statusDetail?: string | null,
   ): Promise<number> {
     if (eventIds.length === 0) {
@@ -254,7 +254,7 @@ export class EventRepository {
   /**
    * IDでイベントを取得
    */
-  async findById(id: string): Promise<Event | null> {
+  async findById(id: string): Promise<Activity | null> {
     const connection = await TransactionManager.getConnection()
 
     const result = await connection
@@ -270,9 +270,9 @@ export class EventRepository {
    */
   async findByDataSourceAndStatus(
     dataSourceId: string,
-    status: EventStatus,
+    status: ActivityStatus,
     limit = 100,
-  ): Promise<Event[]> {
+  ): Promise<Activity[]> {
     const connection = await TransactionManager.getConnection()
 
     const results = await connection
@@ -314,16 +314,16 @@ export class EventRepository {
   /**
    * データベース結果をドメイン型に変換
    */
-  private mapToDomain(row: typeof events.$inferSelect): Event {
+  private mapToDomain(row: typeof events.$inferSelect): Activity {
     return {
       id: row.id,
       dataSourceId: row.dataSourceId,
       githubEventId: row.githubEventId,
-      eventType: row.eventType as EventType,
+      activityType: row.eventType as ActivityType,
       title: row.title,
       body: row.body,
       version: row.version,
-      status: row.status as EventStatus,
+      status: row.status as ActivityStatus,
       statusDetail: row.statusDetail,
       githubData: row.githubData,
       createdAt: row.createdAt,
