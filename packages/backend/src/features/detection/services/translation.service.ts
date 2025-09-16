@@ -1,5 +1,5 @@
 import OpenAI from "openai"
-import { ACTIVITY_TYPE, type ActivityType } from "../domain/event"
+import { ACTIVITY_TYPE, type ActivityType } from "../domain/activity"
 
 interface TranslationResponse {
   translatedTitle: string

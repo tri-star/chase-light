@@ -7,12 +7,13 @@ import {
   type ActivityType,
   type Activity,
   ACTIVITY_STATUS,
-} from "../domain/event"
+} from "../domain/activity"
+import { ActivityRepository } from "../domain/repositories/activity.repository"
 
 /**
  * アクティビティ情報の保存・更新を行うRepository
  */
-export class ActivityRepository {
+export class DrizzleActivityRepository implements ActivityRepository {
   /**
    * 新規アクティビティの作成またはUpsert
    * GitHub event IDによる重複チェックを行い、既存の場合は更新する

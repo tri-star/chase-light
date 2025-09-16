@@ -70,6 +70,3 @@ export type GitHubPullRequest = {
     avatar_url: string
   }
 }
-
-// ...existing code...
-export { ACTIVITY_TYPE, ActivityType } from "./event"

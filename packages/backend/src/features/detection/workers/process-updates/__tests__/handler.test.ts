@@ -2,20 +2,20 @@ import { describe, test, beforeEach, expect, vi } from "vitest"
 import type { Context } from "aws-lambda"
 import { handler } from "../handler"
 import { setupComponentTest } from "../../../../../test"
-import { ActivityRepository } from "../../../repositories"
+import { DrizzleActivityRepository } from "../../../repositories"
 import { DataSourceRepository } from "../../../../data-sources/repositories/data-source.repository"
 import {
   ACTIVITY_STATUS,
   ACTIVITY_TYPE,
   type Activity,
-} from "../../../domain/event"
+} from "../../../domain/activity"
 import { DATA_SOURCE_TYPES } from "../../../../data-sources/domain/data-source"
 import { randomUUID } from "crypto"
 
 describe("process-updates handler", () => {
   setupComponentTest()
 
-  let activityRepository: ActivityRepository
+  let activityRepository: DrizzleActivityRepository
   let dataSourceRepository: DataSourceRepository
   let mockContext: Context
   let testDataSourceId: string
@@ -40,7 +40,7 @@ describe("process-updates handler", () => {
   }
 
   beforeEach(async () => {
-    activityRepository = new ActivityRepository()
+    activityRepository = new DrizzleActivityRepository()
     dataSourceRepository = new DataSourceRepository()
 
     // テスト用データソースを作成

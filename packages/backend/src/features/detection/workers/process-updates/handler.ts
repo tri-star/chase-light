@@ -2,7 +2,7 @@ import type { Context } from "aws-lambda"
 import { connectDb } from "../../../../db/connection"
 import { TransactionManager } from "../../../../core/db"
 import { getOpenAiConfig } from "../../../../core/config/open-ai"
-import { ActivityRepository } from "../../repositories"
+import { DrizzleActivityRepository } from "../../repositories"
 import { createTranslationService } from "../../services"
 import { ProcessUpdatesUseCase } from "../../application/use-cases"
 
@@ -42,7 +42,7 @@ export const handler = async (
       const openAiConfig = await getOpenAiConfig()
 
       // リポジトリとサービスのインスタンス化
-      const activityRepository = new ActivityRepository()
+      const activityRepository = new DrizzleActivityRepository()
       const translationService = createTranslationService(openAiConfig.apiKey)
 
       const processUpdatesService = new ProcessUpdatesUseCase(

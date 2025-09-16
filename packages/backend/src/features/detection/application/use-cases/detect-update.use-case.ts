@@ -2,8 +2,8 @@ import { uuidv7 } from "uuidv7"
 import { DataSourceRepository } from "../../../data-sources/repositories"
 import type { GitHubApiServiceInterface } from "../../../data-sources/services/interfaces/github-api-service.interface"
 import { isGitHubDataSource } from "../../../data-sources/domain"
-import { ActivityRepository } from "../../repositories"
-import { ACTIVITY_TYPE } from "../../domain/detection-types"
+import { DrizzleActivityRepository } from "../../repositories"
+import { ACTIVITY_TYPE } from "../../domain/activity"
 import {
   DETECTION_DEFAULTS,
   DETECTION_ERRORS,
@@ -15,7 +15,7 @@ import {
 export class DetectUpdateUseCase {
   constructor(
     private dataSourceRepository: DataSourceRepository,
-    private activityRepository: ActivityRepository,
+    private activityRepository: DrizzleActivityRepository,
     private githubApiService: GitHubApiServiceInterface,
   ) {}
 

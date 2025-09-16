@@ -1,4 +1,4 @@
-import { type ActivityType } from "../domain/event"
+import { type ActivityType } from "../domain/activity"
 
 interface TranslationResponse {
   translatedTitle: string

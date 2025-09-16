@@ -1,15 +1,11 @@
 import { DataSourceRepository } from "../../data-sources/repositories/data-source.repository"
-import type { DataSource } from "../../data-sources/domain"
+import {
+  DetectTargetInputDto,
+  DetectTargetOutputDto,
+  DetectTargetRepository,
+} from "../domain/repositories/detect-target.repository"
 
-export type DetectTargetInputDto = {
-  sourceType?: string
-}
-
-export type DetectTargetOutputDto = {
-  dataSources: DataSource[]
-}
-
-export class DetectTargetRepository {
+export class DrizzleDetectTargetRepository implements DetectTargetRepository {
   constructor(private dataSourceRepository: DataSourceRepository) {}
 
   async listDetectTargets(

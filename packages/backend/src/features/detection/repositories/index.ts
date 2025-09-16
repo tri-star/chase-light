@@ -1,1 +1,1 @@
-export * from "./event.repository"
+export * from "./drizzle-activity.repository"

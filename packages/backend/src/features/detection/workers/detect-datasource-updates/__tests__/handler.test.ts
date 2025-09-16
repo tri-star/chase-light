@@ -4,9 +4,8 @@ import { handler } from "../handler"
 import { setupComponentTest } from "../../../../../test"
 import { DataSourceRepository } from "../../../../data-sources/repositories/data-source.repository"
 import { GitHubApiServiceStub } from "../../../../data-sources/services/github-api-service.stub"
-import { ActivityRepository } from "../../../repositories"
-import { ACTIVITY_STATUS } from "../../../domain/event-status"
-import { ACTIVITY_TYPE } from "../../../domain/detection-types"
+import { DrizzleActivityRepository } from "../../../repositories"
+import { ACTIVITY_STATUS, ACTIVITY_TYPE } from "../../../domain/activity"
 
 describe("detect-datasource-updates handler", () => {
   test("GitHub APIのIssue取得でエラーが起きた場合、DBにイベントが保存されない（ロールバックされる）", async () => {
@@ -61,7 +60,7 @@ describe("detect-datasource-updates handler", () => {
   setupComponentTest()
 
   let dataSourceRepository: DataSourceRepository
-  let activityRepository: ActivityRepository
+  let activityRepository: DrizzleActivityRepository
   let githubApiStub: GitHubApiServiceStub
   let mockContext: Context
 
@@ -70,7 +69,7 @@ describe("detect-datasource-updates handler", () => {
     // 環境変数をstubEnvでセット
     vi.stubEnv("USE_GITHUB_API_STUB", "true")
     dataSourceRepository = new DataSourceRepository()
-    activityRepository = new ActivityRepository()
+    activityRepository = new DrizzleActivityRepository()
     // GitHubApiServiceFactoryから同じインスタンスを取得
     const { createGitHubApiService } = await import(
       "../../../../data-sources/services/github-api-service.factory"
