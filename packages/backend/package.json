@@ -54,7 +54,7 @@
     "@hono/zod-validator": "^0.7.0",
     "@octokit/rest": "^22.0.0",
     "@scalar/hono-api-reference": "^0.9.5",
-    "dotenv": "^16.5.0",
+    "dotenv": "^17.2.2",
     "drizzle-orm": "^0.44.2",
     "hono": "^4.9.7",
     "jsonwebtoken": "^9.0.2",
