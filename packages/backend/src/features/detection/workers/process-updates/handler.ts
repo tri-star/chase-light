@@ -2,7 +2,7 @@ import type { Context } from "aws-lambda"
 import { connectDb } from "../../../../db/connection"
 import { TransactionManager } from "../../../../core/db"
 import { getOpenAiConfig } from "../../../../core/config/open-ai"
-import { DrizzleActivityRepository } from "../../repositories"
+import { DrizzleActivityRepository } from "../../infra/repositories"
 import { createTranslationService } from "../../services"
 import { ProcessUpdatesUseCase } from "../../application/use-cases"
 

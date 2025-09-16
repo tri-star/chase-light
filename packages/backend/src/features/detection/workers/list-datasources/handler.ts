@@ -1,7 +1,6 @@
 import type { Context } from "aws-lambda"
 import { connectDb } from "../../../../db/connection"
-import { DataSourceRepository } from "../../../data-sources/repositories/data-source.repository"
-import { DrizzleDetectTargetRepository } from "../../repositories/drizzle-detect-target.repository"
+import { DrizzleDetectTargetRepository } from "../../infra/repositories/drizzle-detect-target.repository"
 
 interface ListDataSourcesInput {
   sourceType?: string
@@ -32,10 +31,7 @@ export const handler = async (
     // データベース接続を確立
     await connectDb()
 
-    const dataSourceRepository = new DataSourceRepository()
-    const detectTargetRepository = new DrizzleDetectTargetRepository(
-      dataSourceRepository,
-    )
+    const detectTargetRepository = new DrizzleDetectTargetRepository()
 
     const result = await detectTargetRepository.listDetectTargets({
       sourceType: event.sourceType,

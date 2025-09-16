@@ -1,12 +1,16 @@
-import { DataSourceRepository } from "../../data-sources/repositories/data-source.repository"
+import { DataSourceRepository } from "../../../data-sources/repositories"
 import {
   DetectTargetInputDto,
   DetectTargetOutputDto,
   DetectTargetRepository,
-} from "../domain/repositories/detect-target.repository"
+} from "../../domain/repositories/detect-target.repository"
 
 export class DrizzleDetectTargetRepository implements DetectTargetRepository {
-  constructor(private dataSourceRepository: DataSourceRepository) {}
+  // TODO: 別フェーズの作業で、外部featureに依存しないように修正する
+  private dataSourceRepository: DataSourceRepository =
+    new DataSourceRepository()
+
+  constructor() {}
 
   async listDetectTargets(
     input: DetectTargetInputDto,

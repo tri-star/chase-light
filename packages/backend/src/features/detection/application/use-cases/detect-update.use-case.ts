@@ -2,7 +2,7 @@ import { uuidv7 } from "uuidv7"
 import { DataSourceRepository } from "../../../data-sources/repositories"
 import type { GitHubApiServiceInterface } from "../../../data-sources/services/interfaces/github-api-service.interface"
 import { isGitHubDataSource } from "../../../data-sources/domain"
-import { DrizzleActivityRepository } from "../../repositories"
+import { DrizzleActivityRepository } from "../../infra/repositories"
 import { ACTIVITY_TYPE } from "../../domain/activity"
 import {
   DETECTION_DEFAULTS,

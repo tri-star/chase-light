@@ -2,9 +2,10 @@ import { describe, test, beforeEach, afterEach, expect, vi } from "vitest"
 import type { Context } from "aws-lambda"
 import { handler } from "../handler"
 import { setupComponentTest } from "../../../../../test"
-import { DataSourceRepository } from "../../../../data-sources/repositories/data-source.repository"
+// Test data factory
+import { TestDataFactory } from "../../../../../test/factories"
 import { GitHubApiServiceStub } from "../../../../data-sources/services/github-api-service.stub"
-import { DrizzleActivityRepository } from "../../../repositories"
+import { DrizzleActivityRepository } from "../../../infra/repositories"
 import { ACTIVITY_STATUS, ACTIVITY_TYPE } from "../../../domain/activity"
 
 describe("detect-datasource-updates handler", () => {
@@ -59,7 +60,6 @@ describe("detect-datasource-updates handler", () => {
   })
   setupComponentTest()
 
-  let dataSourceRepository: DataSourceRepository
   let activityRepository: DrizzleActivityRepository
   let githubApiStub: GitHubApiServiceStub
   let mockContext: Context
@@ -68,7 +68,6 @@ describe("detect-datasource-updates handler", () => {
   beforeEach(async () => {
     // 環境変数をstubEnvでセット
     vi.stubEnv("USE_GITHUB_API_STUB", "true")
-    dataSourceRepository = new DataSourceRepository()
     activityRepository = new DrizzleActivityRepository()
     // GitHubApiServiceFactoryから同じインスタンスを取得
     const { createGitHubApiService } = await import(
@@ -81,8 +80,7 @@ describe("detect-datasource-updates handler", () => {
     } as Context
 
     // テストデータのセットアップ
-    const _dataSource = await dataSourceRepository.save({
-      sourceType: "github",
+    const _dataSource = await TestDataFactory.createTestDataSource({
       sourceId: "test-owner/test-repo",
       name: "Test Repository",
       description: "Test repository for monitoring",

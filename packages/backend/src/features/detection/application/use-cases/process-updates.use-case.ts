@@ -1,4 +1,4 @@
-import { DrizzleActivityRepository } from "../../repositories/drizzle-activity.repository"
+import { DrizzleActivityRepository } from "../../infra/repositories"
 import { TranslationService } from "../../services/translation.service"
 import { ACTIVITY_STATUS, type Activity } from "../../domain/activity"
 
@@ -46,23 +46,25 @@ export class ProcessUpdatesUseCase {
     }
 
     // 各イベントを個別に処理
-    const results = await Promise.allSettled(
-      activities.map((activity) => this.processactivity(activity)),
+    const results = await Promise.allSettled<ProcessactivityResult>(
+      activities.map((activity: Activity) => this.processactivity(activity)),
     )
 
     // 結果を集計
     const processedActivityIds: string[] = []
     const failedActivityIds: string[] = []
 
-    results.forEach((result, index) => {
-      const activityId = activities[index].id
+    results.forEach(
+      (result: PromiseSettledResult<ProcessactivityResult>, index: number) => {
+        const activityId = activities[index].id
 
-      if (result.status === "fulfilled" && result.value.success) {
-        processedActivityIds.push(activityId)
-      } else {
-        failedActivityIds.push(activityId)
-      }
-    })
+        if (result.status === "fulfilled" && result.value.success) {
+          processedActivityIds.push(activityId)
+        } else {
+          failedActivityIds.push(activityId)
+        }
+      },
+    )
 
     return { processedActivityIds, failedActivityIds }
   }
@@ -117,7 +119,7 @@ export class ProcessUpdatesUseCase {
 
       await this.activityRepository
         .updateStatus(activity.id, ACTIVITY_STATUS.FAILED, errorMessage)
-        .catch((updateError) => {
+        .catch((updateError: unknown) => {
           // ステータス更新に失敗してもログに記録するだけで処理は継続
           console.error(
             `Failed to update status for activity ${activity.id}:`,

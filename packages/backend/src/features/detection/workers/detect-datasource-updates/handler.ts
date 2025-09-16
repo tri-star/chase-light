@@ -3,7 +3,7 @@ import { connectDb } from "../../../../db/connection"
 import { TransactionManager } from "../../../../core/db"
 import { DataSourceRepository } from "../../../data-sources/repositories/data-source.repository"
 import { createGitHubApiService } from "../../../data-sources/services/github-api-service.factory"
-import { DrizzleActivityRepository } from "../../repositories"
+import { DrizzleActivityRepository } from "../../infra/repositories"
 import { DetectUpdateUseCase } from "../../application/use-cases"
 import type {
   DetectUpdatesInput,

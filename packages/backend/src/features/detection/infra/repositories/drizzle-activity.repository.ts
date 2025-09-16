@@ -1,14 +1,14 @@
 import { eq, and, desc, sql, inArray } from "drizzle-orm"
 import { randomUUID } from "crypto"
-import { TransactionManager } from "../../../core/db"
-import { events } from "../../../db/schema"
+import { TransactionManager } from "../../../../core/db"
+import { events } from "../../../../db/schema"
 import {
   type ActivityStatus,
   type ActivityType,
   type Activity,
   ACTIVITY_STATUS,
-} from "../domain/activity"
-import { ActivityRepository } from "../domain/repositories/activity.repository"
+} from "../../domain/activity"
+import { ActivityRepository } from "../../domain/repositories/activity.repository"
 
 /**
  * アクティビティ情報の保存・更新を行うRepository

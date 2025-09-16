@@ -2,7 +2,7 @@ import { describe, test, beforeEach, expect, vi } from "vitest"
 import type { Context } from "aws-lambda"
 import { handler } from "../handler"
 import { setupComponentTest } from "../../../../../test"
-import { DrizzleActivityRepository } from "../../../repositories"
+import { DrizzleActivityRepository } from "../../../infra/repositories"
 import { DataSourceRepository } from "../../../../data-sources/repositories/data-source.repository"
 import {
   ACTIVITY_STATUS,

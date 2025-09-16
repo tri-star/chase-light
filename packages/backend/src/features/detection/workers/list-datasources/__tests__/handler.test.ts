@@ -1,18 +1,17 @@
 import { describe, test, beforeEach, expect } from "vitest"
 
 import { handler } from "../handler"
-import { DataSourceRepository } from "../../../../data-sources/repositories/data-source.repository"
+// テストデータ生成用ファクトリ
+import { TestDataFactory } from "../../../../../test/factories"
 import type { Context } from "aws-lambda"
 import { setupComponentTest } from "../../../../../test"
 
 describe("list-datasources handler", () => {
   setupComponentTest()
 
-  let dataSourceRepository: DataSourceRepository
   let mockContext: Context
 
   beforeEach(async () => {
-    dataSourceRepository = new DataSourceRepository()
     mockContext = {
       awsRequestId: "test-request-id",
     } as Context
@@ -20,8 +19,7 @@ describe("list-datasources handler", () => {
 
   test("データソースタイプを指定しない場合、全てのデータソースを取得する", async () => {
     // Given: テストデータをセットアップ
-    const testDataSource = await dataSourceRepository.save({
-      sourceType: "github",
+    const testDataSource = await TestDataFactory.createTestDataSource({
       sourceId: "test/repo",
       name: "Test Repository",
       description: "Test repository for monitoring",
@@ -58,8 +56,7 @@ describe("list-datasources handler", () => {
 
   test("データソースタイプを指定した場合、フィルタリングされたデータソースを取得する", async () => {
     // Given: 複数のデータソースをセットアップ
-    await dataSourceRepository.save({
-      sourceType: "github",
+    await TestDataFactory.createTestDataSource({
       sourceId: "test/repo1",
       name: "Test Repository 1",
       description: "Test repository 1 for monitoring",
@@ -77,8 +74,7 @@ describe("list-datasources handler", () => {
     })
 
     // NPMパッケージは現在サポートしていないため、別のGitHubリポジトリでテスト
-    await dataSourceRepository.save({
-      sourceType: "github",
+    await TestDataFactory.createTestDataSource({
       sourceId: "test/package",
       name: "Test Package",
       description: "Test package for monitoring",
