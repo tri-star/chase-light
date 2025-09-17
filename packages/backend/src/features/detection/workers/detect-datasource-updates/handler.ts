@@ -2,7 +2,6 @@ import type { Context } from "aws-lambda"
 import { connectDb } from "../../../../db/connection"
 import { TransactionManager } from "../../../../core/db"
 import { DataSourceRepository } from "../../../data-sources/repositories/data-source.repository"
-import { createGitHubApiService } from "../../../data-sources/services/github-api-service.factory"
 import { DrizzleActivityRepository } from "../../infra/repositories"
 import { DetectUpdateUseCase } from "../../application/use-cases"
 import type {
@@ -10,6 +9,7 @@ import type {
   DetectUpdatesOutput,
 } from "../../domain/detection-types"
 import { DETECTION_ERRORS } from "../../constants/detection.constants"
+import { createGitHubActivityGateway } from "../../infra/adapters/github-activity/github-activity-gateway.factory"
 
 /**
  * detect-datasource-updates Lambda関数のハンドラー
@@ -41,7 +41,7 @@ export const handler = async (
 
       // GitHub APIサービス（現時点では認証なし - 認証を追加することでレート制限が緩和される可能性あり）
       // TODO: Implement authentication for GitHub API to increase rate limits and improve reliability.
-      const githubApiService = createGitHubApiService()
+      const githubApiService = createGitHubActivityGateway()
 
       // 更新検知サービス
       const updateDetectorService = new DetectUpdateUseCase(

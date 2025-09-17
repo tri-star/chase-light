@@ -1,6 +1,5 @@
 import { uuidv7 } from "uuidv7"
 import { DataSourceRepository } from "../../../data-sources/repositories"
-import type { GitHubApiServiceInterface } from "../../../data-sources/services/interfaces/github-api-service.interface"
 import { isGitHubDataSource } from "../../../data-sources/domain"
 import { DrizzleActivityRepository } from "../../infra/repositories"
 import { ACTIVITY_TYPE } from "../../domain/activity"
@@ -8,6 +7,7 @@ import {
   DETECTION_DEFAULTS,
   DETECTION_ERRORS,
 } from "../../constants/detection.constants"
+import { GitHubActivityGateway } from "../ports/github-activity.gateway"
 
 /**
  * データソースの更新を検知するサービス
@@ -16,7 +16,7 @@ export class DetectUpdateUseCase {
   constructor(
     private dataSourceRepository: DataSourceRepository,
     private activityRepository: DrizzleActivityRepository,
-    private githubApiService: GitHubApiServiceInterface,
+    private githubActivityGateway: GitHubActivityGateway,
   ) {}
 
   /**
@@ -84,7 +84,7 @@ export class DetectUpdateUseCase {
     dataSourceId: string,
     sinceDate: Date,
   ): Promise<string[]> {
-    const releases = await this.githubApiService.getReleases(owner, repo, {
+    const releases = await this.githubActivityGateway.getReleases(owner, repo, {
       perPage: DETECTION_DEFAULTS.PAGE_SIZE,
     })
 
@@ -124,7 +124,7 @@ export class DetectUpdateUseCase {
     dataSourceId: string,
     sinceDate: Date,
   ): Promise<string[]> {
-    const issues = await this.githubApiService.getIssues(owner, repo, {
+    const issues = await this.githubActivityGateway.getIssues(owner, repo, {
       state: "all",
       since: sinceDate.toISOString(),
       perPage: DETECTION_DEFAULTS.PAGE_SIZE,
@@ -156,7 +156,7 @@ export class DetectUpdateUseCase {
     dataSourceId: string,
     sinceDate: Date,
   ): Promise<string[]> {
-    const pullRequests = await this.githubApiService.getPullRequests(
+    const pullRequests = await this.githubActivityGateway.getPullRequests(
       owner,
       repo,
       {

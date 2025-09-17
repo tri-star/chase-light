@@ -4,14 +4,14 @@ import { handler } from "../handler"
 import { setupComponentTest } from "../../../../../test"
 // Test data factory
 import { TestDataFactory } from "../../../../../test/factories"
-import { GitHubApiServiceStub } from "../../../../data-sources/services/github-api-service.stub"
 import { DrizzleActivityRepository } from "../../../infra/repositories"
 import { ACTIVITY_STATUS, ACTIVITY_TYPE } from "../../../domain/activity"
+import { GitHubActivityStubGateway } from "../../../infra/adapters/github-activity/github-activity-stub.gateway"
 
 describe("detect-datasource-updates handler", () => {
   test("GitHub APIのIssue取得でエラーが起きた場合、DBにイベントが保存されない（ロールバックされる）", async () => {
     // Given: Releases/PRは正常、Issuesのみエラー
-    githubApiStub.setStubReleases([
+    githubActivityStubGateway.setStubReleases([
       {
         id: 1001,
         tag_name: "v1.0.0",
@@ -24,7 +24,7 @@ describe("detect-datasource-updates handler", () => {
         html_url: "https://github.com/test-owner/test-repo/releases/tag/v1.0.0",
       },
     ])
-    githubApiStub.setStubPullRequests([
+    githubActivityStubGateway.setStubPullRequests([
       {
         id: 3001,
         number: 10,
@@ -42,7 +42,7 @@ describe("detect-datasource-updates handler", () => {
         },
       },
     ])
-    githubApiStub.setStubIssues({
+    githubActivityStubGateway.setStubIssues({
       status: 500,
       message: "issues fetch error",
     })
@@ -61,7 +61,7 @@ describe("detect-datasource-updates handler", () => {
   setupComponentTest()
 
   let activityRepository: DrizzleActivityRepository
-  let githubApiStub: GitHubApiServiceStub
+  let githubActivityStubGateway: GitHubActivityStubGateway
   let mockContext: Context
 
   let testDataSourceId: string
@@ -70,10 +70,11 @@ describe("detect-datasource-updates handler", () => {
     vi.stubEnv("USE_GITHUB_API_STUB", "true")
     activityRepository = new DrizzleActivityRepository()
     // GitHubApiServiceFactoryから同じインスタンスを取得
-    const { createGitHubApiService } = await import(
-      "../../../../data-sources/services/github-api-service.factory"
+    const { createGitHubActivityGateway } = await import(
+      "../../../infra/adapters/github-activity/github-activity-gateway.factory"
     )
-    githubApiStub = createGitHubApiService() as GitHubApiServiceStub
+    githubActivityStubGateway =
+      createGitHubActivityGateway() as GitHubActivityStubGateway
 
     mockContext = {
       awsRequestId: "test-request-id",
@@ -99,7 +100,7 @@ describe("detect-datasource-updates handler", () => {
     testDataSourceId = _dataSource.id
 
     // スタブをリセット
-    githubApiStub.resetStubs()
+    githubActivityStubGateway.resetStubs()
   })
 
   afterEach(() => {
@@ -113,7 +114,7 @@ describe("detect-datasource-updates handler", () => {
     const fiveDaysAgo = new Date(now.getTime() - 5 * 24 * 60 * 60 * 1000)
     const tenDaysAgo = new Date(now.getTime() - 10 * 24 * 60 * 60 * 1000)
 
-    githubApiStub.setStubReleases([
+    githubActivityStubGateway.setStubReleases([
       {
         id: 1001,
         tag_name: "v1.0.0",
@@ -138,7 +139,7 @@ describe("detect-datasource-updates handler", () => {
       },
     ])
 
-    githubApiStub.setStubIssues([
+    githubActivityStubGateway.setStubIssues([
       {
         id: 2001,
         number: 1,
@@ -153,7 +154,7 @@ describe("detect-datasource-updates handler", () => {
       },
     ])
 
-    githubApiStub.setStubPullRequests([
+    githubActivityStubGateway.setStubPullRequests([
       {
         id: 3001,
         number: 10,
@@ -237,10 +238,10 @@ describe("detect-datasource-updates handler", () => {
     const fiveDaysAgo = new Date(new Date().getTime() - 5 * 24 * 60 * 60 * 1000)
 
     // 他のAPIコールは空の結果を返すように設定
-    githubApiStub.setStubReleases([])
-    githubApiStub.setStubPullRequests([])
+    githubActivityStubGateway.setStubReleases([])
+    githubActivityStubGateway.setStubPullRequests([])
 
-    githubApiStub.setStubIssues([
+    githubActivityStubGateway.setStubIssues([
       {
         id: 2002,
         number: 2,
@@ -296,10 +297,10 @@ describe("detect-datasource-updates handler", () => {
     const twoDaysAgo = new Date(now.getTime() - 2 * 24 * 60 * 60 * 1000)
 
     // 他のAPIコールは空の結果を返すように設定
-    githubApiStub.setStubIssues([])
-    githubApiStub.setStubPullRequests([])
+    githubActivityStubGateway.setStubIssues([])
+    githubActivityStubGateway.setStubPullRequests([])
 
-    githubApiStub.setStubReleases([
+    githubActivityStubGateway.setStubReleases([
       {
         id: 1003,
         tag_name: "v2.0.0",
@@ -349,7 +350,7 @@ describe("detect-datasource-updates handler", () => {
 
   test("GitHub APIエラー時は適切にエラーハンドリングする", async () => {
     // Given: getIssues呼び出し時にエラーを返すようスタブを設定
-    githubApiStub.setStubIssues({
+    githubActivityStubGateway.setStubIssues({
       status: 403,
       message: "API rate limit exceeded",
     })
