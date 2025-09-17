@@ -3,8 +3,8 @@ import { connectDb } from "../../../../db/connection"
 import { TransactionManager } from "../../../../core/db"
 import { getOpenAiConfig } from "../../../../core/config/open-ai"
 import { DrizzleActivityRepository } from "../../infra/repositories"
-import { createTranslationService } from "../../services"
 import { ProcessUpdatesUseCase } from "../../application/use-cases"
+import { TranslationAdapter } from "../../infra/adapters/translation/translation.adapter"
 
 interface ProcessUpdatesInput {
   activityId: string
@@ -43,11 +43,11 @@ export const handler = async (
 
       // リポジトリとサービスのインスタンス化
       const activityRepository = new DrizzleActivityRepository()
-      const translationService = createTranslationService(openAiConfig.apiKey)
+      const translationAdapter = new TranslationAdapter(openAiConfig.apiKey)
 
       const processUpdatesService = new ProcessUpdatesUseCase(
         activityRepository,
-        translationService,
+        translationAdapter,
       )
 
       // イベント処理実行

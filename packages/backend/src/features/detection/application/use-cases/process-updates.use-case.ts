@@ -1,5 +1,5 @@
 import { DrizzleActivityRepository } from "../../infra/repositories"
-import { TranslationService } from "../../services/translation.service"
+import { TranslationPort } from "../../application/ports/translation.port"
 import { ACTIVITY_STATUS, type Activity } from "../../domain/activity"
 
 interface ProcessUpdatesInputDto {
@@ -23,7 +23,7 @@ interface ProcessactivityResult {
 export class ProcessUpdatesUseCase {
   constructor(
     private activityRepository: DrizzleActivityRepository,
-    private translationService: TranslationService,
+    private translationPort: TranslationPort,
   ) {}
 
   /**
@@ -82,7 +82,7 @@ export class ProcessUpdatesUseCase {
       }
 
       // AI翻訳を実行
-      const translationResult = await this.translationService.translate(
+      const translationResult = await this.translationPort.translate(
         activity.activityType,
         activity.title,
         activity.body,

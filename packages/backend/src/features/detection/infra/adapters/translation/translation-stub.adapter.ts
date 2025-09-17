@@ -1,15 +1,11 @@
-import { type ActivityType } from "../domain/activity"
-
-interface TranslationResponse {
-  translatedTitle: string
-  translatedBody: string
-}
+import { TranslationResponse } from "../../../application/ports/translation.port"
+import { type ActivityType } from "../../../domain/activity"
 
 /**
  * TranslationServiceのスタブ実装
  * テスト用およびローカル開発環境用
  */
-export class TranslationServiceStub {
+export class TranslationAdapterStub {
   async translate(
     activityType: ActivityType,
     title: string,

@@ -94,11 +94,11 @@ describe("process-updates handler", () => {
     await activityRepository.upsert(event1)
 
     // TranslationService をスタブ化
-    const { TranslationService } = await import(
-      "../../../services/translation.service"
+    const { TranslationAdapter } = await import(
+      "../../../infra/adapters/translation/translation.adapter"
     )
-    const originalTranslate = TranslationService.prototype.translate
-    TranslationService.prototype.translate = vi.fn().mockResolvedValue({
+    const originalTranslate = TranslationAdapter.prototype.translate
+    TranslationAdapter.prototype.translate = vi.fn().mockResolvedValue({
       translatedTitle: "[翻訳済み] テストタイトル",
       translatedBody: "[翻訳済み] テスト本文",
     })
@@ -122,7 +122,7 @@ describe("process-updates handler", () => {
       expect(updatedEvent!.body).toBe("[翻訳済み] テスト本文")
     } finally {
       // スタブを復元
-      TranslationService.prototype.translate = originalTranslate
+      TranslationAdapter.prototype.translate = originalTranslate
     }
   })
 
@@ -139,15 +139,15 @@ describe("process-updates handler", () => {
     await activityRepository.upsert(completedEvent)
 
     // TranslationService をスタブ化
-    const { TranslationService } = await import(
-      "../../../services/translation.service"
+    const { TranslationAdapter } = await import(
+      "../../../infra/adapters/translation/translation.adapter"
     )
-    const originalTranslate = TranslationService.prototype.translate
+    const originalTranslate = TranslationAdapter.prototype.translate
     const mockTranslate = vi.fn().mockResolvedValue({
       translatedTitle: "[翻訳済み] テストタイトル",
       translatedBody: "[翻訳済み] テスト本文",
     })
-    TranslationService.prototype.translate = mockTranslate
+    TranslationAdapter.prototype.translate = mockTranslate
 
     try {
       // When: 両方のイベントIDを指定してハンドラーを実行
@@ -163,7 +163,7 @@ describe("process-updates handler", () => {
       expect(mockTranslate).toHaveBeenCalledTimes(0)
     } finally {
       // スタブを復元
-      TranslationService.prototype.translate = originalTranslate
+      TranslationAdapter.prototype.translate = originalTranslate
     }
   })
 
