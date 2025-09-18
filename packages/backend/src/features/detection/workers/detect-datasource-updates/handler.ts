@@ -1,15 +1,27 @@
 import type { Context } from "aws-lambda"
 import { connectDb } from "../../../../db/connection"
 import { TransactionManager } from "../../../../core/db"
-import { DataSourceRepository } from "../../../data-sources/repositories/data-source.repository"
 import { DrizzleActivityRepository } from "../../infra/repositories"
 import { DetectUpdateUseCase } from "../../application/use-cases"
-import type {
-  DetectUpdatesInput,
-  DetectUpdatesOutput,
-} from "../../domain/detection-types"
 import { DETECTION_ERRORS } from "../../constants/detection.constants"
 import { createGitHubActivityGateway } from "../../infra/adapters/github-activity/github-activity-gateway.factory"
+import { DrizzleDetectTargetRepository } from "../../infra/repositories/drizzle-detect-target.repository"
+import { toDetectTargetId } from "../../domain/detect-target"
+
+/**
+ * detect-datasource-updatesワーカーの入力型
+ */
+type DetectUpdatesInput = {
+  /** 監視対象のデータソースID（UUID） */
+  detectTargetId: string
+}
+
+/**
+ * detect-datasource-updatesワーカーの出力型
+ */
+type DetectUpdatesOutput = {
+  activityIds: string[]
+}
 
 /**
  * detect-datasource-updates Lambda関数のハンドラー
@@ -24,8 +36,8 @@ export const handler = async (
   console.log("Context:", context.awsRequestId)
 
   // 入力検証
-  if (!event.dataSourceId) {
-    console.error("Missing required parameter: dataSourceId")
+  if (!event.detectTargetId) {
+    console.error("Missing required parameter: detectTargetId")
     throw new Error(DETECTION_ERRORS.INVALID_INPUT)
   }
 
@@ -36,24 +48,23 @@ export const handler = async (
     // トランザクション内で処理を実行
     return await TransactionManager.transaction(async () => {
       // リポジトリとサービスのインスタンス化
-      const dataSourceRepository = new DataSourceRepository()
+      const detectTargetRepository = new DrizzleDetectTargetRepository()
       const activityRepository = new DrizzleActivityRepository()
 
       // GitHub APIサービス（現時点では認証なし - 認証を追加することでレート制限が緩和される可能性あり）
-      // TODO: Implement authentication for GitHub API to increase rate limits and improve reliability.
       const githubApiService = createGitHubActivityGateway()
 
       // 更新検知サービス
-      const updateDetectorService = new DetectUpdateUseCase(
-        dataSourceRepository,
+      const detectUpdateUseCase = new DetectUpdateUseCase(
+        detectTargetRepository,
         activityRepository,
         githubApiService,
       )
 
       // 更新検知実行
-      console.log(`Detecting updates for dataSource: ${event.dataSourceId}`)
-      const activityIds = await updateDetectorService.detectUpdates(
-        event.dataSourceId,
+      console.log(`Detecting updates for detectTarget: ${event.detectTargetId}`)
+      const activityIds = await detectUpdateUseCase.detectUpdates(
+        toDetectTargetId(event.detectTargetId),
       )
 
       console.log(

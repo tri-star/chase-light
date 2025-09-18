@@ -7,6 +7,7 @@ import { TestDataFactory } from "../../../../../test/factories"
 import { DrizzleActivityRepository } from "../../../infra/repositories"
 import { ACTIVITY_STATUS, ACTIVITY_TYPE } from "../../../domain/activity"
 import { GitHubActivityStubGateway } from "../../../infra/adapters/github-activity/github-activity-stub.gateway"
+import { toDetectTargetId } from "../../../domain/detect-target"
 
 describe("detect-datasource-updates handler", () => {
   test("GitHub APIのIssue取得でエラーが起きた場合、DBにイベントが保存されない（ロールバックされる）", async () => {
@@ -49,7 +50,7 @@ describe("detect-datasource-updates handler", () => {
 
     // When & Then: handler実行でエラーが発生し、DBにイベントが保存されていないこと
     await expect(
-      handler({ dataSourceId: testDataSourceId }, mockContext),
+      handler({ detectTargetId: testDataSourceId }, mockContext),
     ).rejects.toThrow("issues fetch error")
 
     const activities = await activityRepository.findByDataSourceAndStatus(
@@ -175,7 +176,7 @@ describe("detect-datasource-updates handler", () => {
 
     // When: ハンドラーを実行
     const result = await handler(
-      { dataSourceId: testDataSourceId },
+      { detectTargetId: testDataSourceId },
       mockContext,
     )
 
@@ -223,7 +224,7 @@ describe("detect-datasource-updates handler", () => {
     )
     await activityRepository.upsert({
       id: "8e04ab78-4fc7-4618-ae25-4009ceae6bb8",
-      dataSourceId: testDataSourceId,
+      detectTargetId: toDetectTargetId(testDataSourceId),
       githubEventId: "9999",
       activityType: ACTIVITY_TYPE.RELEASE,
       title: "Old Release",
@@ -270,7 +271,7 @@ describe("detect-datasource-updates handler", () => {
 
     // When: ハンドラーを実行
     const result = await handler(
-      { dataSourceId: testDataSourceId },
+      { detectTargetId: testDataSourceId },
       mockContext,
     )
 
@@ -316,7 +317,7 @@ describe("detect-datasource-updates handler", () => {
 
     // When: 1回目の実行
     const result1 = await handler(
-      { dataSourceId: testDataSourceId },
+      { detectTargetId: testDataSourceId },
       mockContext,
     )
 
@@ -325,7 +326,7 @@ describe("detect-datasource-updates handler", () => {
 
     // When: 2回目の実行（同じデータ）
     const result2 = await handler(
-      { dataSourceId: testDataSourceId },
+      { detectTargetId: testDataSourceId },
       mockContext,
     )
 
@@ -344,7 +345,7 @@ describe("detect-datasource-updates handler", () => {
   test("データソースが存在しない場合はエラーを投げる", async () => {
     // When & Then: 存在しないデータソースIDでエラーが発生することを確認
     await expect(
-      handler({ dataSourceId: "non-existent-id" }, mockContext),
+      handler({ detectTargetId: "non-existent-id" }, mockContext),
     ).rejects.toThrow()
   })
 
@@ -357,19 +358,19 @@ describe("detect-datasource-updates handler", () => {
 
     // When & Then: GitHub APIエラーが適切に伝播されることを確認
     await expect(
-      handler({ dataSourceId: testDataSourceId }, mockContext),
+      handler({ detectTargetId: testDataSourceId }, mockContext),
     ).rejects.toThrow()
   })
 
   test("入力パラメータが不正な場合はエラーを投げる", async () => {
-    // When & Then: dataSourceIdがない場合
-    const invalidInput = {} as unknown as { dataSourceId: string }
+    // When & Then: detectTargetIdがない場合
+    const invalidInput = {} as unknown as { detectTargetId: string }
     await expect(handler(invalidInput, mockContext)).rejects.toThrow(
       "Invalid input parameters",
     )
 
-    // When & Then: dataSourceIdが空文字の場合
-    await expect(handler({ dataSourceId: "" }, mockContext)).rejects.toThrow(
+    // When & Then: detectTargetIdが空文字の場合
+    await expect(handler({ detectTargetId: "" }, mockContext)).rejects.toThrow(
       "Invalid input parameters",
     )
   })

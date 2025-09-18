@@ -1,45 +1,54 @@
 import { uuidv7 } from "uuidv7"
-import { DataSourceRepository } from "../../../data-sources/repositories"
-import { isGitHubDataSource } from "../../../data-sources/domain"
-import { DrizzleActivityRepository } from "../../infra/repositories"
 import { ACTIVITY_TYPE } from "../../domain/activity"
 import {
   DETECTION_DEFAULTS,
   DETECTION_ERRORS,
 } from "../../constants/detection.constants"
 import { GitHubActivityGateway } from "../ports/github-activity.gateway"
+import {
+  DetectTargetId,
+  isGitHubDataSource,
+  toDetectTargetId,
+} from "../../domain/detect-target"
+import { DetectTargetRepository } from "../../domain/repositories/detect-target.repository"
+import { ActivityRepository } from "../../domain/repositories/activity.repository"
 
 /**
  * データソースの更新を検知するサービス
  */
 export class DetectUpdateUseCase {
   constructor(
-    private dataSourceRepository: DataSourceRepository,
-    private activityRepository: DrizzleActivityRepository,
+    private detectTargetRepository: DetectTargetRepository,
+    private activityRepository: ActivityRepository,
     private githubActivityGateway: GitHubActivityGateway,
   ) {}
 
   /**
    * 指定されたデータソースの更新を検知し、新規イベントを保存する
    */
-  async detectUpdates(dataSourceId: string): Promise<string[]> {
+  async detectUpdates(rawDetectTargetId: DetectTargetId): Promise<string[]> {
+    const detectTargetId = toDetectTargetId(rawDetectTargetId)
+
     // 1. データソース情報の取得（repository内包）
-    const dataSource = await this.dataSourceRepository.findById(dataSourceId)
-    if (!dataSource) {
+    const detectTarget =
+      await this.detectTargetRepository.findById(detectTargetId)
+    if (!detectTarget) {
       throw new Error(DETECTION_ERRORS.DATA_SOURCE_NOT_FOUND)
     }
 
     // 2. GitHubDataSourceかどうかチェック
-    if (!isGitHubDataSource(dataSource)) {
+    if (!isGitHubDataSource(detectTarget)) {
       throw new Error("Unsupported data source type")
     }
 
-    const githubDataSource = dataSource
-    const repository = githubDataSource.repository
+    const githubDetectTarget = detectTarget
+    const repository = githubDetectTarget.repository
 
     // 3. 前回実行時刻の取得
     const lastCheckTime =
-      await this.activityRepository.getLastCheckTimeForDataSource(dataSourceId)
+      await this.activityRepository.getLastCheckTimeForDataSource(
+        detectTargetId,
+      )
     const sinceDate = lastCheckTime || this.getDefaultSinceDate()
 
     // 4. GitHub APIで更新を取得
@@ -48,9 +57,9 @@ export class DetectUpdateUseCase {
 
     // 並列実行し、どれか一つでもエラーがあればthrowする
     const results = await Promise.allSettled([
-      this.fetchAndSaveReleases(owner, repo, dataSourceId, sinceDate),
-      this.fetchAndSaveIssues(owner, repo, dataSourceId, sinceDate),
-      this.fetchAndSavePullRequests(owner, repo, dataSourceId, sinceDate),
+      this.fetchAndSaveReleases(owner, repo, detectTargetId, sinceDate),
+      this.fetchAndSaveIssues(owner, repo, detectTargetId, sinceDate),
+      this.fetchAndSavePullRequests(owner, repo, detectTargetId, sinceDate),
     ])
 
     // どれか一つでもエラーがあれば最初のエラーをthrow
@@ -81,7 +90,7 @@ export class DetectUpdateUseCase {
   private async fetchAndSaveReleases(
     owner: string,
     repo: string,
-    dataSourceId: string,
+    detectTargetId: DetectTargetId,
     sinceDate: Date,
   ): Promise<string[]> {
     const releases = await this.githubActivityGateway.getReleases(owner, repo, {
@@ -99,7 +108,7 @@ export class DetectUpdateUseCase {
     // イベントとして保存
     const activitiesToSave = newReleases.map((release) => ({
       id: uuidv7(),
-      dataSourceId,
+      detectTargetId,
       githubEventId: release.id.toString(),
       activityType: ACTIVITY_TYPE.RELEASE,
       title: release.name || release.tag_name,
@@ -121,7 +130,7 @@ export class DetectUpdateUseCase {
   private async fetchAndSaveIssues(
     owner: string,
     repo: string,
-    dataSourceId: string,
+    detectTargetId: DetectTargetId,
     sinceDate: Date,
   ): Promise<string[]> {
     const issues = await this.githubActivityGateway.getIssues(owner, repo, {
@@ -133,7 +142,7 @@ export class DetectUpdateUseCase {
     // イベントとして保存
     const activitiesToSave = issues.map((issue) => ({
       id: uuidv7(),
-      dataSourceId,
+      detectTargetId,
       githubEventId: issue.id.toString(),
       activityType: ACTIVITY_TYPE.ISSUE,
       title: issue.title,
@@ -153,7 +162,7 @@ export class DetectUpdateUseCase {
   private async fetchAndSavePullRequests(
     owner: string,
     repo: string,
-    dataSourceId: string,
+    detectTargetId: DetectTargetId,
     sinceDate: Date,
   ): Promise<string[]> {
     const pullRequests = await this.githubActivityGateway.getPullRequests(
@@ -169,7 +178,7 @@ export class DetectUpdateUseCase {
     // イベントとして保存
     const activitiesToSave = pullRequests.map((pr) => ({
       id: uuidv7(),
-      dataSourceId,
+      detectTargetId,
       githubEventId: pr.id.toString(),
       activityType: ACTIVITY_TYPE.PULL_REQUEST,
       title: pr.title,

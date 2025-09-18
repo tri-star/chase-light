@@ -40,8 +40,8 @@ describe("list-datasources handler", () => {
     const result = await handler({}, mockContext)
 
     // Then: 結果を検証
-    expect(result.dataSources).toHaveLength(1)
-    expect(result.dataSources[0]).toEqual({
+    expect(result.detectTargets).toHaveLength(1)
+    expect(result.detectTargets[0]).toEqual({
       id: testDataSource.id,
       sourceType: "github",
       sourceId: "test/repo",
@@ -95,9 +95,9 @@ describe("list-datasources handler", () => {
     const result = await handler({ sourceType: "github" }, mockContext)
 
     // Then: GitHubタイプのみが返されることを検証
-    expect(result.dataSources).toHaveLength(2)
-    expect(result.dataSources[0].sourceType).toBe("github")
-    expect(result.dataSources[0].sourceId).toBe("test/repo1")
+    expect(result.detectTargets).toHaveLength(2)
+    expect(result.detectTargets[0].sourceType).toBe("github")
+    expect(result.detectTargets[0].sourceId).toBe("test/repo1")
   })
 
   test("データソースが存在しない場合、空の配列を返す", async () => {
@@ -105,8 +105,8 @@ describe("list-datasources handler", () => {
     const result = await handler({}, mockContext)
 
     // Then: 空の配列が返されることを検証
-    expect(result.dataSources).toHaveLength(0)
-    expect(result.dataSources).toEqual([])
+    expect(result.detectTargets).toHaveLength(0)
+    expect(result.detectTargets).toEqual([])
   })
 
   // test("データベースエラーが発生した場合、エラーを投げる", async () => {

@@ -11,6 +11,7 @@ import {
 } from "../../../domain/activity"
 import { DATA_SOURCE_TYPES } from "../../../../data-sources/domain/data-source"
 import { randomUUID } from "crypto"
+import { toDetectTargetId } from "../../../domain/detect-target"
 
 describe("process-updates handler", () => {
   setupComponentTest()
@@ -91,7 +92,10 @@ describe("process-updates handler", () => {
       activityType: ACTIVITY_TYPE.RELEASE,
     })
     // イベントを DB に保存
-    await activityRepository.upsert(event1)
+    await activityRepository.upsert({
+      ...event1,
+      detectTargetId: toDetectTargetId(event1.dataSourceId),
+    })
 
     // TranslationService をスタブ化
     const { TranslationAdapter } = await import(
@@ -136,7 +140,10 @@ describe("process-updates handler", () => {
     })
 
     // イベントを DB に保存
-    await activityRepository.upsert(completedEvent)
+    await activityRepository.upsert({
+      ...completedEvent,
+      detectTargetId: toDetectTargetId(completedEvent.dataSourceId),
+    })
 
     // TranslationService をスタブ化
     const { TranslationAdapter } = await import(

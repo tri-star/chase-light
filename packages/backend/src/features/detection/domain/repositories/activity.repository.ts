@@ -1,4 +1,5 @@
 import { Activity, ActivityStatus, ActivityType } from "../activity"
+import { DetectTargetId } from "../detect-target"
 
 export interface ActivityRepository {
   /**
@@ -7,7 +8,7 @@ export interface ActivityRepository {
    */
   upsert(data: {
     id?: string
-    dataSourceId: string
+    detectTargetId: DetectTargetId
     githubEventId: string
     activityType: ActivityType
     title: string
@@ -25,7 +26,7 @@ export interface ActivityRepository {
   upsertMany(
     dataList: Array<{
       id?: string
-      dataSourceId: string
+      detectTargetId: DetectTargetId
       githubEventId: string
       activityType: ActivityType
       title: string
@@ -42,7 +43,9 @@ export interface ActivityRepository {
    * 指定されたデータソースの最新イベントのcreatedAtを取得
    * 初回実行時はnullを返す
    */
-  getLastCheckTimeForDataSource(dataSourceId: string): Promise<Date | null>
+  getLastCheckTimeForDataSource(
+    dataSourceId: DetectTargetId,
+  ): Promise<Date | null>
 
   /**
    * IDリストによる複数イベントの取得
@@ -87,7 +90,7 @@ export interface ActivityRepository {
    * データソースIDとステータスでイベントを取得
    */
   findByDataSourceAndStatus(
-    dataSourceId: string,
+    detectTargetId: DetectTargetId,
     status: ActivityStatus,
     limit: number,
   ): Promise<Activity[]>
@@ -96,7 +99,7 @@ export interface ActivityRepository {
    * 指定期間内のイベント数を取得（統計用）
    */
   countByDataSourceAndDateRange(
-    dataSourceId: string,
+    detectTargetId: DetectTargetId,
     startDate: Date,
     endDate: Date,
   ): Promise<number>

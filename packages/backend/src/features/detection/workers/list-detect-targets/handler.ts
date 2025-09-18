@@ -2,12 +2,12 @@ import type { Context } from "aws-lambda"
 import { connectDb } from "../../../../db/connection"
 import { DrizzleDetectTargetRepository } from "../../infra/repositories/drizzle-detect-target.repository"
 
-interface ListDataSourcesInput {
+interface ListDetectTargetsInput {
   sourceType?: string
 }
 
-interface ListDataSourcesOutput {
-  dataSources: Array<{
+interface ListDetectTargetsOutput {
+  detectTargets: Array<{
     id: string
     sourceType: string
     sourceId: string
@@ -21,9 +21,9 @@ interface ListDataSourcesOutput {
 }
 
 export const handler = async (
-  event: ListDataSourcesInput,
+  event: ListDetectTargetsInput,
   context: Context,
-): Promise<ListDataSourcesOutput> => {
+): Promise<ListDetectTargetsOutput> => {
   console.log("Event:", JSON.stringify(event, null, 2))
   console.log("Context:", context.awsRequestId)
 
@@ -38,16 +38,16 @@ export const handler = async (
     })
 
     return {
-      dataSources: result.dataSources.map((dataSource) => ({
-        id: dataSource.id,
-        sourceType: dataSource.sourceType,
-        sourceId: dataSource.sourceId,
-        name: dataSource.name,
-        description: dataSource.description,
-        url: dataSource.url,
-        isPrivate: dataSource.isPrivate,
-        createdAt: dataSource.createdAt.toISOString(),
-        updatedAt: dataSource.updatedAt.toISOString(),
+      detectTargets: result.detectTargets.map((detectTarget) => ({
+        id: detectTarget.id,
+        sourceType: detectTarget.sourceType,
+        sourceId: detectTarget.sourceId,
+        name: detectTarget.name,
+        description: detectTarget.description,
+        url: detectTarget.url,
+        isPrivate: detectTarget.isPrivate,
+        createdAt: detectTarget.createdAt.toISOString(),
+        updatedAt: detectTarget.updatedAt.toISOString(),
       })),
     }
   } catch (error) {

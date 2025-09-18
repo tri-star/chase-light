@@ -9,6 +9,7 @@ import {
   ACTIVITY_STATUS,
 } from "../../domain/activity"
 import { ActivityRepository } from "../../domain/repositories/activity.repository"
+import { DetectTargetId } from "../../domain/detect-target"
 
 /**
  * アクティビティ情報の保存・更新を行うRepository
@@ -20,7 +21,7 @@ export class DrizzleActivityRepository implements ActivityRepository {
    */
   async upsert(data: {
     id?: string
-    dataSourceId: string
+    detectTargetId: DetectTargetId
     githubEventId: string
     activityType: ActivityType
     title: string
@@ -37,7 +38,7 @@ export class DrizzleActivityRepository implements ActivityRepository {
 
     const insertData = {
       id,
-      dataSourceId: data.dataSourceId,
+      dataSourceId: data.detectTargetId,
       githubEventId: data.githubEventId,
       eventType: data.activityType,
       title: data.title,
@@ -79,7 +80,7 @@ export class DrizzleActivityRepository implements ActivityRepository {
   async upsertMany(
     dataList: Array<{
       id?: string
-      dataSourceId: string
+      detectTargetId: DetectTargetId
       githubEventId: string
       activityType: ActivityType
       title: string
@@ -99,7 +100,7 @@ export class DrizzleActivityRepository implements ActivityRepository {
     const connection = await TransactionManager.getConnection()
     const insertDataList = dataList.map((data) => ({
       id: data.id || randomUUID(),
-      dataSourceId: data.dataSourceId,
+      dataSourceId: data.detectTargetId,
       githubEventId: data.githubEventId,
       eventType: data.activityType, // TODO: eventType -> activityType に統一。別フェーズで実施する
       title: data.title,
@@ -142,7 +143,7 @@ export class DrizzleActivityRepository implements ActivityRepository {
    * 初回実行時はnullを返す
    */
   async getLastCheckTimeForDataSource(
-    dataSourceId: string,
+    dataSourceId: DetectTargetId,
   ): Promise<Date | null> {
     const connection = await TransactionManager.getConnection()
 

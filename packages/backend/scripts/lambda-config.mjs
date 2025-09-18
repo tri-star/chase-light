@@ -1,9 +1,9 @@
 // Lambda関数の設定定義
 export const lambdaConfigs = {
-  "list-datasources": {
-    name: "list-datasources-lambda",
-    description: "List data sources for detection",
-    entryPoint: "./src/features/detection/workers/list-datasources/index.ts",
+  "list-detect-targets": {
+    name: "list-detect-targets-lambda",
+    description: "List detect targets for monitoring",
+    entryPoint: "./src/features/detection/workers/list-detect-targets/index.ts",
     // バンドルから除外するパッケージ（node_modulesにインストールされる）
     externalPackages: ["@aws-sdk/*", "aws-sdk", "pg", "drizzle-orm", "dotenv"],
     // Lambda関数のpackage.jsonに含める依存関係

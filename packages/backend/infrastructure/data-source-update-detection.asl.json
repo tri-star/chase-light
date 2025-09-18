@@ -1,18 +1,18 @@
 {
   "Comment": "Repository monitoring workflow - detects updates for all data sources",
-  "StartAt": "ListDataSources",
+  "StartAt": "ListDetectTargets",
   "States": {
-    "ListDataSources": {
+    "ListDetectTargets": {
       "Type": "Task",
       "Resource": "arn:aws:states:::lambda:invoke",
       "Parameters": {
-        "FunctionName": "${ListDataSourcesFunction.Arn}",
+        "FunctionName": "${ListDetectTargetsFunction.Arn}",
         "Payload": {
           "sourceType": "github"
         }
       },
-      "ResultPath": "$.listDataSourcesResult",
-      "OutputPath": "$.listDataSourcesResult.Payload",
+      "ResultPath": "$.listDetectTargetsResult",
+      "OutputPath": "$.listDetectTargetsResult.Payload",
       "Next": "ProcessDataSources",
       "Retry": [
         {
@@ -39,7 +39,7 @@
       "ItemsPath": "$.dataSources",
       "MaxConcurrency": 5,
       "Parameters": {
-        "dataSourceId.$": "$$.Map.Item.Value.id"
+        "detectTargetId.$": "$$.Map.Item.Value.id"
       },
       "Iterator": {
         "StartAt": "DetectDataSourceUpdates",
@@ -50,7 +50,7 @@
             "Parameters": {
               "FunctionName": "${DetectDataSourceUpdatesFunctionArn}",
               "Payload": {
-                "dataSourceId.$": "$.dataSourceId"
+                "detectTargetId.$": "$.detectTargetId"
               }
             },
             "ResultPath": "$.detectUpdatesResult",

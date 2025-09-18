@@ -1,6 +1,6 @@
-import { DrizzleActivityRepository } from "../../infra/repositories"
 import { TranslationPort } from "../../application/ports/translation.port"
 import { ACTIVITY_STATUS, type Activity } from "../../domain/activity"
+import { ActivityRepository } from "../../domain/repositories/activity.repository"
 
 interface ProcessUpdatesInputDto {
   activityIds: string[]
@@ -22,7 +22,7 @@ interface ProcessactivityResult {
  */
 export class ProcessUpdatesUseCase {
   constructor(
-    private activityRepository: DrizzleActivityRepository,
+    private activityRepository: ActivityRepository,
     private translationPort: TranslationPort,
   ) {}
 

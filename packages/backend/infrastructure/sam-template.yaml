@@ -48,13 +48,13 @@ Resources:
       MessageRetentionPeriod: 1209600  # 14 days
 
   # Lambda Functions
-  ListDataSourcesFunction:
+  ListDetectTargetsFunction:
     Type: AWS::Serverless::Function
     Properties:
-      FunctionName: !Sub "${AWS::StackName}-list-datasources"
-      CodeUri: ../dist/lambda/list-datasources/
+      FunctionName: !Sub "${AWS::StackName}-list-detect-targets"
+      CodeUri: ../dist/lambda/list-detect-targets/
       Handler: index.handler
-      Description: 'List data sources for monitoring'
+      Description: 'List detect targets for monitoring'
       Policies:
         - Statement:
             - Effect: Allow
@@ -62,7 +62,7 @@ Resources:
                 - logs:CreateLogGroup
                 - logs:CreateLogStream
                 - logs:PutLogEvents
-              Resource: !Sub "arn:${AWS::Partition}:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/${AWS::StackName}-list-datasources*"
+              Resource: !Sub "arn:${AWS::Partition}:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/${AWS::StackName}-list-detect-targets*"
         - Statement:
             - Effect: Allow
               Action:
@@ -130,7 +130,7 @@ Resources:
       Name: !Sub "${AWS::StackName}-data-source-update-detection"
       DefinitionUri: data-source-update-detection.asl.json
       DefinitionSubstitutions:
-        ListDataSourcesFunctionArn: !GetAtt ListDataSourcesFunction.Arn
+        ListDetectTargetsFunctionArn: !GetAtt ListDetectTargetsFunction.Arn
         DetectDataSourceUpdatesFunctionArn: !GetAtt DetectDataSourceUpdatesFunction.Arn
         ProcessUpdatesFunction: !GetAtt ProcessUpdatesFunction.Arn
         ProcessUpdatesQueueUrl: !Ref ProcessUpdatesQueue
@@ -291,11 +291,11 @@ Outputs:
     Export:
       Name: !Sub "${AWS::StackName}-StateMachineArn"
   
-  ListDataSourcesFunctionArn:
-    Description: 'ARN of the list data sources function'
-    Value: !GetAtt ListDataSourcesFunction.Arn
+  ListDetectTargetsFunctionArn:
+    Description: 'ARN of the list detect targets function'
+    Value: !GetAtt ListDetectTargetsFunction.Arn
     Export:
-      Name: !Sub "${AWS::StackName}-ListDataSourcesFunctionArn"
+      Name: !Sub "${AWS::StackName}-ListDetectTargetsFunctionArn"
 
   DetectDataSourceUpdatesFunctionArn:
     Description: 'ARN of the detect data source updates function'
