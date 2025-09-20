@@ -11,7 +11,7 @@ import { GitHubActivityGateway } from "../../../application/ports/github-activit
  * GitHub API サービスのスタブ実装
  * E2Eテストで使用し、実際のGitHub APIを呼び出さずに制御可能なレスポンスを返す
  */
-export class GitHubActivityStubGateway implements GitHubActivityGateway {
+export class StubGitHubActivityGateway implements GitHubActivityGateway {
   private stubReleases:
     | GitHubReleaseResponse[]
     | { status: number; message: string }

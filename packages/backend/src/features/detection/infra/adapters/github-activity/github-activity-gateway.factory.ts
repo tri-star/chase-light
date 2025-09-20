@@ -1,5 +1,5 @@
 import { GitHubActivityGateway as GitHubActivityGatewayInterface } from "../../../application/ports/github-activity.gateway"
-import { GitHubActivityStubGateway } from "./github-activity-stub.gateway"
+import { StubGitHubActivityGateway } from "./stub-github-activity.gateway"
 import { GitHubActivityGateway } from "./github-activity.gateway"
 
 let stubInstance: GitHubActivityGatewayInterface | null = null
@@ -15,7 +15,7 @@ export function createGitHubActivityGateway(
 
   if (useStub) {
     if (!stubInstance) {
-      stubInstance = new GitHubActivityStubGateway()
+      stubInstance = new StubGitHubActivityGateway()
     }
     return stubInstance
   }

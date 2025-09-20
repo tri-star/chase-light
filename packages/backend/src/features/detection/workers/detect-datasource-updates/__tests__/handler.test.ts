@@ -6,7 +6,7 @@ import { setupComponentTest } from "../../../../../test"
 import { TestDataFactory } from "../../../../../test/factories"
 import { DrizzleActivityRepository } from "../../../infra/repositories"
 import { ACTIVITY_STATUS, ACTIVITY_TYPE } from "../../../domain/activity"
-import { GitHubActivityStubGateway } from "../../../infra/adapters/github-activity/github-activity-stub.gateway"
+import { StubGitHubActivityGateway } from "../../../infra/adapters/github-activity/stub-github-activity.gateway"
 import { toDetectTargetId } from "../../../domain/detect-target"
 
 describe("detect-datasource-updates handler", () => {
@@ -62,7 +62,7 @@ describe("detect-datasource-updates handler", () => {
   setupComponentTest()
 
   let activityRepository: DrizzleActivityRepository
-  let githubActivityStubGateway: GitHubActivityStubGateway
+  let githubActivityStubGateway: StubGitHubActivityGateway
   let mockContext: Context
 
   let testDataSourceId: string
@@ -75,7 +75,7 @@ describe("detect-datasource-updates handler", () => {
       "../../../infra/adapters/github-activity/github-activity-gateway.factory"
     )
     githubActivityStubGateway =
-      createGitHubActivityGateway() as GitHubActivityStubGateway
+      createGitHubActivityGateway() as StubGitHubActivityGateway
 
     mockContext = {
       awsRequestId: "test-request-id",
