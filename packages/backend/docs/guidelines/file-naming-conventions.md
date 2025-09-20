@@ -2,64 +2,91 @@
 
 ## 概要
 
-このドキュメントでは、`packages/backend`内で使用されるファイルとディレクトリの命名規則を定めます。一貫した命名規則は、プロジェクトのナビゲーションを容易にし、ファイルの内容を予測しやすくします。
+`packages/backend` ではフィーチャー単位のディレクトリ構成を採用しています。ファイル名は責務と境界を示す重要なメタデータであり、命名規則を揃えることでコード探索とレビューを容易にします。`src/features/detection` は最新ルールを反映した参照実装です。
 
-## 一般的な規則
+## 共通ルール
 
-- **形式**: `kebab-case`（ケバブケース）を使用します。
-- **言語**: 原則として英語を使用します。
-- **単語**: 略語を避け、明確で説明的な単語を選択します。
+- 形式は原則として `kebab-case` を用います（`detect-update.use-case.ts` など）。
+- 予約語との衝突を避け、意味のある英単語を使用します。
+- テストファイルはターゲットと同じディレクトリに `__tests__` を作成し、`*.test.ts` で命名します。
 
-## レイヤーごとの命名規則
+## レイヤー別の命名指針
 
-### `domain`
+### domain/
 
-- エンティティやビジネスオブジェクトを表すファイルは、単数形で命名します。
-  - 例: `user.ts`, `order.ts`
+- エンティティや値オブジェクトは概念を単数形で表現します。
+  - 例: `activity.ts`, `detect-target.ts`
+- IDのブランド化関数は `to<Entity>NameId` の形で定義します（`toDetectTargetId`）。
+- ドメインサービス・定数を含むファイルも同様に概念ベースで命名します。
 
-### `repositories`
+### domain/repositories/
 
-- リポジトリクラスを定義するファイルは、`[entity-name].repository.ts`の形式で命名します。
-  - 例: `user.repository.ts`
+- ドメインリポジトリのポートは `[resource].repository.ts` とします。
+  - 例: `activity.repository.ts`, `detect-target.repository.ts`
+- DTOは `*InputDto` / `*OutputDto` のように用途を明確にします。
 
-### `services`
+### application/use-cases/
 
-- サービスクラスを定義するファイルは、`[feature-name].service.ts`の形式で命名します。
-  - 例: `user-profile.service.ts`, `user-settings.service.ts`
+- ユースケースは「動詞-名詞」で表現し、`*.use-case.ts` をサフィックスに付与します。
+  - 例: `detect-update.use-case.ts`, `process-updates.use-case.ts`
 
-### `presentation`
+### application/ports/
 
-- **ルート定義**:
-  - リソースに関連するルートを定義するファイルは、`index.ts`とし、リソース名のディレクトリ内に配置します。
-    - 例: `routes/profile/index.ts`
-  - フィーチャー全体のルートを統合するファイルは `routes.ts` とします。
-    - 例: `presentation/routes.ts`
-- **スキーマ定義**:
-  - Zodスキーマを定義するファイルは、`[resource-name]-[purpose].schema.ts`の形式で命名します。
-    - 例: `user-base.schema.ts`, `user-error.schema.ts`
-- **テストファイル**:
-  - テストファイルは、`[file-name].test.ts` の形式で命名します。
-    - 例: `user-profile.service.test.ts`
+- 外部システムや他レイヤーとの契約を示すファイルは対象を先頭にし、目的語をサフィックスで表現します。
+  - Gateway/Adapter系: `github-activity.gateway.ts`, `some-vendor-activity.messenger.ts`, `some.port.ts`
+- 1ファイルに 1 ポートを原則とし、入出力型を併記します。
 
-### `workers`
+### infra/repositories/
 
-- **ワーカー関数**:
-  - ワーカー関数のハンドラーファイルは、`handler.ts`とし、ワーカー名のディレクトリ内に配置します。
-    - 例: `workers/list-datasources/handler.ts`
-  - ワーカー関数のエントリーポイントは `index.ts` とします。
-    - 例: `workers/list-datasources/index.ts`
-- **StepFunctions定義**:
-  - StepFunctionsのASL定義ファイルは、`[workflow-name].asl.json`の形式で命名します。
-    - 例: `step-functions/repository-monitoring.asl.json`
-  - SAMテンプレートファイルは、`sam-template.yaml`とします。
-    - 例: `step-functions/sam-template.yaml`
-- **テストファイル**:
-  - ワーカー関数のテストファイルは、`handler.test.ts`の形式で命名します。
-    - 例: `workers/list-datasources/__tests__/handler.test.ts`
-  - 統合テストファイルは、`workflow.integration.test.ts`の形式で命名します。
-    - 例: `workers/__tests__/workflow.integration.test.ts`
+- 実装クラスは採用している技術スタックを接頭語に付与します。
+  - 例: `drizzle-activity.repository.ts`, `drizzle-detect-target.repository.ts`
+
+### infra/adapters/
+
+- サブディレクトリで外部サービスや種別ごとに分け、`[能力]-[役割].gateway.ts` や `[能力].adapter.ts` と命名します。
+  - 例: `github-activity/github-activity.gateway.ts`
+  - スタブは `stub-*.gateway.ts` / `stub-*.adapter.ts`
+- Factory を用意する場合は `*-gateway.factory.ts` のように目的が分かる名前を付けます。
+
+### presentation/
+
+- HTTPルートを提供する場合は以下のように定義します。
+  - `routes/` 以下にリソース単位でまとめ、`index.ts` で再エクスポート
+- スキーマやレスポンス整形専用ファイルは以下のように定義します。
+  - `schemas/` 以下に `[resource]-[purpose].schema.ts` などの名前で定義します。
+
+```
+- presentation/
+  - routes/
+    - data-sources/
+      - index.ts # API URLと近い形式。 GET /data-sources/, POST /data-sources に対応
+    - index.ts # routes配下の各ハンドラー関数を再exportするバレルファイル
+  - schemas/
+    - detect-target-request.schema.ts
+    - detect-target-response.schema.ts
+```
+
+### workers/
+
+- ワーカー名のディレクトリを作成し、エントリポイントは `handler.ts` を使用します。
+- テストは `__tests__/handler.test.ts` とし、ハンドラーと同一階層に配置します。
+
+```
+- workers/
+  - process-updates/
+    - handler.ts
+    - __tests__/
+      - handler.test.ts
+```
+
+### constants/
+
+- フィーチャー固有の定数は `*.constants.ts` に集約します。
+  - 例: `detection.constants.ts`
+- 定数オブジェクトは `*_DEFAULTS`, `*_LIMITS`, `*_ERRORS` のように役割ごとに分割します。
 
 ## ディレクトリ名
 
-- 複数形を使用することが推奨されます（例: `features`, `services`, `repositories`）。
-- テストコードはコロケーションを意識し、プロダクションコードと同じ階層に `__tests__` ディレクトリを作成します。
+- フィーチャー直下のレイヤーは複数形を用います（`use-cases`, `ports`, `adapters`）。
+- Hono ルートやワーカーなど入出力境界は処理単位でディレクトリを切り、概念を表す英語名にします。
+- 過渡的な共通コードは `core/` や `shared/` へ移設し、フィーチャー直下へ置かないようにします。

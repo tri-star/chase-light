@@ -5,7 +5,7 @@ import process from "node:process"
 import console from "node:console"
 import { setTimeout } from "node:timers"
 import { config } from "dotenv"
-import { getDatabaseConfig } from "../shared/config/database.js"
+import { getDatabaseConfig } from "../core/config/database.js"
 
 // Load environment variables
 config()

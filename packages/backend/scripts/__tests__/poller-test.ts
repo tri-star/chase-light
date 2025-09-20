@@ -156,7 +156,7 @@ async function runTests() {
 
     // privateメソッドのテストのため、anyキャストを使用
     const mockMessage: Message = {
-      Body: JSON.stringify({ eventId: "test-123" }),
+      Body: JSON.stringify({ activityId: "test-123" }),
       MessageId: "msg-123",
       ReceiptHandle: "receipt-123",
     }
@@ -165,7 +165,7 @@ async function runTests() {
     // 代わりにメッセージの形式が正しいことを確認
     assertExists(mockMessage.Body)
     const parsed = JSON.parse(mockMessage.Body)
-    assertEquals(parsed.eventId, "test-123")
+    assertEquals(parsed.activityId, "test-123")
   })
 
   test("不正なJSONメッセージの処理", () => {

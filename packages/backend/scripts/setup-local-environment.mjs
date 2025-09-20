@@ -49,14 +49,14 @@ const log = {
 const CONFIG = {
   aslTemplate: path.join(
     BACKEND_DIR,
-    "infrastructure/repository-monitoring.asl.json",
+    "infrastructure/data-source-update-detection.asl.json",
   ),
   localVariables: path.join(BACKEND_DIR, "infrastructure/local-variables.json"),
   tempFile: path.join(
     BACKEND_DIR,
-    "infrastructure/.repository-monitoring-local.tmp.json",
+    "infrastructure/.data-source-update-detection-local.tmp.json",
   ),
-  stateMachineName: "repository-monitoring-local",
+  stateMachineName: "data-source-update-detection-local",
   awsRegion: "us-east-1",
   samPort: 3001,
   dbPort: process.env.DB_PORT || 5432,
