@@ -34,14 +34,6 @@ description: "bacckend:Planフェーズ"
 - テスト戦略: @packages/backend/docs/guidelines/testing-strategy.md
 - API実装ガイドライン: @packages/backend/docs/guidelines/api-implementation-guide.md
 
-上記の方針で実装した既存コードは以下を参照
-
-- Presentation層(APIルート定義、エンドポイント実装): packages/backend/src/features/data-sources/presentation/routes/data-sources/index.ts
-- サービス層： packages/backend/src/features/data-sources/services/data-source-creation.service.ts
-  - 外部サービス呼び出し: packages/backend/src/features/data-sources/services/github-api.service.ts
-- DBアクセス層： packages/backend/src/features/data-sources/repositories/data-source.repository.ts
-- ドメイン層: packages/backend/src/features/data-sources/domain/data-source.ts
-
 ### 4. 課題内容の確認
 
 <issue>
