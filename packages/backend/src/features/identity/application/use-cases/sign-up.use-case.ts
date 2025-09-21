@@ -1,14 +1,11 @@
-/**
- * Auth Signup Service
- *
- * ユーザー登録機能を提供するサービス
- */
-import { JWTValidator } from "./jwt-validator.service"
-import { UserRepository } from "../../user/repositories/user.repository.js"
-import { AuthError } from "../errors/auth.error"
-import { getAuth0Config } from "../utils/auth-config"
-import type { JWTPayload } from "../types/auth.types"
-import { User } from "../../user/domain/user"
+import type { JWTPayload } from "../../../../core/auth"
+import { AuthError } from "../../../../core/auth"
+import type { JwtValidatorPort } from "../ports/jwt-validator.port"
+// REVIEW: このファイルで意図しないfeatureまたぎが起きているのに気が付きました。
+//         features/userは、features/identityに完全に統合してしまってください。
+//         (features/identityはユーザーの管理、認証の管理機能としたいため)
+import { UserRepository } from "../../../user/repositories/user.repository.js"
+import { User } from "../../../user/domain/user"
 import { uuidv7 } from "uuidv7"
 
 export interface SignUpRequest {
@@ -39,16 +36,18 @@ interface ExtractedUserInfo {
   githubUsername?: string
 }
 
-/**
- * ユーザー登録サービス
- */
-export class AuthSignupService {
-  private readonly jwtValidator: JWTValidator
+export interface SignUpUseCaseDependencies {
+  jwtValidator: JwtValidatorPort
+  userRepository?: UserRepository
+}
+
+export class SignUpUseCase {
+  private readonly jwtValidator: JwtValidatorPort
   private readonly userRepository: UserRepository
 
-  constructor(jwtValidator?: JWTValidator, userRepository?: UserRepository) {
-    this.jwtValidator = jwtValidator || new JWTValidator(getAuth0Config())
-    this.userRepository = userRepository || new UserRepository()
+  constructor({ jwtValidator, userRepository }: SignUpUseCaseDependencies) {
+    this.jwtValidator = jwtValidator
+    this.userRepository = userRepository ?? new UserRepository()
   }
 
   /**
@@ -180,5 +179,5 @@ export class AuthSignupService {
   }
 }
 
-// シングルトンインスタンス
-export const authSignupService = new AuthSignupService()
+export const createSignUpUseCase = (deps: SignUpUseCaseDependencies) =>
+  new SignUpUseCase(deps)

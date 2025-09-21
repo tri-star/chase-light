@@ -5,12 +5,12 @@
  */
 import { Context, Next } from "hono"
 import { HTTPException } from "hono/http-exception"
-import type { AuthenticatedUser, AuthContext } from "../types/auth.types"
+import type {
+  AuthenticatedUser,
+  AuthContext,
+  AccessTokenValidator,
+} from "../types/auth.types"
 import { AuthError } from "../errors/auth.error"
-import {
-  createJWTValidator,
-  type JWTValidatorInterface,
-} from "../services/jwt-validator.interface"
 
 /**
  * JWT認証ミドルウェアのオプション
@@ -22,6 +22,10 @@ export interface JWTAuthOptions {
   extractToken?: (c: Context) => string | null
   /** エラーハンドリングのカスタマイズ */
   onError?: (error: AuthError, c: Context) => never
+}
+
+export interface JWTAuthDependencies {
+  validator: AccessTokenValidator
 }
 
 /**
@@ -71,23 +75,15 @@ function defaultErrorHandler(error: AuthError, c: Context): never {
 /**
  * JWT認証ミドルウェアファクトリー
  */
-export function createJWTAuthMiddleware(options: JWTAuthOptions = {}) {
+export function createJWTAuthMiddleware(
+  { validator }: JWTAuthDependencies,
+  options: JWTAuthOptions = {},
+) {
   const {
     optional = false,
     extractToken = defaultExtractToken,
     onError = defaultErrorHandler,
   } = options
-
-  // 環境に応じたJWTValidatorを作成
-  let validator: JWTValidatorInterface
-
-  try {
-    validator = createJWTValidator()
-  } catch (error) {
-    throw new Error(
-      `JWT Auth Middleware initialization failed: ${error instanceof Error ? error.message : "Unknown error"}`,
-    )
-  }
 
   return async (c: Context, next: Next) => {
     try {
@@ -155,16 +151,6 @@ export function createJWTAuthMiddleware(options: JWTAuthOptions = {}) {
     }
   }
 }
-
-/**
- * 必須認証ミドルウェア（デフォルト）
- */
-export const jwtAuth = createJWTAuthMiddleware()
-
-/**
- * オプショナル認証ミドルウェア
- */
-export const optionalJwtAuth = createJWTAuthMiddleware({ optional: true })
 
 /**
  * 認証済みユーザーを取得するヘルパー関数

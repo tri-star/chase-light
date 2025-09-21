@@ -17,8 +17,11 @@ import { UserRepository } from "../../../../../user/repositories/user.repository
 import { GitHubApiServiceStub } from "../../../../services/github-api-service.stub"
 import type { GitHubRepositoryResponse } from "../../../../services/interfaces/github-api-service.interface"
 import { setupComponentTest, TestDataFactory } from "../../../../../../test"
-import { AuthTestHelper } from "../../../../../auth/test-helpers/auth-test-helper"
-import { globalJWTAuth } from "../../../../../auth"
+import { AuthTestHelper } from "../../../../../identity/testing/auth-test-helper"
+import {
+  createGlobalJwtAuth,
+  StubJwtValidatorAdapter,
+} from "../../../../../identity"
 import type { User } from "../../../../../user/domain/user"
 import { db } from "../../../../../../db/connection"
 import { events, notifications } from "../../../../../../db/schema"
@@ -39,6 +42,7 @@ describe("DataSources API - Component Test", () => {
   let githubStub: GitHubApiServiceStub
   let testUser: User
   let testToken: string
+  let globalJWTAuth: ReturnType<typeof createGlobalJwtAuth>
 
   beforeEach(async () => {
     // テストユーザーの認証設定をクリア
@@ -92,6 +96,8 @@ describe("DataSources API - Component Test", () => {
     app = new OpenAPIHono()
 
     // 認証ミドルウェアを追加
+    const validatorFactory = () => new StubJwtValidatorAdapter()
+    globalJWTAuth = createGlobalJwtAuth({ validatorFactory })
     app.use("*", globalJWTAuth)
 
     // データソースルートを追加

@@ -2,29 +2,20 @@
  * Auth Signup Service Tests
  */
 import { describe, it, expect, beforeEach, vi } from "vitest"
-import { AuthSignupService } from "../auth-signup.service"
-import { JWTValidator } from "../jwt-validator.service"
-import { UserRepository } from "../../../user/repositories/user.repository.js"
-import { AuthError } from "../../errors/auth.error"
-import type { JWTPayload, TokenValidationResult } from "../../types/auth.types"
-import { User } from "../../../user/domain/user"
+import { SignUpUseCase } from "../sign-up.use-case"
+import type { JwtValidatorPort } from "../../ports/jwt-validator.port"
+import { UserRepository } from "../../../../user/repositories/user.repository.js"
+import { User } from "../../../../user/domain/user"
+import {
+  AuthError,
+  type JWTPayload,
+  type TokenValidationResult,
+} from "../../../../../core/auth"
 
-// 環境変数をモック
-vi.mock("../../utils/auth-config", () => ({
-  getAuth0Config: () => ({
-    domain: "test-domain.auth0.com",
-    audience: "test-audience",
-    appAudience: "test-app-audience",
-    issuer: "https://test-domain.auth0.com/",
-    jwksUri: "https://test-domain.auth0.com/.well-known/jwks.json",
-    algorithms: ["RS256"],
-  }),
-}))
-
-// モックの設定
-const mockJWTValidator = {
+const mockJwtValidator: JwtValidatorPort = {
   validateIdToken: vi.fn(),
-} as unknown as JWTValidator
+  validateAccessToken: vi.fn(),
+}
 
 const mockUserRepository = {
   findByAuth0Id: vi.fn(),
@@ -37,15 +28,15 @@ const mockUserRepository = {
   delete: vi.fn(),
 } as unknown as UserRepository
 
-describe("AuthSignupService", () => {
-  let authSignupService: AuthSignupService
+describe("SignUpUseCase", () => {
+  let signUpUseCase: SignUpUseCase
 
   beforeEach(() => {
     vi.clearAllMocks()
-    authSignupService = new AuthSignupService(
-      mockJWTValidator,
-      mockUserRepository,
-    )
+    signUpUseCase = new SignUpUseCase({
+      jwtValidator: mockJwtValidator,
+      userRepository: mockUserRepository,
+    })
   })
 
   describe("signUp", () => {
@@ -64,12 +55,15 @@ describe("AuthSignupService", () => {
 
     describe("正常系", () => {
       it("新規ユーザーを正常に登録する", async () => {
+        // REVIEW: presentation層のテストはDBアクセスを実際に行う状態でテストしたいため、UseCaseはモックせずに行うようにしてください。
+        //         テストデータの作成方法やリセット方法は 既存のコード(src/features/user/presentation/routes/profile/__tests__/index.test.ts) やテスト戦略のドキュメントを参照してください
+
         // Mock設定
         const mockValidationResult: TokenValidationResult = {
           valid: true,
           payload: validPayload,
         }
-        vi.mocked(mockJWTValidator.validateIdToken).mockResolvedValue(
+        vi.mocked(mockJwtValidator.validateIdToken).mockResolvedValue(
           mockValidationResult,
         )
 
@@ -91,10 +85,10 @@ describe("AuthSignupService", () => {
         vi.mocked(mockUserRepository.findById).mockResolvedValue(mockUser)
 
         // テスト実行
-        const result = await authSignupService.signUp({ idToken: validIdToken })
+        const result = await signUpUseCase.signUp({ idToken: validIdToken })
 
         // 検証
-        expect(mockJWTValidator.validateIdToken).toHaveBeenCalledWith(
+        expect(mockJwtValidator.validateIdToken).toHaveBeenCalledWith(
           validIdToken,
         )
         expect(mockUserRepository.findByAuth0Id).toHaveBeenCalledWith(
@@ -129,7 +123,7 @@ describe("AuthSignupService", () => {
           valid: true,
           payload: validPayload,
         }
-        vi.mocked(mockJWTValidator.validateIdToken).mockResolvedValue(
+        vi.mocked(mockJwtValidator.validateIdToken).mockResolvedValue(
           mockValidationResult,
         )
 
@@ -149,7 +143,7 @@ describe("AuthSignupService", () => {
           mockExistingUser,
         )
         // テスト実行
-        const result = await authSignupService.signUp({ idToken: validIdToken })
+        const result = await signUpUseCase.signUp({ idToken: validIdToken })
 
         // 検証
         expect(mockUserRepository.findByAuth0Id).toHaveBeenCalledWith(
@@ -217,7 +211,7 @@ describe("AuthSignupService", () => {
             valid: true,
             payload,
           }
-          vi.mocked(mockJWTValidator.validateIdToken).mockResolvedValue(
+          vi.mocked(mockJwtValidator.validateIdToken).mockResolvedValue(
             mockValidationResult,
           )
 
@@ -243,7 +237,7 @@ describe("AuthSignupService", () => {
           )
 
           // テスト実行
-          await authSignupService.signUp({ idToken: validIdToken })
+          await signUpUseCase.signUp({ idToken: validIdToken })
 
           // 検証
           expect(mockUserRepository.findByAuth0Id).toHaveBeenCalledWith(
@@ -265,16 +259,16 @@ describe("AuthSignupService", () => {
           valid: false,
           error: "Invalid token signature",
         }
-        vi.mocked(mockJWTValidator.validateIdToken).mockResolvedValue(
+        vi.mocked(mockJwtValidator.validateIdToken).mockResolvedValue(
           mockValidationResult,
         )
 
         // テスト実行・検証
         await expect(
-          authSignupService.signUp({ idToken: "invalid.token" }),
+          signUpUseCase.signUp({ idToken: "invalid.token" }),
         ).rejects.toThrow(AuthError)
 
-        expect(mockJWTValidator.validateIdToken).toHaveBeenCalledWith(
+        expect(mockJwtValidator.validateIdToken).toHaveBeenCalledWith(
           "invalid.token",
         )
         expect(vi.mocked(mockUserRepository.save)).not.toHaveBeenCalled()
@@ -286,13 +280,13 @@ describe("AuthSignupService", () => {
           valid: true,
           payload: undefined,
         }
-        vi.mocked(mockJWTValidator.validateIdToken).mockResolvedValue(
+        vi.mocked(mockJwtValidator.validateIdToken).mockResolvedValue(
           mockValidationResult,
         )
 
         // テスト実行・検証
         await expect(
-          authSignupService.signUp({ idToken: validIdToken }),
+          signUpUseCase.signUp({ idToken: validIdToken }),
         ).rejects.toThrow(AuthError)
       })
 
@@ -331,13 +325,13 @@ describe("AuthSignupService", () => {
               valid: true,
               payload,
             }
-            vi.mocked(mockJWTValidator.validateIdToken).mockResolvedValue(
+            vi.mocked(mockJwtValidator.validateIdToken).mockResolvedValue(
               mockValidationResult,
             )
 
             // テスト実行・検証
             await expect(
-              authSignupService.signUp({ idToken: validIdToken }),
+              signUpUseCase.signUp({ idToken: validIdToken }),
             ).rejects.toThrow(`Required claim is missing: ${expectedError}`)
 
             expect(vi.mocked(mockUserRepository.save)).not.toHaveBeenCalled()
@@ -351,7 +345,7 @@ describe("AuthSignupService", () => {
           valid: true,
           payload: validPayload,
         }
-        vi.mocked(mockJWTValidator.validateIdToken).mockResolvedValue(
+        vi.mocked(mockJwtValidator.validateIdToken).mockResolvedValue(
           mockValidationResult,
         )
 
@@ -362,7 +356,7 @@ describe("AuthSignupService", () => {
 
         // テスト実行・検証
         await expect(
-          authSignupService.signUp({ idToken: validIdToken }),
+          signUpUseCase.signUp({ idToken: validIdToken }),
         ).rejects.toThrow("Database connection failed")
       })
     })
@@ -392,12 +386,12 @@ describe("AuthSignupService", () => {
             valid: false,
             error: expectedError,
           }
-          vi.mocked(mockJWTValidator.validateIdToken).mockResolvedValue(
+          vi.mocked(mockJwtValidator.validateIdToken).mockResolvedValue(
             mockValidationResult,
           )
 
           // テスト実行・検証
-          await expect(authSignupService.signUp({ idToken })).rejects.toThrow(
+          await expect(signUpUseCase.signUp({ idToken })).rejects.toThrow(
             AuthError,
           )
         },

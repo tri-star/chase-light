@@ -2,8 +2,8 @@
  * JWT Validator Tests
  */
 import { describe, it, expect, beforeEach, vi } from "vitest"
-import { JWTValidator } from "../jwt-validator.service"
-import type { Auth0Config } from "../../types/auth.types"
+import { JwtValidatorAdapter } from "../jwt-validator.adapter"
+import type { Auth0Config } from "../../../../../../core/auth"
 import jwt from "jsonwebtoken"
 
 // モックの設定
@@ -29,8 +29,8 @@ vi.mock("jsonwebtoken", () => {
   }
 })
 
-describe("JWTValidator", () => {
-  let validator: JWTValidator
+describe("JwtValidatorAdapter", () => {
+  let validator: JwtValidatorAdapter
   let mockConfig: Auth0Config
 
   beforeEach(() => {
@@ -43,7 +43,7 @@ describe("JWTValidator", () => {
       algorithms: ["RS256"],
     }
 
-    validator = new JWTValidator(mockConfig)
+    validator = new JwtValidatorAdapter(mockConfig)
   })
 
   describe("validateAccessToken", () => {

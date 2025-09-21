@@ -133,7 +133,7 @@ packages/backend/src/
 
 ### 機能名の命名規則
 
-**重要**: 機能フォルダは単数形を使用する（例: `features/user/`, `features/auth/`）
+**重要**: 機能フォルダは単数形を使用する（例: `features/user/`, `features/identity/`）
 
 - **単一語**: `auth`, `user`, `order`
 - **複数語**: `data-source`, `user-preference`, `order-history`

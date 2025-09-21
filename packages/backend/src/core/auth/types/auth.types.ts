@@ -70,6 +70,18 @@ export interface TokenValidationResult {
   error?: string
 }
 
+export interface AccessTokenValidator {
+  /** アクセストークンの検証 */
+  validateAccessToken(token: string): Promise<TokenValidationResult>
+}
+
+export interface IdTokenValidator {
+  /** IDトークンの検証 */
+  validateIdToken(token: string): Promise<TokenValidationResult>
+}
+
+export interface JWTValidator extends AccessTokenValidator, IdTokenValidator {}
+
 export interface AuthContext {
   /** 認証済みユーザー情報 */
   user: AuthenticatedUser

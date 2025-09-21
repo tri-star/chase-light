@@ -7,6 +7,7 @@ import { Context, Next } from "hono"
 import {
   createJWTAuthMiddleware,
   type JWTAuthOptions,
+  type JWTAuthDependencies,
 } from "./jwt-auth.middleware"
 import {
   isPathExcluded,
@@ -23,12 +24,13 @@ export interface ExclusiveJWTAuthOptions extends JWTAuthOptions {
  * 除外パス対応JWT認証ミドルウェアファクトリー
  */
 export function createExclusiveJWTAuthMiddleware(
+  dependencies: JWTAuthDependencies,
   options: ExclusiveJWTAuthOptions = {},
 ) {
   const { exclusions = getAuthExclusionsFromEnv(), ...jwtOptions } = options
 
   // 内部で使用するJWT認証ミドルウェア
-  const jwtAuthMiddleware = createJWTAuthMiddleware(jwtOptions)
+  const jwtAuthMiddleware = createJWTAuthMiddleware(dependencies, jwtOptions)
 
   return async (c: Context, next: Next) => {
     const path = c.req.path
@@ -53,8 +55,3 @@ export function createExclusiveJWTAuthMiddleware(
     }
   }
 }
-
-/**
- * グローバル認証ミドルウェア（デフォルト設定）
- */
-export const globalJWTAuth = createExclusiveJWTAuthMiddleware()

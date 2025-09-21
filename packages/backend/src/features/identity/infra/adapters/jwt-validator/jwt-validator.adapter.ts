@@ -10,14 +10,14 @@ import type {
   JWTPayload,
   TokenValidationResult,
   Auth0Config,
-} from "../types/auth.types"
-import type { JWTValidatorInterface } from "./jwt-validator.interface"
-import { AuthError } from "../errors/auth.error"
+} from "../../../../../core/auth"
+import { AuthError } from "../../../../../core/auth"
+import type { JwtValidatorPort } from "../../../application/ports/jwt-validator.port"
 
 /**
  * JWT検証クラス
  */
-export class JWTValidator implements JWTValidatorInterface {
+export class JwtValidatorAdapter implements JwtValidatorPort {
   private readonly config: Auth0Config
   private readonly jwksClient: ReturnType<typeof jwksClient>
 

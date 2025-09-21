@@ -3,15 +3,15 @@
  *
  * 認証関連のテストユーティリティ
  */
-import type { JWTPayload } from "../types/auth.types"
-import { MockJWTValidator } from "../services/mock-jwt-validator.service"
+import type { JWTPayload } from "../../../core/auth"
+import { StubJwtValidatorAdapter } from "../infra/adapters/jwt-validator/stub-jwt-validator.adapter"
 
 /**
  * 認証テスト用ヘルパークラス
  */
 export class AuthTestHelper {
   /**
-   * テスト用トークンを生成してMockJWTValidatorに登録
+   * テスト用トークンを生成してStubJwtValidatorAdapterに登録
    *
    * @param userId - ユーザーID (Auth0のsub)
    * @param email - メールアドレス
@@ -39,7 +39,7 @@ export class AuthTestHelper {
       ...additionalClaims,
     }
 
-    MockJWTValidator.registerTestUser(token, payload)
+    StubJwtValidatorAdapter.registerTestUser(token, payload)
     return token
   }
 
@@ -115,7 +115,7 @@ export class AuthTestHelper {
       exp: currentTime - 3600, // 1時間前に期限切れ
     }
 
-    MockJWTValidator.registerTestUser(token, payload)
+    StubJwtValidatorAdapter.registerTestUser(token, payload)
     return token
   }
 
@@ -123,13 +123,13 @@ export class AuthTestHelper {
    * テストユーザーをクリア
    */
   static clearTestUsers(): void {
-    MockJWTValidator.clearTestUsers()
+    StubJwtValidatorAdapter.clearTestUsers()
   }
 
   /**
    * 登録済みテストユーザー数を取得（デバッグ用）
    */
   static getTestUserCount(): number {
-    return MockJWTValidator.getTestUserCount()
+    return StubJwtValidatorAdapter.getTestUserCount()
   }
 }

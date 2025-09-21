@@ -5,7 +5,28 @@ import { describe, it, expect, beforeEach, afterEach, vi } from "vitest"
 import { Hono } from "hono"
 import { createExclusiveJWTAuthMiddleware } from "../exclusive-jwt-auth.middleware"
 import type { AuthExclusionConfig } from "../auth-exclusions"
-import { AuthTestHelper } from "../../test-helpers/auth-test-helper"
+import type {
+  AccessTokenValidator,
+  TokenValidationResult,
+} from "../../types/auth.types"
+
+const createValidatorStub = () => {
+  const responses = new Map<string, TokenValidationResult>()
+  const validateAccessToken = vi.fn(async (token: string) => {
+    const cleanToken = token.replace(/^Bearer\s+/i, "").trim()
+    return responses.get(cleanToken) ?? { valid: false, error: "token missing" }
+  })
+
+  return {
+    validator: { validateAccessToken } satisfies AccessTokenValidator,
+    register(token: string, result: TokenValidationResult) {
+      responses.set(token, result)
+    },
+    clear() {
+      responses.clear()
+    },
+  }
+}
 
 describe("Exclusive JWT Auth Middleware", () => {
   let app: Hono
@@ -14,18 +35,14 @@ describe("Exclusive JWT Auth Middleware", () => {
     log: ReturnType<typeof vi.spyOn>
     warn: ReturnType<typeof vi.spyOn>
   }
+  let stub: ReturnType<typeof createValidatorStub>
 
   beforeEach(() => {
     app = new Hono()
     process.env = { ...originalEnv }
 
-    // テストユーザーをクリア
-    AuthTestHelper.clearTestUsers()
+    stub = createValidatorStub()
 
-    // テスト用ユーザーを登録
-    AuthTestHelper.createTestToken("test-user", "test@example.com", "Test User")
-
-    // コンソールログをモック
     consoleSpy = {
       log: vi.spyOn(console, "log").mockImplementation(() => {}),
       warn: vi.spyOn(console, "warn").mockImplementation(() => {}),
@@ -34,7 +51,7 @@ describe("Exclusive JWT Auth Middleware", () => {
 
   afterEach(() => {
     process.env = originalEnv
-    AuthTestHelper.clearTestUsers()
+    stub.clear()
     vi.restoreAllMocks()
   })
 
@@ -45,16 +62,23 @@ describe("Exclusive JWT Auth Middleware", () => {
         pathPrefixes: ["/api/public/"],
       }
 
-      app.use("*", createExclusiveJWTAuthMiddleware({ exclusions }))
+      app.use(
+        "*",
+        createExclusiveJWTAuthMiddleware(
+          { validator: stub.validator },
+          { exclusions },
+        ),
+      )
       app.get("/health", (c) => c.json({ status: "ok" }))
       app.get("/api/public/info", (c) => c.json({ info: "public" }))
 
-      // 認証なしでアクセス
       const healthRes = await app.request("/health")
       expect(healthRes.status).toBe(200)
+      expect(stub.validator.validateAccessToken).not.toHaveBeenCalled()
 
       const publicRes = await app.request("/api/public/info")
       expect(publicRes.status).toBe(200)
+      expect(stub.validator.validateAccessToken).not.toHaveBeenCalled()
     })
 
     it("除外されないパスでは認証が必要", async () => {
@@ -62,10 +86,15 @@ describe("Exclusive JWT Auth Middleware", () => {
         exactPaths: ["/health"],
       }
 
-      app.use("*", createExclusiveJWTAuthMiddleware({ exclusions }))
+      app.use(
+        "*",
+        createExclusiveJWTAuthMiddleware(
+          { validator: stub.validator },
+          { exclusions },
+        ),
+      )
       app.get("/api/private", (c) => c.json({ data: "private" }))
 
-      // 認証なしでアクセス
       const res = await app.request("/api/private")
       expect(res.status).toBe(401)
     })
@@ -75,25 +104,44 @@ describe("Exclusive JWT Auth Middleware", () => {
         exactPaths: ["/health"],
       }
 
-      app.use("*", createExclusiveJWTAuthMiddleware({ exclusions }))
+      stub.register("valid-token", {
+        valid: true,
+        payload: {
+          sub: "valid-user",
+          iss: "https://example.com/",
+          aud: "api",
+          iat: Math.floor(Date.now() / 1000) - 10,
+          exp: Math.floor(Date.now() / 1000) + 3600,
+        },
+      })
+
+      app.use(
+        "*",
+        createExclusiveJWTAuthMiddleware(
+          { validator: stub.validator },
+          { exclusions },
+        ),
+      )
       app.get("/api/private", (c) => c.json({ data: "private" }))
 
-      // 有効なトークンでアクセス
-      const validToken = AuthTestHelper.createTestToken(
-        "valid-user",
-        "valid@example.com",
-        "Valid User",
-      )
       const res = await app.request("/api/private", {
-        headers: AuthTestHelper.createAuthHeaders(validToken),
+        headers: {
+          Authorization: "Bearer valid-token",
+        },
       })
       expect(res.status).toBe(200)
+      expect(stub.validator.validateAccessToken).toHaveBeenCalledWith(
+        "Bearer valid-token",
+      )
     })
   })
 
   describe("ログ出力", () => {
     it("除外パスでログを出力", async () => {
-      app.use("*", createExclusiveJWTAuthMiddleware())
+      app.use(
+        "*",
+        createExclusiveJWTAuthMiddleware({ validator: stub.validator }),
+      )
       app.get("/health", (c) => c.json({ status: "ok" }))
 
       await app.request("/health")
@@ -104,16 +152,25 @@ describe("Exclusive JWT Auth Middleware", () => {
     })
 
     it("認証実行時にログを出力", async () => {
-      app.use("*", createExclusiveJWTAuthMiddleware())
+      stub.register("auth-token", {
+        valid: true,
+        payload: {
+          sub: "auth-user",
+          iss: "https://example.com/",
+          aud: "api",
+          iat: Math.floor(Date.now() / 1000) - 10,
+          exp: Math.floor(Date.now() / 1000) + 3600,
+        },
+      })
+
+      app.use(
+        "*",
+        createExclusiveJWTAuthMiddleware({ validator: stub.validator }),
+      )
       app.get("/api/private", (c) => c.json({ data: "private" }))
 
-      const validToken = AuthTestHelper.createTestToken(
-        "auth-user",
-        "auth@example.com",
-        "Auth User",
-      )
       await app.request("/api/private", {
-        headers: AuthTestHelper.createAuthHeaders(validToken),
+        headers: { Authorization: "Bearer auth-token" },
       })
 
       expect(consoleSpy.log).toHaveBeenCalledWith(

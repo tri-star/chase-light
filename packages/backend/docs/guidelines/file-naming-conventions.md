@@ -52,6 +52,7 @@
 
 - HTTPルートを提供する場合は以下のように定義します。
   - `routes/` 以下にリソース単位でまとめ、`index.ts` で再エクスポート
+    - 例: `routes/data-sources/index.ts`（`GET /data-sources`, `POST /data-sources` に対応）
 - スキーマやレスポンス整形専用ファイルは以下のように定義します。
   - `schemas/` 以下に `[resource]-[purpose].schema.ts` などの名前で定義します。
 

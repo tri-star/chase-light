@@ -2,7 +2,12 @@ import { OpenAPIHono } from "@hono/zod-openapi"
 import { cors } from "hono/cors"
 import { logger } from "hono/logger"
 import { Scalar } from "@scalar/hono-api-reference"
-import { globalJWTAuth, createAuthRoutes } from "./features/auth"
+import {
+  createGlobalJwtAuth,
+  createAuthRoutes,
+  createJwtValidatorFactory,
+  createSignUpUseCase,
+} from "./features/identity"
 import userRoutes from "./features/user/presentation"
 import dataSourceRoutes from "./features/data-sources"
 import { createE2EControlRoutes } from "./features/data-sources/presentation/routes/e2e-control"
@@ -15,6 +20,18 @@ import { createE2EControlRoutes } from "./features/data-sources/presentation/rou
  */
 export const createApp = () => {
   const app = new OpenAPIHono()
+
+  const jwtValidatorFactory = createJwtValidatorFactory()
+  const globalJWTAuth = createGlobalJwtAuth({
+    validatorFactory: jwtValidatorFactory,
+  })
+
+  // REVIEW: ここでUseCaseを初期化してしまうと、今後他のユースケースも増えてきた時、このファイルが非常に長くなってしまいます。
+  //         UseCaseの初期化は各ルートの内部で実施、jwtValidatorはcreateJwtValidatorのファクトリ関数からいつでも環境に応じたインスタンスを取得できるようにしして、
+  //         ルート定義ファイルの中で取得するようにしてください。
+  const signUpUseCase = createSignUpUseCase({
+    jwtValidator: jwtValidatorFactory(),
+  })
 
   // ミドルウェア設定
   app.use("*", logger())
@@ -39,7 +56,7 @@ export const createApp = () => {
   )
 
   // Auth API routes
-  app.route("/api/auth", createAuthRoutes())
+  app.route("/api/auth", createAuthRoutes({ signUpUseCase }))
 
   // User management API routes
   app.route("/api/users", userRoutes)

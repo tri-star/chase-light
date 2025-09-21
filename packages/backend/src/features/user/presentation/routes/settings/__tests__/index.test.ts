@@ -6,8 +6,11 @@ import { UserSettingsService } from "../../../../services/user-settings.service"
 import { UserRepository } from "../../../../repositories/user.repository"
 import type { User } from "../../../../domain/user"
 import { TestDataFactory, setupComponentTest } from "../../../../../../test"
-import { globalJWTAuth } from "../../../../../auth"
-import { AuthTestHelper } from "../../../../../auth/test-helpers/auth-test-helper"
+import {
+  createGlobalJwtAuth,
+  StubJwtValidatorAdapter,
+} from "../../../../../identity"
+import { AuthTestHelper } from "../../../../../identity/testing/auth-test-helper"
 
 // Component Test: 実DBを使用してAPIエンドポイントをテスト
 
@@ -19,6 +22,7 @@ describe("Settings Routes - Component Test", () => {
   let userSettingsService: UserSettingsService
   let testUser: User
   let testToken: string
+  let globalJWTAuth: ReturnType<typeof createGlobalJwtAuth>
 
   beforeEach(async () => {
     // テストユーザーをクリア
@@ -43,6 +47,8 @@ describe("Settings Routes - Component Test", () => {
     app = new OpenAPIHono()
 
     // 認証ミドルウェアを追加
+    const validatorFactory = () => new StubJwtValidatorAdapter()
+    globalJWTAuth = createGlobalJwtAuth({ validatorFactory })
     app.use("*", globalJWTAuth)
 
     createSettingsRoutes(app, userProfileService, userSettingsService)

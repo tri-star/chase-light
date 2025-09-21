@@ -2,23 +2,18 @@
  * Auth Routes Tests
  */
 import { describe, it, expect, beforeEach, vi } from "vitest"
-import { createAuthRoutes } from "../routes"
-import { authSignupService } from "../../services/auth-signup.service"
-import { AuthError } from "../../errors/auth.error"
-
-// authSignupServiceをモック
-vi.mock("../../services/auth-signup.service", () => ({
-  authSignupService: {
-    signUp: vi.fn(),
-  },
-}))
+import { createAuthRoutes } from "../routes/signup.route"
+import { AuthError } from "../../../../core/auth"
 
 describe("Auth Routes", () => {
   let app: ReturnType<typeof createAuthRoutes>
+  const signUpUseCase = {
+    signUp: vi.fn(),
+  }
 
   beforeEach(() => {
     vi.clearAllMocks()
-    app = createAuthRoutes()
+    app = createAuthRoutes({ signUpUseCase })
   })
 
   describe("POST /signup", () => {
@@ -41,7 +36,7 @@ describe("Auth Routes", () => {
           message: "ユーザー登録が完了しました",
           alreadyExists: false,
         }
-        vi.mocked(authSignupService.signUp).mockResolvedValue(mockResponse)
+        vi.mocked(signUpUseCase.signUp).mockResolvedValue(mockResponse)
 
         // テスト実行
         const response = await app.request("/signup", {
@@ -56,7 +51,7 @@ describe("Auth Routes", () => {
         expect(response.status).toBe(201)
         const responseBody = await response.json()
         expect(responseBody).toEqual(mockResponse)
-        expect(authSignupService.signUp).toHaveBeenCalledWith(validRequest)
+        expect(signUpUseCase.signUp).toHaveBeenCalledWith(validRequest)
       })
 
       it("既存ユーザーの場合は200を返す", async () => {
@@ -73,7 +68,7 @@ describe("Auth Routes", () => {
           message: "既にアカウントが存在します。ログイン情報を更新しました",
           alreadyExists: true,
         }
-        vi.mocked(authSignupService.signUp).mockResolvedValue(mockResponse)
+        vi.mocked(signUpUseCase.signUp).mockResolvedValue(mockResponse)
 
         // テスト実行
         const response = await app.request("/signup", {
@@ -124,7 +119,7 @@ describe("Auth Routes", () => {
           expect(response.status).toBe(expectedStatus)
 
           // サービスが呼び出されていないことを確認
-          expect(authSignupService.signUp).not.toHaveBeenCalled()
+          expect(signUpUseCase.signUp).not.toHaveBeenCalled()
         },
       )
     })
@@ -159,7 +154,7 @@ describe("Auth Routes", () => {
         "$description の場合は適切なエラーレスポンスを返す",
         async ({ error, expectedStatus, expectedCode }) => {
           // Mock設定
-          vi.mocked(authSignupService.signUp).mockRejectedValue(error)
+          vi.mocked(signUpUseCase.signUp).mockRejectedValue(error)
 
           // テスト実行
           const response = await app.request("/signup", {
@@ -189,7 +184,7 @@ describe("Auth Routes", () => {
       it("予期しないエラーの場合は500エラーを返す", async () => {
         // Mock設定
         const unexpectedError = new Error("Database connection failed")
-        vi.mocked(authSignupService.signUp).mockRejectedValue(unexpectedError)
+        vi.mocked(signUpUseCase.signUp).mockRejectedValue(unexpectedError)
 
         // テスト実行
         const response = await app.request("/signup", {
@@ -215,7 +210,7 @@ describe("Auth Routes", () => {
 
       it("文字列以外のエラーの場合も適切に処理する", async () => {
         // Mock設定
-        vi.mocked(authSignupService.signUp).mockRejectedValue("string error")
+        vi.mocked(signUpUseCase.signUp).mockRejectedValue("string error")
 
         // テスト実行
         const response = await app.request("/signup", {

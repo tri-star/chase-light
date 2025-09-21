@@ -1,6 +1,6 @@
 import { createRoute, OpenAPIHono } from "@hono/zod-openapi"
 import { z } from "@hono/zod-openapi"
-import { requireAuth } from "../../../../auth/middleware/jwt-auth.middleware.js"
+import { requireAuth } from "../../../../identity/index.js"
 import type { UserProfileService } from "../../../services/user-profile.service"
 import { userBaseSchema } from "../../schemas/user-base.schema"
 import {

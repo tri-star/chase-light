@@ -3,9 +3,9 @@ import {
   signUpRequestSchema,
   signUpResponseSchema,
   authErrorResponseSchema,
-} from "./schemas"
-import { authSignupService } from "../services/auth-signup.service"
-import { AuthError } from "../errors/auth.error"
+} from "../schemas/signup.schema"
+import { AuthError } from "../../../../core/auth"
+import type { SignUpUseCase } from "../../application/use-cases/sign-up.use-case"
 
 /**
  * Auth Routes
@@ -73,10 +73,13 @@ const signUpRoute = createRoute({
   },
 })
 
-/**
- * Auth Routes Builder
- */
-export const createAuthRoutes = () => {
+export interface CreateAuthRoutesOptions {
+  signUpUseCase: Pick<SignUpUseCase, "signUp">
+}
+
+export const createAuthRoutes = ({
+  signUpUseCase,
+}: CreateAuthRoutesOptions) => {
   const app = new OpenAPIHono()
 
   // ユーザー登録エンドポイント
@@ -84,7 +87,7 @@ export const createAuthRoutes = () => {
     try {
       const request = c.req.valid("json")
 
-      const result = await authSignupService.signUp(request)
+      const result = await signUpUseCase.signUp(request)
 
       // 新規ユーザーの場合は201、既存ユーザーの場合は200を返す
       const statusCode = result.alreadyExists ? 200 : 201
