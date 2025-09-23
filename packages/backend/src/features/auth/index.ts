@@ -1,31 +1,29 @@
 /**
- * Authentication Feature Exports
+ * Authentication Feature Exports (legacy)
  *
- * 認証機能の公開API
+ * 新しいIdentity構成へ段階的に移行中。順次 `core/auth` / `features/identity` 側へ置き換えてください。
  */
 
 // Middleware
 export {
   createJWTAuthMiddleware,
-  jwtAuth,
-  optionalJwtAuth,
+  type JWTAuthDependencies,
+  type JWTAuthOptions,
   getAuthenticatedUser,
   requireAuth,
-  type JWTAuthOptions,
-} from "./middleware/jwt-auth.middleware"
+} from "./middleware/jwt-auth.middleware.js"
 
 export {
   createExclusiveJWTAuthMiddleware,
-  globalJWTAuth,
   type ExclusiveJWTAuthOptions,
-} from "./middleware/exclusive-jwt-auth.middleware"
+} from "./middleware/exclusive-jwt-auth.middleware.js"
 
 export {
   isPathExcluded,
   getAuthExclusionsFromEnv,
   DEFAULT_AUTH_EXCLUSIONS,
   type AuthExclusionConfig,
-} from "./middleware/auth-exclusions"
+} from "./middleware/auth-exclusions.js"
 
 // Types
 export type {
@@ -34,24 +32,22 @@ export type {
   AuthenticatedUser,
   AuthContext,
   TokenValidationResult,
-} from "./types/auth.types"
+} from "./types/auth.types.js"
 
 // Errors
 export {
   AuthError,
   AuthErrorCode,
   type AuthErrorDetails,
-} from "./errors/auth.error"
+} from "./errors/auth.error.js"
 
 // Utils
 export {
   getAuth0Config,
   validateAuth0Config,
-} from "./utils/auth-config"
+} from "./utils/auth-config.js"
 
-export { JWTValidator } from "./services/jwt-validator.service"
-
-// Services
+// Services (legacy)
 export {
   AuthSignupService,
   authSignupService,
@@ -59,11 +55,11 @@ export {
   type SignUpResponse as ServiceSignUpResponse,
 } from "./services/auth-signup.service"
 
-// Presentation
-export { createAuthRoutes } from "./presentation/routes"
+// Presentation (legacy)
+export { createAuthRoutes } from "./presentation/routes.js"
 export type {
   SignUpRequest,
   UserResponse,
   SignUpResponse,
   AuthErrorResponse,
-} from "./presentation/schemas"
+} from "./presentation/schemas.js"

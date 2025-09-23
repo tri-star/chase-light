@@ -2,21 +2,26 @@ import { OpenAPIHono } from "@hono/zod-openapi"
 import { cors } from "hono/cors"
 import { logger } from "hono/logger"
 import { Scalar } from "@scalar/hono-api-reference"
-import { globalJWTAuth, createAuthRoutes } from "./features/auth"
-import userRoutes from "./features/user/presentation"
+import { createExclusiveJWTAuthMiddleware } from "./core/auth"
+import {
+  createIdentityContext,
+  createAuthRouter,
+  createUserRouter,
+} from "./features/identity"
 import dataSourceRoutes from "./features/data-sources"
 import { createE2EControlRoutes } from "./features/data-sources/presentation/routes/e2e-control"
 
-/**
- * Chase Light Backend Application
- *
- * OpenAPI/Swagger対応のHonoアプリケーション
- * Scalarを使用したモダンなAPI仕様書UI
- */
 export const createApp = () => {
   const app = new OpenAPIHono()
 
-  // ミドルウェア設定
+  const identity = createIdentityContext()
+  const authMiddleware = createExclusiveJWTAuthMiddleware({
+    validator: identity.jwtValidator,
+  })
+
+  const authRoutes = createAuthRouter(identity.useCases)
+  const userRoutes = createUserRouter(identity.useCases)
+
   app.use("*", logger())
   app.use(
     "*",
@@ -26,10 +31,8 @@ export const createApp = () => {
     }),
   )
 
-  // グローバルJWT認証（除外パス対応）
-  app.use("*", globalJWTAuth)
+  app.use("*", authMiddleware)
 
-  // ヘルスチェックエンドポイント
   app.get("/health", (c) =>
     c.json({
       status: "ok",
@@ -38,21 +41,14 @@ export const createApp = () => {
     }),
   )
 
-  // Auth API routes
-  app.route("/api/auth", createAuthRoutes())
-
-  // User management API routes
+  app.route("/api/auth", authRoutes)
   app.route("/api/users", userRoutes)
-
-  // Data Source management API routes
   app.route("/api", dataSourceRoutes)
 
-  // E2E Control API routes (only in stub mode)
   if (process.env.USE_GITHUB_API_STUB === "true") {
     app.route("/api", createE2EControlRoutes())
   }
 
-  // OpenAPI仕様書エンドポイント
   app.doc("/doc", {
     openapi: "3.0.0",
     info: {
@@ -69,12 +65,11 @@ export const createApp = () => {
     ],
   })
 
-  // Scalar API仕様書UI
   app.get(
     "/scalar",
     Scalar({
       url: "/doc",
-      theme: "alternate", // モダンなテーマ
+      theme: "alternate",
     }),
   )
 

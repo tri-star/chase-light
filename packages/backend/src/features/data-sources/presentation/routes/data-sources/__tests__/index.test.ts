@@ -17,8 +17,9 @@ import { UserRepository } from "../../../../../user/repositories/user.repository
 import { GitHubApiServiceStub } from "../../../../services/github-api-service.stub"
 import type { GitHubRepositoryResponse } from "../../../../services/interfaces/github-api-service.interface"
 import { setupComponentTest, TestDataFactory } from "../../../../../../test"
-import { AuthTestHelper } from "../../../../../auth/test-helpers/auth-test-helper"
-import { globalJWTAuth } from "../../../../../auth"
+import { AuthTestHelper } from "../../../../../identity/testing/auth-test-helper.js"
+import { createIdentityContext, StubJWTValidatorAdapter } from "../../../../../identity/index.js"
+import { createExclusiveJWTAuthMiddleware } from "../../../../../../core/auth/index.js"
 import type { User } from "../../../../../user/domain/user"
 import { db } from "../../../../../../db/connection"
 import { events, notifications } from "../../../../../../db/schema"
@@ -43,6 +44,10 @@ describe("DataSources API - Component Test", () => {
   beforeEach(async () => {
     // テストユーザーの認証設定をクリア
     AuthTestHelper.clearTestUsers()
+
+    const identity = createIdentityContext({
+      jwtValidator: new StubJWTValidatorAdapter(),
+    })
 
     // テストユーザーをDBに作成
     testUser = await TestDataFactory.createTestUser("auth0|test123")
@@ -91,8 +96,10 @@ describe("DataSources API - Component Test", () => {
     // ルートアプリケーション作成
     app = new OpenAPIHono()
 
-    // 認証ミドルウェアを追加
-    app.use("*", globalJWTAuth)
+    const authMiddleware = createExclusiveJWTAuthMiddleware({
+      validator: identity.jwtValidator,
+    })
+    app.use("*", authMiddleware)
 
     // データソースルートを追加
     const dataSourceRoutes = createDataSourceRoutes(
