@@ -1,6 +1,6 @@
 import type { DataSourceListFilters, DataSourceListResult } from "../domain"
 import type { DataSourceRepository } from "../repositories"
-import type { UserRepository } from "../../user/repositories/user.repository"
+import type { UserRepository } from "../../identity/domain/repositories/user.repository"
 import { UserNotFoundError } from "../errors"
 
 /**

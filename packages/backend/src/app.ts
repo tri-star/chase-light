@@ -2,8 +2,8 @@ import { OpenAPIHono } from "@hono/zod-openapi"
 import { cors } from "hono/cors"
 import { logger } from "hono/logger"
 import { Scalar } from "@scalar/hono-api-reference"
-import { globalJWTAuth, createAuthRoutes } from "./features/auth"
-import userRoutes from "./features/user/presentation"
+import { globalJWTAuth } from "./features/identity"
+import identityRoutes from "./features/identity/presentation"
 import dataSourceRoutes from "./features/data-sources"
 import { createE2EControlRoutes } from "./features/data-sources/presentation/routes/e2e-control"
 
@@ -38,11 +38,8 @@ export const createApp = () => {
     }),
   )
 
-  // Auth API routes
-  app.route("/api/auth", createAuthRoutes())
-
-  // User management API routes
-  app.route("/api/users", userRoutes)
+  // Identity management API routes (auth + user統合)
+  app.route("/api", identityRoutes)
 
   // Data Source management API routes
   app.route("/api", dataSourceRoutes)

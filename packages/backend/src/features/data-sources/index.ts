@@ -1,5 +1,5 @@
 import { DataSourceRepository, UserWatchRepository } from "./repositories"
-import { UserRepository } from "../user/repositories/user.repository"
+import { DrizzleUserRepository } from "../identity/infra/repositories/drizzle-user.repository"
 import {
   DataSourceCreationService,
   DataSourceWatchService,
@@ -21,7 +21,7 @@ import { createDataSourcePresentationRoutes } from "./presentation"
 // リポジトリのインスタンス作成
 const dataSourceRepository = new DataSourceRepository()
 const userWatchRepository = new UserWatchRepository()
-const userRepository = new UserRepository()
+const userRepository = new DrizzleUserRepository()
 
 // GitHubApiServiceを作成
 const githubApiService = createGitHubApiService()
