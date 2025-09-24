@@ -1,7 +1,7 @@
 import { seed, reset } from "drizzle-seed"
 import { db } from "../db/connection"
 import * as schema from "../db/schema"
-import { User } from "../features/user/domain/user"
+import { User } from "../features/identity/domain/user"
 import type {
   GitHubDataSource,
   Repository,

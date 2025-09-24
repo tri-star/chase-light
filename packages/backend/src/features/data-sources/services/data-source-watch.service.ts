@@ -1,6 +1,6 @@
 import type { GitHubDataSource, UserWatch } from "../domain"
 import type { UserWatchRepository } from "../repositories"
-import type { UserRepository } from "../../user/repositories/user.repository"
+import type { UserRepository } from "../../identity/domain/repositories/user.repository"
 import { UserNotFoundError } from "../errors"
 import { DataSourceCreationService } from "./data-source-creation.service"
 import { TransactionManager } from "../../../core/db"

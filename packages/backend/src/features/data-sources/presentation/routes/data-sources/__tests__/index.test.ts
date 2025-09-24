@@ -13,13 +13,13 @@ import {
   DataSourceRepository,
   UserWatchRepository,
 } from "../../../../repositories"
-import { UserRepository } from "../../../../../user/repositories/user.repository"
+import { DrizzleUserRepository as UserRepository } from "../../../../../identity/infra/repositories/drizzle-user.repository"
 import { GitHubApiServiceStub } from "../../../../services/github-api-service.stub"
 import type { GitHubRepositoryResponse } from "../../../../services/interfaces/github-api-service.interface"
 import { setupComponentTest, TestDataFactory } from "../../../../../../test"
-import { AuthTestHelper } from "../../../../../auth/test-helpers/auth-test-helper"
-import { globalJWTAuth } from "../../../../../auth"
-import type { User } from "../../../../../user/domain/user"
+import { AuthTestHelper } from "../../../../../identity/test-helpers/auth-test-helper"
+import { globalJWTAuth } from "../../../../../identity"
+import type { User } from "../../../../../identity/domain/user"
 import { db } from "../../../../../../db/connection"
 import { events, notifications } from "../../../../../../db/schema"
 import { eq } from "drizzle-orm"

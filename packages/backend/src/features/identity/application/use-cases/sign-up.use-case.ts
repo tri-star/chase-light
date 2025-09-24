@@ -1,0 +1,183 @@
+/**
+ * Sign Up Use Case
+ *
+ * ユーザー登録のビジネスロジック
+ */
+import type { JwtValidatorPort } from "../ports/jwt-validator.port"
+import type { UserRepository } from "../../domain/repositories/user.repository"
+import { AuthError } from "../../errors/auth.error"
+import type { JWTPayload } from "../../types/auth.types"
+import { User } from "../../domain/user"
+import { uuidv7 } from "uuidv7"
+
+/**
+ * ユーザー登録リクエスト
+ */
+export interface SignUpRequest {
+  idToken: string
+}
+
+/**
+ * ユーザー登録レスポンス
+ */
+export interface SignUpResponse {
+  user: {
+    id: string
+    email: string
+    name: string
+    githubUsername?: string
+    avatarUrl: string
+    createdAt: string
+  }
+  message: string
+  alreadyExists?: boolean
+}
+
+/**
+ * IDトークンから抽出されるユーザー情報
+ */
+interface ExtractedUserInfo {
+  auth0UserId: string
+  email: string
+  name: string
+  avatarUrl: string
+  githubUsername?: string
+}
+
+/**
+ * ユーザー登録ユースケース
+ */
+export class SignUpUseCase {
+  constructor(
+    private readonly jwtValidator: JwtValidatorPort,
+    private readonly userRepository: UserRepository,
+  ) {}
+
+  /**
+   * ユーザー登録処理を実行
+   */
+  async execute(request: SignUpRequest): Promise<SignUpResponse> {
+    // IDトークンの検証
+    const validationResult = await this.jwtValidator.validateIdToken(
+      request.idToken,
+    )
+
+    if (!validationResult.valid || !validationResult.payload) {
+      throw AuthError.tokenInvalid(validationResult.error || "Invalid ID token")
+    }
+
+    // IDトークンからユーザー情報を抽出
+    const userInfo = this.extractUserInfoFromToken(validationResult.payload)
+
+    // 新規ユーザーかどうかを事前に確認
+    const existingUser = await this.userRepository.findByAuth0Id(
+      userInfo.auth0UserId,
+    )
+    const isNewUser = !existingUser
+
+    // ユーザーの作成または更新（既存の場合は更新）
+    const userId = existingUser ? existingUser.id : uuidv7()
+    await this.userRepository.save({
+      id: userId,
+      auth0UserId: userInfo.auth0UserId,
+      email: userInfo.email,
+      name: userInfo.name,
+      avatarUrl: userInfo.avatarUrl,
+      githubUsername: userInfo.githubUsername ?? null,
+      timezone: "Asia/Tokyo", // デフォルトのタイムゾーン
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    })
+
+    const user = await this.userRepository.findById(userId)
+    if (!user) {
+      console.error("ユーザーの作成に失敗しました", {
+        userId,
+        auth0UserId: userInfo.auth0UserId,
+      })
+      throw new Error("ユーザーの作成に失敗しました")
+    }
+
+    return {
+      user: this.formatUserResponse(user),
+      message: isNewUser
+        ? "ユーザー登録が完了しました"
+        : "既にアカウントが存在します。ログイン情報を更新しました",
+      alreadyExists: !isNewUser,
+    }
+  }
+
+  /**
+   * IDトークンからユーザー情報を抽出
+   */
+  private extractUserInfoFromToken(payload: JWTPayload): ExtractedUserInfo {
+    // 必須フィールドの検証
+    if (!payload.sub) {
+      throw AuthError.missingClaims("sub")
+    }
+
+    if (!payload.email) {
+      throw AuthError.missingClaims("email")
+    }
+
+    if (!payload.name) {
+      throw AuthError.missingClaims("name")
+    }
+
+    return {
+      auth0UserId: payload.sub,
+      email: payload.email as string,
+      name: payload.name as string,
+      avatarUrl: (payload.picture as string) || "", // pictureクレームからアバターURL
+      githubUsername: this.extractGithubUsername(payload),
+    }
+  }
+
+  /**
+   * GitHubユーザー名を抽出
+   * Auth0のGitHub接続時に提供される可能性のあるフィールドから抽出
+   */
+  private extractGithubUsername(payload: JWTPayload): string | undefined {
+    // nicknameフィールドにGitHubユーザー名が含まれることが多い
+    if (payload.nickname && typeof payload.nickname === "string") {
+      return payload.nickname
+    }
+
+    // preferred_usernameも確認
+    if (
+      payload.preferred_username &&
+      typeof payload.preferred_username === "string"
+    ) {
+      return payload.preferred_username
+    }
+
+    // GitHub接続の場合、subからユーザー名を抽出できる場合がある
+    // 例: "github|12345" -> GitHub ID, "auth0|github|username" -> username
+    if (payload.sub.includes("github")) {
+      const parts = payload.sub.split("|")
+      if (parts.length >= 2) {
+        const lastPart = parts[parts.length - 1]
+        // 数字のみでなければユーザー名の可能性
+        if (!/^\d+$/.test(lastPart)) {
+          return lastPart
+        }
+      }
+    }
+
+    return undefined
+  }
+
+  /**
+   * レスポンス用のユーザー情報フォーマット
+   */
+  private formatUserResponse(user: User) {
+    return {
+      id: user.id,
+      email: user.email,
+      name: user.name,
+      githubUsername: user.githubUsername || undefined,
+      avatarUrl: user.avatarUrl,
+      createdAt: user.createdAt!.toISOString(),
+    }
+  }
+}

@@ -1,6 +1,6 @@
 import { OpenAPIHono, createRoute } from "@hono/zod-openapi"
 import { z } from "@hono/zod-openapi"
-import { requireAuth } from "../../../../auth/middleware/jwt-auth.middleware"
+import { requireAuth } from "../../../../identity/middleware/jwt-auth.middleware"
 import type {
   DataSourceWatchService,
   DataSourceListService,
