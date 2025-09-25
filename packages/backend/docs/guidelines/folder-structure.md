@@ -53,7 +53,7 @@ features/detection/
 │   └── detect-datasource-updates/
 │       ├── handler.ts
 │       └── __tests__/handler.test.ts
-├── constants/ # ドメインに依存しない定数の置き場所()
+├── constants/ # ドメインに依存しない定数の置き場所
 │   └── detection.constants.ts
 └── index.ts  # 他フィーチャーへ公開するユースケースやアダプタをまとめる
 ```
