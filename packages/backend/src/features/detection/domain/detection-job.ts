@@ -8,7 +8,7 @@ export const DetectJobStatus = {
 export type DetectJobStatusType =
   (typeof DetectJobStatus)[keyof typeof DetectJobStatus]
 
-export type MonitoringJob = {
+export type DetectionJob = {
   id: string
   status: DetectJobStatusType
   dataSourceId: string

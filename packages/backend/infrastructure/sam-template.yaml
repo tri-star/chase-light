@@ -240,7 +240,7 @@ Resources:
       Threshold: 1
       ComparisonOperator: GreaterThanOrEqualToThreshold
       Dimensions:
-        - Name: StateMachineArn
+        - Name: DataSourceUpdateDetectionStateMachineArn
           Value: !Ref DataSourceUpdateDetectionStateMachine
       AlarmActions:
         - !Ref AlertsTopic
@@ -285,11 +285,11 @@ Resources:
       TreatMissingData: notBreaching
 
 Outputs:
-  StateMachineArn:
+  DataSourceUpdateDetectionStateMachineArn:
     Description: 'ARN of the data source update detection state machine'
     Value: !Ref DataSourceUpdateDetectionStateMachine
     Export:
-      Name: !Sub "${AWS::StackName}-StateMachineArn"
+      Name: !Sub "${AWS::StackName}-DataSourceUpdateDetectionStateMachineArn"
   
   ListDetectTargetsFunctionArn:
     Description: 'ARN of the list detect targets function'

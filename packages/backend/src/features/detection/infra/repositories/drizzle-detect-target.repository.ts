@@ -1,7 +1,6 @@
 import { eq } from "drizzle-orm"
 import { TransactionManager } from "../../../../core/db"
 import { dataSources, repositories } from "../../../../db/schema"
-import { DataSourceRepository } from "../../../data-sources/repositories"
 import { DetectTarget, toDetectTargetId } from "../../domain/detect-target"
 import {
   DetectTargetInputDto,
@@ -10,10 +9,6 @@ import {
 } from "../../domain/repositories/detect-target.repository"
 
 export class DrizzleDetectTargetRepository implements DetectTargetRepository {
-  // TODO: 別フェーズの作業で、外部featureに依存しないように修正する
-  private dataSourceRepository: DataSourceRepository =
-    new DataSourceRepository()
-
   constructor() {}
 
   async listDetectTargets(
