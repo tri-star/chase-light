@@ -2,7 +2,7 @@
   "Description": "StepFunctions Local環境用の変数マッピング設定",
   "Variables": {
     "ProcessUpdatesQueueUrl": "http://elasticmq:9324/000000000000/process-updates-queue",
-    "ListDataSourcesFunction.Arn": "ListDataSourcesFunction",
+    "ListDetectTargetsFunction.Arn": "ListDetectTargetsFunction",
     "DetectDataSourceUpdatesFunctionArn": "DetectDataSourceUpdatesFunction",
     "ProcessUpdatesFunctionArn": "ProcessUpdatesFunction"
   },

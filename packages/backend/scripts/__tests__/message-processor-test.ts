@@ -105,7 +105,7 @@ async function runTests() {
   test("正常なJSONメッセージの処理", () => {
     const mockMessage: Message = {
       Body: JSON.stringify({
-        eventId: "test-event-123",
+        activityId: "test-event-123",
         action: "process-update",
         data: { key: "value" },
       }),
@@ -115,7 +115,7 @@ async function runTests() {
 
     assertExists(mockMessage.Body)
     const parsed = JSON.parse(mockMessage.Body)
-    assertEquals(parsed.eventId, "test-event-123")
+    assertEquals(parsed.activityId, "test-event-123")
     assertEquals(parsed.action, "process-update")
     assertExists(parsed.data)
   })
@@ -124,7 +124,7 @@ async function runTests() {
     // StepFunctionsから送信される典型的なメッセージ形式
     const stepFunctionsMessage: Message = {
       Body: JSON.stringify({
-        eventId: "event-456",
+        activityId: "event-456",
         timestamp: new Date().toISOString(),
         source: "step-functions",
       }),
@@ -134,7 +134,7 @@ async function runTests() {
 
     assertExists(stepFunctionsMessage.Body)
     const parsed = JSON.parse(stepFunctionsMessage.Body)
-    assertEquals(parsed.eventId, "event-456")
+    assertEquals(parsed.activityId, "event-456")
     assertExists(parsed.timestamp)
     assertEquals(parsed.source, "step-functions")
   })
@@ -227,7 +227,7 @@ async function runTests() {
     // SAM Localが起動していない場合のテスト
     const processor = new MessageProcessor(testConfig)
     const mockMessage: Message = {
-      Body: JSON.stringify({ eventId: "test-connection-error" }),
+      Body: JSON.stringify({ activityId: "test-connection-error" }),
       MessageId: "msg-connection-test",
       ReceiptHandle: "receipt-connection-test",
     }

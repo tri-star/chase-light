@@ -27,7 +27,6 @@ pnpm openapi:pull
 
 出力先: `packages/backend/openapi.json`
 
-
 ### 主要なAPIエンドポイント
 
 #### GitHub API統合 (`/api/datasource`)
@@ -181,10 +180,10 @@ sam build -t sam-template.yaml
 # 今時点ではAPI GateWayを利用するLambdaをSAMに登録していないため、後日対応予定
 # sam local start-api --host 0.0.0.0 --port 3000
 # # 別ターミナルでテスト実行
-# curl http://localhost:3000/list-datasources
+# curl http://localhost:3000/list-detect-targets
 
 # 4. SAM Local Invoke (Lambda関数の直接実行)
-sam local invoke ListDataSourcesFunction --event events/list-datasources.json
+sam local invoke ListDetectTargetsFunction --event events/list-detect-targets.json
 ```
 
 #### 環境変数設定
@@ -218,11 +217,6 @@ SAM Localは環境変数を `.env` ファイルまたはシステム環境変数
 ```bash
 # ローカル環境を起動（.envファイルから環境変数を読み込み）
 pnpm local:start
-```
-
-```bash
-# 環境変数ファイルを指定して起動
-sam local start-api --env-vars env.json
 ```
 
 ## 🚀 デプロイ

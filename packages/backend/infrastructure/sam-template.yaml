@@ -1,6 +1,6 @@
 AWSTemplateFormatVersion: '2010-09-09'
 Transform: AWS::Serverless-2016-10-31
-Description: 'Repository monitoring workflow with Step Functions'
+Description: 'Chase Light Backend Infrastructure'
 
 Globals:
   Function:
@@ -48,13 +48,13 @@ Resources:
       MessageRetentionPeriod: 1209600  # 14 days
 
   # Lambda Functions
-  ListDataSourcesFunction:
+  ListDetectTargetsFunction:
     Type: AWS::Serverless::Function
     Properties:
-      FunctionName: !Sub "${AWS::StackName}-list-datasources"
-      CodeUri: ../dist/lambda/list-datasources/
+      FunctionName: !Sub "${AWS::StackName}-list-detect-targets"
+      CodeUri: ../dist/lambda/list-detect-targets/
       Handler: index.handler
-      Description: 'List data sources for monitoring'
+      Description: 'List detect targets for monitoring'
       Policies:
         - Statement:
             - Effect: Allow
@@ -62,7 +62,7 @@ Resources:
                 - logs:CreateLogGroup
                 - logs:CreateLogStream
                 - logs:PutLogEvents
-              Resource: !Sub "arn:${AWS::Partition}:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/${AWS::StackName}-list-datasources*"
+              Resource: !Sub "arn:${AWS::Partition}:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/${AWS::StackName}-list-detect-targets*"
         - Statement:
             - Effect: Allow
               Action:
@@ -124,30 +124,30 @@ Resources:
             Resource: !GetAtt ProcessUpdatesQueue.Arn
 
   # Step Functions State Machine
-  RepositoryMonitoringStateMachine:
+  DataSourceUpdateDetectionStateMachine:
     Type: AWS::Serverless::StateMachine
     Properties:
-      Name: !Sub "${AWS::StackName}-repository-monitoring"
-      DefinitionUri: repository-monitoring.asl.json
+      Name: !Sub "${AWS::StackName}-data-source-update-detection"
+      DefinitionUri: data-source-update-detection.asl.json
       DefinitionSubstitutions:
-        ListDataSourcesFunctionArn: !GetAtt ListDataSourcesFunction.Arn
+        ListDetectTargetsFunctionArn: !GetAtt ListDetectTargetsFunction.Arn
         DetectDataSourceUpdatesFunctionArn: !GetAtt DetectDataSourceUpdatesFunction.Arn
         ProcessUpdatesFunction: !GetAtt ProcessUpdatesFunction.Arn
         ProcessUpdatesQueueUrl: !Ref ProcessUpdatesQueue
-        RepositoryMonitoringLogGroup.Arn: !GetAtt RepositoryMonitoringLogGroup.Arn
+        DataSourceUpdateDetectionLogGroup.Arn: !GetAtt DataSourceUpdateDetectionLogGroup.Arn
       Logging:
         Level: ALL
         IncludeExecutionData: true
         Destinations:
           - CloudWatchLogsLogGroup:
-              LogGroupArn: !GetAtt RepositoryMonitoringLogGroup.Arn
+              LogGroupArn: !GetAtt DataSourceUpdateDetectionLogGroup.Arn
       Policies:
         - Statement:
             - Effect: Allow
               Action:
                 - lambda:InvokeFunction
               Resource:
-                - !GetAtt ListDataSourcesFunction.Arn
+                - !GetAtt ListDetectTargetsFunction.Arn
                 - !GetAtt DetectDataSourceUpdatesFunction.Arn
                 - !GetAtt ProcessUpdatesFunction.Arn
         - Statement:
@@ -175,27 +175,27 @@ Resources:
                 - logs:PutLogEvents
                 - logs:DescribeLogStreams
               Resource: 
-                - !GetAtt RepositoryMonitoringLogGroup.Arn
-                - !Sub "${RepositoryMonitoringLogGroup.Arn}:*"
+                - !GetAtt DataSourceUpdateDetectionLogGroup.Arn
+                - !Sub "${DataSourceUpdateDetectionLogGroup.Arn}:*"
 
   # CloudWatch Log Group for Step Functions
-  RepositoryMonitoringLogGroup:
+  DataSourceUpdateDetectionLogGroup:
     Type: AWS::Logs::LogGroup
     Properties:
-      LogGroupName: !Sub "/aws/stepfunctions/${AWS::StackName}-repository-monitoring"
+      LogGroupName: !Sub "/aws/stepfunctions/${AWS::StackName}-data-source-update-detection"
       RetentionInDays: 30
 
   # EventBridge Rule for daily execution
-  RepositoryMonitoringScheduleRule:
+  DataSourceUpdateDetectionScheduleRule:
     Type: AWS::Events::Rule
     Properties:
-      Name: !Sub "${AWS::StackName}-repository-monitoring-schedule"
-      Description: "Daily execution of repository monitoring workflow"
+      Name: !Sub "${AWS::StackName}-data-source-update-detection-schedule"
+      Description: "Daily execution of data source update detection workflow"
       ScheduleExpression: "cron(0 8 * * ? *)"  # Daily at 17:00 JST (08:00 UTC)
       State: ENABLED
       Targets:
-        - Arn: !Ref RepositoryMonitoringStateMachine
-          Id: "RepositoryMonitoringTarget"
+        - Arn: !Ref DataSourceUpdateDetectionStateMachine
+          Id: "DataSourceUpdateDetectionTarget"
           RoleArn: !GetAtt EventBridgeExecutionRole.Arn
 
   # IAM Role for EventBridge to execute Step Functions
@@ -217,14 +217,14 @@ Resources:
               - Effect: Allow
                 Action:
                   - states:StartExecution
-                Resource: !Ref RepositoryMonitoringStateMachine
+                Resource: !Ref DataSourceUpdateDetectionStateMachine
 
   # SNS Topic for alerts
   AlertsTopic:
     Type: AWS::SNS::Topic
     Properties:
       TopicName: !Sub "${AWS::StackName}-alerts"
-      DisplayName: "Repository Monitoring Alerts"
+      DisplayName: "Data source update detection alerts"
 
   # CloudWatch Alarms
   StepFunctionsExecutionFailedAlarm:
@@ -240,8 +240,8 @@ Resources:
       Threshold: 1
       ComparisonOperator: GreaterThanOrEqualToThreshold
       Dimensions:
-        - Name: StateMachineArn
-          Value: !Ref RepositoryMonitoringStateMachine
+        - Name: DataSourceUpdateDetectionStateMachineArn
+          Value: !Ref DataSourceUpdateDetectionStateMachine
       AlarmActions:
         - !Ref AlertsTopic
       TreatMissingData: notBreaching
@@ -285,17 +285,17 @@ Resources:
       TreatMissingData: notBreaching
 
 Outputs:
-  StateMachineArn:
-    Description: 'ARN of the repository monitoring state machine'
-    Value: !Ref RepositoryMonitoringStateMachine
+  DataSourceUpdateDetectionStateMachineArn:
+    Description: 'ARN of the data source update detection state machine'
+    Value: !Ref DataSourceUpdateDetectionStateMachine
     Export:
-      Name: !Sub "${AWS::StackName}-StateMachineArn"
+      Name: !Sub "${AWS::StackName}-DataSourceUpdateDetectionStateMachineArn"
   
-  ListDataSourcesFunctionArn:
-    Description: 'ARN of the list data sources function'
-    Value: !GetAtt ListDataSourcesFunction.Arn
+  ListDetectTargetsFunctionArn:
+    Description: 'ARN of the list detect targets function'
+    Value: !GetAtt ListDetectTargetsFunction.Arn
     Export:
-      Name: !Sub "${AWS::StackName}-ListDataSourcesFunctionArn"
+      Name: !Sub "${AWS::StackName}-ListDetectTargetsFunctionArn"
 
   DetectDataSourceUpdatesFunctionArn:
     Description: 'ARN of the detect data source updates function'
@@ -323,7 +323,7 @@ Outputs:
 
   ScheduleRuleArn:
     Description: 'ARN of the EventBridge schedule rule'
-    Value: !GetAtt RepositoryMonitoringScheduleRule.Arn
+    Value: !GetAtt DataSourceUpdateDetectionScheduleRule.Arn
     Export:
       Name: !Sub "${AWS::StackName}-ScheduleRuleArn"
 

@@ -135,7 +135,7 @@ function cleanupFiles() {
     path.join(BACKEND_DIR, "sam-local.log"),
     path.join(
       BACKEND_DIR,
-      "infrastructure/.repository-monitoring-local.tmp.json",
+      "infrastructure/.data-source-update-detection-local.tmp.json",
     ),
   ]
 

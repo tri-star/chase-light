@@ -1,69 +1,77 @@
-# APIルート実装ガイドライン
+# API・ワーカー実装ガイドライン
 
 ## 基本方針
 
-API実装は、**機能単位でのコロケーション**（関連ファイルを近くに配置すること）を最優先します。これにより、コードの凝集性を高め、保守性を向上させます。
+- 機能（フィーチャー）ごとに **ドメイン → アプリケーション → 入出力層** の順で責務を縦に閉じます。
+- HTTP API とワーカーの両方で、ユースケース (`application/use-cases`) を単一の呼び出し口として利用します。
+- 外部サービスや永続化層との接続はポート（`application/ports`）とアダプタ（`infra`）で抽象化し、テスト容易性と差し替え性を担保します。
+- `packages/backend/src/features/detection` が最新のレイヤ構造と依存ルールの参考実装です。
 
-- **実装の全体像**: `@[packages/backend/src/features/data-sources]` フォルダの構成が標準的な実装例です。
-- **レイヤードアーキテクチャ**: ドメイン、リポジトリ、サービス、プレゼンテーションの各層に責務を分離します。
+## レイヤーごとの実装指針
 
-## レイヤごとの責務
+### 1. Domain (`/domain`)
 
-各レイヤの役割を明確に分離し、関心事を分離します。
+- エンティティ・値オブジェクト・ドメインサービスを定義します。
+- Hono や DB などの具象へ依存しません。
+- ID は `Brand` 型で表現し、境界外へ渡る値の意味を明確にします。
 
-- **Domain (`/domain`)**:
-  - **責務**: ビジネスルールとエンティティの型定義。
-  - **ルール**: TypeScriptの`type`のみを定義します。**Zodスキーマは定義しません。**
-  - **実装例**: `@[packages/backend/src/features/data-sources/domain]`
+### 2. Application (`/application`)
 
-- **Repository (`/repositories`)**:
-  - **責務**: データベースとのやり取りと、DBのスキーマからドメイン型へのデータ変換。
-  - **実装例**: `@[packages/backend/src/features/data-sources/repositories]`
+- ユースケースは `動詞-名詞.use-case.ts` として定義し、依存するのは同一コンテキストのドメインとポートのみとします。
+- ポート（`application/ports`）は必要最小限の契約に絞り、外部システムのレスポンスは必要な形に変換した上で扱います。
+- 他フィーチャーを呼び出す場合は対象フィーチャーの `index.ts` から公開されたユースケース／アダプタを利用し、自コンテキストに合わせた DTO に変換してください。
 
-- **Service (`/services`)**:
-  - **責務**: ビジネスロジックの実装。
-  - **ルール**:
-    - 入出力にはDTO（Data Transfer Object）を使用し、`type ~InputDto`, `type ~OutputDto` の形式で命名します。
-    - Zodスキーマは扱いません。
-  - **実装例**: `@[packages/backend/src/features/data-sources/services]`
+### 3. Infra (`/infra`)
 
-- **Presentation (`/presentation`)**:
-  - **責務**: HTTPリクエストの受付、レスポンスの返却、および入力値のバリデーション。
-  - **ルール**:
-    - Honoの`createRoute`と`app.openapi`を使い、ルート定義と実装をセットで記述します。
-    - リクエストのバリデーションにはZodスキーマを使用します。
-  - **実装例**: `@[packages/backend/src/features/data-sources/presentation]`
+- ポートの具象実装を配置します。例: `DrizzleDetectTargetRepository`, `GitHubActivityGateway`。
+- 実装は `core`（DB接続、TransactionManager 等）と外部ライブラリにのみ依存し、他フィーチャーの内部構造には依存しません。
+- 認証トークンやクライアント生成といったセットアップはアダプタ側に寄せ、ユースケース側での再利用を可能にします。
+- スタブやフェイクは同じディレクトリ内に `*-stub.*` として配置し、テスト・ローカル実行で差し替えられるようにします。
 
-## APIルート実装パターン
+### 4. Presentation (`/presentation`)
 
-ルート定義は `presentation/routes` 内に配置します。
+- Hono のルート定義は `presentation/routes` に格納し、ルート毎に `createRoute` + `app.openapi`（または `app.on`）で宣言と実装を隣接させます。
+- Request/Response の整形はプレゼンテーション層で完結させ、ユースケースにはドメインで扱いやすい形を渡します。
+- バリデーションには Zod を使用し、マジックナンバーは `constants/` に切り出します。
 
-- **基本形**: `createRoute`でルート情報を定義し、直後に`app.openapi`でハンドラを実装します。これにより、ルート定義と実装が常に隣接し、見通しが良くなります。
-- **シンプルなCRUD**: データを取得して返すだけのような単純な処理の場合、Service層を省略し、Repository層を直接呼び出すことができます。
-- **実装例**: `@[packages/backend/src/features/data-sources/presentation/routes/index.ts]`
+### 5. Workers (`/workers`)
 
-## スキーマ設計 (Zod)
+- Lambda や StepFunctions のエントリポイントは `handler.ts` で定義します。
+- ハンドラー内で DB 接続、トランザクション、ユースケース、アダプタの組み立てを行います。
+- `packages/backend/src/features/detection/workers/detect-datasource-updates/handler.ts` のように、トランザクション内でリポジトリとゲートウェイを初期化し、ユースケースを実行する構成を標準とします。
 
-スキーマはHTTPの境界（Controller層）でのみ使用し、ランタイムの型安全性を保証します。
+## 実装フロー例（detection フィーチャー）
 
-- **配置場所**:
-  - **機能固有スキーマ**: ルート定義ファイル内にインラインで記述します。
-  - **複数ルート共通スキーマ**: `presentation/schemas` フォルダに配置します。
-- **バリデーション定数**: `z.string().min(1)`のようなマジックナンバーは避け、`constants`フォルダに定数として切り出します。
-- **実装例**:
-  - **ルート内スキーマ**: `@[packages/backend/src/features/data-sources/presentation/routes/index.ts]`
-  - **共通スキーマ**: `@[packages/backend/src/features/data-sources/presentation/schemas]`
-  - **定数**: `@[packages/backend/src/features/data-sources/presentation/constants]`
+1. **ドメイン整備:** `detect-target.ts` に GitHub 監視対象のエンティティとブランド化 ID を定義し、`domain/repositories` にポートを追加します。
+2. **ユースケース実装:** `detect-update.use-case.ts` で更新検知ロジックを実装し、`GitHubActivityGateway` や `ActivityRepository` に依存させます。定数は `detection.constants.ts` を参照します。
+3. **アダプタ実装:** `infra/repositories/drizzle-detect-target.repository.ts` でポートを満たす Drizzle 実装を作成し、外部 API との通信は `infra/adapters/github-activity` に閉じます。
+4. **入出力層:** HTTP API が必要な場合は `presentation/routes` にルートを追加し、ワーカーは `workers/<name>/handler.ts` でユースケースを組み立てます。
+5. **公開 API:** 他フィーチャーへ再利用させたいユースケースやアダプタは `index.ts` で再エクスポートします。内部専用のクラスは公開しません。
 
-## エラーハンドリング
+## API 実装のベストプラクティス
 
-- **カスタムエラー**: `APIError`クラス（`@[packages/backend/src/shared/errors/api-error.ts]`）を使い、ステータスコードとメッセージを明確に指定します。
-- **エラーレスポンス**: 全てのエラーは、グローバルなエラーハンドラ（`@[packages/backend/src/shared/errors/error-handler.ts]`）によって統一された形式のJSONレスポンスに変換されます。
-- **実装例**: `@[packages/backend/src/features/data-sources/errors]`
+- ルーティングの定義とハンドラーは同一ファイルに記述し、宣言と実装が離れないようにします。
+- プレゼンテーション層では DTO → ユースケース引数の変換、ユースケース結果 → API レスポンスへの変換を担当します。
+- コンポーネントテストでは Hono アプリを直接起動し、DB はトランザクションを通じてセットアップ・クリーンアップします。
+- 共通エラーハンドリングは `core` や `shared` の既存ユーティリティを利用し、重複実装を避けます。
 
-## その他ガイドライン
+## ワーカー実装のベストプラクティス
 
-- **日付の扱い**:
-  - **API境界**: 日付・時刻はISO 8601形式のUTC文字列で送受信します。
-  - **アプリケーション内部**: `Date`オブジェクトとして扱います。
-  - **スキーマ定義**: Zodの`transform`を使い、文字列と`Date`オブジェクトの相互変換を行います。
+- `TransactionManager.transaction` でワークロード全体を囲み、リポジトリが同一トランザクションを共有できるようにします。
+- ワーカー固有の入出力スキーマはハンドラー内で型定義し、StepFunctions などの状態遷移に合わせた構造にします。
+- 外部サービス呼び出しのリトライ・タイムアウト設定はアダプタで定義し、ユースケースからはビジネスルールに集中できるようにします。
+
+## 他フィーチャーとの連携
+
+- 他フィーチャーを利用する場合は、そのフィーチャーの `index.ts` で公開されているユースケースやアダプタのみをインポートしてください。
+- 取得した結果は自コンテキストの表現（エンティティやDTO）に変換し、直接外部の型を漏らさないようにします。
+- 依存が循環しないように、再利用したい機能があれば対象フィーチャー側で明示的に公開 API を整備します。
+
+## 実装チェックリスト
+
+- [ ] ドメイン → アプリケーション → 入出力（API/ワーカー）→ インフラの依存方向が守られている
+- [ ] ユースケースは同一フィーチャーのポートとドメインにのみ依存している
+- [ ] アダプタ実装は `core` + 外部ライブラリに閉じ、他フィーチャーの内部実装を参照していない
+- [ ] 入出力層でバリデーション・DTO変換が完結している
+- [ ] 環境依存の設定値やマジックナンバーは `constants/` に切り出されている
+- [ ] 再利用したいユースケース／アダプタは `index.ts` で公開されている

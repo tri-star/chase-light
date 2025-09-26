@@ -118,7 +118,7 @@ docker compose exec db pg_isready -U postgres -d chase_light
 curl -f http://localhost:8083/
 
 # SAM Local確認
-curl -f http://localhost:3001/2015-03-31/functions/list-datasources/invocations
+curl -f http://localhost:3001/2015-03-31/functions/list-detect-targets/invocations
 ```
 
 ### 4. StepFunctions実行
@@ -133,19 +133,19 @@ curl -f http://localhost:3001/2015-03-31/functions/list-datasources/invocations
 # 基本的な実行
 aws stepfunctions start-execution \
   --endpoint-url http://localhost:8083 \
-  --state-machine-arn arn:aws:states:us-east-1:123456789012:stateMachine:repository-monitoring-local \
+  --state-machine-arn arn:aws:states:ap-northeast-1:123456789012:stateMachine:data-source-update-detection-local \
   --input file://infrastructure/events/repository-monitoring-basic.json
 
 # テストモードでの実行
 aws stepfunctions start-execution \
   --endpoint-url http://localhost:8083 \
-  --state-machine-arn arn:aws:states:us-east-1:123456789012:stateMachine:repository-monitoring-local \
+  --state-machine-arn arn:aws:states:ap-northeast-1:123456789012:stateMachine:data-source-update-detection-local \
   --input file://infrastructure/events/repository-monitoring-test.json
 
 # 直接JSON指定での実行
 aws stepfunctions start-execution \
   --endpoint-url http://localhost:8083 \
-  --state-machine-arn arn:aws:states:us-east-1:123456789012:stateMachine:repository-monitoring-local \
+  --state-machine-arn arn:aws:states:ap-northeast-1:123456789012:stateMachine:data-source-update-detection-local \
   --input '{"sourceType": "github"}'
 ```
 
@@ -157,7 +157,7 @@ aws stepfunctions start-execution \
 # 実行一覧の確認
 aws stepfunctions list-executions \
   --endpoint-url http://localhost:8083 \
-  --state-machine-arn arn:aws:states:us-east-1:123456789012:stateMachine:repository-monitoring-local
+  --state-machine-arn arn:aws:states:ap-northeast-1:123456789012:stateMachine:data-source-update-detection-local
 
 # 実行履歴の詳細確認
 aws stepfunctions get-execution-history \

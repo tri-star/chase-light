@@ -1,7 +1,7 @@
 import type { DataSourceRepository } from "../repositories"
-import type { UserRepository } from "../../user/repositories/user.repository"
+import type { UserRepository } from "../../identity/domain/repositories/user.repository"
 import { UserNotFoundError, DataSourceNotFoundError } from "../errors"
-import { TransactionManager } from "../../../shared/db"
+import { TransactionManager } from "../../../core/db"
 
 /**
  * データソース削除サービスの入力DTO
