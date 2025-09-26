@@ -36,7 +36,7 @@
     },
     "ProcessDataSources": {
       "Type": "Map",
-      "ItemsPath": "$.dataSources",
+      "ItemsPath": "$.detectTargets",
       "MaxConcurrency": 5,
       "Parameters": {
         "detectTargetId.$": "$$.Map.Item.Value.id"

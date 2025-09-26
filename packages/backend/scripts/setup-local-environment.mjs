@@ -253,10 +253,10 @@ function buildLambdaFunctions() {
     execSync("pnpm build:lambda", { cwd: BACKEND_DIR, stdio: "inherit" })
 
     // ビルド結果の確認
-    const distDir = path.join(BACKEND_DIR, "dist/lambda/list-datasources")
+    const distDir = path.join(BACKEND_DIR, "dist/lambda/list-detect-targets")
     if (!fs.existsSync(distDir)) {
       throw new Error(
-        "dist/lambda/list-datasources ディレクトリが見つかりません",
+        "dist/lambda/list-detect-targets ディレクトリが見つかりません",
       )
     }
 
@@ -628,7 +628,7 @@ function generateEnvJson() {
   }
 
   const envConfig = {
-    ListDataSourcesFunction: {
+    ListDetectTargetsFunction: {
       USE_AWS: "false",
       STAGE: "local",
       APP_STAGE: "local",

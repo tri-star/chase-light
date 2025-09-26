@@ -51,7 +51,7 @@ export const handler = async (
       })),
     }
   } catch (error) {
-    console.error("Error in list-datasources handler:", error)
+    console.error("Error in list-detect-targets handler:", error)
     throw error
   }
 }

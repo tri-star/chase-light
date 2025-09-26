@@ -147,7 +147,7 @@ Resources:
               Action:
                 - lambda:InvokeFunction
               Resource:
-                - !GetAtt ListDataSourcesFunction.Arn
+                - !GetAtt ListDetectTargetsFunction.Arn
                 - !GetAtt DetectDataSourceUpdatesFunction.Arn
                 - !GetAtt ProcessUpdatesFunction.Arn
         - Statement:

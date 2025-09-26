@@ -6,7 +6,7 @@ import { TestDataFactory } from "../../../../../test/factories"
 import type { Context } from "aws-lambda"
 import { setupComponentTest } from "../../../../../test"
 
-describe("list-datasources handler", () => {
+describe("list-detect-targets handler", () => {
   setupComponentTest()
 
   let mockContext: Context
