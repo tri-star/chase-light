@@ -66,7 +66,7 @@ export const getPostApiAuthSignupUrl = () => {
 
   
 
-  return `missing backend url/api/auth/signup`
+  return `http://localhost:3001/api/auth/signup`
 }
 
 export const postApiAuthSignup = async (signUpRequest: SignUpRequest, options?: RequestInit): Promise<postApiAuthSignupResponse> => {
@@ -128,7 +128,7 @@ export const getGetApiUsersProfileUrl = () => {
 
   
 
-  return `missing backend url/api/users/profile`
+  return `http://localhost:3001/api/users/profile`
 }
 
 export const getApiUsersProfile = async ( options?: RequestInit): Promise<getApiUsersProfileResponse> => {
@@ -189,7 +189,7 @@ export const getPutApiUsersProfileUrl = () => {
 
   
 
-  return `missing backend url/api/users/profile`
+  return `http://localhost:3001/api/users/profile`
 }
 
 export const putApiUsersProfile = async (updateProfileRequest: UpdateProfileRequest, options?: RequestInit): Promise<putApiUsersProfileResponse> => {
@@ -251,7 +251,7 @@ export const getGetApiUsersSettingsUrl = () => {
 
   
 
-  return `missing backend url/api/users/settings`
+  return `http://localhost:3001/api/users/settings`
 }
 
 export const getApiUsersSettings = async ( options?: RequestInit): Promise<getApiUsersSettingsResponse> => {
@@ -312,7 +312,7 @@ export const getPutApiUsersSettingsUrl = () => {
 
   
 
-  return `missing backend url/api/users/settings`
+  return `http://localhost:3001/api/users/settings`
 }
 
 export const putApiUsersSettings = async (updateSettingsRequest: UpdateSettingsRequest, options?: RequestInit): Promise<putApiUsersSettingsResponse> => {
@@ -381,7 +381,7 @@ export const getGetApiDataSourcesUrl = (params?: GetApiDataSourcesParams,) => {
 
   const stringifiedParams = normalizedParams.toString();
 
-  return stringifiedParams.length > 0 ? `missing backend url/api/data-sources?${stringifiedParams}` : `missing backend url/api/data-sources`
+  return stringifiedParams.length > 0 ? `http://localhost:3001/api/data-sources?${stringifiedParams}` : `http://localhost:3001/api/data-sources`
 }
 
 export const getApiDataSources = async (params?: GetApiDataSourcesParams, options?: RequestInit): Promise<getApiDataSourcesResponse> => {
@@ -442,7 +442,7 @@ export const getPostApiDataSourcesUrl = () => {
 
   
 
-  return `missing backend url/api/data-sources`
+  return `http://localhost:3001/api/data-sources`
 }
 
 export const postApiDataSources = async (createDataSourceRequest: CreateDataSourceRequest, options?: RequestInit): Promise<postApiDataSourcesResponse> => {
@@ -504,7 +504,7 @@ export const getGetApiDataSourcesIdUrl = (id: string,) => {
 
   
 
-  return `missing backend url/api/data-sources/${id}`
+  return `http://localhost:3001/api/data-sources/${id}`
 }
 
 export const getApiDataSourcesId = async (id: string, options?: RequestInit): Promise<getApiDataSourcesIdResponse> => {
@@ -565,7 +565,7 @@ export const getPutApiDataSourcesIdUrl = (id: string,) => {
 
   
 
-  return `missing backend url/api/data-sources/${id}`
+  return `http://localhost:3001/api/data-sources/${id}`
 }
 
 export const putApiDataSourcesId = async (id: string,
@@ -628,7 +628,7 @@ export const getDeleteApiDataSourcesIdUrl = (id: string,) => {
 
   
 
-  return `missing backend url/api/data-sources/${id}`
+  return `http://localhost:3001/api/data-sources/${id}`
 }
 
 export const deleteApiDataSourcesId = async (id: string, options?: RequestInit): Promise<deleteApiDataSourcesIdResponse> => {
