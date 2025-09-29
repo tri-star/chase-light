@@ -1,22 +1,22 @@
 import { OpenAPIHono } from "@hono/zod-openapi"
 import type {
-  DataSourceWatchService,
-  DataSourceListService,
-  DataSourceDetailService,
-  DataSourceUpdateService,
-  DataSourceDeletionService,
-} from "../services"
+  RegisterDataSourceWatchUseCase,
+  ListDataSourcesUseCase,
+  GetDataSourceUseCase,
+  UpdateDataSourceUseCase,
+  RemoveDataSourceWatchUseCase,
+} from "../application/use-cases"
 import { createDataSourceRoutes } from "./routes/data-sources"
 
 /**
  * データソース機能のメインルートファクトリー
  */
 export function createDataSourcePresentationRoutes(
-  dataSourceWatchService: DataSourceWatchService,
-  dataSourceListService: DataSourceListService,
-  dataSourceDetailService: DataSourceDetailService,
-  dataSourceUpdateService: DataSourceUpdateService,
-  dataSourceDeletionService: DataSourceDeletionService,
+  registerDataSourceWatchUseCase: RegisterDataSourceWatchUseCase,
+  listDataSourcesUseCase: ListDataSourcesUseCase,
+  getDataSourceUseCase: GetDataSourceUseCase,
+  updateDataSourceUseCase: UpdateDataSourceUseCase,
+  removeDataSourceWatchUseCase: RemoveDataSourceWatchUseCase,
 ) {
   const app = new OpenAPIHono()
 
@@ -24,11 +24,11 @@ export function createDataSourcePresentationRoutes(
   app.route(
     "/data-sources",
     createDataSourceRoutes(
-      dataSourceWatchService,
-      dataSourceListService,
-      dataSourceDetailService,
-      dataSourceUpdateService,
-      dataSourceDeletionService,
+      registerDataSourceWatchUseCase,
+      listDataSourcesUseCase,
+      getDataSourceUseCase,
+      updateDataSourceUseCase,
+      removeDataSourceWatchUseCase,
     ),
   )
 

@@ -2,12 +2,12 @@ import { OpenAPIHono, createRoute } from "@hono/zod-openapi"
 import { z } from "@hono/zod-openapi"
 import { requireAuth } from "../../../../identity/middleware/jwt-auth.middleware"
 import type {
-  DataSourceWatchService,
-  DataSourceListService,
-  DataSourceDetailService,
-  DataSourceUpdateService,
-  DataSourceDeletionService,
-} from "../../../services"
+  RegisterDataSourceWatchUseCase,
+  ListDataSourcesUseCase,
+  GetDataSourceUseCase,
+  UpdateDataSourceUseCase,
+  RemoveDataSourceWatchUseCase,
+} from "../../../application/use-cases"
 import {
   createDataSourceRequestSchema,
   createDataSourceResponseSchema,
@@ -18,15 +18,12 @@ import {
 } from "../../schemas"
 import { handleDataSourceError } from "../../shared/error-handling"
 
-/**
- * データソースルートファクトリー
- */
 export function createDataSourceRoutes(
-  dataSourceWatchService: DataSourceWatchService,
-  dataSourceListService: DataSourceListService,
-  dataSourceDetailService: DataSourceDetailService,
-  dataSourceUpdateService: DataSourceUpdateService,
-  dataSourceDeletionService: DataSourceDeletionService,
+  registerDataSourceWatchUseCase: RegisterDataSourceWatchUseCase,
+  listDataSourcesUseCase: ListDataSourcesUseCase,
+  getDataSourceUseCase: GetDataSourceUseCase,
+  updateDataSourceUseCase: UpdateDataSourceUseCase,
+  removeDataSourceWatchUseCase: RemoveDataSourceWatchUseCase,
 ) {
   const app = new OpenAPIHono()
 
@@ -64,15 +61,12 @@ export function createDataSourceRoutes(
    */
   app.openapi(listDataSourcesRoute, async (c) => {
     try {
-      // 認証情報を取得
       const authenticatedUser = requireAuth(c)
       const auth0UserId = authenticatedUser.sub
 
-      // クエリパラメータを取得
       const query = c.req.valid("query")
 
-      // サービス層でデータソース一覧を取得
-      const result = await dataSourceListService.execute({
+      const result = await listDataSourcesUseCase.execute({
         userId: auth0UserId,
         filters: {
           name: query.name,
@@ -100,7 +94,6 @@ export function createDataSourceRoutes(
         sortOrder: query.sortOrder,
       })
 
-      // レスポンスを返す
       return c.json(
         {
           success: true,
@@ -151,35 +144,124 @@ export function createDataSourceRoutes(
     }
   })
 
-  // ===== データソース詳細取得機能 =====
+  // ===== データソース作成機能 =====
 
   /**
-   * パラメータスキーマ
+   * POST /data-sources ルート定義
    */
-  const dataSourceDetailParamsSchema = z.object({
-    id: z
-      .string()
-      .uuid()
-      .openapi({
-        param: {
-          name: "id",
-          in: "path",
-          required: true,
+  const createDataSourceRoute = createRoute({
+    method: "post",
+    path: "/",
+    summary: "データソース監視登録",
+    description:
+      "GitHubリポジトリのURLからデータソースを登録し、ユーザーのウォッチ設定を作成します",
+    tags: ["DataSources"],
+    security: [{ Bearer: [] }],
+    request: {
+      body: {
+        content: {
+          "application/json": {
+            schema: createDataSourceRequestSchema,
+          },
         },
-        example: "550e8400-e29b-41d4-a716-446655440000",
-        description: "データソースID（UUID形式）",
-      }),
+      },
+    },
+    responses: {
+      201: {
+        content: {
+          "application/json": {
+            schema: createDataSourceResponseSchema,
+          },
+        },
+        description: "データソースが正常に登録されました",
+      },
+      ...dataSourceErrorResponseSchemaDefinition,
+    },
   })
+
+  /**
+   * POST /data-sources エンドポイント
+   */
+  app.openapi(createDataSourceRoute, async (c) => {
+    try {
+      const authenticatedUser = requireAuth(c)
+      const auth0UserId = authenticatedUser.sub
+
+      const body = c.req.valid("json")
+
+      const result = await registerDataSourceWatchUseCase.execute({
+        repositoryUrl: body.repositoryUrl,
+        userId: auth0UserId,
+        name: body.name,
+        description: body.description,
+        notificationEnabled: body.notificationEnabled,
+        watchReleases: body.watchReleases,
+        watchIssues: body.watchIssues,
+        watchPullRequests: body.watchPullRequests,
+      })
+
+      return c.json(
+        {
+          success: true as const,
+          data: {
+            dataSource: {
+              id: result.dataSource.id,
+              sourceType: result.dataSource.sourceType,
+              sourceId: result.dataSource.sourceId,
+              name: result.dataSource.name,
+              description: result.dataSource.description,
+              url: result.dataSource.url,
+              isPrivate: result.dataSource.isPrivate,
+              repository: {
+                id: result.dataSource.repository.id,
+                githubId: result.dataSource.repository.githubId,
+                fullName: result.dataSource.repository.fullName,
+                owner: result.dataSource.repository.owner,
+                language: result.dataSource.repository.language,
+                starsCount: result.dataSource.repository.starsCount,
+                forksCount: result.dataSource.repository.forksCount,
+                openIssuesCount: result.dataSource.repository.openIssuesCount,
+                isFork: result.dataSource.repository.isFork,
+                createdAt: result.dataSource.repository.createdAt.toISOString(),
+                updatedAt: result.dataSource.repository.updatedAt.toISOString(),
+              },
+              createdAt: result.dataSource.createdAt.toISOString(),
+              updatedAt: result.dataSource.updatedAt.toISOString(),
+            },
+            userWatch: {
+              id: result.userWatch.id,
+              userId: result.userWatch.userId,
+              dataSourceId: result.userWatch.dataSourceId,
+              notificationEnabled: result.userWatch.notificationEnabled,
+              watchReleases: result.userWatch.watchReleases,
+              watchIssues: result.userWatch.watchIssues,
+              watchPullRequests: result.userWatch.watchPullRequests,
+              addedAt: result.userWatch.addedAt.toISOString(),
+            },
+          },
+        },
+        201,
+      )
+    } catch (error) {
+      return handleDataSourceError(c, error, "create")
+    }
+  })
+
+  // ===== データソース詳細取得機能 =====
 
   /**
    * GET /data-sources/{id} ルート定義
    */
-  const getDataSourceDetailRoute = createRoute({
+  const dataSourceDetailParamsSchema = z.object({
+    id: z.string().uuid().describe("データソースID"),
+  })
+
+  const getDataSourceRoute = createRoute({
     method: "get",
     path: "/{id}",
     summary: "データソース詳細取得",
     description:
-      "指定されたIDのデータソース詳細情報を取得します。認証ユーザーがWatch中のデータソースのみアクセス可能です",
+      "監視中のデータソースの詳細情報を取得します。認証ユーザーがアクセス権限を持つデータソースのみ取得可能です",
     tags: ["DataSources"],
     security: [{ Bearer: [] }],
     request: {
@@ -199,27 +281,23 @@ export function createDataSourceRoutes(
   })
 
   /**
-   * GET /data-sources/{id} - データソース詳細取得エンドポイント
+   * GET /data-sources/{id} エンドポイント
    */
-  app.openapi(getDataSourceDetailRoute, async (c) => {
+  app.openapi(getDataSourceRoute, async (c) => {
     try {
-      // 認証情報を取得
       const authenticatedUser = requireAuth(c)
       const auth0UserId = authenticatedUser.sub
 
-      // パスパラメータを取得
       const { id } = c.req.valid("param")
 
-      // サービス層でデータソース詳細を取得
-      const result = await dataSourceDetailService.execute({
+      const result = await getDataSourceUseCase.execute({
         dataSourceId: id,
         userId: auth0UserId,
       })
 
-      // レスポンスを返す
       return c.json(
         {
-          success: true,
+          success: true as const,
           data: {
             dataSource: {
               id: result.dataSource.id,
@@ -264,188 +342,7 @@ export function createDataSourceRoutes(
     }
   })
 
-  // ===== データソース作成機能 =====
-
-  /**
-   * POST /data-sources ルート定義
-   */
-  const createDataSourceRoute = createRoute({
-    method: "post",
-    path: "/",
-    summary: "データソース登録",
-    description:
-      "GitHubリポジトリをデータソースとして登録し、ユーザーの監視対象に追加します",
-    tags: ["DataSources"],
-    security: [{ Bearer: [] }],
-    request: {
-      body: {
-        content: {
-          "application/json": {
-            schema: createDataSourceRequestSchema,
-          },
-        },
-        description: "データソース作成リクエスト",
-      },
-    },
-    responses: {
-      201: {
-        content: {
-          "application/json": {
-            schema: createDataSourceResponseSchema,
-          },
-        },
-        description: "データソースが正常に作成されました",
-      },
-      ...dataSourceErrorResponseSchemaDefinition,
-    },
-  })
-
-  /**
-   * POST /data-sources - データソース作成エンドポイント
-   */
-  app.openapi(createDataSourceRoute, async (c) => {
-    try {
-      // 認証情報を取得
-      const authenticatedUser = requireAuth(c)
-      const auth0UserId = authenticatedUser.sub
-
-      // リクエストボディを取得
-      const body = c.req.valid("json")
-
-      // サービス層でデータソースを作成
-      const result = await dataSourceWatchService.execute({
-        repositoryUrl: body.repositoryUrl,
-        userId: auth0UserId,
-        name: body.name,
-        description: body.description,
-        notificationEnabled: body.notificationEnabled,
-        watchReleases: body.watchReleases,
-        watchIssues: body.watchIssues,
-        watchPullRequests: body.watchPullRequests,
-      })
-
-      // レスポンスを返す
-      return c.json(
-        {
-          success: true,
-          data: {
-            dataSource: {
-              id: result.dataSource.id,
-              sourceType: result.dataSource.sourceType,
-              sourceId: result.dataSource.sourceId,
-              name: result.dataSource.name,
-              description: result.dataSource.description,
-              url: result.dataSource.url,
-              isPrivate: result.dataSource.isPrivate,
-              repository: {
-                id: result.dataSource.repository.id,
-                githubId: result.dataSource.repository.githubId,
-                fullName: result.dataSource.repository.fullName,
-                owner: result.dataSource.repository.owner,
-                language: result.dataSource.repository.language,
-                starsCount: result.dataSource.repository.starsCount,
-                forksCount: result.dataSource.repository.forksCount,
-                openIssuesCount: result.dataSource.repository.openIssuesCount,
-                isFork: result.dataSource.repository.isFork,
-                createdAt: result.dataSource.repository.createdAt.toISOString(),
-                updatedAt: result.dataSource.repository.updatedAt.toISOString(),
-              },
-              createdAt: result.dataSource.createdAt.toISOString(),
-              updatedAt: result.dataSource.updatedAt.toISOString(),
-            },
-            userWatch: {
-              id: result.userWatch.id,
-              userId: result.userWatch.userId,
-              dataSourceId: result.userWatch.dataSourceId,
-              notificationEnabled: result.userWatch.notificationEnabled,
-              watchReleases: result.userWatch.watchReleases,
-              watchIssues: result.userWatch.watchIssues,
-              watchPullRequests: result.userWatch.watchPullRequests,
-              addedAt: result.userWatch.addedAt.toISOString(),
-            },
-          },
-        },
-        201,
-      )
-    } catch (error) {
-      return handleDataSourceError(c, error, "creation")
-    }
-  })
-
   // ===== データソース更新機能 =====
-
-  /**
-   * リクエストスキーマ
-   */
-  const updateDataSourceRequestSchema = z.object({
-    name: z.string().min(1).max(255).optional().openapi({
-      example: "My Custom Repository Name",
-      description: "データソースの表示名（カスタマイズ可能）",
-    }),
-    description: z.string().max(1000).optional().openapi({
-      example: "This is my customized description for this repository",
-      description: "データソースの説明（カスタマイズ可能）",
-    }),
-    notificationEnabled: z.boolean().optional().openapi({
-      example: true,
-      description: "通知の有効/無効",
-    }),
-    watchReleases: z.boolean().optional().openapi({
-      example: true,
-      description: "リリース監視の有効/無効",
-    }),
-    watchIssues: z.boolean().optional().openapi({
-      example: false,
-      description: "Issue監視の有効/無効",
-    }),
-    watchPullRequests: z.boolean().optional().openapi({
-      example: false,
-      description: "PR監視の有効/無効",
-    }),
-  })
-
-  /**
-   * レスポンススキーマ
-   */
-  const updateDataSourceResponseSchema = z.object({
-    success: z.literal(true),
-    data: z.object({
-      dataSource: z.object({
-        id: z.string().uuid(),
-        sourceType: z.string(),
-        sourceId: z.string(),
-        name: z.string(),
-        description: z.string(),
-        url: z.string(),
-        isPrivate: z.boolean(),
-        repository: z.object({
-          id: z.string().uuid(),
-          githubId: z.number(),
-          fullName: z.string(),
-          owner: z.string(),
-          language: z.string().nullable(),
-          starsCount: z.number(),
-          forksCount: z.number(),
-          openIssuesCount: z.number(),
-          isFork: z.boolean(),
-          createdAt: z.string(),
-          updatedAt: z.string(),
-        }),
-        createdAt: z.string(),
-        updatedAt: z.string(),
-      }),
-      userWatch: z.object({
-        id: z.string().uuid(),
-        userId: z.string().uuid(),
-        dataSourceId: z.string().uuid(),
-        notificationEnabled: z.boolean(),
-        watchReleases: z.boolean(),
-        watchIssues: z.boolean(),
-        watchPullRequests: z.boolean(),
-        addedAt: z.string(),
-      }),
-    }),
-  })
 
   /**
    * PUT /data-sources/{id} ルート定義
@@ -455,7 +352,7 @@ export function createDataSourceRoutes(
     path: "/{id}",
     summary: "データソース更新",
     description:
-      "指定されたIDのデータソース設定を更新します。認証ユーザーがWatch中のデータソースのみ更新可能です",
+      "データソースの基本情報とウォッチ設定を更新します。認証ユーザーがウォッチ中のデータソースのみ更新可能です",
     tags: ["DataSources"],
     security: [{ Bearer: [] }],
     request: {
@@ -463,17 +360,16 @@ export function createDataSourceRoutes(
       body: {
         content: {
           "application/json": {
-            schema: updateDataSourceRequestSchema,
+            schema: createDataSourceRequestSchema.partial(),
           },
         },
-        description: "データソース更新リクエスト",
       },
     },
     responses: {
       200: {
         content: {
           "application/json": {
-            schema: updateDataSourceResponseSchema,
+            schema: createDataSourceResponseSchema,
           },
         },
         description: "データソースが正常に更新されました",
@@ -483,20 +379,17 @@ export function createDataSourceRoutes(
   })
 
   /**
-   * PUT /data-sources/{id} - データソース更新エンドポイント
+   * PUT /data-sources/{id} エンドポイント
    */
   app.openapi(updateDataSourceRoute, async (c) => {
     try {
-      // 認証情報を取得
       const authenticatedUser = requireAuth(c)
       const auth0UserId = authenticatedUser.sub
 
-      // パスパラメータとリクエストボディを取得
       const { id } = c.req.valid("param")
       const body = c.req.valid("json")
 
-      // サービス層でデータソースを更新
-      const result = await dataSourceUpdateService.execute({
+      const result = await updateDataSourceUseCase.execute({
         dataSourceId: id,
         userId: auth0UserId,
         name: body.name,
@@ -507,7 +400,6 @@ export function createDataSourceRoutes(
         watchPullRequests: body.watchPullRequests,
       })
 
-      // レスポンスを返す
       return c.json(
         {
           success: true as const,
@@ -580,24 +472,20 @@ export function createDataSourceRoutes(
   })
 
   /**
-   * DELETE /data-sources/{id} - データソース削除エンドポイント
+   * DELETE /data-sources/{id} エンドポイント
    */
   app.openapi(deleteDataSourceRoute, async (c) => {
     try {
-      // 認証情報を取得
       const authenticatedUser = requireAuth(c)
       const auth0UserId = authenticatedUser.sub
 
-      // パスパラメータを取得
       const { id } = c.req.valid("param")
 
-      // サービス層でデータソースを削除
-      await dataSourceDeletionService.execute({
+      await removeDataSourceWatchUseCase.execute({
         dataSourceId: id,
         userId: auth0UserId,
       })
 
-      // 204 No Content レスポンスを返す
       return c.body(null, 204)
     } catch (error) {
       return handleDataSourceError(c, error, "deletion")
