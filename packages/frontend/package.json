@@ -65,7 +65,7 @@
     "msw": "^2.10.4",
     "msw-storybook-addon": "^2.0.4",
     "nitropack": "2.11.13",
-    "orval": "^7.11.2",
+    "orval": "^7.13.0",
     "playwright-core": "^1.52.0",
     "prettier": "^3.3.3",
     "storybook": "8.6.14",
