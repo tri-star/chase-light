@@ -3,7 +3,7 @@ import { http, HttpResponse } from 'msw'
 import DashboardPage from './DashboardPage.vue'
 import { getGetApiDataSourcesMockHandler } from '~/generated/api/backend.msw'
 import type { DataSourceListResponse } from '~/generated/api/schemas'
-import { expect, within } from '@storybook/test'
+import { expect, within } from 'storybook/test'
 
 const meta: Meta<typeof DashboardPage> = {
   title: 'Components/Pages/DashboardPage',
