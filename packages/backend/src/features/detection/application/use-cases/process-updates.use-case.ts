@@ -45,9 +45,19 @@ export class ProcessUpdatesUseCase {
       return { processedActivityIds: [], failedActivityIds: activityIds }
     }
 
+    // 既に処理済み(COMPLETED)のイベントは完全にスキップし、
+    // 成功/失敗いずれにもカウントしない
+    const targets = activities.filter(
+      (a) => a.status !== ACTIVITY_STATUS.COMPLETED,
+    )
+
+    if (targets.length === 0) {
+      return { processedActivityIds: [], failedActivityIds: [] }
+    }
+
     // 各イベントを個別に処理
     const results = await Promise.allSettled<ProcessactivityResult>(
-      activities.map((activity: Activity) => this.processactivity(activity)),
+      targets.map((activity: Activity) => this.processactivity(activity)),
     )
 
     // 結果を集計
@@ -56,7 +66,7 @@ export class ProcessUpdatesUseCase {
 
     results.forEach(
       (result: PromiseSettledResult<ProcessactivityResult>, index: number) => {
-        const activityId = activities[index].id
+        const activityId = targets[index].id
 
         if (result.status === "fulfilled" && result.value.success) {
           processedActivityIds.push(activityId)

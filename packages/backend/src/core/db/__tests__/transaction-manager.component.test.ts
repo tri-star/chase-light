@@ -1,10 +1,10 @@
 import { describe, it, expect, beforeEach } from "vitest"
+import { uuidv7 } from "uuidv7"
+import { eq } from "drizzle-orm"
 import { TransactionManager } from "../transaction-manager"
 import { setupComponentTest } from "../../../test/test-db"
 import { TestDataFactory } from "../../../test/factories"
 import { users, dataSources } from "../../../db/schema"
-import { uuidv7 } from "uuidv7"
-import { eq } from "drizzle-orm"
 
 describe("TransactionManager - Component Test", () => {
   setupComponentTest()
@@ -27,7 +27,6 @@ describe("TransactionManager - Component Test", () => {
         connectionInTransaction = await TransactionManager.getConnection()
       })
 
-      // トランザクション内外で異なるインスタンスが返されることを確認
       expect(connectionInTransaction).toBeDefined()
       expect(connectionInTransaction).not.toBe(connectionOutsideTransaction)
     })
@@ -57,17 +56,14 @@ describe("TransactionManager - Component Test", () => {
         updatedAt: new Date(),
       }
 
-      // トランザクション内でユーザーを作成
       const result = await TransactionManager.transaction(async () => {
         const connection = await TransactionManager.getConnection()
 
-        // ユーザーを挿入
         const [insertedUser] = await connection
           .insert(users)
           .values(testUser)
           .returning()
 
-        // 同じトランザクション内で検索してみる
         const foundUser = await connection
           .select()
           .from(users)
@@ -76,7 +72,6 @@ describe("TransactionManager - Component Test", () => {
         return { insertedUser, foundUser: foundUser[0] }
       })
 
-      // トランザクション完了後にデータが正しく保存されていることを確認
       const connection = await TransactionManager.getConnection()
       const savedUser = await connection
         .select()
@@ -107,7 +102,6 @@ describe("TransactionManager - Component Test", () => {
         })
       })
 
-      // すべて同じトランザクションインスタンスであることを確認
       expect(outerTransaction).toBe(middleTransaction)
       expect(middleTransaction).toBe(innerTransaction)
     })
@@ -116,62 +110,59 @@ describe("TransactionManager - Component Test", () => {
       const testUserId = uuidv7()
       const testDataSourceId = uuidv7()
 
-      // 正常なユーザーを事前に作成
       await TestDataFactory.createTestUser("auth0|rollback_test")
 
       try {
         await TransactionManager.transaction(async () => {
           const connection = await TransactionManager.getConnection()
 
-          // ユーザーを挿入
           await connection.insert(users).values({
             id: testUserId,
-            auth0UserId: "auth0|will_be_rolled_back",
-            email: "rollback@example.com",
-            name: "Will Be Rolled Back",
-            githubUsername: "rollbackuser",
-            avatarUrl: "https://example.com/avatar.jpg",
+            auth0UserId: "auth0|tx_error_user",
+            email: "tx-error@example.com",
+            name: "Tx Error User",
+            githubUsername: "txerror",
+            avatarUrl: "https://example.com/avatar2.jpg",
             timezone: "Asia/Tokyo",
             createdAt: new Date(),
             updatedAt: new Date(),
           })
 
-          // データソースを挿入
           await connection.insert(dataSources).values({
             id: testDataSourceId,
             sourceType: "github",
-            sourceId: "rollback_test_123",
-            name: "Rollback Test Repository",
-            description: "This should be rolled back",
-            url: "https://github.com/test/rollback",
+            sourceId: "tx_error_repo",
+            name: "Tx Error Repo",
+            description: "Repository that causes error",
+            url: "https://github.com/test/error",
             isPrivate: false,
             createdAt: new Date(),
             updatedAt: new Date(),
           })
 
-          // 意図的にエラーを発生させる
-          throw new Error("Intentional rollback test error")
+          throw new Error("Intentional error to trigger rollback")
         })
-      } catch (error: unknown) {
+      } catch (error) {
         expect(error).toBeInstanceOf(Error)
-        expect((error as Error).message).toBe("Intentional rollback test error")
+        expect((error as Error).message).toBe(
+          "Intentional error to trigger rollback",
+        )
       }
 
-      // トランザクションがロールバックされていることを確認
       const connection = await TransactionManager.getConnection()
 
-      const userResult = await connection
+      const savedUser = await connection
         .select()
         .from(users)
         .where(eq(users.id, testUserId))
 
-      const dataSourceResult = await connection
+      const savedDataSource = await connection
         .select()
         .from(dataSources)
         .where(eq(dataSources.id, testDataSourceId))
 
-      expect(userResult).toHaveLength(0)
-      expect(dataSourceResult).toHaveLength(0)
+      expect(savedUser).toHaveLength(0)
+      expect(savedDataSource).toHaveLength(0)
     })
 
     it("複数のデータベース操作を含む複雑なトランザクションが正常に動作する", async () => {
@@ -181,7 +172,6 @@ describe("TransactionManager - Component Test", () => {
       const result = await TransactionManager.transaction(async () => {
         const connection = await TransactionManager.getConnection()
 
-        // ユーザーを作成
         const [user] = await connection
           .insert(users)
           .values({
@@ -197,7 +187,6 @@ describe("TransactionManager - Component Test", () => {
           })
           .returning()
 
-        // データソースを作成
         const [dataSource] = await connection
           .insert(dataSources)
           .values({
@@ -213,7 +202,6 @@ describe("TransactionManager - Component Test", () => {
           })
           .returning()
 
-        // 作成したデータを検索
         const createdUser = await connection
           .select()
           .from(users)
@@ -232,7 +220,6 @@ describe("TransactionManager - Component Test", () => {
         }
       })
 
-      // トランザクション外からも正しくデータが取得できることを確認
       const connection = await TransactionManager.getConnection()
 
       const finalUser = await connection
@@ -256,19 +243,17 @@ describe("TransactionManager - Component Test", () => {
 
   describe("実際のRepository使用パターン", () => {
     beforeEach(async () => {
-      // 各テスト用にベースユーザーを作成
       await TestDataFactory.createTestUser("auth0|repository_pattern_user")
     })
 
     it("Repository層とService層の組み合わせでトランザクションが正常に動作する", async () => {
-      const { DataSourceRepository } = await import(
-        "../../../features/data-sources/repositories/data-source.repository"
+      const { DrizzleDataSourceRepository } = await import(
+        "../../../features/data-sources/infra/repositories"
       )
 
-      const dataSourceRepo = new DataSourceRepository()
+      const dataSourceRepo = new DrizzleDataSourceRepository()
 
       const result = await TransactionManager.transaction(async () => {
-        // データソース作成
         const dataSource = await dataSourceRepo.save({
           sourceType: "github",
           sourceId: "repo_pattern_test_789",
@@ -290,7 +275,6 @@ describe("TransactionManager - Component Test", () => {
         return { dataSource }
       })
 
-      // トランザクション完了後に実際にデータが保存されていることを確認
       const savedDataSource = await dataSourceRepo.findById(
         result.dataSource.id,
       )

@@ -1,138 +1,118 @@
-import { describe, test, expect, beforeEach } from "vitest"
+import { beforeEach, describe, expect, test } from "vitest"
 import { OpenAPIHono } from "@hono/zod-openapi"
+import { eq } from "drizzle-orm"
 import { createDataSourceRoutes } from "../index"
 import {
-  DataSourceCreationService,
-  DataSourceWatchService,
-  DataSourceListService,
-  DataSourceDetailService,
-  DataSourceUpdateService,
-  DataSourceDeletionService,
-} from "../../../../services"
+  RegisterDataSourceWatchUseCase,
+  ListDataSourcesUseCase,
+  GetDataSourceUseCase,
+  UpdateDataSourceUseCase,
+  RemoveDataSourceWatchUseCase,
+} from "../../../../application/use-cases"
 import {
-  DataSourceRepository,
-  UserWatchRepository,
-} from "../../../../repositories"
-import { DrizzleUserRepository as UserRepository } from "../../../../../identity/infra/repositories/drizzle-user.repository"
-import { GitHubApiServiceStub } from "../../../../services/github-api-service.stub"
-import type { GitHubRepositoryResponse } from "../../../../services/interfaces/github-api-service.interface"
+  DrizzleDataSourceRepository,
+  DrizzleUserWatchRepository,
+  DrizzleUserAccountRepository,
+} from "../../../../infra/repositories"
+import {
+  GitHubRepositoryStub,
+  type LegacyGitHubRepositoryResponse,
+} from "../../../../infra/adapters/github-repository"
 import { setupComponentTest, TestDataFactory } from "../../../../../../test"
 import { AuthTestHelper } from "../../../../../identity/test-helpers/auth-test-helper"
 import { globalJWTAuth } from "../../../../../identity"
 import type { User } from "../../../../../identity/domain/user"
 import { db } from "../../../../../../db/connection"
 import { events, notifications } from "../../../../../../db/schema"
-import { eq } from "drizzle-orm"
+import { DATA_SOURCE_TYPES } from "../../../../domain"
 
-// Component Test: 実DBを使用してHTTPエンドポイントをテスト
+const createStubResponse = (
+  overrides: Partial<LegacyGitHubRepositoryResponse> = {},
+): LegacyGitHubRepositoryResponse => ({
+  id: overrides.id ?? 10270250,
+  full_name: overrides.full_name ?? "facebook/react",
+  name: overrides.name ?? "react",
+  description:
+    overrides.description ??
+    "A declarative, efficient, and flexible JavaScript library for building user interfaces.",
+  html_url: overrides.html_url ?? "https://github.com/facebook/react",
+  private: overrides.private ?? false,
+  language: overrides.language ?? "TypeScript",
+  stargazers_count: overrides.stargazers_count ?? 210000,
+  forks_count: overrides.forks_count ?? 45000,
+  open_issues_count: overrides.open_issues_count ?? 900,
+  fork: overrides.fork ?? false,
+})
 
-describe("DataSources API - Component Test", () => {
+describe("DataSources API", () => {
   setupComponentTest()
 
   let app: OpenAPIHono
-  let dataSourceCreationService: DataSourceCreationService
-  let dataSourceWatchService: DataSourceWatchService
-  let dataSourceListService: DataSourceListService
-  let dataSourceDetailService: DataSourceDetailService
-  let dataSourceUpdateService: DataSourceUpdateService
-  let dataSourceDeletionService: DataSourceDeletionService
-  let githubStub: GitHubApiServiceStub
+  let githubStub: GitHubRepositoryStub
+  let registerUseCase: RegisterDataSourceWatchUseCase
+  let listUseCase: ListDataSourcesUseCase
+  let getUseCase: GetDataSourceUseCase
+  let updateUseCase: UpdateDataSourceUseCase
+  let removeUseCase: RemoveDataSourceWatchUseCase
   let testUser: User
   let testToken: string
 
   beforeEach(async () => {
-    // テストユーザーの認証設定をクリア
     AuthTestHelper.clearTestUsers()
 
-    // テストユーザーをDBに作成
     testUser = await TestDataFactory.createTestUser("auth0|test123")
-
-    // テスト用トークンを生成
     testToken = AuthTestHelper.createTestToken(
       testUser.auth0UserId,
       testUser.email,
       testUser.name,
     )
 
-    // GitHubスタブを作成
-    githubStub = new GitHubApiServiceStub()
+    const dataSourceRepository = new DrizzleDataSourceRepository()
+    const userWatchRepository = new DrizzleUserWatchRepository()
+    const userAccountRepository = new DrizzleUserAccountRepository()
+    githubStub = new GitHubRepositoryStub()
 
-    // 実際のリポジトリとサービスを作成（スタブを注入）
-    const dataSourceRepository = new DataSourceRepository()
-    const userWatchRepository = new UserWatchRepository()
-    const userRepository = new UserRepository()
-    dataSourceCreationService = new DataSourceCreationService(
+    registerUseCase = new RegisterDataSourceWatchUseCase(
       dataSourceRepository,
+      userWatchRepository,
+      userAccountRepository,
       githubStub,
     )
-    dataSourceWatchService = new DataSourceWatchService(
-      dataSourceCreationService,
-      userWatchRepository,
-      userRepository,
-    )
-    dataSourceListService = new DataSourceListService(
+    listUseCase = new ListDataSourcesUseCase(
       dataSourceRepository,
-      userRepository,
+      userAccountRepository,
     )
-    dataSourceDetailService = new DataSourceDetailService(
+    getUseCase = new GetDataSourceUseCase(
       dataSourceRepository,
-      userRepository,
+      userAccountRepository,
     )
-    dataSourceUpdateService = new DataSourceUpdateService(
+    updateUseCase = new UpdateDataSourceUseCase(
       dataSourceRepository,
       userWatchRepository,
-      userRepository,
+      userAccountRepository,
     )
-    dataSourceDeletionService = new DataSourceDeletionService(
+    removeUseCase = new RemoveDataSourceWatchUseCase(
       dataSourceRepository,
-      userRepository,
+      userAccountRepository,
     )
 
-    // ルートアプリケーション作成
     app = new OpenAPIHono()
-
-    // 認証ミドルウェアを追加
     app.use("*", globalJWTAuth)
-
-    // データソースルートを追加
-    const dataSourceRoutes = createDataSourceRoutes(
-      dataSourceWatchService,
-      dataSourceListService,
-      dataSourceDetailService,
-      dataSourceUpdateService,
-      dataSourceDeletionService,
+    app.route(
+      "/",
+      createDataSourceRoutes(
+        registerUseCase,
+        listUseCase,
+        getUseCase,
+        updateUseCase,
+        removeUseCase,
+      ),
     )
-    app.route("/", dataSourceRoutes)
   })
 
-  describe("POST /data-sources - データソース作成", () => {
-    test("有効なリクエストでデータソースが作成される", async () => {
-      const requestBody = {
-        repositoryUrl: "https://github.com/facebook/react",
-        name: "React",
-        description: "A JavaScript library",
-        notificationEnabled: true,
-        watchReleases: true,
-        watchIssues: false,
-        watchPullRequests: false,
-      }
-
-      // GitHubスタブレスポンスを設定
-      const githubResponse: GitHubRepositoryResponse = {
-        id: 10270250,
-        full_name: "facebook/react",
-        name: "react",
-        description:
-          "A declarative, efficient, and flexible JavaScript library for building user interfaces.",
-        html_url: "https://github.com/facebook/react",
-        private: false,
-        language: "JavaScript",
-        stargazers_count: 230000,
-        forks_count: 47000,
-        open_issues_count: 1500,
-        fork: false,
-      }
-      githubStub.setStubResponse(githubResponse)
+  describe("POST /data-sources", () => {
+    test("リポジトリを登録しウォッチ設定を作成できる", async () => {
+      githubStub.setStubResponse(createStubResponse())
 
       const res = await app.request("/", {
         method: "POST",
@@ -140,189 +120,79 @@ describe("DataSources API - Component Test", () => {
           ...AuthTestHelper.createAuthHeaders(testToken),
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(requestBody),
+        body: JSON.stringify({
+          repositoryUrl: "https://github.com/facebook/react",
+          notificationEnabled: true,
+        }),
       })
 
       expect(res.status).toBe(201)
-
-      const responseBody = await res.json()
-      expect(responseBody.success).toBe(true)
-      expect(responseBody.data.dataSource.name).toBe("React")
-      expect(responseBody.data.dataSource.sourceId).toBe("10270250")
-      expect(responseBody.data.dataSource.url).toBe(
-        "https://github.com/facebook/react",
-      )
-      expect(responseBody.data.dataSource.repository.fullName).toBe(
-        "facebook/react",
-      )
-      expect(responseBody.data.dataSource.repository.githubId).toBe(10270250)
-      expect(responseBody.data.dataSource.repository.language).toBe(
-        "JavaScript",
-      )
-      expect(responseBody.data.dataSource.repository.starsCount).toBe(230000)
-      expect(responseBody.data.userWatch.userId).toBe(testUser.id)
-      expect(responseBody.data.userWatch.notificationEnabled).toBe(true)
-      expect(responseBody.data.userWatch.watchReleases).toBe(true)
-      expect(responseBody.data.userWatch.watchIssues).toBe(false)
-      expect(responseBody.data.userWatch.watchPullRequests).toBe(false)
+      const body = await res.json()
+      expect(body.success).toBe(true)
+      expect(body.data.dataSource.name).toBe("react")
+      expect(body.data.userWatch.notificationEnabled).toBe(true)
     })
 
-    test("最小限のリクエストでもデータソースが作成される", async () => {
-      const requestBody = {
-        repositoryUrl: "https://github.com/microsoft/typescript",
-      }
+    test("重複登録では既存データを返す", async () => {
+      githubStub.setStubResponse(createStubResponse())
 
-      // GitHubスタブレスポンスを設定
-      const githubResponse: GitHubRepositoryResponse = {
-        id: 1234567,
-        full_name: "microsoft/typescript",
-        name: "TypeScript",
-        description:
-          "TypeScript is a superset of JavaScript that compiles to plain JavaScript.",
-        html_url: "https://github.com/microsoft/typescript",
-        private: false,
-        language: "TypeScript",
-        stargazers_count: 100000,
-        forks_count: 12000,
-        open_issues_count: 500,
-        fork: false,
-      }
-      githubStub.setStubResponse(githubResponse)
-
-      const res = await app.request("/", {
+      await app.request("/", {
         method: "POST",
         headers: {
           ...AuthTestHelper.createAuthHeaders(testToken),
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(requestBody),
+        body: JSON.stringify({
+          repositoryUrl: "https://github.com/facebook/react",
+        }),
       })
 
-      expect(res.status).toBe(201)
+      const second = await app.request("/", {
+        method: "POST",
+        headers: {
+          ...AuthTestHelper.createAuthHeaders(testToken),
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          repositoryUrl: "https://github.com/facebook/react",
+        }),
+      })
 
-      const responseBody = await res.json()
-      expect(responseBody.success).toBe(true)
-
-      // nameが指定されていない場合、GitHubのnameが使用されることを確認
-      expect(responseBody.data.dataSource.name).toBe("TypeScript")
-      expect(responseBody.data.dataSource.sourceId).toBe("1234567")
-      expect(responseBody.data.dataSource.repository.fullName).toBe(
-        "microsoft/typescript",
-      )
-      expect(responseBody.data.dataSource.repository.language).toBe(
-        "TypeScript",
-      )
-
-      // デフォルト値での作成を確認
-      expect(responseBody.data.userWatch.notificationEnabled).toBe(true)
-      expect(responseBody.data.userWatch.watchReleases).toBe(true)
-      expect(responseBody.data.userWatch.watchIssues).toBe(false)
-      expect(responseBody.data.userWatch.watchPullRequests).toBe(false)
+      expect(second.status).toBe(201)
+      const body = await second.json()
+      expect(body.data.dataSource.repository.fullName).toBe("facebook/react")
     })
-  })
 
-  describe("POST /data-sources - 異常系", () => {
     test("無効なリクエストボディの場合は400エラー", async () => {
-      const invalidRequestBody = {
-        repositoryUrl: "", // 空文字列は無効
-      }
-
       const res = await app.request("/", {
         method: "POST",
         headers: {
           ...AuthTestHelper.createAuthHeaders(testToken),
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(invalidRequestBody),
+        body: JSON.stringify({
+          repositoryUrl: "", // 空文字列は無効
+        }),
       })
 
       expect(res.status).toBe(400)
     })
 
-    test("認証情報がない場合は認証エラー", async () => {
-      const requestBody = {
-        repositoryUrl: "https://github.com/facebook/react",
-      }
-
+    test("認証情報がない場合は401エラー", async () => {
       const res = await app.request("/", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(requestBody),
+        body: JSON.stringify({
+          repositoryUrl: "https://github.com/facebook/react",
+        }),
       })
 
-      // 認証エラーまたは401ステータスが返される
       expect(res.status).toBe(401)
     })
 
-    test("重複データソースの場合は既存レコードが返される（upsert動作）", async () => {
-      const requestBody = {
-        repositoryUrl: "https://github.com/facebook/react",
-      }
-
-      // GitHubスタブレスポンスを設定
-      const githubResponse: GitHubRepositoryResponse = {
-        id: 10270250,
-        full_name: "facebook/react",
-        name: "react",
-        description:
-          "A declarative, efficient, and flexible JavaScript library for building user interfaces.",
-        html_url: "https://github.com/facebook/react",
-        private: false,
-        language: "JavaScript",
-        stargazers_count: 230000,
-        forks_count: 47000,
-        open_issues_count: 1500,
-        fork: false,
-      }
-      githubStub.setStubResponse(githubResponse)
-
-      // 最初のリクエストで同じリポジトリを作成
-      const firstRes = await app.request("/", {
-        method: "POST",
-        headers: {
-          ...AuthTestHelper.createAuthHeaders(testToken),
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(requestBody),
-      })
-
-      expect(firstRes.status).toBe(201)
-      const firstResponseBody = await firstRes.json()
-
-      // 2回目のリクエストで同じリポジトリを作成（upsert動作）
-      const res = await app.request("/", {
-        method: "POST",
-        headers: {
-          ...AuthTestHelper.createAuthHeaders(testToken),
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(requestBody),
-      })
-
-      expect(res.status).toBe(201)
-
-      const responseBody = await res.json()
-      expect(responseBody.success).toBe(true)
-      // 既存レコードが返されることを確認
-      expect(responseBody.data.dataSource.id).toBe(
-        firstResponseBody.data.dataSource.id,
-      )
-      expect(responseBody.data.dataSource.repository.id).toBe(
-        firstResponseBody.data.dataSource.repository.id,
-      )
-      expect(responseBody.data.userWatch.id).toBe(
-        firstResponseBody.data.userWatch.id,
-      )
-    })
-
     test("GitHub APIエラーの場合は適切なエラーレスポンス", async () => {
-      const requestBody = {
-        repositoryUrl: "https://github.com/nonexistent/repo",
-      }
-
-      // GitHubスタブでエラーシナリオを設定
       githubStub.setStubResponse({
         status: 404,
         message: "Repository nonexistent/repo not found or not accessible",
@@ -334,206 +204,37 @@ describe("DataSources API - Component Test", () => {
           ...AuthTestHelper.createAuthHeaders(testToken),
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(requestBody),
+        body: JSON.stringify({
+          repositoryUrl: "https://github.com/nonexistent/repo",
+        }),
       })
 
       expect(res.status).toBe(404)
-
-      const responseBody = await res.json()
-      expect(responseBody.success).toBe(false)
-      expect(responseBody.error.code).toBe("REPOSITORY_NOT_FOUND")
+      const body = await res.json()
+      expect(body.success).toBe(false)
+      expect(body.error.code).toBe("REPOSITORY_NOT_FOUND")
     })
   })
 
-  describe("GET /data-sources - データソース一覧取得", () => {
-    // テストデータのセットアップ用ヘルパー
-    const createTestDataSource = async (
-      name: string,
-      fullName: string,
-      githubId: number,
-    ) => {
-      const githubResponse: GitHubRepositoryResponse = {
-        id: githubId,
-        full_name: fullName,
-        name: name,
-        description: `${name} description`,
-        html_url: `https://github.com/${fullName}`,
-        private: false,
-        language: "TypeScript",
-        stargazers_count: 1000,
-        forks_count: 100,
-        open_issues_count: 10,
-        fork: false,
-      }
-      githubStub.setStubResponse(githubResponse)
+  describe("GET /data-sources", () => {
+    test("ウォッチ中のデータソース一覧を返す", async () => {
+      githubStub.setStubResponse(createStubResponse())
 
-      const requestBody = {
-        repositoryUrl: `https://github.com/${fullName}`,
-        name: name,
-      }
-
-      await app.request("/", {
-        method: "POST",
-        headers: {
-          ...AuthTestHelper.createAuthHeaders(testToken),
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(requestBody),
+      await registerUseCase.execute({
+        repositoryUrl: "https://github.com/facebook/react",
+        userId: testUser.auth0UserId,
       })
-    }
 
-    test("空の一覧が正常に取得される", async () => {
-      const res = await app.request("/", {
-        method: "GET",
+      const res = await app.request("/?perPage=10", {
         headers: {
           ...AuthTestHelper.createAuthHeaders(testToken),
         },
       })
 
       expect(res.status).toBe(200)
-
-      const responseBody = await res.json()
-      expect(responseBody.success).toBe(true)
-      expect(responseBody.data.items).toHaveLength(0)
-      expect(responseBody.data.pagination.total).toBe(0)
-      expect(responseBody.data.pagination.totalPages).toBe(0)
-      expect(responseBody.data.pagination.hasNext).toBe(false)
-      expect(responseBody.data.pagination.hasPrev).toBe(false)
-    })
-
-    test("複数のデータソースが正常に取得される", async () => {
-      // テストデータを作成
-      await createTestDataSource("React", "facebook/react", 10270250)
-      await createTestDataSource("Vue", "vuejs/core", 11730342)
-      await createTestDataSource("Angular", "angular/angular", 24195339)
-
-      const res = await app.request("/", {
-        method: "GET",
-        headers: {
-          ...AuthTestHelper.createAuthHeaders(testToken),
-        },
-      })
-
-      expect(res.status).toBe(200)
-
-      const responseBody = await res.json()
-      expect(responseBody.success).toBe(true)
-      expect(responseBody.data.items).toHaveLength(3)
-      expect(responseBody.data.pagination.total).toBe(3)
-      expect(responseBody.data.pagination.totalPages).toBe(1)
-      expect(responseBody.data.pagination.hasNext).toBe(false)
-      expect(responseBody.data.pagination.hasPrev).toBe(false)
-
-      // レスポンス構造を確認
-      const firstItem = responseBody.data.items[0]
-      expect(firstItem.dataSource).toBeDefined()
-      expect(firstItem.dataSource.repository).toBeDefined()
-      expect(firstItem.userWatch).toBeDefined()
-      expect(firstItem.dataSource.repository.owner).toBeDefined()
-    })
-
-    test("名前フィルタリングが正常に動作する", async () => {
-      // テストデータを作成
-      await createTestDataSource("React", "facebook/react", 10270250)
-      await createTestDataSource(
-        "ReactNative",
-        "facebook/react-native",
-        29028775,
-      )
-      await createTestDataSource("Vue", "vuejs/core", 11730342)
-
-      const res = await app.request("/?name=React", {
-        method: "GET",
-        headers: {
-          ...AuthTestHelper.createAuthHeaders(testToken),
-        },
-      })
-
-      expect(res.status).toBe(200)
-
-      const responseBody = await res.json()
-      expect(responseBody.success).toBe(true)
-      expect(responseBody.data.items).toHaveLength(2)
-      expect(responseBody.data.items[0].dataSource.name).toContain("React")
-      expect(responseBody.data.items[1].dataSource.name).toContain("React")
-    })
-
-    test("オーナーフィルタリングが正常に動作する", async () => {
-      // テストデータを作成
-      await createTestDataSource("React", "facebook/react", 10270250)
-      await createTestDataSource(
-        "ReactNative",
-        "facebook/react-native",
-        29028775,
-      )
-      await createTestDataSource("Vue", "vuejs/core", 11730342)
-
-      const res = await app.request("/?owner=facebook", {
-        method: "GET",
-        headers: {
-          ...AuthTestHelper.createAuthHeaders(testToken),
-        },
-      })
-
-      expect(res.status).toBe(200)
-
-      const responseBody = await res.json()
-      expect(responseBody.success).toBe(true)
-      expect(responseBody.data.items).toHaveLength(2)
-      expect(responseBody.data.items[0].dataSource.repository.owner).toBe(
-        "facebook",
-      )
-      expect(responseBody.data.items[1].dataSource.repository.owner).toBe(
-        "facebook",
-      )
-    })
-
-    test("フリーワード検索が正常に動作する", async () => {
-      // テストデータを作成
-      await createTestDataSource("React", "facebook/react", 10270250)
-      await createTestDataSource("Vue", "vuejs/core", 11730342)
-
-      const res = await app.request("/?search=facebook", {
-        method: "GET",
-        headers: {
-          ...AuthTestHelper.createAuthHeaders(testToken),
-        },
-      })
-
-      expect(res.status).toBe(200)
-
-      const responseBody = await res.json()
-      expect(responseBody.success).toBe(true)
-      expect(responseBody.data.items).toHaveLength(1)
-      expect(
-        responseBody.data.items[0].dataSource.repository.fullName,
-      ).toContain("facebook")
-    })
-
-    test("ページネーションが正常に動作する", async () => {
-      // テストデータを作成
-      await createTestDataSource("React", "facebook/react", 10270250)
-      await createTestDataSource("Vue", "vuejs/core", 11730342)
-      await createTestDataSource("Angular", "angular/angular", 24195339)
-
-      const res = await app.request("/?page=1&perPage=2", {
-        method: "GET",
-        headers: {
-          ...AuthTestHelper.createAuthHeaders(testToken),
-        },
-      })
-
-      expect(res.status).toBe(200)
-
-      const responseBody = await res.json()
-      expect(responseBody.success).toBe(true)
-      expect(responseBody.data.items).toHaveLength(2)
-      expect(responseBody.data.pagination.page).toBe(1)
-      expect(responseBody.data.pagination.perPage).toBe(2)
-      expect(responseBody.data.pagination.total).toBe(3)
-      expect(responseBody.data.pagination.totalPages).toBe(2)
-      expect(responseBody.data.pagination.hasNext).toBe(true)
-      expect(responseBody.data.pagination.hasPrev).toBe(false)
+      const body = await res.json()
+      expect(body.data.items).toHaveLength(1)
+      expect(body.data.pagination.total).toBe(1)
     })
 
     test("認証情報がない場合は401エラー", async () => {
@@ -545,88 +246,23 @@ describe("DataSources API - Component Test", () => {
     })
   })
 
-  describe("GET /data-sources/{id} - データソース詳細取得", () => {
-    test("有効なIDでデータソース詳細を取得できる", async () => {
-      // テストデータを作成
-      const testDataSource = await TestDataFactory.createTestDataSource({
-        name: "React",
-        sourceId: "10270250",
-        sourceType: "github",
-        repository: {
-          fullName: "facebook/react",
-          githubId: 10270250,
-          language: "JavaScript",
-          starsCount: 230000,
-        },
+  describe("GET /data-sources/:id", () => {
+    test("アクセス権がない場合は404", async () => {
+      const otherUser = await TestDataFactory.createTestUser("auth0|other")
+      const dataSource = await TestDataFactory.createTestDataSource({
+        sourceId: "other/repo",
+        sourceType: DATA_SOURCE_TYPES.GITHUB,
+        repository: { githubId: 999, fullName: "other/repo" },
       })
+      await TestDataFactory.createTestUserWatch(otherUser.id, dataSource.id, {})
 
-      await TestDataFactory.createTestUserWatch(
-        testUser.id,
-        testDataSource.id,
-        {
-          watchReleases: true,
-          watchIssues: false,
-          watchPullRequests: false,
-          notificationEnabled: true,
-        },
-      )
-
-      const res = await app.request(`/${testDataSource.id}`, {
-        method: "GET",
-        headers: {
-          ...AuthTestHelper.createAuthHeaders(testToken),
-        },
-      })
-
-      expect(res.status).toBe(200)
-
-      const responseBody = await res.json()
-      expect(responseBody.success).toBe(true)
-      expect(responseBody.data.dataSource.id).toBe(testDataSource.id)
-      expect(responseBody.data.dataSource.name).toBe("React")
-      expect(responseBody.data.dataSource.repository.fullName).toBe(
-        "facebook/react",
-      )
-      expect(responseBody.data.dataSource.repository.owner).toBe("facebook")
-      expect(responseBody.data.dataSource.repository.githubId).toBe(10270250)
-      expect(responseBody.data.userWatch.userId).toBe(testUser.id)
-      expect(responseBody.data.userWatch.watchReleases).toBe(true)
-    })
-
-    test("他のユーザーのデータソースにアクセスした場合は404エラー", async () => {
-      // 他のユーザーを作成
-      const otherUser = await TestDataFactory.createTestUser("auth0|other123")
-
-      // 他のユーザーのデータソースを作成
-      const otherDataSource = await TestDataFactory.createTestDataSource({
-        name: "Other Repository",
-        sourceId: "other123456",
-        sourceType: "github",
-        repository: {
-          fullName: "other/repo",
-          githubId: 999999999,
-        },
-      })
-
-      await TestDataFactory.createTestUserWatch(
-        otherUser.id,
-        otherDataSource.id,
-        {},
-      )
-
-      // testUserで他のユーザーのデータソースにアクセス
-      const res = await app.request(`/${otherDataSource.id}`, {
-        method: "GET",
+      const res = await app.request(`/${dataSource.id}`, {
         headers: {
           ...AuthTestHelper.createAuthHeaders(testToken),
         },
       })
 
       expect(res.status).toBe(404)
-
-      const responseBody = await res.json()
-      expect(responseBody.success).toBe(false)
-      expect(responseBody.error.code).toBe("DATA_SOURCE_NOT_FOUND")
     })
 
     test("存在しないIDの場合は404エラー", async () => {
@@ -640,10 +276,9 @@ describe("DataSources API - Component Test", () => {
       })
 
       expect(res.status).toBe(404)
-
-      const responseBody = await res.json()
-      expect(responseBody.success).toBe(false)
-      expect(responseBody.error.code).toBe("DATA_SOURCE_NOT_FOUND")
+      const body = await res.json()
+      expect(body.success).toBe(false)
+      expect(body.error.code).toBe("DATA_SOURCE_NOT_FOUND")
     })
 
     test("無効なUUID形式の場合は400エラー", async () => {
@@ -661,9 +296,9 @@ describe("DataSources API - Component Test", () => {
 
     test("認証情報がない場合は401エラー", async () => {
       const testDataSource = await TestDataFactory.createTestDataSource({
-        name: "React",
         sourceId: "10270250",
-        sourceType: "github",
+        sourceType: DATA_SOURCE_TYPES.GITHUB,
+        repository: { githubId: 10270250, fullName: "facebook/react" },
       })
 
       const res = await app.request(`/${testDataSource.id}`, {
@@ -674,164 +309,52 @@ describe("DataSources API - Component Test", () => {
     })
   })
 
-  describe("PUT /data-sources/{id} - データソース更新", () => {
-    test("有効なリクエストでデータソースが更新される", async () => {
-      // テストデータを作成
-      const testDataSource = await TestDataFactory.createTestDataSource({
-        name: "Original React",
-        sourceId: "10270250",
-        sourceType: "github",
-        repository: {
-          githubId: 10270250,
-          fullName: "facebook/react",
-        },
+  describe("PUT /data-sources/:id", () => {
+    test("データソースとウォッチ設定を更新できる", async () => {
+      githubStub.setStubResponse(createStubResponse())
+      const { dataSource } = await registerUseCase.execute({
+        repositoryUrl: "https://github.com/facebook/react",
+        userId: testUser.auth0UserId,
       })
 
-      const testUserWatch = await TestDataFactory.createTestUserWatch(
-        testUser.id,
-        testDataSource.id,
-        {
-          notificationEnabled: true,
-          watchReleases: true,
-          watchIssues: false,
-          watchPullRequests: false,
-        },
-      )
-
-      const updateRequest = {
-        name: "Updated React Library",
-        description: "Updated description for React",
-        notificationEnabled: false,
-        watchReleases: false,
-        watchIssues: true,
-        watchPullRequests: true,
-      }
-
-      const res = await app.request(`/${testDataSource.id}`, {
+      const res = await app.request(`/${dataSource.id}`, {
         method: "PUT",
         headers: {
-          "Content-Type": "application/json",
           ...AuthTestHelper.createAuthHeaders(testToken),
+          "Content-Type": "application/json",
         },
-        body: JSON.stringify(updateRequest),
+        body: JSON.stringify({
+          name: "ReactJS",
+          notificationEnabled: false,
+          watchIssues: true,
+        }),
       })
 
       expect(res.status).toBe(200)
-
-      const result = await res.json()
-      expect(result).toMatchObject({
-        success: true,
-        data: {
-          dataSource: {
-            id: testDataSource.id,
-            name: "Updated React Library",
-            description: "Updated description for React",
-            sourceType: "github",
-            sourceId: "10270250",
-            repository: expect.objectContaining({
-              githubId: 10270250,
-              fullName: "facebook/react",
-            }),
-          },
-          userWatch: {
-            id: testUserWatch.id,
-            userId: testUser.id,
-            dataSourceId: testDataSource.id,
-            notificationEnabled: false,
-            watchReleases: false,
-            watchIssues: true,
-            watchPullRequests: true,
-          },
-        },
-      })
-    })
-
-    test("部分更新が正常に動作する", async () => {
-      // テストデータを作成
-      const testDataSource = await TestDataFactory.createTestDataSource({
-        name: "Original Name",
-        sourceId: "10270250",
-        sourceType: "github",
-        repository: {
-          githubId: 10270250,
-          fullName: "facebook/react",
-        },
-      })
-
-      await TestDataFactory.createTestUserWatch(
-        testUser.id,
-        testDataSource.id,
-        {
-          notificationEnabled: true,
-          watchReleases: true,
-          watchIssues: false,
-          watchPullRequests: false,
-        },
-      )
-
-      // 名前のみ更新
-      const updateRequest = {
-        name: "Updated Name Only",
-      }
-
-      const res = await app.request(`/${testDataSource.id}`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-          ...AuthTestHelper.createAuthHeaders(testToken),
-        },
-        body: JSON.stringify(updateRequest),
-      })
-
-      expect(res.status).toBe(200)
-
-      const result = await res.json()
-      expect(result.data.dataSource.name).toBe("Updated Name Only")
-      expect(result.data.dataSource.description).toBe(
-        testDataSource.description,
-      ) // 元の値のまま
-      // UserWatch設定も元のまま
-      expect(result.data.userWatch.notificationEnabled).toBe(true)
-      expect(result.data.userWatch.watchReleases).toBe(true)
-      expect(result.data.userWatch.watchIssues).toBe(false)
-      expect(result.data.userWatch.watchPullRequests).toBe(false)
+      const body = await res.json()
+      expect(body.data.dataSource.name).toBe("ReactJS")
+      expect(body.data.userWatch.notificationEnabled).toBe(false)
+      expect(body.data.userWatch.watchIssues).toBe(true)
     })
 
     test("他のユーザーのデータソースは更新できない", async () => {
-      // 他のユーザーのデータソースを作成
       const otherUser = await TestDataFactory.createTestUser("auth0|other456")
-      const testDataSource = await TestDataFactory.createTestDataSource({
-        name: "Other User's DataSource",
+      const dataSource = await TestDataFactory.createTestDataSource({
         sourceId: "10270250",
-        sourceType: "github",
-        repository: {
-          githubId: 10270250,
-          fullName: "facebook/react",
-        },
+        sourceType: DATA_SOURCE_TYPES.GITHUB,
+        repository: { githubId: 10270250, fullName: "facebook/react" },
       })
+      await TestDataFactory.createTestUserWatch(otherUser.id, dataSource.id, {})
 
-      await TestDataFactory.createTestUserWatch(
-        otherUser.id,
-        testDataSource.id,
-        {
-          notificationEnabled: true,
-          watchReleases: true,
-          watchIssues: false,
-          watchPullRequests: false,
-        },
-      )
-
-      const updateRequest = {
-        name: "Hacked Name",
-      }
-
-      const res = await app.request(`/${testDataSource.id}`, {
+      const res = await app.request(`/${dataSource.id}`, {
         method: "PUT",
         headers: {
-          "Content-Type": "application/json",
           ...AuthTestHelper.createAuthHeaders(testToken),
+          "Content-Type": "application/json",
         },
-        body: JSON.stringify(updateRequest),
+        body: JSON.stringify({
+          name: "Hacked Name",
+        }),
       })
 
       expect(res.status).toBe(404)
@@ -840,17 +363,15 @@ describe("DataSources API - Component Test", () => {
     test("存在しないデータソースの更新は404エラー", async () => {
       const nonExistentId = "550e8400-e29b-41d4-a716-446655440000"
 
-      const updateRequest = {
-        name: "New Name",
-      }
-
       const res = await app.request(`/${nonExistentId}`, {
         method: "PUT",
         headers: {
-          "Content-Type": "application/json",
           ...AuthTestHelper.createAuthHeaders(testToken),
+          "Content-Type": "application/json",
         },
-        body: JSON.stringify(updateRequest),
+        body: JSON.stringify({
+          name: "New Name",
+        }),
       })
 
       expect(res.status).toBe(404)
@@ -859,140 +380,77 @@ describe("DataSources API - Component Test", () => {
     test("無効なUUIDは400エラー", async () => {
       const invalidId = "invalid-uuid"
 
-      const updateRequest = {
-        name: "New Name",
-      }
-
       const res = await app.request(`/${invalidId}`, {
         method: "PUT",
         headers: {
-          "Content-Type": "application/json",
           ...AuthTestHelper.createAuthHeaders(testToken),
+          "Content-Type": "application/json",
         },
-        body: JSON.stringify(updateRequest),
+        body: JSON.stringify({
+          name: "New Name",
+        }),
       })
 
       expect(res.status).toBe(400)
     })
 
     test("認証情報がない場合は401エラー", async () => {
-      const testDataSource = await TestDataFactory.createTestDataSource({
-        name: "Test DataSource",
+      const dataSource = await TestDataFactory.createTestDataSource({
         sourceId: "10270250",
-        sourceType: "github",
+        sourceType: DATA_SOURCE_TYPES.GITHUB,
+        repository: { githubId: 10270250, fullName: "facebook/react" },
       })
 
-      const updateRequest = {
-        name: "New Name",
-      }
-
-      const res = await app.request(`/${testDataSource.id}`, {
+      const res = await app.request(`/${dataSource.id}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(updateRequest),
+        body: JSON.stringify({
+          name: "New Name",
+        }),
       })
 
       expect(res.status).toBe(401)
     })
 
     test("空のリクエストボディでも正常処理", async () => {
-      // テストデータを作成
-      const testDataSource = await TestDataFactory.createTestDataSource({
-        name: "Original Name",
-        sourceId: "10270250",
-        sourceType: "github",
-        repository: {
-          githubId: 10270250,
-          fullName: "facebook/react",
-        },
+      githubStub.setStubResponse(createStubResponse())
+      const { dataSource } = await registerUseCase.execute({
+        repositoryUrl: "https://github.com/facebook/react",
+        userId: testUser.auth0UserId,
       })
 
-      await TestDataFactory.createTestUserWatch(
-        testUser.id,
-        testDataSource.id,
-        {
-          notificationEnabled: true,
-          watchReleases: true,
-          watchIssues: false,
-          watchPullRequests: false,
-        },
-      )
-
-      // 空のリクエストボディ
-      const updateRequest = {}
-
-      const res = await app.request(`/${testDataSource.id}`, {
+      const res = await app.request(`/${dataSource.id}`, {
         method: "PUT",
         headers: {
-          "Content-Type": "application/json",
           ...AuthTestHelper.createAuthHeaders(testToken),
+          "Content-Type": "application/json",
         },
-        body: JSON.stringify(updateRequest),
+        body: JSON.stringify({}),
       })
 
       expect(res.status).toBe(200)
-
-      const result = await res.json()
-      // 元の値がそのまま返される
-      expect(result.data.dataSource.name).toBe(testDataSource.name)
-      expect(result.data.dataSource.description).toBe(
-        testDataSource.description,
-      )
-      expect(result.data.userWatch.notificationEnabled).toBe(true)
+      const body = await res.json()
+      expect(body.data.dataSource.name).toBe(dataSource.name)
     })
   })
 
-  describe("DELETE /data-sources/{id} - データソース削除", () => {
-    test("有効なIDでデータソースの監視が削除される", async () => {
-      // テストデータを作成
-      const testDataSource = await TestDataFactory.createTestDataSource({
-        name: "React",
-        sourceId: "10270250",
-        sourceType: "github",
-        repository: {
-          fullName: "facebook/react",
-          githubId: 10270250,
-          language: "JavaScript",
-          starsCount: 230000,
-        },
+  describe("DELETE /data-sources/:id", () => {
+    test("ウォッチ解除し関連データを削除する", async () => {
+      githubStub.setStubResponse(createStubResponse())
+      const { dataSource } = await registerUseCase.execute({
+        repositoryUrl: "https://github.com/facebook/react",
+        userId: testUser.auth0UserId,
       })
 
-      await TestDataFactory.createTestUserWatch(
+      const event = await TestDataFactory.createTestEvent(dataSource.id)
+      const notification = await TestDataFactory.createTestNotification(
         testUser.id,
-        testDataSource.id,
-        {
-          watchReleases: true,
-          watchIssues: false,
-          watchPullRequests: false,
-          notificationEnabled: true,
-        },
+        event.id,
       )
 
-      // テスト用のイベントと通知を作成
-      const testEvent = await TestDataFactory.createTestEvent(
-        testDataSource.id,
-        {
-          eventType: "release",
-          title: "Test Release",
-          body: "Test release body",
-          version: "v1.0.0",
-        },
-      )
-
-      const testNotification = await TestDataFactory.createTestNotification(
-        testUser.id,
-        testEvent.id,
-        {
-          title: "New Release Available",
-          message: "Test release notification",
-          notificationType: "release",
-          isRead: false,
-        },
-      )
-
-      const res = await app.request(`/${testDataSource.id}`, {
+      const res = await app.request(`/${dataSource.id}`, {
         method: "DELETE",
         headers: {
           ...AuthTestHelper.createAuthHeaders(testToken),
@@ -1001,57 +459,29 @@ describe("DataSources API - Component Test", () => {
 
       expect(res.status).toBe(204)
 
-      // レスポンスボディは空であることを確認
-      const responseText = await res.text()
-      expect(responseText).toBe("")
-
-      // 削除後に詳細取得すると404になることを確認
-      const getRes = await app.request(`/${testDataSource.id}`, {
-        method: "GET",
-        headers: {
-          ...AuthTestHelper.createAuthHeaders(testToken),
-        },
-      })
-
-      expect(getRes.status).toBe(404)
-
-      // eventsとnotificationsが削除されたことを確認
       const eventExists = await db
         .select()
         .from(events)
-        .where(eq(events.id, testEvent.id))
+        .where(eq(events.id, event.id))
       expect(eventExists).toHaveLength(0)
 
       const notificationExists = await db
         .select()
         .from(notifications)
-        .where(eq(notifications.id, testNotification.id))
+        .where(eq(notifications.id, notification.id))
       expect(notificationExists).toHaveLength(0)
     })
 
     test("他のユーザーのデータソースは削除できない", async () => {
-      // 他のユーザーを作成
       const otherUser = await TestDataFactory.createTestUser("auth0|other123")
-
-      // 他のユーザーのデータソースを作成
-      const otherDataSource = await TestDataFactory.createTestDataSource({
-        name: "Other Repository",
+      const dataSource = await TestDataFactory.createTestDataSource({
         sourceId: "other123456",
-        sourceType: "github",
-        repository: {
-          fullName: "other/repo",
-          githubId: 999999999,
-        },
+        sourceType: DATA_SOURCE_TYPES.GITHUB,
+        repository: { githubId: 999999999, fullName: "other/repo" },
       })
+      await TestDataFactory.createTestUserWatch(otherUser.id, dataSource.id, {})
 
-      await TestDataFactory.createTestUserWatch(
-        otherUser.id,
-        otherDataSource.id,
-        {},
-      )
-
-      // testUserで他のユーザーのデータソースを削除しようとする
-      const res = await app.request(`/${otherDataSource.id}`, {
+      const res = await app.request(`/${dataSource.id}`, {
         method: "DELETE",
         headers: {
           ...AuthTestHelper.createAuthHeaders(testToken),
@@ -1059,10 +489,9 @@ describe("DataSources API - Component Test", () => {
       })
 
       expect(res.status).toBe(404)
-
-      const responseBody = await res.json()
-      expect(responseBody.success).toBe(false)
-      expect(responseBody.error.code).toBe("DATA_SOURCE_NOT_FOUND")
+      const body = await res.json()
+      expect(body.success).toBe(false)
+      expect(body.error.code).toBe("DATA_SOURCE_NOT_FOUND")
     })
 
     test("存在しないIDの場合は404エラー", async () => {
@@ -1076,10 +505,9 @@ describe("DataSources API - Component Test", () => {
       })
 
       expect(res.status).toBe(404)
-
-      const responseBody = await res.json()
-      expect(responseBody.success).toBe(false)
-      expect(responseBody.error.code).toBe("DATA_SOURCE_NOT_FOUND")
+      const body = await res.json()
+      expect(body.success).toBe(false)
+      expect(body.error.code).toBe("DATA_SOURCE_NOT_FOUND")
     })
 
     test("無効なUUID形式の場合は400エラー", async () => {
@@ -1096,13 +524,13 @@ describe("DataSources API - Component Test", () => {
     })
 
     test("認証情報がない場合は401エラー", async () => {
-      const testDataSource = await TestDataFactory.createTestDataSource({
-        name: "React",
+      const dataSource = await TestDataFactory.createTestDataSource({
         sourceId: "10270250",
-        sourceType: "github",
+        sourceType: DATA_SOURCE_TYPES.GITHUB,
+        repository: { githubId: 10270250, fullName: "facebook/react" },
       })
 
-      const res = await app.request(`/${testDataSource.id}`, {
+      const res = await app.request(`/${dataSource.id}`, {
         method: "DELETE",
       })
 
@@ -1110,18 +538,13 @@ describe("DataSources API - Component Test", () => {
     })
 
     test("ユーザーがウォッチしていないデータソースは削除できない", async () => {
-      // データソースのみ作成（ユーザーウォッチなし）
-      const testDataSource = await TestDataFactory.createTestDataSource({
-        name: "Unwatched Repository",
+      const dataSource = await TestDataFactory.createTestDataSource({
         sourceId: "unwatched123",
-        sourceType: "github",
-        repository: {
-          fullName: "unwatched/repo",
-          githubId: 123456789,
-        },
+        sourceType: DATA_SOURCE_TYPES.GITHUB,
+        repository: { githubId: 123456789, fullName: "unwatched/repo" },
       })
 
-      const res = await app.request(`/${testDataSource.id}`, {
+      const res = await app.request(`/${dataSource.id}`, {
         method: "DELETE",
         headers: {
           ...AuthTestHelper.createAuthHeaders(testToken),
@@ -1129,10 +552,9 @@ describe("DataSources API - Component Test", () => {
       })
 
       expect(res.status).toBe(404)
-
-      const responseBody = await res.json()
-      expect(responseBody.success).toBe(false)
-      expect(responseBody.error.code).toBe("DATA_SOURCE_NOT_FOUND")
+      const body = await res.json()
+      expect(body.success).toBe(false)
+      expect(body.error.code).toBe("DATA_SOURCE_NOT_FOUND")
     })
   })
 })

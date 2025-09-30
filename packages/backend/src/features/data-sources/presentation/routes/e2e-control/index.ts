@@ -1,34 +1,28 @@
 import { OpenAPIHono, createRoute, z } from "@hono/zod-openapi"
-import type { GitHubApiServiceStub } from "../../../services/github-api-service.stub"
-import { createGitHubApiService } from "../../../services/github-api-service.factory"
-import type { GitHubRepositoryResponse } from "../../../services/interfaces/github-api-service.interface"
+import {
+  getGitHubRepositoryStub,
+  type GitHubRepositoryStubResponse,
+} from "../../../infra/adapters/github-repository"
 
-/**
- * E2Eテスト制御用APIルート
- * スタブサービスの制御を行うエンドポイント
- */
-
-// スタブレスポンス設定のスキーマ
 const StubResponseSchema = z.object({
   key: z.string().describe("リポジトリキー (owner/repo)"),
   response: z
     .object({
       id: z.number(),
-      full_name: z.string(),
+      fullName: z.string(),
       name: z.string(),
       description: z.string().nullable(),
-      html_url: z.string(),
+      htmlUrl: z.string(),
       private: z.boolean(),
       language: z.string().nullable(),
-      stargazers_count: z.number(),
-      forks_count: z.number(),
-      open_issues_count: z.number(),
+      stargazersCount: z.number(),
+      forksCount: z.number(),
+      openIssuesCount: z.number(),
       fork: z.boolean(),
     })
     .describe("GitHubレスポンス"),
 })
 
-// エラーシナリオ設定のスキーマ
 const ErrorScenarioSchema = z.object({
   key: z.string().describe("リポジトリキー (owner/repo)"),
   error: z
@@ -39,13 +33,11 @@ const ErrorScenarioSchema = z.object({
     .describe("エラー情報"),
 })
 
-// レスポンススキーマ
 const SuccessResponseSchema = z.object({
   success: z.literal(true),
   message: z.string(),
 })
 
-// スタブレスポンス設定ルート
 const setStubResponseRoute = createRoute({
   method: "post",
   path: "/e2e-control/github/stub-response",
@@ -84,7 +76,6 @@ const setStubResponseRoute = createRoute({
   description: "特定のリポジトリに対するスタブレスポンスを設定",
 })
 
-// エラーシナリオ設定ルート
 const setErrorScenarioRoute = createRoute({
   method: "post",
   path: "/e2e-control/github/error-scenario",
@@ -123,7 +114,6 @@ const setErrorScenarioRoute = createRoute({
   description: "特定のリポジトリに対するエラーシナリオを設定",
 })
 
-// スタブリセットルート
 const resetStubsRoute = createRoute({
   method: "post",
   path: "/e2e-control/github/reset",
@@ -153,28 +143,23 @@ const resetStubsRoute = createRoute({
   description: "すべてのスタブ設定をリセット",
 })
 
-/**
- * E2Eテスト制御ルートを作成
- */
 export function createE2EControlRoutes(): OpenAPIHono {
   const app = new OpenAPIHono()
 
-  // スタブサービスのインスタンスを取得
-  const getStubService = (): GitHubApiServiceStub => {
-    const service = createGitHubApiService()
-    if (!("setStubResponse" in service)) {
+  const resolveStub = () => {
+    const stub = getGitHubRepositoryStub()
+    if (!stub) {
       throw new Error("E2E control is only available with stub service")
     }
-    return service as GitHubApiServiceStub
+    return stub
   }
 
-  // スタブレスポンス設定
   app.openapi(setStubResponseRoute, async (c) => {
     try {
       const { key, response } = c.req.valid("json")
-      const stubService = getStubService()
+      const stub = resolveStub()
 
-      stubService.setStubResponse(response as GitHubRepositoryResponse)
+      stub.setStubResponse(response as GitHubRepositoryStubResponse)
 
       return c.json(
         {
@@ -194,13 +179,12 @@ export function createE2EControlRoutes(): OpenAPIHono {
     }
   })
 
-  // エラーシナリオ設定
   app.openapi(setErrorScenarioRoute, async (c) => {
     try {
       const { key, error } = c.req.valid("json")
-      const stubService = getStubService()
+      const stub = resolveStub()
 
-      stubService.setStubResponse(error)
+      stub.setStubResponse(error)
 
       return c.json(
         {
@@ -220,11 +204,10 @@ export function createE2EControlRoutes(): OpenAPIHono {
     }
   })
 
-  // スタブリセット
   app.openapi(resetStubsRoute, async (c) => {
     try {
-      const stubService = getStubService()
-      stubService.resetStubs()
+      const stub = resolveStub()
+      stub.resetStubs()
 
       return c.json(
         {
