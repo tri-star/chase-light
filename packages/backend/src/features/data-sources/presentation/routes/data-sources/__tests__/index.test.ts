@@ -162,6 +162,58 @@ describe("DataSources API", () => {
       const body = await second.json()
       expect(body.data.dataSource.repository.fullName).toBe("facebook/react")
     })
+
+    test("無効なリクエストボディの場合は400エラー", async () => {
+      const res = await app.request("/", {
+        method: "POST",
+        headers: {
+          ...AuthTestHelper.createAuthHeaders(testToken),
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          repositoryUrl: "", // 空文字列は無効
+        }),
+      })
+
+      expect(res.status).toBe(400)
+    })
+
+    test("認証情報がない場合は401エラー", async () => {
+      const res = await app.request("/", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          repositoryUrl: "https://github.com/facebook/react",
+        }),
+      })
+
+      expect(res.status).toBe(401)
+    })
+
+    test("GitHub APIエラーの場合は適切なエラーレスポンス", async () => {
+      githubStub.setStubResponse({
+        status: 404,
+        message: "Repository nonexistent/repo not found or not accessible",
+      })
+
+      const res = await app.request("/", {
+        method: "POST",
+        headers: {
+          ...AuthTestHelper.createAuthHeaders(testToken),
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          repositoryUrl: "https://github.com/nonexistent/repo",
+        }),
+      })
+
+      expect(res.status).toBe(404)
+      const body = await res.json()
+      expect(body.success).toBe(false)
+      expect(body.error.code).toBe("REPOSITORY_NOT_FOUND")
+    })
   })
 
   describe("GET /data-sources", () => {
@@ -184,6 +236,14 @@ describe("DataSources API", () => {
       expect(body.data.items).toHaveLength(1)
       expect(body.data.pagination.total).toBe(1)
     })
+
+    test("認証情報がない場合は401エラー", async () => {
+      const res = await app.request("/", {
+        method: "GET",
+      })
+
+      expect(res.status).toBe(401)
+    })
   })
 
   describe("GET /data-sources/:id", () => {
@@ -203,6 +263,49 @@ describe("DataSources API", () => {
       })
 
       expect(res.status).toBe(404)
+    })
+
+    test("存在しないIDの場合は404エラー", async () => {
+      const nonExistentId = "550e8400-e29b-41d4-a716-446655440000"
+
+      const res = await app.request(`/${nonExistentId}`, {
+        method: "GET",
+        headers: {
+          ...AuthTestHelper.createAuthHeaders(testToken),
+        },
+      })
+
+      expect(res.status).toBe(404)
+      const body = await res.json()
+      expect(body.success).toBe(false)
+      expect(body.error.code).toBe("DATA_SOURCE_NOT_FOUND")
+    })
+
+    test("無効なUUID形式の場合は400エラー", async () => {
+      const invalidId = "invalid-uuid"
+
+      const res = await app.request(`/${invalidId}`, {
+        method: "GET",
+        headers: {
+          ...AuthTestHelper.createAuthHeaders(testToken),
+        },
+      })
+
+      expect(res.status).toBe(400)
+    })
+
+    test("認証情報がない場合は401エラー", async () => {
+      const testDataSource = await TestDataFactory.createTestDataSource({
+        sourceId: "10270250",
+        sourceType: DATA_SOURCE_TYPES.GITHUB,
+        repository: { githubId: 10270250, fullName: "facebook/react" },
+      })
+
+      const res = await app.request(`/${testDataSource.id}`, {
+        method: "GET",
+      })
+
+      expect(res.status).toBe(401)
     })
   })
 
@@ -232,6 +335,104 @@ describe("DataSources API", () => {
       expect(body.data.dataSource.name).toBe("ReactJS")
       expect(body.data.userWatch.notificationEnabled).toBe(false)
       expect(body.data.userWatch.watchIssues).toBe(true)
+    })
+
+    test("他のユーザーのデータソースは更新できない", async () => {
+      const otherUser = await TestDataFactory.createTestUser("auth0|other456")
+      const dataSource = await TestDataFactory.createTestDataSource({
+        sourceId: "10270250",
+        sourceType: DATA_SOURCE_TYPES.GITHUB,
+        repository: { githubId: 10270250, fullName: "facebook/react" },
+      })
+      await TestDataFactory.createTestUserWatch(otherUser.id, dataSource.id, {})
+
+      const res = await app.request(`/${dataSource.id}`, {
+        method: "PUT",
+        headers: {
+          ...AuthTestHelper.createAuthHeaders(testToken),
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          name: "Hacked Name",
+        }),
+      })
+
+      expect(res.status).toBe(404)
+    })
+
+    test("存在しないデータソースの更新は404エラー", async () => {
+      const nonExistentId = "550e8400-e29b-41d4-a716-446655440000"
+
+      const res = await app.request(`/${nonExistentId}`, {
+        method: "PUT",
+        headers: {
+          ...AuthTestHelper.createAuthHeaders(testToken),
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          name: "New Name",
+        }),
+      })
+
+      expect(res.status).toBe(404)
+    })
+
+    test("無効なUUIDは400エラー", async () => {
+      const invalidId = "invalid-uuid"
+
+      const res = await app.request(`/${invalidId}`, {
+        method: "PUT",
+        headers: {
+          ...AuthTestHelper.createAuthHeaders(testToken),
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          name: "New Name",
+        }),
+      })
+
+      expect(res.status).toBe(400)
+    })
+
+    test("認証情報がない場合は401エラー", async () => {
+      const dataSource = await TestDataFactory.createTestDataSource({
+        sourceId: "10270250",
+        sourceType: DATA_SOURCE_TYPES.GITHUB,
+        repository: { githubId: 10270250, fullName: "facebook/react" },
+      })
+
+      const res = await app.request(`/${dataSource.id}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          name: "New Name",
+        }),
+      })
+
+      expect(res.status).toBe(401)
+    })
+
+    test("空のリクエストボディでも正常処理", async () => {
+      githubStub.setStubResponse(createStubResponse())
+      const { dataSource } = await registerUseCase.execute({
+        repositoryUrl: "https://github.com/facebook/react",
+        userId: testUser.auth0UserId,
+      })
+
+      const res = await app.request(`/${dataSource.id}`, {
+        method: "PUT",
+        headers: {
+          ...AuthTestHelper.createAuthHeaders(testToken),
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({}),
+      })
+
+      expect(res.status).toBe(200)
+      const body = await res.json()
+      expect(body.data.dataSource.name).toBe(dataSource.name)
     })
   })
 
@@ -269,6 +470,91 @@ describe("DataSources API", () => {
         .from(notifications)
         .where(eq(notifications.id, notification.id))
       expect(notificationExists).toHaveLength(0)
+    })
+
+    test("他のユーザーのデータソースは削除できない", async () => {
+      const otherUser = await TestDataFactory.createTestUser("auth0|other123")
+      const dataSource = await TestDataFactory.createTestDataSource({
+        sourceId: "other123456",
+        sourceType: DATA_SOURCE_TYPES.GITHUB,
+        repository: { githubId: 999999999, fullName: "other/repo" },
+      })
+      await TestDataFactory.createTestUserWatch(otherUser.id, dataSource.id, {})
+
+      const res = await app.request(`/${dataSource.id}`, {
+        method: "DELETE",
+        headers: {
+          ...AuthTestHelper.createAuthHeaders(testToken),
+        },
+      })
+
+      expect(res.status).toBe(404)
+      const body = await res.json()
+      expect(body.success).toBe(false)
+      expect(body.error.code).toBe("DATA_SOURCE_NOT_FOUND")
+    })
+
+    test("存在しないIDの場合は404エラー", async () => {
+      const nonExistentId = "550e8400-e29b-41d4-a716-446655440000"
+
+      const res = await app.request(`/${nonExistentId}`, {
+        method: "DELETE",
+        headers: {
+          ...AuthTestHelper.createAuthHeaders(testToken),
+        },
+      })
+
+      expect(res.status).toBe(404)
+      const body = await res.json()
+      expect(body.success).toBe(false)
+      expect(body.error.code).toBe("DATA_SOURCE_NOT_FOUND")
+    })
+
+    test("無効なUUID形式の場合は400エラー", async () => {
+      const invalidId = "invalid-uuid"
+
+      const res = await app.request(`/${invalidId}`, {
+        method: "DELETE",
+        headers: {
+          ...AuthTestHelper.createAuthHeaders(testToken),
+        },
+      })
+
+      expect(res.status).toBe(400)
+    })
+
+    test("認証情報がない場合は401エラー", async () => {
+      const dataSource = await TestDataFactory.createTestDataSource({
+        sourceId: "10270250",
+        sourceType: DATA_SOURCE_TYPES.GITHUB,
+        repository: { githubId: 10270250, fullName: "facebook/react" },
+      })
+
+      const res = await app.request(`/${dataSource.id}`, {
+        method: "DELETE",
+      })
+
+      expect(res.status).toBe(401)
+    })
+
+    test("ユーザーがウォッチしていないデータソースは削除できない", async () => {
+      const dataSource = await TestDataFactory.createTestDataSource({
+        sourceId: "unwatched123",
+        sourceType: DATA_SOURCE_TYPES.GITHUB,
+        repository: { githubId: 123456789, fullName: "unwatched/repo" },
+      })
+
+      const res = await app.request(`/${dataSource.id}`, {
+        method: "DELETE",
+        headers: {
+          ...AuthTestHelper.createAuthHeaders(testToken),
+        },
+      })
+
+      expect(res.status).toBe(404)
+      const body = await res.json()
+      expect(body.success).toBe(false)
+      expect(body.error.code).toBe("DATA_SOURCE_NOT_FOUND")
     })
   })
 })

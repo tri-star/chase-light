@@ -177,4 +177,27 @@ describe("process-updates handler", () => {
       TranslationAdapter.prototype.translate = originalTranslate
     }
   })
+
+  test("無効な入力パラメータの場合、エラーをスローする", async () => {
+    await expect(
+      handler(
+        { activityId: null } as unknown as { activityId: string },
+        mockContext,
+      ),
+    ).rejects.toThrow("Invalid input: activityId must be a string")
+
+    await expect(
+      handler({} as unknown as { activityId: string }, mockContext),
+    ).rejects.toThrow("Invalid input: activityId must be a string")
+  })
+
+  test("OpenAI APIキーが設定されていない場合、エラーをスローする", async () => {
+    delete process.env.OPENAI_API_KEY
+
+    await expect(
+      handler({ activityId: randomUUID() }, mockContext),
+    ).rejects.toThrow("Failed to get OpenAI configuration")
+
+    process.env.OPENAI_API_KEY = "test-api-key"
+  })
 })
