@@ -255,13 +255,13 @@ export class TestDataFactory {
   }
 
   /**
-   * テスト用イベントを作成
+   * テスト用アクティビティを作成
    */
-  static async createTestEvent(
+  static async createTestActivity(
     dataSourceId: string,
     customData?: {
       githubEventId?: string
-      eventType?: string
+      activityType?: string
       title?: string
       body?: string
       version?: string
@@ -271,7 +271,7 @@ export class TestDataFactory {
     id: string
     dataSourceId: string
     githubEventId: string
-    eventType: string
+    activityType: string
     title: string
     body: string
     version: string | null
@@ -279,20 +279,23 @@ export class TestDataFactory {
     updatedAt: Date
   }> {
     const now = new Date()
-    const event = {
+    const activity = {
       id: uuidv7(),
       dataSourceId,
       githubEventId: customData?.githubEventId || `event_${Date.now()}`,
-      eventType: customData?.eventType || "release",
-      title: customData?.title || "Test Event",
-      body: customData?.body || "Test event body",
+      activityType: customData?.activityType || "release",
+      title: customData?.title || "Test Activity",
+      body: customData?.body || "Test activity body",
       version: customData?.version || "v1.0.0",
+      status: "pending" as const,
+      statusDetail: null,
+      githubData: null,
       createdAt: customData?.createdAt || now,
       updatedAt: now,
     }
 
-    await db.insert(schema.events).values(event)
-    return event
+    await db.insert(schema.activities).values(activity)
+    return activity
   }
 
   /**
@@ -300,7 +303,7 @@ export class TestDataFactory {
    */
   static async createTestNotification(
     userId: string,
-    eventId: string,
+    activityId: string,
     customData?: {
       title?: string
       message?: string
@@ -311,7 +314,7 @@ export class TestDataFactory {
   ): Promise<{
     id: string
     userId: string
-    eventId: string
+    activityId: string
     title: string
     message: string
     notificationType: string
@@ -324,7 +327,7 @@ export class TestDataFactory {
     const notification = {
       id: uuidv7(),
       userId,
-      eventId,
+      activityId,
       title: customData?.title || "Test Notification",
       message: customData?.message || "Test notification message",
       notificationType: customData?.notificationType || "release",

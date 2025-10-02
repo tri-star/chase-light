@@ -1,7 +1,7 @@
 import { eq, and, desc, sql, inArray } from "drizzle-orm"
 import { randomUUID } from "crypto"
 import { TransactionManager } from "../../../../core/db"
-import { events } from "../../../../db/schema"
+import { activities } from "../../../../db/schema"
 import {
   type ActivityStatus,
   type ActivityType,
@@ -40,7 +40,7 @@ export class DrizzleActivityRepository implements ActivityRepository {
       id,
       dataSourceId: data.detectTargetId,
       githubEventId: data.githubEventId,
-      eventType: data.activityType,
+      activityType: data.activityType,
       title: data.title,
       body: data.body,
       version: data.version ?? null,
@@ -53,10 +53,14 @@ export class DrizzleActivityRepository implements ActivityRepository {
 
     // onConflictDoUpdateでアトミックにupsert
     const [result] = await connection
-      .insert(events)
+      .insert(activities)
       .values(insertData)
       .onConflictDoUpdate({
-        target: [events.dataSourceId, events.githubEventId, events.eventType],
+        target: [
+          activities.dataSourceId,
+          activities.githubEventId,
+          activities.activityType,
+        ],
         set: {
           title: insertData.title,
           body: insertData.body,
@@ -67,7 +71,7 @@ export class DrizzleActivityRepository implements ActivityRepository {
           updatedAt: insertData.updatedAt,
         },
       })
-      .returning({ id: events.id })
+      .returning({ id: activities.id })
 
     // result.idが既存か新規かは判別できないため、isNewは常にfalseにするか、必要なら別途工夫が必要
     // ここでは一旦isNew: falseで返す
@@ -102,7 +106,7 @@ export class DrizzleActivityRepository implements ActivityRepository {
       id: data.id || randomUUID(),
       dataSourceId: data.detectTargetId,
       githubEventId: data.githubEventId,
-      eventType: data.activityType, // TODO: eventType -> activityType に統一。別フェーズで実施する
+      activityType: data.activityType,
       title: data.title,
       body: data.body,
       version: data.version ?? null,
@@ -115,10 +119,14 @@ export class DrizzleActivityRepository implements ActivityRepository {
 
     // バルクinsert+onConflictDoUpdate
     const results = await connection
-      .insert(events)
+      .insert(activities)
       .values(insertDataList)
       .onConflictDoUpdate({
-        target: [events.dataSourceId, events.githubEventId, events.eventType],
+        target: [
+          activities.dataSourceId,
+          activities.githubEventId,
+          activities.activityType,
+        ],
         set: {
           title: sql`excluded.title`,
           body: sql`excluded.body`,
@@ -129,7 +137,7 @@ export class DrizzleActivityRepository implements ActivityRepository {
           updatedAt: sql`excluded.updated_at`,
         },
       })
-      .returning({ id: events.id })
+      .returning({ id: activities.id })
 
     // 新規作成か既存更新かは判別できないため、全idをnewEventIdsに入れる
     return {
@@ -139,7 +147,7 @@ export class DrizzleActivityRepository implements ActivityRepository {
   }
 
   /**
-   * 指定されたデータソースの最新イベントのcreatedAtを取得
+   * 指定されたデータソースの最新アクティビティのcreatedAtを取得
    * 初回実行時はnullを返す
    */
   async getLastCheckTimeForDataSource(
@@ -148,20 +156,20 @@ export class DrizzleActivityRepository implements ActivityRepository {
     const connection = await TransactionManager.getConnection()
 
     const result = await connection
-      .select({ createdAt: events.createdAt })
-      .from(events)
-      .where(eq(events.dataSourceId, dataSourceId))
-      .orderBy(desc(events.createdAt))
+      .select({ createdAt: activities.createdAt })
+      .from(activities)
+      .where(eq(activities.dataSourceId, dataSourceId))
+      .orderBy(desc(activities.createdAt))
       .limit(1)
 
     return result.length > 0 ? result[0].createdAt : null
   }
 
   /**
-   * IDリストによる複数イベントの取得
+   * IDリストによる複数アクティビティの取得
    */
-  async findByIds(eventIds: string[]): Promise<Activity[]> {
-    if (eventIds.length === 0) {
+  async findByIds(activityIds: string[]): Promise<Activity[]> {
+    if (activityIds.length === 0) {
       return []
     }
 
@@ -169,18 +177,18 @@ export class DrizzleActivityRepository implements ActivityRepository {
 
     const results = await connection
       .select()
-      .from(events)
-      .where(inArray(events.id, eventIds))
-      .orderBy(desc(events.createdAt))
+      .from(activities)
+      .where(inArray(activities.id, activityIds))
+      .orderBy(desc(activities.createdAt))
 
     return results.map(this.mapToDomain)
   }
 
   /**
-   * イベントのステータスを更新
+   * アクティビティのステータスを更新
    */
   async updateStatus(
-    eventId: string,
+    activityId: string,
     status: ActivityStatus,
     statusDetail?: string | null,
   ): Promise<boolean> {
@@ -188,13 +196,13 @@ export class DrizzleActivityRepository implements ActivityRepository {
     const now = new Date()
 
     const result = await connection
-      .update(events)
+      .update(activities)
       .set({
         status,
         statusDetail,
         updatedAt: now,
       })
-      .where(eq(events.id, eventId))
+      .where(eq(activities.id, activityId))
 
     return (result.rowCount ?? 0) > 0
   }
@@ -203,7 +211,7 @@ export class DrizzleActivityRepository implements ActivityRepository {
    * 翻訳結果とステータスを更新
    */
   async updateWithTranslation(
-    eventId: string,
+    activityId: string,
     translatedTitle: string,
     translatedBody: string,
     status: ActivityStatus,
@@ -213,7 +221,7 @@ export class DrizzleActivityRepository implements ActivityRepository {
     const now = new Date()
 
     const result = await connection
-      .update(events)
+      .update(activities)
       .set({
         title: translatedTitle,
         body: translatedBody,
@@ -221,20 +229,20 @@ export class DrizzleActivityRepository implements ActivityRepository {
         statusDetail,
         updatedAt: now,
       })
-      .where(eq(events.id, eventId))
+      .where(eq(activities.id, activityId))
 
     return (result.rowCount ?? 0) > 0
   }
 
   /**
-   * 複数イベントのステータスを一括更新
+   * 複数アクティビティのステータスを一括更新
    */
   async updateStatusBatch(
-    eventIds: string[],
+    activityIds: string[],
     status: ActivityStatus,
     statusDetail?: string | null,
   ): Promise<number> {
-    if (eventIds.length === 0) {
+    if (activityIds.length === 0) {
       return 0
     }
 
@@ -242,33 +250,33 @@ export class DrizzleActivityRepository implements ActivityRepository {
     const now = new Date()
 
     const result = await connection
-      .update(events)
+      .update(activities)
       .set({
         status,
         statusDetail,
         updatedAt: now,
       })
-      .where(inArray(events.id, eventIds))
+      .where(inArray(activities.id, activityIds))
 
     return result.rowCount ?? 0
   }
 
   /**
-   * IDでイベントを取得
+   * IDでアクティビティを取得
    */
   async findById(id: string): Promise<Activity | null> {
     const connection = await TransactionManager.getConnection()
 
     const result = await connection
       .select()
-      .from(events)
-      .where(eq(events.id, id))
+      .from(activities)
+      .where(eq(activities.id, id))
 
     return result.length > 0 ? this.mapToDomain(result[0]) : null
   }
 
   /**
-   * データソースIDとステータスでイベントを取得
+   * データソースIDとステータスでアクティビティを取得
    */
   async findByDataSourceAndStatus(
     dataSourceId: string,
@@ -279,18 +287,21 @@ export class DrizzleActivityRepository implements ActivityRepository {
 
     const results = await connection
       .select()
-      .from(events)
+      .from(activities)
       .where(
-        and(eq(events.dataSourceId, dataSourceId), eq(events.status, status)),
+        and(
+          eq(activities.dataSourceId, dataSourceId),
+          eq(activities.status, status),
+        ),
       )
-      .orderBy(desc(events.createdAt))
+      .orderBy(desc(activities.createdAt))
       .limit(limit)
 
     return results.map(this.mapToDomain)
   }
 
   /**
-   * 指定期間内のイベント数を取得（統計用）
+   * 指定期間内のアクティビティ数を取得（統計用）
    */
   async countByDataSourceAndDateRange(
     dataSourceId: string,
@@ -301,12 +312,12 @@ export class DrizzleActivityRepository implements ActivityRepository {
 
     const result = await connection
       .select({ count: sql<number>`count(*)` })
-      .from(events)
+      .from(activities)
       .where(
         and(
-          eq(events.dataSourceId, dataSourceId),
-          sql`${events.createdAt} >= ${startDate}`,
-          sql`${events.createdAt} <= ${endDate}`,
+          eq(activities.dataSourceId, dataSourceId),
+          sql`${activities.createdAt} >= ${startDate}`,
+          sql`${activities.createdAt} <= ${endDate}`,
         ),
       )
 
@@ -316,12 +327,12 @@ export class DrizzleActivityRepository implements ActivityRepository {
   /**
    * データベース結果をドメイン型に変換
    */
-  private mapToDomain(row: typeof events.$inferSelect): Activity {
+  private mapToDomain(row: typeof activities.$inferSelect): Activity {
     return {
       id: row.id,
       dataSourceId: row.dataSourceId,
       githubEventId: row.githubEventId,
-      activityType: row.eventType as ActivityType,
+      activityType: row.activityType as ActivityType,
       title: row.title,
       body: row.body,
       version: row.version,

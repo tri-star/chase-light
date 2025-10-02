@@ -16,7 +16,7 @@ import {
   dataSources,
   repositories,
   userWatches,
-  events,
+  activities,
   notifications,
 } from "../../../db/schema"
 import type {
@@ -733,18 +733,20 @@ export class DataSourceRepository {
       and(
         eq(notifications.userId, userId),
         inArray(
-          notifications.eventId,
+          notifications.activityId,
           sql`(
-            SELECT ${events.id} 
-            FROM ${events} 
-            WHERE ${events.dataSourceId} = ${dataSourceId}
+            SELECT ${activities.id}
+            FROM ${activities}
+            WHERE ${activities.dataSourceId} = ${dataSourceId}
           )`,
         ),
       ),
     )
 
-    // 2. 対象データソースのイベントを削除
-    await connection.delete(events).where(eq(events.dataSourceId, dataSourceId))
+    // 2. 対象データソースのアクティビティを削除
+    await connection
+      .delete(activities)
+      .where(eq(activities.dataSourceId, dataSourceId))
 
     // 3. ユーザーのウォッチレコードを削除
     const deleteResult = await connection

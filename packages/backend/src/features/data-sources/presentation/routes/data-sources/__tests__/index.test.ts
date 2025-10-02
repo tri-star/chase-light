@@ -23,7 +23,7 @@ import { AuthTestHelper } from "../../../../../identity/test-helpers/auth-test-h
 import { globalJWTAuth } from "../../../../../identity"
 import type { User } from "../../../../../identity/domain/user"
 import { db } from "../../../../../../db/connection"
-import { events, notifications } from "../../../../../../db/schema"
+import { activities, notifications } from "../../../../../../db/schema"
 import { DATA_SOURCE_TYPES } from "../../../../domain"
 
 const createStubResponse = (
@@ -444,10 +444,10 @@ describe("DataSources API", () => {
         userId: testUser.auth0UserId,
       })
 
-      const event = await TestDataFactory.createTestEvent(dataSource.id)
+      const activity = await TestDataFactory.createTestActivity(dataSource.id)
       const notification = await TestDataFactory.createTestNotification(
         testUser.id,
-        event.id,
+        activity.id,
       )
 
       const res = await app.request(`/${dataSource.id}`, {
@@ -459,11 +459,11 @@ describe("DataSources API", () => {
 
       expect(res.status).toBe(204)
 
-      const eventExists = await db
+      const activityExists = await db
         .select()
-        .from(events)
-        .where(eq(events.id, event.id))
-      expect(eventExists).toHaveLength(0)
+        .from(activities)
+        .where(eq(activities.id, activity.id))
+      expect(activityExists).toHaveLength(0)
 
       const notificationExists = await db
         .select()
