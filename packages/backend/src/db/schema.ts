@@ -137,16 +137,16 @@ export const userWatches = pgTable(
   }),
 )
 
-// Events table
-export const events = pgTable(
-  "events",
+// Activities table
+export const activities = pgTable(
+  "activities",
   {
     id: uuid("id").primaryKey(),
     dataSourceId: uuid("data_source_id")
       .notNull()
       .references(() => dataSources.id, { onDelete: "cascade" }),
     githubEventId: text("github_event_id").notNull(),
-    eventType: text("event_type").notNull(),
+    activityType: text("activity_type").notNull(),
     title: text("title").notNull(),
     body: text("body").notNull(),
     version: text("version"),
@@ -160,26 +160,28 @@ export const events = pgTable(
   },
   (table) => ({
     dataSourceEventTypeUnique: uniqueIndex(
-      "events_data_source_github_event_type_unique",
-    ).on(table.dataSourceId, table.githubEventId, table.eventType),
-    dataSourceIdIdx: index("idx_events_data_source_id").on(table.dataSourceId),
-    eventTypeIdx: index("idx_events_type").on(table.eventType),
-    titleIdx: index("idx_events_title").on(table.title),
-    versionIdx: index("idx_events_version").on(table.version),
-    githubEventIdIdx: index("idx_events_github_event_id").on(
+      "activities_data_source_github_activity_type_unique",
+    ).on(table.dataSourceId, table.githubEventId, table.activityType),
+    dataSourceIdIdx: index("idx_activities_data_source_id").on(
+      table.dataSourceId,
+    ),
+    activityTypeIdx: index("idx_activities_type").on(table.activityType),
+    titleIdx: index("idx_activities_title").on(table.title),
+    versionIdx: index("idx_activities_version").on(table.version),
+    githubEventIdIdx: index("idx_activities_github_event_id").on(
       table.githubEventId,
     ),
-    dataSourceTypeIdx: index("idx_events_data_source_type").on(
+    dataSourceTypeIdx: index("idx_activities_data_source_type").on(
       table.dataSourceId,
-      table.eventType,
+      table.activityType,
     ),
-    dataSourceCreatedIdx: index("idx_events_data_source_created").on(
+    dataSourceCreatedIdx: index("idx_activities_data_source_created").on(
       table.dataSourceId,
       table.createdAt,
     ),
-    statusIdx: index("idx_events_status").on(table.status),
-    createdAtIdx: index("idx_events_created_at").on(table.createdAt),
-    updatedAtIdx: index("idx_events_updated_at").on(table.updatedAt),
+    statusIdx: index("idx_activities_status").on(table.status),
+    createdAtIdx: index("idx_activities_created_at").on(table.createdAt),
+    updatedAtIdx: index("idx_activities_updated_at").on(table.updatedAt),
   }),
 )
 
@@ -253,7 +255,7 @@ export const notifications = pgTable(
     userId: uuid("user_id")
       .notNull()
       .references(() => users.id, { onDelete: "cascade" }),
-    eventId: uuid("event_id").references(() => events.id, {
+    activityId: uuid("activity_id").references(() => activities.id, {
       onDelete: "cascade",
     }),
     title: text("title").notNull(),
@@ -270,7 +272,7 @@ export const notifications = pgTable(
   },
   (table) => ({
     userIdIdx: index("idx_notifications_user_id").on(table.userId),
-    eventIdIdx: index("idx_notifications_event_id").on(table.eventId),
+    activityIdIdx: index("idx_notifications_activity_id").on(table.activityId),
     isReadIdx: index("idx_notifications_is_read").on(table.isRead),
     notificationTypeIdx: index("idx_notifications_notification_type").on(
       table.notificationType,
@@ -331,7 +333,7 @@ export const usersRelations = relations(users, ({ many, one }) => ({
 export const dataSourcesRelations = relations(dataSources, ({ many }) => ({
   repositories: many(repositories),
   userWatches: many(userWatches),
-  events: many(events),
+  activities: many(activities),
 }))
 
 export const repositoriesRelations = relations(repositories, ({ one }) => ({
@@ -352,9 +354,9 @@ export const userWatchesRelations = relations(userWatches, ({ one }) => ({
   }),
 }))
 
-export const eventsRelations = relations(events, ({ one, many }) => ({
+export const activitiesRelations = relations(activities, ({ one, many }) => ({
   dataSource: one(dataSources, {
-    fields: [events.dataSourceId],
+    fields: [activities.dataSourceId],
     references: [dataSources.id],
   }),
   notifications: many(notifications),
@@ -382,8 +384,8 @@ export const notificationsRelations = relations(notifications, ({ one }) => ({
     fields: [notifications.userId],
     references: [users.id],
   }),
-  event: one(events, {
-    fields: [notifications.eventId],
-    references: [events.id],
+  activity: one(activities, {
+    fields: [notifications.activityId],
+    references: [activities.id],
   }),
 }))
