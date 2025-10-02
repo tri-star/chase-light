@@ -21,7 +21,7 @@ export interface ActivityRepository {
   }): Promise<{ id: string; isNew: boolean }>
 
   /**
-   * 複数イベントの一括Upsert
+   * 複数アクティビティの一括Upsert
    */
   upsertMany(
     dataList: Array<{
@@ -40,7 +40,7 @@ export interface ActivityRepository {
   ): Promise<{ newActivityIds: string[]; updatedCount: number }>
 
   /**
-   * 指定されたデータソースの最新イベントのcreatedAtを取得
+   * 指定されたデータソースの最新アクティビティのcreatedAtを取得
    * 初回実行時はnullを返す
    */
   getLastCheckTimeForDataSource(
@@ -48,15 +48,15 @@ export interface ActivityRepository {
   ): Promise<Date | null>
 
   /**
-   * IDリストによる複数イベントの取得
+   * IDリストによる複数アクティビティの取得
    */
-  findByIds(eventIds: string[]): Promise<Activity[]>
+  findByIds(activityIds: string[]): Promise<Activity[]>
 
   /**
-   * イベントのステータスを更新
+   * アクティビティのステータスを更新
    */
   updateStatus(
-    eventId: string,
+    activityId: string,
     status: ActivityStatus,
     statusDetail?: string | null,
   ): Promise<boolean>
@@ -65,7 +65,7 @@ export interface ActivityRepository {
    * 翻訳結果とステータスを更新
    */
   updateWithTranslation(
-    eventId: string,
+    activityId: string,
     translatedTitle: string,
     translatedBody: string,
     status: ActivityStatus,
@@ -73,21 +73,21 @@ export interface ActivityRepository {
   ): Promise<boolean>
 
   /**
-   * 複数イベントのステータスを一括更新
+   * 複数アクティビティのステータスを一括更新
    */
   updateStatusBatch(
-    eventIds: string[],
+    activityIds: string[],
     status: ActivityStatus,
     statusDetail?: string | null,
   ): Promise<number>
 
   /**
-   * IDでイベントを取得
+   * IDでアクティビティを取得
    */
   findById(id: string): Promise<Activity | null>
 
   /**
-   * データソースIDとステータスでイベントを取得
+   * データソースIDとステータスでアクティビティを取得
    */
   findByDataSourceAndStatus(
     detectTargetId: DetectTargetId,
@@ -96,7 +96,7 @@ export interface ActivityRepository {
   ): Promise<Activity[]>
 
   /**
-   * 指定期間内のイベント数を取得（統計用）
+   * 指定期間内のアクティビティ数を取得（統計用）
    */
   countByDataSourceAndDateRange(
     detectTargetId: DetectTargetId,
