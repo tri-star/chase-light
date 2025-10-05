@@ -9,6 +9,7 @@ import type { AuthenticatedUser, AuthContext } from "../types/auth.types"
 import { AuthError } from "../errors/auth.error"
 import type { JwtValidatorPort } from "../application/ports/jwt-validator.port"
 import { createJwtValidatorAdapter } from "../infra/adapters/jwt-validator/jwt-validator-factory"
+import { DrizzleUserRepository } from "../infra/repositories/drizzle-user.repository"
 
 /**
  * JWT認証ミドルウェアのオプション
@@ -78,6 +79,7 @@ export function createJWTAuthMiddleware(options: JWTAuthOptions = {}) {
 
   // 環境に応じたJWTValidatorを作成
   let validator: JwtValidatorPort
+  const userRepository = new DrizzleUserRepository()
 
   try {
     validator = createJwtValidatorAdapter()
@@ -119,11 +121,24 @@ export function createJWTAuthMiddleware(options: JWTAuthOptions = {}) {
         throw AuthError.tokenInvalid("No payload found in token")
       }
 
+      const payload = validationResult.payload
+
+      if (!payload.sub) {
+        throw AuthError.missingClaims("sub")
+      }
+
+      const user = await userRepository.findByAuth0Id(payload.sub)
+
+      if (!user) {
+        throw AuthError.tokenInvalid("User not found for provided token")
+      }
+
       // 認証情報をコンテキストに設定
       const cleanToken = token.replace(/^Bearer\s+/i, "").trim()
       const authenticatedUser: AuthenticatedUser = {
-        sub: validationResult.payload.sub,
-        payload: validationResult.payload,
+        userId: user.id,
+        sub: payload.sub,
+        payload,
         accessToken: cleanToken,
       }
 

@@ -7,7 +7,8 @@ import type {
   DataSourceActivitiesListResult,
 } from "../../domain"
 
-const formatDate = (value: Date): string => value.toISOString()
+const formatDate = (value: Date | string): string =>
+  new Date(value).toISOString()
 
 const mapNotification = (notification: ActivityNotificationSummary) => ({
   hasUnread: notification.hasUnread,

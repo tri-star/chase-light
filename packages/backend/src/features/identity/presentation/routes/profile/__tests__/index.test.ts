@@ -62,7 +62,7 @@ describe("Profile Routes - Component Test", () => {
       })
     })
 
-    test("ユーザーが見つからない場合は404エラー", async () => {
+    test("ユーザーが見つからない場合は401エラー", async () => {
       // 存在しないユーザーのトークンを作成
       const nonexistentToken = AuthTestHelper.createTestToken(
         "auth0|nonexistent",
@@ -75,15 +75,10 @@ describe("Profile Routes - Component Test", () => {
         headers: AuthTestHelper.createAuthHeaders(nonexistentToken),
       })
 
-      expect(response.status).toBe(404)
-      const data = await response.json()
-      expect(data).toEqual({
-        success: false,
-        error: {
-          code: "USER_NOT_FOUND",
-          message: "ユーザーが見つかりません",
-        },
-      })
+      const bodyText = await response.text()
+
+      expect(response.status).toBe(401)
+      expect(bodyText).toContain("User not found")
     })
 
     test.skip("内部エラーの場合は500エラー", async () => {
@@ -122,7 +117,7 @@ describe("Profile Routes - Component Test", () => {
       expect(updatedUser?.email).toBe("updated@example.com")
     })
 
-    test("ユーザーが見つからない場合は404エラー", async () => {
+    test("ユーザーが見つからない場合は401エラー", async () => {
       // 存在しないユーザーのトークンを作成
       const nonexistentToken = AuthTestHelper.createTestToken(
         "auth0|nonexistent",
@@ -139,15 +134,9 @@ describe("Profile Routes - Component Test", () => {
         body: JSON.stringify({ name: "新しい名前", email: "test@example.com" }),
       })
 
-      expect(response.status).toBe(404)
-      const data = await response.json()
-      expect(data).toEqual({
-        success: false,
-        error: {
-          code: "USER_NOT_FOUND",
-          message: "ユーザーが見つかりません",
-        },
-      })
+      const bodyText = await response.text()
+      expect(response.status).toBe(401)
+      expect(bodyText).toContain("User not found")
     })
 
     test("重複メールアドレスの場合はバリデーションエラー", async () => {

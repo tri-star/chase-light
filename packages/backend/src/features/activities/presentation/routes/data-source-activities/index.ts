@@ -54,7 +54,7 @@ export function createDataSourceActivitiesRoutes(
     const query = c.req.valid("query")
 
     const result = await listDataSourceActivitiesUseCase.execute({
-      userId: authenticated.sub,
+      userId: authenticated.userId,
       dataSourceId: params.dataSourceId,
       page: query.page,
       perPage: query.perPage,

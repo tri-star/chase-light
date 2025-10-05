@@ -51,7 +51,7 @@ export function createActivitiesRoutes(
     const query = c.req.valid("query")
 
     const result = await listUserActivitiesUseCase.execute({
-      userId: authenticated.sub,
+      userId: authenticated.userId,
       page: query.page,
       perPage: query.perPage,
       activityType: query.activityType,
@@ -103,7 +103,7 @@ export function createActivitiesRoutes(
     const params = c.req.valid("param")
 
     const result = await getActivityDetailUseCase.execute({
-      userId: authenticated.sub,
+      userId: authenticated.userId,
       activityId: params.activityId,
     })
 

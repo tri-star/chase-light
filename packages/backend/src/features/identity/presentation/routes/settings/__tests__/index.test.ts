@@ -67,7 +67,7 @@ describe("Settings Routes - Component Test", () => {
       })
     })
 
-    test("ユーザーが見つからない場合は404エラー", async () => {
+    test("ユーザーが見つからない場合は401エラー", async () => {
       // 存在しないユーザーのトークンを作成
       const nonexistentToken = AuthTestHelper.createTestToken(
         "auth0|nonexistent",
@@ -80,15 +80,9 @@ describe("Settings Routes - Component Test", () => {
         headers: AuthTestHelper.createAuthHeaders(nonexistentToken),
       })
 
-      expect(response.status).toBe(404)
-      const data = await response.json()
-      expect(data).toEqual({
-        success: false,
-        error: {
-          code: "USER_NOT_FOUND",
-          message: "ユーザーが見つかりません",
-        },
-      })
+      const bodyText = await response.text()
+      expect(response.status).toBe(401)
+      expect(bodyText).toContain("User not found")
     })
 
     test.skip("設定が見つからない場合は404エラー", async () => {
@@ -123,7 +117,7 @@ describe("Settings Routes - Component Test", () => {
       expect(data.user.id).toBe(testUser.id)
     })
 
-    test("ユーザーが見つからない場合は404エラー", async () => {
+    test("ユーザーが見つからない場合は401エラー", async () => {
       // 存在しないユーザーのトークンを作成
       const nonexistentToken = AuthTestHelper.createTestToken(
         "auth0|nonexistent",
@@ -140,15 +134,9 @@ describe("Settings Routes - Component Test", () => {
         body: JSON.stringify({ timezone: "Europe/London" }),
       })
 
-      expect(response.status).toBe(404)
-      const data = await response.json()
-      expect(data).toEqual({
-        success: false,
-        error: {
-          code: "USER_NOT_FOUND",
-          message: "ユーザーが見つかりません",
-        },
-      })
+      const bodyText = await response.text()
+      expect(response.status).toBe(401)
+      expect(bodyText).toContain("User not found")
     })
 
     test("言語バリデーションエラーの場合は400エラー", async () => {

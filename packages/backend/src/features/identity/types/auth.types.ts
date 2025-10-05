@@ -53,6 +53,8 @@ export interface Auth0Config {
 }
 
 export interface AuthenticatedUser {
+  /** アプリケーション内のユーザーID (users.id) */
+  userId: string
   /** Auth0のsub (ユーザーID) */
   sub: string
   /** JWTペイロード全体 */
