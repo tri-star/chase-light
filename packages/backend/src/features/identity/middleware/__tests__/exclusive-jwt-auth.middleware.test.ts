@@ -6,8 +6,11 @@ import { Hono } from "hono"
 import { createExclusiveJWTAuthMiddleware } from "../exclusive-jwt-auth.middleware"
 import type { AuthExclusionConfig } from "../auth-exclusions"
 import { AuthTestHelper } from "../../test-helpers/auth-test-helper"
+import { setupComponentTest, TestDataFactory } from "../../../../test"
 
 describe("Exclusive JWT Auth Middleware", () => {
+  setupComponentTest()
+
   let app: Hono
   const originalEnv = process.env
   let consoleSpy: {
@@ -15,7 +18,7 @@ describe("Exclusive JWT Auth Middleware", () => {
     warn: ReturnType<typeof vi.spyOn>
   }
 
-  beforeEach(() => {
+  beforeEach(async () => {
     app = new Hono()
     process.env = { ...originalEnv }
 
@@ -23,7 +26,12 @@ describe("Exclusive JWT Auth Middleware", () => {
     AuthTestHelper.clearTestUsers()
 
     // テスト用ユーザーを登録
-    AuthTestHelper.createTestToken("test-user", "test@example.com", "Test User")
+    await TestDataFactory.createTestUser("auth0|test-user")
+    AuthTestHelper.createTestToken(
+      "auth0|test-user",
+      "test@example.com",
+      "Test User",
+    )
 
     // コンソールログをモック
     consoleSpy = {
@@ -79,8 +87,9 @@ describe("Exclusive JWT Auth Middleware", () => {
       app.get("/api/private", (c) => c.json({ data: "private" }))
 
       // 有効なトークンでアクセス
+      await TestDataFactory.createTestUser("auth0|valid-user")
       const validToken = AuthTestHelper.createTestToken(
-        "valid-user",
+        "auth0|valid-user",
         "valid@example.com",
         "Valid User",
       )
@@ -107,8 +116,9 @@ describe("Exclusive JWT Auth Middleware", () => {
       app.use("*", createExclusiveJWTAuthMiddleware())
       app.get("/api/private", (c) => c.json({ data: "private" }))
 
+      await TestDataFactory.createTestUser("auth0|auth-user")
       const validToken = AuthTestHelper.createTestToken(
-        "auth-user",
+        "auth0|auth-user",
         "auth@example.com",
         "Auth User",
       )
