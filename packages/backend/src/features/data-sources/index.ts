@@ -11,6 +11,7 @@ import {
   UpdateDataSourceUseCase,
   RemoveDataSourceWatchUseCase,
 } from "./application/use-cases"
+import { listDataSourceActivitiesUseCase } from "../activities"
 import { createDataSourcePresentationRoutes } from "./presentation"
 
 const dataSourceRepository = new DrizzleDataSourceRepository()
@@ -52,6 +53,7 @@ const dataSourceRoutes = createDataSourcePresentationRoutes(
   getDataSourceUseCase,
   updateDataSourceUseCase,
   removeDataSourceWatchUseCase,
+  listDataSourceActivitiesUseCase,
 )
 
 export default dataSourceRoutes
