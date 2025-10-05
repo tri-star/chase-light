@@ -79,11 +79,6 @@ export type ActivitySourceSummary = {
   metadata?: ActivitySourceMetadata
 }
 
-export type ActivityNotificationSummary = {
-  hasUnread: boolean
-  latestSentAt: Date | null
-}
-
 export type ActivityListItemSummary = {
   id: string
   activityType: ActivityType
@@ -100,7 +95,6 @@ export type ActivityListItemSummary = {
 
 export type ActivityListItem = {
   activity: ActivityListItemSummary
-  notification: ActivityNotificationSummary
 }
 
 export type ActivityDetail = {

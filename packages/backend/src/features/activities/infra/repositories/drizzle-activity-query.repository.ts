@@ -3,7 +3,6 @@ import { TransactionManager } from "../../../../core/db"
 import {
   activities,
   dataSources,
-  notifications,
   repositories,
   userWatches,
 } from "../../../../db/schema"
@@ -14,12 +13,11 @@ import type {
   ActivityDetailQuery,
   ActivityListItem,
   ActivityListResult,
-  ActivityNotificationSummary,
   ActivitySortField,
   ActivitySortOrder,
   ActivitySourceSummary,
-  ActivityType,
   ActivityStatus,
+  ActivityType,
   DataSourceActivitiesListQuery,
   DataSourceActivitiesListResult,
 } from "../../domain"
@@ -28,7 +26,7 @@ import type { ActivityQueryRepository } from "../../domain/repositories/activity
 
 const SUMMARY_MAX_LENGTH = 280
 
-type ActivitySelectRow = {
+type BaseActivityRow = {
   activityId: string
   dataSourceId: string
   activityType: ActivityType
@@ -47,12 +45,14 @@ type ActivitySelectRow = {
   repositoryStarsCount: number | null
   repositoryForksCount: number | null
   repositoryOpenIssuesCount: number | null
-  hasUnread: boolean
-  latestSentAt: Date | null
 }
 
+type ActivityListSelectRow = BaseActivityRow
+
+type ActivityDetailSelectRow = BaseActivityRow
+
 type SourceSummaryRow = Pick<
-  ActivitySelectRow,
+  BaseActivityRow,
   | "dataSourceId"
   | "dataSourceType"
   | "dataSourceName"
@@ -74,34 +74,15 @@ export class DrizzleActivityQueryRepository implements ActivityQueryRepository {
     const orderBy = this.resolveOrder(query.sort, query.order)
     const offset = (query.page - 1) * query.perPage
 
-    const [rows, [{ count }]] = await Promise.all([
-      connection
-        .select(this.baseSelectFields(query.userId, true))
-        .from(activities)
-        .innerJoin(dataSources, eq(dataSources.id, activities.dataSourceId))
-        .innerJoin(
-          userWatches,
-          eq(userWatches.dataSourceId, activities.dataSourceId),
-        )
-        .leftJoin(repositories, eq(repositories.dataSourceId, dataSources.id))
-        .where(whereClause)
-        .orderBy(orderBy)
-        .limit(query.perPage)
-        .offset(offset),
-      connection
-        .select({ count: sql<number>`count(*)` })
-        .from(activities)
-        .innerJoin(
-          userWatches,
-          eq(userWatches.dataSourceId, activities.dataSourceId),
-        )
-        .where(whereClause),
-    ])
-
-    const total = Number(count)
+    const [rows, total] = await this.executeListQuery(connection, {
+      where: whereClause,
+      orderBy,
+      perPage: query.perPage,
+      offset,
+    })
 
     return {
-      items: rows.map((row) => this.mapToListItem(row as ActivitySelectRow)),
+      items: rows.map((row) => this.mapToListItem(row)),
       pagination: this.buildPaginationMeta(query.page, query.perPage, total),
     }
   }
@@ -155,35 +136,16 @@ export class DrizzleActivityQueryRepository implements ActivityQueryRepository {
     const orderBy = this.resolveOrder(query.sort, query.order)
     const offset = (query.page - 1) * query.perPage
 
-    const [rows, [{ count }]] = await Promise.all([
-      connection
-        .select(this.baseSelectFields(query.userId, true))
-        .from(activities)
-        .innerJoin(dataSources, eq(dataSources.id, activities.dataSourceId))
-        .innerJoin(
-          userWatches,
-          eq(userWatches.dataSourceId, activities.dataSourceId),
-        )
-        .leftJoin(repositories, eq(repositories.dataSourceId, dataSources.id))
-        .where(whereClause)
-        .orderBy(orderBy)
-        .limit(query.perPage)
-        .offset(offset),
-      connection
-        .select({ count: sql<number>`count(*)` })
-        .from(activities)
-        .innerJoin(
-          userWatches,
-          eq(userWatches.dataSourceId, activities.dataSourceId),
-        )
-        .where(whereClause),
-    ])
-
-    const total = Number(count)
+    const [rows, total] = await this.executeListQuery(connection, {
+      where: whereClause,
+      orderBy,
+      perPage: query.perPage,
+      offset,
+    })
 
     return {
       dataSource: this.mapToSourceSummary(dataSource),
-      items: rows.map((row) => this.mapToListItem(row as ActivitySelectRow)),
+      items: rows.map((row) => this.mapToListItem(row)),
       pagination: this.buildPaginationMeta(query.page, query.perPage, total),
     }
   }
@@ -194,7 +156,7 @@ export class DrizzleActivityQueryRepository implements ActivityQueryRepository {
     const connection = await TransactionManager.getConnection()
 
     const row = await connection
-      .select(this.baseSelectFields(query.userId, false))
+      .select(this.selectBaseFields())
       .from(activities)
       .innerJoin(dataSources, eq(dataSources.id, activities.dataSourceId))
       .innerJoin(
@@ -209,7 +171,7 @@ export class DrizzleActivityQueryRepository implements ActivityQueryRepository {
         ),
       )
       .limit(1)
-      .then((rows) => rows[0] as ActivitySelectRow | undefined)
+      .then((rows) => rows[0] as ActivityDetailSelectRow | undefined)
 
     if (!row) {
       return null
@@ -232,7 +194,7 @@ export class DrizzleActivityQueryRepository implements ActivityQueryRepository {
     }
   }
 
-  private baseSelectFields(userId: string, includeNotification: boolean) {
+  private selectBaseFields() {
     return {
       activityId: activities.id,
       dataSourceId: activities.dataSourceId,
@@ -252,27 +214,48 @@ export class DrizzleActivityQueryRepository implements ActivityQueryRepository {
       repositoryStarsCount: repositories.starsCount,
       repositoryForksCount: repositories.forksCount,
       repositoryOpenIssuesCount: repositories.openIssuesCount,
-      ...(includeNotification
-        ? {
-            hasUnread: sql<boolean>`exists (
-              select 1
-              from ${notifications}
-              where ${notifications.activityId} = ${activities.id}
-                and ${notifications.userId} = ${userId}
-                and ${notifications.isRead} = false
-            )`,
-            latestSentAt: sql<Date | null>`(
-              select max(${notifications.sentAt})
-              from ${notifications}
-              where ${notifications.activityId} = ${activities.id}
-                and ${notifications.userId} = ${userId}
-            )`,
-          }
-        : {
-            hasUnread: sql<boolean>`false`,
-            latestSentAt: sql<Date | null>`null`,
-          }),
     }
+  }
+
+  private async executeListQuery(
+    connection: Awaited<ReturnType<typeof TransactionManager.getConnection>>,
+    options: {
+      where: SQL | undefined
+      orderBy: SQL | SQL[]
+      perPage: number
+      offset: number
+    },
+  ): Promise<[ActivityListSelectRow[], number]> {
+    const orderExpressions = Array.isArray(options.orderBy)
+      ? options.orderBy
+      : [options.orderBy]
+
+    const rowsPromise = connection
+      .select(this.selectBaseFields())
+      .from(activities)
+      .innerJoin(dataSources, eq(dataSources.id, activities.dataSourceId))
+      .innerJoin(
+        userWatches,
+        eq(userWatches.dataSourceId, activities.dataSourceId),
+      )
+      .leftJoin(repositories, eq(repositories.dataSourceId, dataSources.id))
+      .where(options.where)
+      .orderBy(...orderExpressions)
+      .limit(options.perPage)
+      .offset(options.offset)
+
+    const countPromise = connection
+      .select({ count: sql<number>`count(*)` })
+      .from(activities)
+      .innerJoin(
+        userWatches,
+        eq(userWatches.dataSourceId, activities.dataSourceId),
+      )
+      .where(options.where)
+
+    const [rows, [{ count }]] = await Promise.all([rowsPromise, countPromise])
+
+    return [rows as ActivityListSelectRow[], Number(count)]
   }
 
   private buildWhereClause(
@@ -323,12 +306,7 @@ export class DrizzleActivityQueryRepository implements ActivityQueryRepository {
     return direction(activities.createdAt)
   }
 
-  private mapToListItem(row: ActivitySelectRow): ActivityListItem {
-    const notification: ActivityNotificationSummary = {
-      hasUnread: row.hasUnread,
-      latestSentAt: row.latestSentAt,
-    }
-
+  private mapToListItem(row: ActivityListSelectRow): ActivityListItem {
     return {
       activity: {
         id: row.activityId,
@@ -343,7 +321,6 @@ export class DrizzleActivityQueryRepository implements ActivityQueryRepository {
         lastUpdatedAt: row.updatedAt,
         source: this.mapToSourceSummary(row),
       },
-      notification,
     }
   }
 

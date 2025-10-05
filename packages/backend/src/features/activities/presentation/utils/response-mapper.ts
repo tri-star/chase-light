@@ -2,7 +2,6 @@ import type {
   ActivityDetail,
   ActivityListItem,
   ActivityListResult,
-  ActivityNotificationSummary,
   ActivitySourceSummary,
   DataSourceActivitiesListResult,
 } from "../../domain"
@@ -10,40 +9,23 @@ import type {
 const formatDate = (value: Date | string): string =>
   new Date(value).toISOString()
 
-const mapNotification = (notification: ActivityNotificationSummary) => ({
-  hasUnread: notification.hasUnread,
-  latestSentAt: notification.latestSentAt
-    ? formatDate(notification.latestSentAt)
-    : null,
-})
-
 const mapSource = (source: ActivitySourceSummary) => {
   const metadata = source.metadata
-    ? {
-        ...(source.metadata.repositoryFullName !== undefined
-          ? { repositoryFullName: source.metadata.repositoryFullName }
-          : {}),
-        ...(source.metadata.repositoryLanguage !== undefined
-          ? { repositoryLanguage: source.metadata.repositoryLanguage }
-          : {}),
-        ...(source.metadata.starsCount !== undefined
-          ? { starsCount: source.metadata.starsCount }
-          : {}),
-        ...(source.metadata.forksCount !== undefined
-          ? { forksCount: source.metadata.forksCount }
-          : {}),
-        ...(source.metadata.openIssuesCount !== undefined
-          ? { openIssuesCount: source.metadata.openIssuesCount }
-          : {}),
-      }
+    ? (Object.fromEntries(
+        Object.entries(source.metadata).filter(
+          ([, value]) => value !== undefined,
+        ),
+      ) as ActivitySourceSummary["metadata"])
     : undefined
+
+  const hasMetadata = metadata && Object.keys(metadata).length > 0
 
   return {
     id: source.id,
     sourceType: source.sourceType,
     name: source.name,
     url: source.url,
-    ...(metadata ? { metadata } : {}),
+    ...(hasMetadata ? { metadata } : {}),
   }
 }
 
@@ -61,7 +43,6 @@ const mapActivityItem = (item: ActivityListItem) => ({
     lastUpdatedAt: formatDate(item.activity.lastUpdatedAt),
     source: mapSource(item.activity.source),
   },
-  notification: mapNotification(item.notification),
 })
 
 export const mapListResultToResponse = (result: ActivityListResult) => ({

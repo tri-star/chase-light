@@ -16,6 +16,11 @@ import {
   mapListResultToResponse,
 } from "../../utils/response-mapper"
 
+const createApiErrorResponse = (code: string, message: string) => ({
+  success: false as const,
+  error: { code, message },
+})
+
 export function createActivitiesRoutes(
   listUserActivitiesUseCase: ListUserActivitiesUseCase,
   getActivityDetailUseCase: GetActivityDetailUseCase,
@@ -109,13 +114,10 @@ export function createActivitiesRoutes(
 
     if (!result) {
       return c.json(
-        {
-          success: false,
-          error: {
-            code: "ACTIVITY_NOT_FOUND",
-            message: "アクティビティが見つからないかアクセス権がありません",
-          },
-        } as const,
+        createApiErrorResponse(
+          "ACTIVITY_NOT_FOUND",
+          "アクティビティが見つからないかアクセス権がありません",
+        ),
         404,
       ) as never
     }

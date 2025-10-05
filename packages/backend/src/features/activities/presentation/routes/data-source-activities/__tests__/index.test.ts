@@ -13,8 +13,6 @@ import { AuthTestHelper } from "../../../../../identity/test-helpers/auth-test-h
 import type { User } from "../../../../../identity/domain/user"
 import { ACTIVITY_STATUS, ACTIVITY_TYPE } from "../../../../domain"
 
-const iso = (value: string) => new Date(value).toISOString()
-
 describe("Data Source Activities API", () => {
   setupComponentTest()
 
@@ -136,10 +134,6 @@ describe("Data Source Activities API", () => {
     expect(body.data.dataSource.id).toBe(watchedDataSourceId)
     expect(body.data.items).toHaveLength(1)
     expect(body.data.items[0].activity.id).toBe(completedActivityId)
-    expect(body.data.items[0].notification.hasUnread).toBe(true)
-    expect(body.data.items[0].notification.latestSentAt).toBe(
-      iso("2024-02-01T11:00:00Z"),
-    )
   })
 
   test("statusクエリでprocessingアクティビティを取得できる", async () => {

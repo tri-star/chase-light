@@ -48,17 +48,6 @@ export const activitySourceSchema = z.object({
   }),
 })
 
-export const activityNotificationSchema = z.object({
-  hasUnread: z.boolean().openapi({
-    description: "未読通知が存在するか",
-    example: true,
-  }),
-  latestSentAt: z.string().datetime().nullable().openapi({
-    description: "最新の通知送信日時",
-    example: "2024-01-02T12:34:56.000Z",
-  }),
-})
-
 export const activitySummarySchema = z.object({
   id: z.string().uuid().openapi({
     description: "アクティビティID",
@@ -103,7 +92,6 @@ export const activitySummarySchema = z.object({
 
 export const activityListItemSchema = z.object({
   activity: activitySummarySchema,
-  notification: activityNotificationSchema,
 })
 
 export const paginationSchema = z.object({

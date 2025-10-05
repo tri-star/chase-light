@@ -134,8 +134,6 @@ describe("Activities API", () => {
     const [item] = body.data.items
     expect(item.activity.id).toBe(completedActivityId)
     expect(item.activity.activityType).toBe("release")
-    expect(item.notification.hasUnread).toBe(true)
-    expect(item.notification.latestSentAt).toBe("2024-01-01T10:00:00.000Z")
     expect(body.data.pagination.total).toBe(1)
   })
 
