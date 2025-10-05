@@ -2,6 +2,13 @@ import { seed, reset } from "drizzle-seed"
 import { db } from "../db/connection"
 import * as schema from "../db/schema"
 import { User } from "../features/identity/domain/user"
+import {
+  ACTIVITY_STATUS,
+  ACTIVITY_TYPE,
+  type ActivityStatus,
+  type ActivityType,
+} from "../features/activities"
+
 import type {
   GitHubDataSource,
   Repository,
@@ -257,41 +264,58 @@ export class TestDataFactory {
   /**
    * テスト用アクティビティを作成
    */
+  /**
+   * テスト用アクティビティを作成
+   */
   static async createTestActivity(
     dataSourceId: string,
     customData?: {
       githubEventId?: string
-      activityType?: string
+      activityType?: ActivityType
       title?: string
       body?: string
-      version?: string
+      version?: string | null
+      status?: ActivityStatus
+      statusDetail?: string | null
+      githubData?: string | null
       createdAt?: Date
+      updatedAt?: Date
     },
   ): Promise<{
     id: string
     dataSourceId: string
     githubEventId: string
-    activityType: string
+    activityType: ActivityType
     title: string
     body: string
     version: string | null
+    status: ActivityStatus
+    statusDetail: string | null
+    githubData: string | null
     createdAt: Date
     updatedAt: Date
   }> {
     const now = new Date()
+    const createdAt = customData?.createdAt ?? now
+    const updatedAt = customData?.updatedAt ?? now
+    const version =
+      customData && Object.prototype.hasOwnProperty.call(customData, "version")
+        ? (customData.version ?? null)
+        : "v1.0.0"
+
     const activity = {
       id: uuidv7(),
       dataSourceId,
-      githubEventId: customData?.githubEventId || `event_${Date.now()}`,
-      activityType: customData?.activityType || "release",
-      title: customData?.title || "Test Activity",
-      body: customData?.body || "Test activity body",
-      version: customData?.version || "v1.0.0",
-      status: "pending" as const,
-      statusDetail: null,
-      githubData: null,
-      createdAt: customData?.createdAt || now,
-      updatedAt: now,
+      githubEventId: customData?.githubEventId ?? `event_${Date.now()}`,
+      activityType: customData?.activityType ?? ACTIVITY_TYPE.RELEASE,
+      title: customData?.title ?? "Test Activity",
+      body: customData?.body ?? "Test activity body",
+      version,
+      status: customData?.status ?? ACTIVITY_STATUS.PENDING,
+      statusDetail: customData?.statusDetail ?? null,
+      githubData: customData?.githubData ?? null,
+      createdAt,
+      updatedAt,
     }
 
     await db.insert(schema.activities).values(activity)
