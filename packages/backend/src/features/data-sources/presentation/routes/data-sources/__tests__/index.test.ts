@@ -9,11 +9,13 @@ import {
   UpdateDataSourceUseCase,
   RemoveDataSourceWatchUseCase,
 } from "../../../../application/use-cases"
+import { ListDataSourceActivitiesUseCase } from "../../../../../activities/application/use-cases"
 import {
   DrizzleDataSourceRepository,
   DrizzleUserWatchRepository,
   DrizzleUserAccountRepository,
 } from "../../../../infra/repositories"
+import { DrizzleActivityRepository } from "../../../../../activities/infra/repositories/drizzle-activity.repository"
 import {
   GitHubRepositoryStub,
   type LegacyGitHubRepositoryResponse,
@@ -23,8 +25,13 @@ import { AuthTestHelper } from "../../../../../identity/test-helpers/auth-test-h
 import { globalJWTAuth } from "../../../../../identity"
 import type { User } from "../../../../../identity/domain/user"
 import { db } from "../../../../../../db/connection"
-import { activities, notifications } from "../../../../../../db/schema"
+import {
+  activities,
+  notifications,
+  dataSources,
+} from "../../../../../../db/schema"
 import { DATA_SOURCE_TYPES } from "../../../../domain"
+import { uuidv7 } from "uuidv7"
 
 const createStubResponse = (
   overrides: Partial<LegacyGitHubRepositoryResponse> = {},
@@ -54,6 +61,7 @@ describe("DataSources API", () => {
   let getUseCase: GetDataSourceUseCase
   let updateUseCase: UpdateDataSourceUseCase
   let removeUseCase: RemoveDataSourceWatchUseCase
+  let listActivitiesUseCase: ListDataSourceActivitiesUseCase
   let testUser: User
   let testToken: string
 
@@ -95,6 +103,10 @@ describe("DataSources API", () => {
       dataSourceRepository,
       userAccountRepository,
     )
+    const activityRepository = new DrizzleActivityRepository()
+    listActivitiesUseCase = new ListDataSourceActivitiesUseCase(
+      activityRepository,
+    )
 
     app = new OpenAPIHono()
     app.use("*", globalJWTAuth)
@@ -106,6 +118,7 @@ describe("DataSources API", () => {
         getUseCase,
         updateUseCase,
         removeUseCase,
+        listActivitiesUseCase,
       ),
     )
   })
@@ -555,6 +568,242 @@ describe("DataSources API", () => {
       const body = await res.json()
       expect(body.success).toBe(false)
       expect(body.error.code).toBe("DATA_SOURCE_NOT_FOUND")
+    })
+  })
+
+  describe("GET /:dataSourceId/activities", () => {
+    test("認証済みユーザーによる正常なデータソース別アクティビティ一覧取得", async () => {
+      // テストデータの作成
+      const testDataSource = await TestDataFactory.createTestDataSource({
+        sourceId: "facebook/react",
+        sourceType: DATA_SOURCE_TYPES.GITHUB,
+        repository: { githubId: 10270250, fullName: "facebook/react" },
+      })
+      await TestDataFactory.createTestUserWatch(
+        testUser.id,
+        testDataSource.id,
+        {},
+      )
+
+      // テストアクティビティの作成
+      await db.insert(activities).values({
+        id: uuidv7(),
+        dataSourceId: testDataSource.id,
+        githubEventId: "github-event-1",
+        activityType: "release",
+        title: "React v18.0.0",
+        body: "Major release with new features",
+        version: "18.0.0",
+        status: "completed",
+        statusDetail: null,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      })
+
+      const res = await app.request(`/${testDataSource.id}/activities`, {
+        method: "GET",
+        headers: AuthTestHelper.createAuthHeaders(testToken),
+      })
+
+      expect(res.status).toBe(200)
+      const body = await res.json()
+      expect(body.success).toBe(true)
+      expect(body.data.items).toHaveLength(1)
+      expect(body.data.items[0].dataSource.id).toBe(testDataSource.id)
+    })
+
+    test("ページネーションの正常動作", async () => {
+      // テストデータの作成
+      const testDataSource = await TestDataFactory.createTestDataSource({
+        sourceId: "facebook/react",
+        sourceType: DATA_SOURCE_TYPES.GITHUB,
+        repository: { githubId: 10270250, fullName: "facebook/react" },
+      })
+      await TestDataFactory.createTestUserWatch(
+        testUser.id,
+        testDataSource.id,
+        {},
+      )
+
+      // 追加のアクティビティを作成
+      for (let i = 0; i < 26; i++) {
+        await db.insert(activities).values({
+          id: uuidv7(),
+          dataSourceId: testDataSource.id,
+          githubEventId: `github-event-${uuidv7()}`,
+          activityType: "issue",
+          title: `Issue #${i}`,
+          body: `Description for issue ${i}`,
+          version: null,
+          status: "completed",
+          statusDetail: null,
+          createdAt: new Date(Date.now() + i * 1000),
+          updatedAt: new Date(Date.now() + i * 1000),
+        })
+      }
+
+      // 1ページ目
+      const res1 = await app.request(
+        `/${testDataSource.id}/activities?page=1&perPage=10`,
+        {
+          method: "GET",
+          headers: AuthTestHelper.createAuthHeaders(testToken),
+        },
+      )
+
+      expect(res1.status).toBe(200)
+      const body1 = await res1.json()
+      expect(body1.data.items).toHaveLength(10)
+      expect(body1.data.pagination.currentPage).toBe(1)
+      expect(body1.data.pagination.perPage).toBe(10)
+      expect(body1.data.pagination.totalItems).toBe(26)
+
+      // 2ページ目
+      const res2 = await app.request(
+        `/${testDataSource.id}/activities?page=2&perPage=10`,
+        {
+          method: "GET",
+          headers: AuthTestHelper.createAuthHeaders(testToken),
+        },
+      )
+
+      expect(res2.status).toBe(200)
+      const body2 = await res2.json()
+      expect(body2.data.items).toHaveLength(10)
+      expect(body2.data.pagination.currentPage).toBe(2)
+    })
+
+    test("フィルタリングの正常動作", async () => {
+      // テストデータの作成
+      const testDataSource = await TestDataFactory.createTestDataSource({
+        sourceId: "facebook/react",
+        sourceType: DATA_SOURCE_TYPES.GITHUB,
+        repository: { githubId: 10270250, fullName: "facebook/react" },
+      })
+      await TestDataFactory.createTestUserWatch(
+        testUser.id,
+        testDataSource.id,
+        {},
+      )
+
+      // release タイプのアクティビティを追加
+      await db.insert(activities).values({
+        id: uuidv7(),
+        dataSourceId: testDataSource.id,
+        githubEventId: "github-event-1",
+        activityType: "release",
+        title: "React v18.0.0",
+        body: "Major release",
+        version: "18.0.0",
+        status: "completed",
+        statusDetail: null,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      })
+
+      // issue タイプのアクティビティを追加
+      await db.insert(activities).values({
+        id: uuidv7(),
+        dataSourceId: testDataSource.id,
+        githubEventId: `github-event-${uuidv7()}`,
+        activityType: "issue",
+        title: "Bug report",
+        body: "Something is broken",
+        version: null,
+        status: "completed",
+        statusDetail: null,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      })
+
+      const res = await app.request(
+        `/${testDataSource.id}/activities?activityType=release`,
+        {
+          method: "GET",
+          headers: AuthTestHelper.createAuthHeaders(testToken),
+        },
+      )
+
+      expect(res.status).toBe(200)
+      const body = await res.json()
+      expect(body.data.items).toHaveLength(1)
+      expect(body.data.items[0].activityType).toBe("release")
+    })
+
+    test("監視していないデータソースのアクティビティに対する404エラー", async () => {
+      // 監視していないデータソースとアクティビティを作成
+      const otherDataSourceId = uuidv7()
+      await db.insert(dataSources).values({
+        id: otherDataSourceId,
+        sourceType: "github_repository",
+        sourceId: "vuejs/vue",
+        name: "vue",
+        description: "Vue.js framework",
+        url: "https://github.com/vuejs/vue",
+        isPrivate: false,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      })
+
+      await db.insert(activities).values({
+        id: uuidv7(),
+        dataSourceId: otherDataSourceId,
+        githubEventId: `github-event-${uuidv7()}`,
+        activityType: "release",
+        title: "Vue v3.0.0",
+        body: "Vue 3 release",
+        version: "3.0.0",
+        status: "completed",
+        statusDetail: null,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      })
+
+      const res = await app.request(`/${otherDataSourceId}/activities`, {
+        method: "GET",
+        headers: AuthTestHelper.createAuthHeaders(testToken),
+      })
+
+      // 監視していないデータソースの場合は空のリストが返される
+      expect(res.status).toBe(200)
+      const body = await res.json()
+      expect(body.success).toBe(true)
+      expect(body.data.items).toHaveLength(0)
+    })
+
+    test("未認証アクセスに対する401エラー", async () => {
+      // テストデータの作成
+      const testDataSource = await TestDataFactory.createTestDataSource({
+        sourceId: "facebook/react",
+        sourceType: DATA_SOURCE_TYPES.GITHUB,
+        repository: { githubId: 10270250, fullName: "facebook/react" },
+      })
+      await TestDataFactory.createTestUserWatch(
+        testUser.id,
+        testDataSource.id,
+        {},
+      )
+
+      const res = await app.request(`/${testDataSource.id}/activities`, {
+        method: "GET",
+      })
+
+      expect(res.status).toBe(401)
+    })
+
+    test("存在しないデータソースIDの場合は空のリストが返される", async () => {
+      const nonExistentId = uuidv7()
+
+      const res = await app.request(`/${nonExistentId}/activities`, {
+        method: "GET",
+        headers: AuthTestHelper.createAuthHeaders(testToken),
+      })
+
+      // 存在しないデータソースの場合は空のリストが返される
+      expect(res.status).toBe(200)
+      const body = await res.json()
+      expect(body.success).toBe(true)
+      expect(body.data.items).toHaveLength(0)
     })
   })
 })

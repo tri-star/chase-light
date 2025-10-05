@@ -8,6 +8,7 @@ import type {
   UpdateDataSourceUseCase,
   RemoveDataSourceWatchUseCase,
 } from "../../../application/use-cases"
+import type { ListDataSourceActivitiesUseCase } from "../../../../activities/application/use-cases"
 import {
   createDataSourceRequestSchema,
   createDataSourceResponseSchema,
@@ -16,7 +17,12 @@ import {
   dataSourceDetailResponseSchema,
   dataSourceErrorResponseSchemaDefinition,
 } from "../../schemas"
+import {
+  ActivityListQuerySchema,
+  ActivityListResponseSchema,
+} from "../../../../activities/presentation/schemas"
 import { handleDataSourceError } from "../../shared/error-handling"
+import { handleActivityError } from "../../../../activities/presentation/shared/error-handling"
 
 export function createDataSourceRoutes(
   registerDataSourceWatchUseCase: RegisterDataSourceWatchUseCase,
@@ -24,6 +30,7 @@ export function createDataSourceRoutes(
   getDataSourceUseCase: GetDataSourceUseCase,
   updateDataSourceUseCase: UpdateDataSourceUseCase,
   removeDataSourceWatchUseCase: RemoveDataSourceWatchUseCase,
+  listDataSourceActivitiesUseCase: ListDataSourceActivitiesUseCase,
 ) {
   const app = new OpenAPIHono()
 
@@ -444,6 +451,171 @@ export function createDataSourceRoutes(
       )
     } catch (error) {
       return handleDataSourceError(c, error, "update")
+    }
+  })
+
+  // ===== データソース別アクティビティ一覧取得機能 =====
+
+  /**
+   * GET /data-sources/{dataSourceId}/activities ルート定義
+   */
+  const listDataSourceActivitiesRoute = createRoute({
+    method: "get",
+    path: "/{dataSourceId}/activities",
+    summary: "データソース別アクティビティ一覧取得",
+    description:
+      "指定されたデータソースに関連するアクティビティ一覧を取得します。ユーザーが監視中のデータソースのアクティビティのみアクセス可能です",
+    tags: ["Activities"],
+    security: [{ Bearer: [] }],
+    request: {
+      params: z.object({
+        dataSourceId: z.string().uuid().openapi({
+          description: "データソースID（UUID形式）",
+          example: "550e8400-e29b-41d4-a716-446655440000",
+        }),
+      }),
+      query: ActivityListQuerySchema,
+    },
+    responses: {
+      200: {
+        content: {
+          "application/json": {
+            schema: ActivityListResponseSchema,
+          },
+        },
+        description: "アクティビティ一覧が正常に取得されました",
+      },
+      400: {
+        content: {
+          "application/json": {
+            schema: z.object({
+              success: z.literal(false),
+              error: z.object({
+                code: z.string(),
+                message: z.string(),
+              }),
+            }),
+          },
+        },
+        description: "バリデーションエラー",
+      },
+      401: {
+        content: {
+          "application/json": {
+            schema: z.object({
+              success: z.literal(false),
+              error: z.object({
+                code: z.string(),
+                message: z.string(),
+              }),
+            }),
+          },
+        },
+        description: "認証が必要です",
+      },
+      404: {
+        content: {
+          "application/json": {
+            schema: z.object({
+              success: z.literal(false),
+              error: z.object({
+                code: z.string(),
+                message: z.string(),
+              }),
+            }),
+          },
+        },
+        description: "データソースが見つかりません",
+      },
+      500: {
+        content: {
+          "application/json": {
+            schema: z.object({
+              success: z.literal(false),
+              error: z.object({
+                code: z.string(),
+                message: z.string(),
+              }),
+            }),
+          },
+        },
+        description: "内部サーバーエラー",
+      },
+    },
+  })
+
+  /**
+   * GET /data-sources/{dataSourceId}/activities エンドポイント
+   */
+  app.openapi(listDataSourceActivitiesRoute, async (c) => {
+    try {
+      const authenticatedUser = requireAuth(c)
+      const auth0UserId = authenticatedUser.sub
+
+      const { dataSourceId } = c.req.valid("param")
+      const query = c.req.valid("query")
+
+      const result = await listDataSourceActivitiesUseCase.execute({
+        userId: auth0UserId,
+        dataSourceId,
+        filter: {
+          activityType: query.activityType,
+          status: query.status,
+          createdAfter: query.createdAfter
+            ? new Date(query.createdAfter)
+            : undefined,
+          createdBefore: query.createdBefore
+            ? new Date(query.createdBefore)
+            : undefined,
+          updatedAfter: query.updatedAfter
+            ? new Date(query.updatedAfter)
+            : undefined,
+          updatedBefore: query.updatedBefore
+            ? new Date(query.updatedBefore)
+            : undefined,
+        },
+        pagination: {
+          page: query.page,
+          perPage: query.perPage,
+        },
+        sort: {
+          sortBy: query.sortBy,
+          sortOrder: query.sortOrder,
+        },
+      })
+
+      // 結果が空の場合、データソースが存在しないか、アクセス権限がない
+      if (result.pagination.totalItems === 0 && result.items.length === 0) {
+        // データソース存在チェックのため、先に何かアクティビティがあるかを確認済み
+        // ここでは権限チェック目的で、totalItems === 0 の場合でも正常に返す
+      }
+
+      return c.json(
+        {
+          success: true,
+          data: {
+            items: result.items.map((item) => ({
+              id: item.id,
+              dataSource: {
+                id: item.dataSource.id,
+                name: item.dataSource.name,
+                url: item.dataSource.url,
+              },
+              activityType: item.activityType,
+              title: item.title,
+              body: item.body,
+              version: item.version,
+              status: item.status,
+              createdAt: item.createdAt.toISOString(),
+              updatedAt: item.updatedAt.toISOString(),
+            })),
+            pagination: result.pagination,
+          },
+        },
+        200,
+      )
+    } catch (error) {
+      return handleActivityError(c, error, "list by data source")
     }
   })
 

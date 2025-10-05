@@ -6,6 +6,7 @@ import type {
   UpdateDataSourceUseCase,
   RemoveDataSourceWatchUseCase,
 } from "../application/use-cases"
+import type { ListDataSourceActivitiesUseCase } from "../../activities/application/use-cases"
 import { createDataSourceRoutes } from "./routes/data-sources"
 
 /**
@@ -17,6 +18,7 @@ export function createDataSourcePresentationRoutes(
   getDataSourceUseCase: GetDataSourceUseCase,
   updateDataSourceUseCase: UpdateDataSourceUseCase,
   removeDataSourceWatchUseCase: RemoveDataSourceWatchUseCase,
+  listDataSourceActivitiesUseCase: ListDataSourceActivitiesUseCase,
 ) {
   const app = new OpenAPIHono()
 
@@ -29,6 +31,7 @@ export function createDataSourcePresentationRoutes(
       getDataSourceUseCase,
       updateDataSourceUseCase,
       removeDataSourceWatchUseCase,
+      listDataSourceActivitiesUseCase,
     ),
   )
 
