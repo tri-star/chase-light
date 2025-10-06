@@ -43,7 +43,7 @@
 ## Git コミット時の注意点
 
 - コミットする時、コミット内容・粒度はconventional commitを意識して書いてください。
-- git commit --author="Codex CLI <Email address>" でCodex CLIをコミッターとして指定してください。
+- git commit --author="Codex CLI <codex-cli@users.noreply.github.com>" でCodex CLIをコミッターとして指定してください。
 - コミットメッセージは日本語でお願いします。
 - PlaneのWorkItemに紐づくタスクに取り組んでいる時は、以下も意識してください。
   - コミットメッセージにPlaneの課題IDを含めてください(CHASE-XXX)。
