@@ -1,5 +1,7 @@
 <script setup lang="ts">
+import { computed } from 'vue'
 import RepositoryList from './parts/RepositoryList.vue'
+import DashboardStatCard from './parts/DashboardStatCard.vue'
 import type { DataSourceListResponse } from '~/generated/api/schemas'
 
 // データ取得（SSRファースト）
@@ -31,6 +33,34 @@ const {
   server: true,
   lazy: false,
 })
+
+const totalWatchedRepositories = computed(() =>
+  dataSources.value?.success ? dataSources.value.data.pagination.total : 0
+)
+
+const statCards = computed(() => [
+  {
+    key: 'watched-repositories',
+    label: 'ウォッチ中リポジトリ',
+    value: totalWatchedRepositories.value,
+    icon: 'i-heroicons-eye-20-solid',
+    iconClass: 'text-surface-primary-default',
+  },
+  {
+    key: 'unread-notifications',
+    label: '未読通知',
+    value: 0,
+    icon: 'i-heroicons-bell-20-solid',
+    iconClass: 'text-status-info-default',
+  },
+  {
+    key: 'today-updates',
+    label: '今日の更新',
+    value: 0,
+    icon: 'i-heroicons-check-circle-20-solid',
+    iconClass: 'text-status-success-default',
+  },
+])
 </script>
 
 <template>
@@ -49,118 +79,14 @@ const {
       v-if="dataSources?.success"
       class="grid grid-cols-1 md:grid-cols-3 gap-6"
     >
-      <div
-        class="bg-surface-secondary-default rounded-lg p-6 border border-surface-secondary-default"
-      >
-        <div class="flex items-center">
-          <div class="flex-shrink-0">
-            <!-- 目のアイコン: ウォッチ中のリポジトリ数を表示するアイコン -->
-            <svg
-              class="w-8 h-8 text-surface-primary-default"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-              xmlns="http://www.w3.org/2000/svg"
-              aria-hidden="true"
-            >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
-              />
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
-              />
-            </svg>
-          </div>
-          <div class="ml-5 w-0 flex-1">
-            <dl>
-              <dt
-                class="text-sm font-medium text-content-default opacity-75 truncate"
-              >
-                ウォッチ中リポジトリ
-              </dt>
-              <dd class="text-lg font-medium text-content-default">
-                {{ dataSources.data.pagination.total }}
-              </dd>
-            </dl>
-          </div>
-        </div>
-      </div>
-
-      <div
-        class="bg-surface-secondary-default rounded-lg p-6 border border-surface-secondary-default"
-      >
-        <div class="flex items-center">
-          <div class="flex-shrink-0">
-            <!-- 情報アイコン: 未読通知数を表示する情報マーク -->
-            <svg
-              class="w-8 h-8 text-status-info-default"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-              xmlns="http://www.w3.org/2000/svg"
-              aria-hidden="true"
-            >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-              />
-            </svg>
-          </div>
-          <div class="ml-5 w-0 flex-1">
-            <dl>
-              <dt
-                class="text-sm font-medium text-content-default opacity-75 truncate"
-              >
-                未読通知
-              </dt>
-              <dd class="text-lg font-medium text-content-default">0</dd>
-            </dl>
-          </div>
-        </div>
-      </div>
-
-      <div
-        class="bg-surface-secondary-default rounded-lg p-6 border border-surface-secondary-default"
-      >
-        <div class="flex items-center">
-          <div class="flex-shrink-0">
-            <!-- チェックマークアイコン: 今日の更新数を表示する成功マーク -->
-            <svg
-              class="w-8 h-8 text-status-success-default"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-              xmlns="http://www.w3.org/2000/svg"
-              aria-hidden="true"
-            >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
-              />
-            </svg>
-          </div>
-          <div class="ml-5 w-0 flex-1">
-            <dl>
-              <dt
-                class="text-sm font-medium text-content-default opacity-75 truncate"
-              >
-                今日の更新
-              </dt>
-              <dd class="text-lg font-medium text-content-default">0</dd>
-            </dl>
-          </div>
-        </div>
-      </div>
+      <DashboardStatCard
+        v-for="card in statCards"
+        :key="card.key"
+        :label="card.label"
+        :value="card.value"
+        :icon="card.icon"
+        :icon-class="card.iconClass"
+      />
     </div>
 
     <!-- リポジトリ一覧 -->

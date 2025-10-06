@@ -354,6 +354,30 @@
         "surface.outlined.pressed.border": {
           "tailwindClass": "border-surface-outlined-pressed"
         },
+        "card.default.bg": {
+          "tailwindClass": "bg-card-default"
+        },
+        "card.default.border": {
+          "tailwindClass": "border-card-default"
+        },
+        "card.hovered.bg": {
+          "tailwindClass": "bg-card-hovered"
+        },
+        "card.hovered.border": {
+          "tailwindClass": "border-card-hovered"
+        },
+        "card.disabled.bg": {
+          "tailwindClass": "bg-card-disabled"
+        },
+        "card.disabled.border": {
+          "tailwindClass": "border-card-disabled"
+        },
+        "card-value.text": {
+          "tailwindClass": "text-card-value"
+        },
+        "card-label.text": {
+          "tailwindClass": "text-card-label"
+        },
         "interactive.default.bg": {
           "tailwindClass": "bg-interactive-default"
         },
