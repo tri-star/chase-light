@@ -8,7 +8,7 @@ services:
       POSTGRES_PASSWORD: password
       POSTGRES_HOST_AUTH_METHOD: md5
     ports:
-      - "${DB_PORT}:5432"
+      - "${DB_PORT:-5432}:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
       - ./docker/database/init:/docker-entrypoint-initdb.d
@@ -22,8 +22,8 @@ services:
   elasticmq:
     image: softwaremill/elasticmq:latest
     ports:
-      - "9324:9324"  # SQS 互換 REST API
-      - "9325:9325"  # Web UI
+      - "${ELASTICMQ_PORT:-9324}:9324" # SQS 互換 REST API
+      - "${ELASTICMQ_UI_PORT:-9325}:9325" # Web UI
     healthcheck:
       test: ["CMD", "sh", "-c", "nc -z localhost 9324"]
       interval: 30s
@@ -34,7 +34,7 @@ services:
   stepfunctions-local:
     image: amazon/aws-stepfunctions-local
     ports:
-      - "8083:8083"
+      - "${STEPFUNCTIONS_PORT:-8083}:8083"
     environment:
       - LAMBDA_ENDPOINT=http://host.docker.internal:3001
       - SFN_MOCK_CONFIG=/home/stepfunctions/MockConfigFile.json
