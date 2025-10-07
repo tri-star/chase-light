@@ -97,12 +97,14 @@ describe('DashboardStatCard', () => {
       exists: root.exists(),
       hasOpacity: root.classes().includes('opacity-50'),
       hasCursor: root.classes().includes('cursor-not-allowed'),
+      hasHover: root.classes().includes('hover:bg-card-hovered'),
       tabindex: root.attributes('tabindex'),
     }).toEqual({
       exists: true,
       hasOpacity: true,
       hasCursor: true,
-      tabindex: '-1',
+      hasHover: false,
+      tabindex: undefined,
     })
   })
 
@@ -117,12 +119,10 @@ describe('DashboardStatCard', () => {
     expect(wrapper.find('.text-xs').text()).toBe('件')
   })
 
-  test('デフォルト状態ではフォーカス可能になる', () => {
+  test('デフォルト状態でも tabindex は付与されない', () => {
     const wrapper = factory({ label: '総数', value: 100 })
 
-    const root = wrapper.find('[tabindex="0"]')
-
-    expect(root.exists()).toBe(true)
+    expect(wrapper.find('[tabindex]').exists()).toBe(false)
   })
 
   test('icon を指定しない場合はアイコン領域がレンダリングされない', () => {

@@ -22,28 +22,23 @@ const slots = useSlots()
 const cardClasses = computed(() => {
   const classes = [
     'flex items-start gap-4 rounded-lg border p-4 transition-colors',
-    'bg-card-default border-card-default hover:bg-card-hovered hover:border-card-hovered',
-    'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-status-focus-default focus-visible:ring-offset-2',
+    'bg-card-default border-card-default',
   ]
 
   if (props.disabled) {
     classes.push('cursor-not-allowed opacity-50')
+  } else {
+    classes.push('hover:bg-card-hovered hover:border-card-hovered')
   }
 
   return classes
 })
 
-const tabIndex = computed<number>(() => (props.disabled ? -1 : 0))
-
 const hasIcon = computed(() => Boolean(props.icon) || Boolean(slots.icon))
 </script>
 
 <template>
-  <div
-    :class="cardClasses"
-    :aria-disabled="props.disabled || undefined"
-    :tabindex="tabIndex"
-  >
+  <div :class="cardClasses" :aria-disabled="props.disabled || undefined">
     <div
       v-if="hasIcon"
       class="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-md bg-card-hovered"
