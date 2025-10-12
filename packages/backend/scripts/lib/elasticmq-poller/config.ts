@@ -46,10 +46,11 @@ export interface CommandLineArgs {
   help?: boolean
 }
 
+const samPort = process.env.SAM_LOCAL_PORT || "3002"
 // デフォルト設定
 const DEFAULT_CONFIG: Omit<PollerConfig, "queueName" | "lambdaFunctionName"> = {
   elasticMqEndpoint: "http://localhost:9324",
-  samLocalEndpoint: "http://localhost:3001",
+  samLocalEndpoint: `http://localhost:${samPort}`,
   pollIntervalMs: 5000,
   maxMessages: 1,
   waitTimeSeconds: 20,
