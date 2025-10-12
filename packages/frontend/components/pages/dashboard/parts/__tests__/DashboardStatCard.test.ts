@@ -22,7 +22,7 @@ describe('DashboardStatCard', () => {
       value: 12,
     })
 
-    const label = wrapper.find('p.text-card-label')
+    const label = wrapper.find('dt.text-card-label')
     const value = wrapper.find('p.text-card-value')
 
     expect({
