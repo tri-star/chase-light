@@ -43,6 +43,11 @@ const emit = defineEmits<{
   - 例: 文字色は `text-surface-primary`、ボタン背景は `bg-surface-primary` 等、定義済みクラスを優先。
   - 新規トークンが必要だと判断した場合は、まず提案（「xxx を追加した方が良い」）を行い合意を得る。
 - `components` 直下にある `.css` の直書きは既存互換のみ。新規はTailwindで統一。
+- `packages/frontend/design-tokens.json` を編集した場合は `pnpm --filter frontend generate:tailwind-theme` を必ず実行し、トークン変更を Tailwind テーマへ反映させる。
+  - コマンド実行で LLM 向けリファレンスの `packages/frontend/docs/design/tailwind-utilities.json` と Tailwind テーマ定義の `packages/frontend/assets/css/tailwind.css` が自動更新される。
+  - 生成後は `packages/frontend/docs/design/tailwind-utilities.json` を読み直して追加・変更されたユーティリティクラスを確認する。利用可能なクラスが予定どおりに増えていない場合は、以下のスクリプトに問題がないか調査する。
+    - `packages/frontend/scripts/design-token-converter/tailwind-generator.ts`
+    - `packages/frontend/scripts/design-token-converter/tailwind-generator.ts`
 
 ## 余白とレイアウトの原則
 

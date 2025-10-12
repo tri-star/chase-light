@@ -38,5 +38,8 @@ export default defineNuxtConfig({
     typeCheck: true, // ビルド時の型チェックを有効化
     strict: true,
   },
+  storybook: {
+    enabled: false, // 開発サーバーとの同時起動はエラーが起きるので停止
+  },
   sourcemap: { client: 'hidden', server: true },
 })
