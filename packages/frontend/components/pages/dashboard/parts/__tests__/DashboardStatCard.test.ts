@@ -16,9 +16,13 @@ const factory = (
 
 describe('DashboardStatCard', () => {
   test('基本的なラベルと値が表示される', () => {
-    const wrapper = factory({ label: 'ウォッチ中リポジトリ', value: 12 })
+    const wrapper = factory({
+      name: 'watched-repositories',
+      label: 'ウォッチ中リポジトリ',
+      value: 12,
+    })
 
-    const label = wrapper.find('p.text-card-label')
+    const label = wrapper.find('dt.text-card-label')
     const value = wrapper.find('p.text-card-value')
 
     expect({
@@ -44,6 +48,7 @@ describe('DashboardStatCard', () => {
 
   test('icon props を指定した場合に Icon コンポーネントが描画される', () => {
     const wrapper = factory({
+      name: 'notifications',
       label: '通知',
       value: '0',
       icon: 'i-heroicons-bell',
@@ -69,7 +74,12 @@ describe('DashboardStatCard', () => {
 
   test('icon スロットを指定した場合はそちらが優先される', () => {
     const wrapper = factory(
-      { label: 'カスタム', value: 'OK', icon: 'i-heroicons-bell' },
+      {
+        name: 'custom',
+        label: 'カスタム',
+        value: 'OK',
+        icon: 'i-heroicons-bell',
+      },
       {
         icon: '<span class="custom-icon">slot-icon</span>',
       }
@@ -86,6 +96,7 @@ describe('DashboardStatCard', () => {
 
   test('disabled の場合は属性とクラスが適切に付与される', () => {
     const wrapper = factory({
+      name: 'disabled-card',
       label: '無効カード',
       value: 'N/A',
       disabled: true,
@@ -110,7 +121,7 @@ describe('DashboardStatCard', () => {
 
   test('suffix スロットの内容が表示される', () => {
     const wrapper = factory(
-      { label: '今日の更新', value: '4' },
+      { name: 'today-updates', label: '今日の更新', value: '4' },
       {
         suffix: '<span class="text-xs">件</span>',
       }
@@ -120,13 +131,13 @@ describe('DashboardStatCard', () => {
   })
 
   test('デフォルト状態でも tabindex は付与されない', () => {
-    const wrapper = factory({ label: '総数', value: 100 })
+    const wrapper = factory({ name: 'total', label: '総数', value: 100 })
 
     expect(wrapper.find('[tabindex]').exists()).toBe(false)
   })
 
   test('icon を指定しない場合はアイコン領域がレンダリングされない', () => {
-    const wrapper = factory({ label: 'シンプル', value: '1' })
+    const wrapper = factory({ name: 'simple', label: 'シンプル', value: '1' })
 
     expect(wrapper.find('span.iconify').exists()).toBe(false)
     expect(wrapper.find('.custom-icon').exists()).toBe(false)

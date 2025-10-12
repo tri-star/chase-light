@@ -27,6 +27,8 @@ export const lambdaConfigs = {
       "drizzle-orm",
       "dotenv",
       "@octokit/rest",
+      "jsonwebtoken",
+      "jwks-rsa",
     ],
     // Lambda関数のpackage.jsonに含める依存関係
     dependencies: {
@@ -35,6 +37,8 @@ export const lambdaConfigs = {
       pg: "^8.16.0",
       "drizzle-orm": "^0.44.2",
       dotenv: "^16.5.0",
+      jsonwebtoken: "^9.0.2",
+      "jwks-rsa": "^3.0.1",
     },
   },
   "process-updates": {
@@ -50,14 +54,18 @@ export const lambdaConfigs = {
       "drizzle-orm",
       "dotenv",
       "openai",
+      "jsonwebtoken",
+      "jwks-rsa",
     ],
     // Lambda関数のpackage.jsonに含める依存関係
     dependencies: {
       "@aws-sdk/client-ssm": "^3.848.0",
-      openai: "^4.69.0",
+      openai: "^6.3.0",
       pg: "^8.16.0",
       "drizzle-orm": "^0.44.2",
       dotenv: "^16.5.0",
+      jsonwebtoken: "^9.0.2",
+      "jwks-rsa": "^3.0.1",
     },
   },
 }

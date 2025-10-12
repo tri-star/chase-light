@@ -58,7 +58,9 @@ const CONFIG = {
   ),
   stateMachineName: "data-source-update-detection-local",
   awsRegion: "us-east-1",
-  samPort: 3001,
+  samPort: process.env.SAM_LOCAL_PORT
+    ? Number(process.env.SAM_LOCAL_PORT)
+    : 3002,
   dbPort: process.env.DB_PORT || 5432,
 }
 
