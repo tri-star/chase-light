@@ -37,9 +37,6 @@ export type {
 
 // Middleware (Phase 5で統合予定)
 export {
-  createJWTAuthMiddleware,
-  jwtAuth,
-  optionalJwtAuth,
   getAuthenticatedUser,
   requireAuth,
   type JWTAuthOptions,

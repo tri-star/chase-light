@@ -172,12 +172,12 @@ export function createJWTAuthMiddleware(options: JWTAuthOptions = {}) {
 /**
  * 必須認証ミドルウェア（デフォルト）
  */
-export const jwtAuth = createJWTAuthMiddleware()
+// export const jwtAuth = createJWTAuthMiddleware()
 
 /**
  * オプショナル認証ミドルウェア
  */
-export const optionalJwtAuth = createJWTAuthMiddleware({ optional: true })
+// export const optionalJwtAuth = createJWTAuthMiddleware({ optional: true })
 
 /**
  * 認証済みユーザーを取得するヘルパー関数
