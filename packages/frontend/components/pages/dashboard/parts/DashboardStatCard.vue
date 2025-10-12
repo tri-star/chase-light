@@ -21,14 +21,12 @@ const slots = useSlots()
 
 const cardClasses = computed(() => {
   const classes = [
-    'flex items-start gap-4 rounded-lg border p-4 transition-colors',
+    'flex justify-center gap-4 rounded-lg border p-4 transition-colors',
     'bg-card-default border-card-default',
   ]
 
   if (props.disabled) {
     classes.push('cursor-not-allowed opacity-50')
-  } else {
-    classes.push('hover:bg-card-hovered hover:border-card-hovered')
   }
 
   return classes
@@ -41,24 +39,24 @@ const hasIcon = computed(() => Boolean(props.icon) || Boolean(slots.icon))
   <div :class="cardClasses" :aria-disabled="props.disabled || undefined">
     <div
       v-if="hasIcon"
-      class="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-md bg-card-hovered"
+      class="flex flex-shrink-0 items-center justify-center rounded-md"
     >
       <slot name="icon">
         <Icon
           v-if="props.icon"
           :name="props.icon"
-          class="h-6 w-6"
           :class="props.iconClass"
           aria-hidden="true"
+          size="40"
         />
       </slot>
     </div>
 
-    <div class="min-w-0 flex-1">
+    <div class="min-w-0">
       <p class="text-sm text-card-label line-clamp-2" :title="props.label">
         {{ props.label }}
       </p>
-      <div class="mt-2 flex items-baseline gap-2">
+      <div class="mt-2 flex justify-center items-baseline gap-2">
         <p class="text-2xl font-semibold text-card-value">
           {{ props.value }}
         </p>

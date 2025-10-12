@@ -44,7 +44,7 @@ const statCards = computed(() => [
     label: 'ウォッチ中リポジトリ',
     value: totalWatchedRepositories.value,
     icon: 'i-heroicons-eye-20-solid',
-    iconClass: 'text-surface-primary-default',
+    iconClass: 'text-status-info-default',
   },
   {
     key: 'unread-notifications',
@@ -77,7 +77,7 @@ const statCards = computed(() => [
     <!-- 統計情報 -->
     <div
       v-if="dataSources?.success"
-      class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4"
+      class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4 justify-center"
     >
       <DashboardStatCard
         v-for="card in statCards"
