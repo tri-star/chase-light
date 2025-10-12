@@ -2,6 +2,7 @@
 import { computed, useSlots } from 'vue'
 
 interface Props {
+  name: string
   icon?: string
   iconClass?: string
   label: string
@@ -53,15 +54,19 @@ const hasIcon = computed(() => Boolean(props.icon) || Boolean(slots.icon))
     </div>
 
     <div class="min-w-0">
-      <p class="text-sm text-card-label line-clamp-2" :title="props.label">
+      <dt
+        class="text-sm text-card-label line-clamp-2"
+        :title="props.label"
+        :data-testid="`stat-label-${props.name}`"
+      >
         {{ props.label }}
-      </p>
-      <div class="mt-2 flex justify-center items-baseline gap-2">
+      </dt>
+      <dd class="mt-2 flex justify-center items-baseline gap-2">
         <p class="text-2xl font-semibold text-card-value">
           {{ props.value }}
         </p>
         <slot name="suffix" />
-      </div>
+      </dd>
     </div>
   </div>
 </template>

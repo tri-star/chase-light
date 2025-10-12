@@ -75,19 +75,20 @@ const statCards = computed(() => [
   <!-- メインコンテンツ -->
   <div class="space-y-6">
     <!-- 統計情報 -->
-    <div
+    <dl
       v-if="dataSources?.success"
       class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4 justify-center"
     >
       <DashboardStatCard
         v-for="card in statCards"
         :key="card.key"
+        :name="card.key"
         :label="card.label"
         :value="card.value"
         :icon="card.icon"
         :icon-class="card.iconClass"
       />
-    </div>
+    </dl>
 
     <!-- リポジトリ一覧 -->
     <div

@@ -16,13 +16,13 @@ test.describe('Authenticated Dashboard', () => {
 
     // 統計情報カードが表示されることを確認
     await expect(
-      page.locator('dt').filter({ hasText: 'ウォッチ中リポジトリ' })
+      page.getByRole('term', {}).filter({ hasText: 'ウォッチ中リポジトリ' })
     ).toBeVisible()
     await expect(
-      page.locator('dt').filter({ hasText: '未読通知' })
+      page.getByRole('term', {}).filter({ hasText: '未読通知' })
     ).toBeVisible()
     await expect(
-      page.locator('dt').filter({ hasText: '今日の更新' })
+      page.getByRole('term', {}).filter({ hasText: '今日の更新' })
     ).toBeVisible()
   })
 
