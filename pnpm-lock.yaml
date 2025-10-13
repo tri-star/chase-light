@@ -49,10 +49,10 @@ importers:
         version: 1.19.4(hono@4.9.8)
       '@hono/zod-openapi':
         specifier: 1.1.0
-        version: 1.1.0(hono@4.9.8)(zod@4.1.11)
+        version: 1.1.0(hono@4.9.8)(zod@4.1.12)
       '@hono/zod-validator':
         specifier: ^0.7.0
-        version: 0.7.3(hono@4.9.8)(zod@4.1.11)
+        version: 0.7.3(hono@4.9.8)(zod@4.1.12)
       '@octokit/rest':
         specifier: ^22.0.0
         version: 22.0.0
@@ -76,7 +76,7 @@ importers:
         version: 3.2.0
       openai:
         specifier: ^6.3.0
-        version: 6.3.0(ws@8.18.3)(zod@4.1.11)
+        version: 6.3.0(ws@8.18.3)(zod@4.1.12)
       pg:
         specifier: ^8.16.0
         version: 8.16.3
@@ -84,8 +84,8 @@ importers:
         specifier: ^1.0.2
         version: 1.0.2
       zod:
-        specifier: ^4.0.5
-        version: 4.1.11
+        specifier: ^4.1.12
+        version: 4.1.12
     devDependencies:
       '@eslint/js':
         specifier: ^9.15.0
@@ -178,8 +178,8 @@ importers:
         specifier: ^4.5.1
         version: 4.5.1(vue@3.5.21(typescript@5.9.3))
       zod:
-        specifier: ^4.0.14
-        version: 4.1.11
+        specifier: ^4.1.12
+        version: 4.1.12
     devDependencies:
       '@faker-js/faker':
         specifier: ^10.0.0
@@ -9644,8 +9644,8 @@ packages:
   zod@3.25.76:
     resolution: {integrity: sha512-gzUt/qt81nXsFGKIFcC3YnfEAx5NkunCfnDlvuBSSFS02bcXu4Lmea0AFIUwbLWxWPx3d9p8S5QoaujKcNQxcQ==}
 
-  zod@4.1.11:
-    resolution: {integrity: sha512-WPsqwxITS2tzx1bzhIKsEs19ABD5vmCVa4xBo2tq/SrV4RNZtfws1EnCWQXM6yh8bD08a1idvkB5MZSBiZsjwg==}
+  zod@4.1.12:
+    resolution: {integrity: sha512-JInaHOamG8pt5+Ey8kGmdcAcg3OL9reK8ltczgHTAwNhMys/6ThXHityHxVV2p3fkw/c+MAvBHFVYHFZDmjMCQ==}
 
 snapshots:
 
@@ -9711,10 +9711,10 @@ snapshots:
       call-me-maybe: 1.0.2
       openapi-types: 12.1.3
 
-  '@asteasolutions/zod-to-openapi@8.1.0(zod@4.1.11)':
+  '@asteasolutions/zod-to-openapi@8.1.0(zod@4.1.12)':
     dependencies:
       openapi3-ts: 4.5.0
-      zod: 4.1.11
+      zod: 4.1.12
 
   '@asyncapi/specs@6.10.0':
     dependencies:
@@ -11017,18 +11017,18 @@ snapshots:
     dependencies:
       hono: 4.9.8
 
-  '@hono/zod-openapi@1.1.0(hono@4.9.8)(zod@4.1.11)':
+  '@hono/zod-openapi@1.1.0(hono@4.9.8)(zod@4.1.12)':
     dependencies:
-      '@asteasolutions/zod-to-openapi': 8.1.0(zod@4.1.11)
-      '@hono/zod-validator': 0.7.3(hono@4.9.8)(zod@4.1.11)
+      '@asteasolutions/zod-to-openapi': 8.1.0(zod@4.1.12)
+      '@hono/zod-validator': 0.7.3(hono@4.9.8)(zod@4.1.12)
       hono: 4.9.8
       openapi3-ts: 4.5.0
-      zod: 4.1.11
+      zod: 4.1.12
 
-  '@hono/zod-validator@0.7.3(hono@4.9.8)(zod@4.1.11)':
+  '@hono/zod-validator@0.7.3(hono@4.9.8)(zod@4.1.12)':
     dependencies:
       hono: 4.9.8
-      zod: 4.1.11
+      zod: 4.1.12
 
   '@humanfs/core@0.19.1': {}
 
@@ -18563,10 +18563,10 @@ snapshots:
       is-docker: 2.2.1
       is-wsl: 2.2.0
 
-  openai@6.3.0(ws@8.18.3)(zod@4.1.11):
+  openai@6.3.0(ws@8.18.3)(zod@4.1.12):
     optionalDependencies:
       ws: 8.18.3
-      zod: 4.1.11
+      zod: 4.1.12
 
   openapi-types@12.1.3: {}
 
@@ -21133,4 +21133,4 @@ snapshots:
 
   zod@3.25.76: {}
 
-  zod@4.1.11: {}
+  zod@4.1.12: {}
