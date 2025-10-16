@@ -197,6 +197,10 @@ export const userPreferences = pgTable(
     emailNotifications: boolean("email_notifications").notNull(),
     timezone: text("timezone"),
     theme: text("theme").notNull(),
+    digestNotificationTimes: text("digest_notification_times")
+      .array()
+      .notNull()
+      .default(["18:00"]),
     createdAt: timestamp("created_at", { withTimezone: true })
       .defaultNow()
       .notNull(),
@@ -262,6 +266,8 @@ export const notifications = pgTable(
     message: text("message").notNull(),
     notificationType: text("notification_type").notNull(),
     isRead: boolean("is_read").notNull(),
+    scheduledAt: timestamp("scheduled_at", { withTimezone: true }),
+    status: text("status").notNull().default("pending"),
     sentAt: timestamp("sent_at", { withTimezone: true }),
     createdAt: timestamp("created_at", { withTimezone: true })
       .defaultNow()
@@ -271,11 +277,22 @@ export const notifications = pgTable(
       .notNull(),
   },
   (table) => ({
+    userActivityUnique: uniqueIndex(
+      "notifications_user_id_activity_id_unique",
+    ).on(table.userId, table.activityId),
     userIdIdx: index("idx_notifications_user_id").on(table.userId),
     activityIdIdx: index("idx_notifications_activity_id").on(table.activityId),
     isReadIdx: index("idx_notifications_is_read").on(table.isRead),
     notificationTypeIdx: index("idx_notifications_notification_type").on(
       table.notificationType,
+    ),
+    statusIdx: index("idx_notifications_status").on(table.status),
+    scheduledAtIdx: index("idx_notifications_scheduled_at").on(
+      table.scheduledAt,
+    ),
+    statusScheduledIdx: index("idx_notifications_status_scheduled").on(
+      table.status,
+      table.scheduledAt,
     ),
     userReadIdx: index("idx_notifications_user_read").on(
       table.userId,
