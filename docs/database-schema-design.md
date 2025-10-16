@@ -139,6 +139,9 @@ CREATE TABLE user_preferences (
     email_notifications BOOLEAN NOT NULL,                    -- メール通知（デフォルトなし）
     timezone TEXT,                           -- タイムゾーン（NULL=システム依存）
     theme TEXT NOT NULL,                              -- 'light', 'dark', 'system'
+    digest_delivery_times JSONB NOT NULL DEFAULT '["18:00"]'::jsonb, -- ユーザー指定のダイジェスト送信スロット
+    digest_timezone TEXT,                             -- ダイジェスト専用のタイムゾーン（未指定時はユーザーのtimezone）
+    digest_enabled BOOLEAN NOT NULL DEFAULT TRUE,     -- ダイジェスト配信の有効 / 無効
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     UNIQUE(user_id)
@@ -166,14 +169,19 @@ CREATE TABLE bookmarks (
 CREATE TABLE notifications (
     id UUID PRIMARY KEY,                             -- UUIDv7をアプリケーション側で生成
     user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-    event_id UUID REFERENCES events(id) ON DELETE CASCADE,
+    activity_id UUID REFERENCES activities(id) ON DELETE CASCADE,
     title TEXT NOT NULL,
     message TEXT NOT NULL,
-    notification_type TEXT NOT NULL,         -- 'email', 'in_app'
+    notification_type TEXT NOT NULL,         -- 'activity_digest' を中心に利用
     is_read BOOLEAN NOT NULL,
     sent_at TIMESTAMP WITH TIME ZONE,
+    scheduled_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    status TEXT NOT NULL DEFAULT 'pending',
+    status_detail TEXT,
+    metadata JSONB,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE(user_id, activity_id)
 );
 ```
 
@@ -201,8 +209,6 @@ CREATE INDEX idx_data_sources_updated_at ON data_sources(updated_at);
 CREATE INDEX idx_repositories_data_source_id ON repositories(data_source_id);
 CREATE INDEX idx_repositories_github_id ON repositories(github_id);
 CREATE INDEX idx_repositories_full_name ON repositories(full_name);
-CREATE INDEX idx_repositories_full_name_text_ops ON repositories(full_name text_pattern_ops);  -- LIKE検索用
-フィルタリング用
 CREATE INDEX idx_repositories_stars_count ON repositories(stars_count); -- スター数でのソート・フィルタ用
 CREATE INDEX idx_repositories_created_at ON repositories(created_at);
 CREATE INDEX idx_repositories_updated_at ON repositories(updated_at);
@@ -212,17 +218,17 @@ CREATE INDEX idx_user_watches_user_id ON user_watches(user_id);
 CREATE INDEX idx_user_watches_data_source_id ON user_watches(data_source_id);
 CREATE INDEX idx_user_watches_added_at ON user_watches(added_at);
 
--- events
-CREATE INDEX idx_events_data_source_id ON events(data_source_id);
-CREATE INDEX idx_events_type ON events(event_type);
-CREATE INDEX idx_events_title ON events(title);                        -- タイトルでのフィルタリング用
-CREATE INDEX idx_events_title_text_ops ON events(title text_pattern_ops); -- LIKE検索用
-CREATE INDEX idx_events_version ON events(version);                    -- バージョンでのフィルタリング用
-CREATE INDEX idx_events_created_at ON events(created_at);
-CREATE INDEX idx_events_updated_at ON events(updated_at);
-CREATE INDEX idx_events_github_event_id ON events(github_event_id);
-CREATE INDEX idx_events_data_source_type ON events(data_source_id, event_type); -- 複合インデックス
-CREATE INDEX idx_events_data_source_created ON events(data_source_id, created_at); -- 複合インデックス
+-- activities
+CREATE INDEX idx_activities_data_source_id ON activities(data_source_id);
+CREATE INDEX idx_activities_type ON activities(activity_type);
+CREATE INDEX idx_activities_title ON activities(title);                        -- タイトルでのフィルタリング用
+CREATE INDEX idx_activities_version ON activities(version);                    -- バージョンでのフィルタリング用
+CREATE INDEX idx_activities_created_at ON activities(created_at);
+CREATE INDEX idx_activities_updated_at ON activities(updated_at);
+CREATE INDEX idx_activities_github_event_id ON activities(github_event_id);
+CREATE INDEX idx_activities_data_source_type ON activities(data_source_id, activity_type); -- 複合インデックス
+CREATE INDEX idx_activities_data_source_created ON activities(data_source_id, created_at); -- 複合インデックス
+CREATE INDEX idx_activities_status ON activities(status);
 
 -- user_preferences
 CREATE INDEX idx_user_preferences_user_id ON user_preferences(user_id);
@@ -231,7 +237,7 @@ CREATE INDEX idx_user_preferences_updated_at ON user_preferences(updated_at);
 
 -- notifications
 CREATE INDEX idx_notifications_user_id ON notifications(user_id);
-CREATE INDEX idx_notifications_event_id ON notifications(event_id);    -- イベントIDでの検索用
+CREATE INDEX idx_notifications_activity_id ON notifications(activity_id);    -- アクティビティIDでの検索用
 CREATE INDEX idx_notifications_is_read ON notifications(is_read);
 CREATE INDEX idx_notifications_notification_type ON notifications(notification_type); -- 通知タイプでのフィルタ用
 CREATE INDEX idx_notifications_user_read ON notifications(user_id, is_read); -- 複合インデックス
@@ -239,6 +245,8 @@ CREATE INDEX idx_notifications_user_created ON notifications(user_id, created_at
 CREATE INDEX idx_notifications_sent_at ON notifications(sent_at);      -- 送信日時でのソート用
 CREATE INDEX idx_notifications_created_at ON notifications(created_at);
 CREATE INDEX idx_notifications_updated_at ON notifications(updated_at);
+CREATE INDEX idx_notifications_scheduled_at ON notifications(scheduled_at);
+CREATE INDEX idx_notifications_status ON notifications(status);
 
 -- bookmarks
 CREATE INDEX idx_bookmarks_user_id ON bookmarks(user_id);
@@ -246,6 +254,7 @@ CREATE INDEX idx_bookmarks_target_id ON bookmarks(target_id);           -- タ�
 CREATE INDEX idx_bookmarks_type_target ON bookmarks(bookmark_type, target_id);
 CREATE INDEX idx_bookmarks_user_type ON bookmarks(user_id, bookmark_type); -- 複合インデックス
 CREATE INDEX idx_bookmarks_created_at ON bookmarks(created_at);
+
 ```
 
 ### インデックス追加の理由
@@ -253,14 +262,13 @@ CREATE INDEX idx_bookmarks_created_at ON bookmarks(created_at);
 #### 名前・タイトル系フィールドのインデックス追加
 
 - `data_sources.name`: データソース名での検索・フィルタリング
-- `events.title`: イベントタイトルでの検索・フィルタリング
+- `activities.title`: アクティビティタイトルでの検索・フィルタリング
 - `repositories.full_name`: リポジトリ名での検索（既存）
-- `*_text_ops`: LIKE演算子を使った部分一致検索の最適化
 
 #### ID系フィールドのインデックス追加
 
 - `user_preferences.user_id`: ユーザー設定の取得時に必要
-- `notifications.event_id`: 特定イベントに関する通知の検索
+- `notifications.activity_id`: 特定アクティビティに関する通知の検索
 - `bookmarks.target_id`: ブックマーク対象の逆引き検索
 
 #### フィルタリング・ソート用インデックス追加
@@ -268,15 +276,19 @@ CREATE INDEX idx_bookmarks_created_at ON bookmarks(created_at);
 - `repositories.language`: プログラミング言語でのフィルタリング
 - `repositories.stars_count`: スター数でのソート・フィルタリング
 - `user_watches.notification_enabled`: 通知有効/無効でのフィルタリング
-- `events.version`: バージョンでのフィルタリング
+- `activities.version`: バージョンでのフィルタリング
+- `activities.status`: アクティビティ処理状況でのフィルタリング
 - `notifications.notification_type`: 通知タイプでのフィルタリング
 - `notifications.sent_at`: 送信日時でのソート
+- `notifications.scheduled_at`: 配信予定時刻でのソート
+- `notifications.status`: 通知処理ステータスでの集計
 
 #### 複合インデックス追加
 
 - `user_watches(user_id, notification_enabled)`: ユーザーの通知有効監視対象取得
-- `events(data_source_id, event_type)`: データソース別イベントタイプ検索
-- `events(data_source_id, created_at)`: データソース別時系列検索
+- `activities(data_source_id, activity_type)`: データソース別アクティビティ種別検索
+- `activities(data_source_id, created_at)`: データソース別時系列検索
 - `notifications(user_id, is_read)`: ユーザー別未読通知検索
 - `notifications(user_id, created_at)`: ユーザー別通知履歴検索
+- `notifications(user_id, activity_id)`: 重複通知生成を防ぐユニーク制約
 - `bookmarks(user_id, bookmark_type)`: ユーザー別ブックマークタイプ検索
