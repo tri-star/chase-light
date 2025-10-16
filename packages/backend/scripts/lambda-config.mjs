@@ -68,6 +68,28 @@ export const lambdaConfigs = {
       "jwks-rsa": "^3.0.1",
     },
   },
+  "generate-digest-notifications": {
+    name: "generate-digest-notifications-lambda",
+    description:
+      "Generate digest notifications for subscribed users based on activities",
+    entryPoint:
+      "./src/features/notification/workers/generate-digest-notifications/index.ts",
+    externalPackages: [
+      "@aws-sdk/*",
+      "aws-sdk",
+      "pg",
+      "drizzle-orm",
+      "dotenv",
+      "luxon",
+    ],
+    dependencies: {
+      "@aws-sdk/client-ssm": "^3.848.0",
+      pg: "^8.16.0",
+      "drizzle-orm": "^0.44.2",
+      dotenv: "^16.5.0",
+      luxon: "^3.6.1",
+    },
+  },
 }
 
 // デフォルトのesbuild設定

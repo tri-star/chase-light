@@ -123,6 +123,39 @@ Resources:
               - sqs:GetQueueAttributes
             Resource: !GetAtt ProcessUpdatesQueue.Arn
 
+  GenerateDigestNotificationsFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub "${AWS::StackName}-generate-digest-notifications"
+      CodeUri: ../dist/lambda/generate-digest-notifications/
+      Handler: index.handler
+      Description: 'Generate digest notifications for subscribed users'
+      Timeout: 120
+      Environment:
+        Variables:
+          DIGEST_DEFAULT_LIMIT: "200"
+      Events:
+        GenerateDigestNotificationsSchedule:
+          Type: Schedule
+          Properties:
+            Name: !Sub "${AWS::StackName}-generate-digest-notifications-schedule"
+            Description: "Run digest notification generation every 30 minutes"
+            Schedule: "cron(0/30 * * * ? *)"
+      Policies:
+        - Statement:
+            - Effect: Allow
+              Action:
+                - logs:CreateLogGroup
+                - logs:CreateLogStream
+                - logs:PutLogEvents
+              Resource: !Sub "arn:${AWS::Partition}:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/${AWS::StackName}-generate-digest-notifications*"
+        - Statement:
+            - Effect: Allow
+              Action:
+                - ssm:GetParameter
+              Resource:
+                - !Sub "arn:${AWS::Partition}:ssm:${AWS::Region}:${AWS::AccountId}:parameter/${Stage}/supabase/db_url"
+
   # Step Functions State Machine
   DataSourceUpdateDetectionStateMachine:
     Type: AWS::Serverless::StateMachine
