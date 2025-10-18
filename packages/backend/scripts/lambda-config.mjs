@@ -81,6 +81,8 @@ export const lambdaConfigs = {
       "drizzle-orm",
       "dotenv",
       "luxon",
+      "jsonwebtoken",
+      "jwks-rsa",
     ],
     dependencies: {
       "@aws-sdk/client-ssm": "^3.848.0",
@@ -88,6 +90,8 @@ export const lambdaConfigs = {
       "drizzle-orm": "^0.44.2",
       dotenv: "^16.5.0",
       luxon: "^3.6.1",
+      jsonwebtoken: "^9.0.2",
+      "jwks-rsa": "^3.0.1",
     },
   },
 }
