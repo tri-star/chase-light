@@ -1,6 +1,6 @@
 {
-  "id": "5164e895-c8ef-45dd-a1df-c3355d100fdf",
-  "prevId": "3f00a725-371d-4014-a161-bd650db176e0",
+  "id": "04dc5681-4994-4156-a0d1-a7e3b1d228af",
+  "prevId": "5164e895-c8ef-45dd-a1df-c3355d100fdf",
   "version": "7",
   "dialect": "postgresql",
   "tables": {
@@ -720,8 +720,8 @@
         }
       },
       "indexes": {
-        "notifications_user_id_activity_id_unique": {
-          "name": "notifications_user_id_activity_id_unique",
+        "notifications_user_id_activity_id_unique_constraint": {
+          "name": "notifications_user_id_activity_id_unique_constraint",
           "columns": [
             {
               "expression": "user_id",

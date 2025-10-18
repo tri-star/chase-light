@@ -278,7 +278,7 @@ export const notifications = pgTable(
   },
   (table) => ({
     userActivityUnique: uniqueIndex(
-      "notifications_user_id_activity_id_unique",
+      "notifications_user_id_activity_id_unique_constraint",
     ).on(table.userId, table.activityId),
     userIdIdx: index("idx_notifications_user_id").on(table.userId),
     activityIdIdx: index("idx_notifications_activity_id").on(table.activityId),

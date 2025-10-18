@@ -2,8 +2,7 @@
  * Notification domain entities and types
  */
 
-// Brand type for type-safe IDs
-type Brand<K, T> = K & { __brand: T }
+import type { Brand } from "../../../core/utils/types"
 
 export type NotificationId = Brand<string, "NotificationId">
 export type UserId = Brand<string, "UserId">

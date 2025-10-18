@@ -1,0 +1,2 @@
+DROP INDEX "notifications_user_id_activity_id_unique";--> statement-breakpoint
+CREATE UNIQUE INDEX "notifications_user_id_activity_id_unique_constraint" ON "notifications" USING btree ("user_id","activity_id");

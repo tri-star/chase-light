@@ -91,13 +91,15 @@ export function calculateNextNotificationTime(
   const currentMinute = Number.parseInt(parts[5])
 
   // Create candidate times for today
-  const sortedTimes = times.map((time) => {
-    const [hour, minute] = time.split(":").map(Number)
-    return { hour, minute }
-  }).sort((a, b) => {
-    if (a.hour !== b.hour) return a.hour - b.hour
-    return a.minute - b.minute
-  })
+  const sortedTimes = times
+    .map((time) => {
+      const [hour, minute] = time.split(":").map(Number)
+      return { hour, minute }
+    })
+    .sort((a, b) => {
+      if (a.hour !== b.hour) return a.hour - b.hour
+      return a.minute - b.minute
+    })
 
   // Find the next time today
   for (const time of sortedTimes) {
@@ -105,7 +107,14 @@ export function calculateNextNotificationTime(
       time.hour > currentHour ||
       (time.hour === currentHour && time.minute > currentMinute)
     ) {
-      return createDateInTimezone(year, month, day, time.hour, time.minute, timezone)
+      return createDateInTimezone(
+        year,
+        month,
+        day,
+        time.hour,
+        time.minute,
+        timezone,
+      )
     }
   }
 
