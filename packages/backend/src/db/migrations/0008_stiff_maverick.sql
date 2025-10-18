@@ -7,7 +7,7 @@ ALTER TABLE "user_preferences" ADD COLUMN "digest_delivery_times" jsonb DEFAULT 
 ALTER TABLE "user_preferences" ADD COLUMN "digest_timezone" text;--> statement-breakpoint
 ALTER TABLE "user_preferences" ADD COLUMN "digest_enabled" boolean DEFAULT true NOT NULL;--> statement-breakpoint
 UPDATE "notifications" SET "scheduled_at" = COALESCE("sent_at", "created_at", now());--> statement-breakpoint
-UPDATE "user_preferences" SET "digest_enabled" = true, "digest_delivery_times" = '["18:00"]'::jsonb, "digest_timezone" = "timezone";--> statement-breakpoint
+UPDATE "user_preferences" SET "digest_enabled" = true, "digest_delivery_times" = '["18:00"]'::jsonb, "digest_timezone" = COALESCE("timezone", 'Asia/Tokyo');--> statement-breakpoint
 CREATE INDEX "idx_notifications_scheduled_at" ON "notifications" USING btree ("scheduled_at");--> statement-breakpoint
 CREATE INDEX "idx_notifications_status" ON "notifications" USING btree ("status");--> statement-breakpoint
 CREATE UNIQUE INDEX "notifications_user_activity_unique" ON "notifications" USING btree ("user_id","activity_id");
