@@ -1,6 +1,6 @@
 import { DateTime } from "luxon"
+import { DEFAULT_DIGEST_DELIVERY_TIMES } from "shared"
 import {
-  DEFAULT_DIGEST_TIMES,
   DEFAULT_DIGEST_TIMEZONE,
   resolveRecipientDigestSettings,
   type Recipient,
@@ -49,7 +49,7 @@ function pickNextSlot(
   const slots =
     candidateTimes.length > 0
       ? candidateTimes
-      : Array.from(DEFAULT_DIGEST_TIMES)
+      : Array.from(DEFAULT_DIGEST_DELIVERY_TIMES)
 
   for (const slot of slots) {
     const candidate = buildDateTimeForSlot(reference, slot, timezone)

@@ -1,5 +1,6 @@
 import { randomUUID } from "node:crypto"
 import { eq } from "drizzle-orm"
+import { DEFAULT_DIGEST_DELIVERY_TIMES } from "shared"
 import { db } from "./connection"
 import {
   activities,
@@ -165,7 +166,8 @@ export async function createUserPreference(
       emailNotifications: input.emailNotifications ?? true,
       timezone: input.timezone ?? null,
       theme: input.theme ?? "system",
-      digestDeliveryTimes: input.digestDeliveryTimes ?? ["18:00"],
+      digestDeliveryTimes:
+        input.digestDeliveryTimes ?? Array.from(DEFAULT_DIGEST_DELIVERY_TIMES),
       digestTimezone: input.digestTimezone ?? input.timezone ?? null,
       digestEnabled: input.digestEnabled ?? true,
       createdAt: now,
@@ -177,7 +179,9 @@ export async function createUserPreference(
         emailNotifications: input.emailNotifications ?? true,
         timezone: input.timezone ?? null,
         theme: input.theme ?? "system",
-        digestDeliveryTimes: input.digestDeliveryTimes ?? ["18:00"],
+        digestDeliveryTimes:
+          input.digestDeliveryTimes ??
+          Array.from(DEFAULT_DIGEST_DELIVERY_TIMES),
         digestTimezone: input.digestTimezone ?? input.timezone ?? null,
         digestEnabled: input.digestEnabled ?? true,
         updatedAt: now,

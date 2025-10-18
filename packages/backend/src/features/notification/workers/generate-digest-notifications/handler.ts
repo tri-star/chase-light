@@ -3,7 +3,7 @@ import { connectDb } from "../../../../db/connection"
 import { TransactionManager } from "../../../../core/db"
 import { DrizzleNotificationPreparationRepository } from "../../infra/repositories/drizzle-notification-preparation.repository"
 import { DrizzleNotificationRepository } from "../../infra/repositories/drizzle-notification.repository"
-import { GenerateDigestNotificationsUseCase } from "../../application/use-cases"
+import { GenerateDigestNotificationsUseCase } from "../../application/use-cases/generate-digest-notifications.use-case"
 
 export type GenerateDigestNotificationsInput = {
   limit?: number
@@ -22,8 +22,8 @@ export const handler = async (
   event: GenerateDigestNotificationsInput,
   context: Context,
 ): Promise<GenerateDigestNotificationsOutput> => {
-  console.log("generate-digest-notifications event:", JSON.stringify(event))
-  console.log("Context requestId:", context.awsRequestId)
+  console.info("generate-digest-notifications event:", JSON.stringify(event))
+  console.info("Context requestId:", context.awsRequestId)
 
   await connectDb()
 
@@ -42,7 +42,7 @@ export const handler = async (
       dryRun: event.dryRun,
     })
 
-    console.log("generate-digest-notifications result:", result)
+    console.info("generate-digest-notifications result:", result)
 
     return result
   })

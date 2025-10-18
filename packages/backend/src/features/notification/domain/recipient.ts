@@ -1,4 +1,5 @@
-export const DEFAULT_DIGEST_TIMES = ["18:00"] as const
+import { DEFAULT_DIGEST_DELIVERY_TIMES } from "shared"
+
 export const DEFAULT_DIGEST_TIMEZONE = "Asia/Tokyo" as const
 
 export type RecipientDigestSettings = {
@@ -38,7 +39,9 @@ export function resolveRecipientDigestSettings(
   return {
     enabled: true,
     times:
-      normalizedTimes.length > 0 ? normalizedTimes : [...DEFAULT_DIGEST_TIMES],
+      normalizedTimes.length > 0
+        ? normalizedTimes
+        : Array.from(DEFAULT_DIGEST_DELIVERY_TIMES),
     timezone,
   }
 }

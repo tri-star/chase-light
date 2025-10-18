@@ -1,3 +1,4 @@
+import { DEFAULT_DIGEST_NOTIFICATION_FETCH_LIMIT } from "shared"
 import {
   NOTIFICATION_STATUS,
   NOTIFICATION_TYPE,
@@ -25,8 +26,6 @@ export type GenerateDigestNotificationsResult = {
   lastProcessedActivityId: string | null
 }
 
-const DEFAULT_LIMIT = 200
-
 export class GenerateDigestNotificationsUseCase {
   constructor(
     private readonly notificationPreparationRepository: NotificationPreparationRepository,
@@ -37,7 +36,7 @@ export class GenerateDigestNotificationsUseCase {
   async execute(
     input: GenerateDigestNotificationsInput = {},
   ): Promise<GenerateDigestNotificationsResult> {
-    const limit = input.limit ?? DEFAULT_LIMIT
+    const limit = input.limit ?? DEFAULT_DIGEST_NOTIFICATION_FETCH_LIMIT
     const targets =
       await this.notificationPreparationRepository.findPendingTargets({
         limit,
