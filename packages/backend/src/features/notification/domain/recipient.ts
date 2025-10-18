@@ -54,7 +54,7 @@ function normalizeDigestTimes(times: string[]): string[] {
 
   filtered.forEach((time) => seen.add(time))
 
-  return Array.from(seen).sort((a, b) => (a < b ? -1 : a > b ? 1 : 0))
+  return Array.from(seen).sort()
 }
 
 function isValidTimeFormat(value: string): boolean {
