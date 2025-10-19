@@ -4,7 +4,7 @@ import {
   DEFAULT_DIGEST_TIMEZONE,
   resolveRecipientDigestSettings,
   type Recipient,
-} from "../../domain"
+} from "../recipient"
 
 export type NotificationScheduleParams = {
   recipient: Recipient

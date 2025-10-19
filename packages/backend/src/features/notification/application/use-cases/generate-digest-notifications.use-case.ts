@@ -2,15 +2,15 @@ import { DEFAULT_DIGEST_NOTIFICATION_FETCH_LIMIT } from "shared"
 import {
   NOTIFICATION_STATUS,
   NOTIFICATION_TYPE,
+  calculateNextDigestSchedule,
+  resolveRecipientDigestSettings,
   type NotificationDraft,
 } from "../../domain"
-import { resolveRecipientDigestSettings } from "../../domain/recipient"
 import type {
   FindNotificationTargetsParams,
   NotificationPreparationRepository,
 } from "../../domain/repositories/notification-preparation.repository"
 import type { NotificationRepository } from "../../domain/repositories/notification.repository"
-import { calculateNextDigestSchedule } from "../services/notification-schedule.service"
 
 export type GenerateDigestNotificationsInput = Partial<
   Omit<FindNotificationTargetsParams, "limit">

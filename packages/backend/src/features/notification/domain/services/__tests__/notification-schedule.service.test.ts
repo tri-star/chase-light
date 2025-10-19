@@ -4,7 +4,7 @@ import {
   calculateNextDigestSchedule,
   type NotificationScheduleParams,
 } from "../notification-schedule.service"
-import type { Recipient } from "../../../domain"
+import type { Recipient } from "../../recipient"
 
 function buildRecipient(
   overrides: Partial<Recipient> = {},
