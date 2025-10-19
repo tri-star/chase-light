@@ -68,6 +68,31 @@ export const lambdaConfigs = {
       "jwks-rsa": "^3.0.1",
     },
   },
+  "create-notifications": {
+    name: "create-notifications-lambda",
+    description: "Create notifications from activities for subscribed users",
+    entryPoint:
+      "./src/features/notification/workers/create-notifications/index.ts",
+    // バンドルから除外するパッケージ（node_modulesにインストールされる）
+    externalPackages: [
+      "@aws-sdk/*",
+      "aws-sdk",
+      "pg",
+      "drizzle-orm",
+      "dotenv",
+      "jsonwebtoken",
+      "jwks-rsa",
+    ],
+    // Lambda関数のpackage.jsonに含める依存関係
+    dependencies: {
+      "@aws-sdk/client-ssm": "^3.848.0",
+      pg: "^8.16.0",
+      "drizzle-orm": "^0.44.2",
+      dotenv: "^16.5.0",
+      jsonwebtoken: "^9.0.2",
+      "jwks-rsa": "^3.0.1",
+    },
+  },
 }
 
 // デフォルトのesbuild設定
