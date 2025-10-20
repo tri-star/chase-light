@@ -1,6 +1,6 @@
 import { randomUUID } from "node:crypto"
 import { TransactionManager } from "../../../../core/db"
-import { notifications } from "../../../../db/schema"
+import { notifications, notificationActivities } from "../../../../db/schema"
 import type {
   CreateNotificationsResult,
   NotificationRepository,
@@ -20,7 +20,7 @@ export class DrizzleNotificationRepository implements NotificationRepository {
     const values = drafts.map((draft) => ({
       id: randomUUID(),
       userId: draft.userId,
-      activityId: draft.activityId,
+      activityId: draft.activityId ?? null,
       title: draft.title,
       message: draft.message,
       notificationType: draft.notificationType,
@@ -37,10 +37,29 @@ export class DrizzleNotificationRepository implements NotificationRepository {
     const inserted = await connection
       .insert(notifications)
       .values(values)
-      .onConflictDoNothing({
-        target: [notifications.userId, notifications.activityId],
-      })
       .returning({ id: notifications.id })
+
+    // ダイジェスト通知の場合、notification_activities に関連を保存
+    const notificationActivitiesValues = []
+    for (let i = 0; i < inserted.length; i++) {
+      const draft = drafts[i]
+      const notificationId = inserted[i].id
+      if (draft.activityIds && draft.activityIds.length > 0) {
+        for (const activityId of draft.activityIds) {
+          notificationActivitiesValues.push({
+            notificationId,
+            activityId,
+            createdAt: now,
+          })
+        }
+      }
+    }
+
+    if (notificationActivitiesValues.length > 0) {
+      await connection
+        .insert(notificationActivities)
+        .values(notificationActivitiesValues)
+    }
 
     const created = inserted.length
     const skippedByConflict = drafts.length - created

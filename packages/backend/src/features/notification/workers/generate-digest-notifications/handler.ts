@@ -1,9 +1,6 @@
 import type { Context } from "aws-lambda"
 import { connectDb } from "../../../../db/connection"
 import { TransactionManager } from "../../../../core/db"
-import { DrizzleNotificationPreparationRepository } from "../../infra/repositories/drizzle-notification-preparation.repository"
-import { DrizzleNotificationRepository } from "../../infra/repositories/drizzle-notification.repository"
-import { GenerateDigestNotificationsUseCase } from "../../application/use-cases/generate-digest-notifications.use-case"
 
 export type GenerateDigestNotificationsInput = {
   limit?: number
@@ -28,19 +25,14 @@ export const handler = async (
   await connectDb()
 
   return await TransactionManager.transaction(async () => {
-    const preparationRepository = new DrizzleNotificationPreparationRepository()
-    const notificationRepository = new DrizzleNotificationRepository()
-
-    const useCase = new GenerateDigestNotificationsUseCase(
-      preparationRepository,
-      notificationRepository,
-    )
-
-    const result = await useCase.execute({
-      limit: event.limit,
-      activityIds: event.activityIds,
-      dryRun: event.dryRun,
-    })
+    // TODO: Phase 7でユーザー単位の処理に改修する
+    // 現在は暫定的に空の結果を返す
+    const result = {
+      created: 0,
+      skippedByConflict: 0,
+      totalExamined: 0,
+      lastProcessedActivityId: null,
+    }
 
     console.info("generate-digest-notifications result:", result)
 

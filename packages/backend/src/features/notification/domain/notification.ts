@@ -16,16 +16,19 @@ export const NOTIFICATION_TYPE = {
 export type NotificationType =
   (typeof NOTIFICATION_TYPE)[keyof typeof NOTIFICATION_TYPE]
 
+import type { DigestActivitySummary } from "./digest-activity-summary"
+
 export interface NotificationMetadata extends Record<string, unknown> {
-  activityType: string
-  dataSourceId: string
-  dataSourceName: string
+  activityType?: string
+  dataSourceId?: string
+  dataSourceName?: string
   scheduledSlot: string
   digestTimezone: string
+  digest?: DigestActivitySummary // 構造化されたダイジェスト情報
 }
 
 export type NotificationDraft = {
-  activityId: string
+  activityId?: string // nullable for digest notifications
   userId: string
   title: string
   message: string
@@ -34,4 +37,5 @@ export type NotificationDraft = {
   status: NotificationStatus
   statusDetail?: string | null
   metadata: NotificationMetadata
+  activityIds?: string[] // 関連するアクティビティIDの配列（ダイジェスト通知用）
 }

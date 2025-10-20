@@ -1,4 +1,15 @@
-import { and, asc, eq, inArray, isNull, or } from "drizzle-orm"
+import {
+  and,
+  asc,
+  desc,
+  eq,
+  gte,
+  inArray,
+  isNull,
+  lte,
+  or,
+  sql,
+} from "drizzle-orm"
 import { TransactionManager } from "../../../../core/db"
 import {
   activities,
@@ -12,6 +23,8 @@ import { ACTIVITY_STATUS } from "../../../activities/domain"
 import type {
   FindNotificationTargetsParams,
   NotificationPreparationRepository,
+  FindActivitiesForDigestParams,
+  DigestActivity,
 } from "../../domain/repositories/notification-preparation.repository"
 import type { NotificationTarget } from "../../domain"
 
@@ -108,5 +121,83 @@ export class DrizzleNotificationPreparationRepository
         },
       }
     })
+  }
+
+  async findActivitiesForDigest(
+    params: FindActivitiesForDigestParams,
+  ): Promise<DigestActivity[]> {
+    const connection = await TransactionManager.getConnection()
+
+    // ユーザーの監視設定とアクティビティを取得
+    // データソース＋種別ごとに最大N件まで取得するため、window関数を使用
+    const query = connection
+      .select({
+        activityId: activities.id,
+        dataSourceId: dataSources.id,
+        dataSourceName: dataSources.name,
+        activityType: activities.activityType,
+        title: activities.title,
+        body: activities.body,
+        url: sql<string>`COALESCE(${activities.githubData}->>'html_url', '')`.as(
+          "url",
+        ),
+        createdAt: activities.createdAt,
+        rowNum:
+          sql<number>`ROW_NUMBER() OVER (PARTITION BY ${dataSources.id}, ${activities.activityType} ORDER BY ${activities.createdAt} DESC)`.as(
+            "row_num",
+          ),
+      })
+      .from(activities)
+      .innerJoin(dataSources, eq(activities.dataSourceId, dataSources.id))
+      .innerJoin(
+        userWatches,
+        eq(userWatches.dataSourceId, activities.dataSourceId),
+      )
+      .where(
+        and(
+          eq(userWatches.userId, params.userId),
+          eq(userWatches.notificationEnabled, true),
+          eq(activities.status, ACTIVITY_STATUS.COMPLETED),
+          gte(activities.createdAt, params.timeRange.from),
+          lte(activities.createdAt, params.timeRange.to),
+          or(
+            and(
+              eq(activities.activityType, "release"),
+              eq(userWatches.watchReleases, true),
+            ),
+            and(
+              eq(activities.activityType, "issue"),
+              eq(userWatches.watchIssues, true),
+            ),
+            and(
+              eq(activities.activityType, "pull_request"),
+              eq(userWatches.watchPullRequests, true),
+            ),
+          ),
+        ),
+      )
+      .as("ranked_activities")
+
+    // window関数の結果から上位N件のみを取得
+    const rows = await connection
+      .select()
+      .from(query)
+      .where(lte(query.rowNum, params.maxActivitiesPerDataSourceAndType))
+      .orderBy(
+        asc(query.dataSourceId),
+        asc(query.activityType),
+        desc(query.createdAt),
+      )
+
+    return rows.map((row) => ({
+      activityId: row.activityId,
+      dataSourceId: row.dataSourceId,
+      dataSourceName: row.dataSourceName,
+      activityType: row.activityType,
+      title: row.title,
+      body: row.body,
+      url: row.url,
+      createdAt: row.createdAt,
+    }))
   }
 }
