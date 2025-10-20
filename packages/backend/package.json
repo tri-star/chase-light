@@ -47,7 +47,7 @@
     "vitest": "^3.2.2"
   },
   "dependencies": {
-    "@aws-sdk/client-lambda": "^3.848.0",
+    "@aws-sdk/client-lambda": "^3.913.0",
     "@aws-sdk/client-sqs": "^3.913.0",
     "@aws-sdk/client-ssm": "^3.848.0",
     "@hono/node-server": "^1.14.3",
