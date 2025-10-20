@@ -4,7 +4,6 @@
  */
 
 import { eq, and } from "drizzle-orm"
-import type { PostgresJsDatabase } from "drizzle-orm/postgres-js"
 import { userDigestExecutionLogs } from "../../../../db/schema"
 import type {
   UserId,
@@ -18,17 +17,21 @@ import {
 } from "../../domain/user-digest-execution-log"
 import type { UserDigestExecutionLogRepository } from "../../domain/repositories/user-digest-execution-log.repository"
 import { uuidv7 } from "uuidv7"
+import { TransactionManager } from "../../../../core/db"
 
 export class DrizzleUserDigestExecutionLogRepository
   implements UserDigestExecutionLogRepository
 {
-  constructor(private db: PostgresJsDatabase) {}
+  private async getDb() {
+    return await TransactionManager.getConnection()
+  }
 
   async getLastSuccessfulRunAt(
     userId: UserId,
     workerName: WorkerName,
   ): Promise<Date | null> {
-    const result = await this.db
+    const db = await this.getDb()
+    const result = await db
       .select({
         lastSuccessfulRunAt: userDigestExecutionLogs.lastSuccessfulRunAt,
       })
@@ -49,11 +52,12 @@ export class DrizzleUserDigestExecutionLogRepository
     workerName: WorkerName,
     timestamp: Date,
   ): Promise<void> {
+    const db = await this.getDb()
     const existing = await this.findByUserAndWorker(userId, workerName)
 
     if (existing) {
       // 更新
-      await this.db
+      await db
         .update(userDigestExecutionLogs)
         .set({
           lastSuccessfulRunAt: timestamp,
@@ -67,7 +71,7 @@ export class DrizzleUserDigestExecutionLogRepository
         )
     } else {
       // 新規作成
-      await this.db.insert(userDigestExecutionLogs).values({
+      await db.insert(userDigestExecutionLogs).values({
         id: uuidv7(),
         userId,
         workerName,
@@ -82,7 +86,8 @@ export class DrizzleUserDigestExecutionLogRepository
     userId: UserId,
     workerName: WorkerName,
   ): Promise<UserDigestExecutionLog | null> {
-    const result = await this.db
+    const db = await this.getDb()
+    const result = await db
       .select()
       .from(userDigestExecutionLogs)
       .where(
