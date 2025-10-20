@@ -128,12 +128,13 @@ export class TestDataFactory {
    * カスタムユーザーデータを生成
    */
   static async createCustomUser(customData: Partial<User>): Promise<User> {
+    const randomSuffix = Math.random().toString(36).substring(2, 11)
     const user: User = {
       id: uuidv7(),
-      auth0UserId: `auth0|custom_${Date.now()}`,
-      email: "custom@example.com",
+      auth0UserId: `auth0|custom_${Date.now()}_${randomSuffix}`,
+      email: `custom_${randomSuffix}@example.com`,
       name: "カスタムユーザー",
-      githubUsername: "customuser",
+      githubUsername: `customuser_${randomSuffix}`,
       avatarUrl: "https://example.com/custom.jpg",
       timezone: "Asia/Tokyo",
       createdAt: new Date(),

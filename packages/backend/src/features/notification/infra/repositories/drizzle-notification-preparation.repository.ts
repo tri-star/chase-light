@@ -133,12 +133,12 @@ export class DrizzleNotificationPreparationRepository
     const query = connection
       .select({
         activityId: activities.id,
-        dataSourceId: dataSources.id,
+        dataSourceId: sql<string>`${dataSources.id}`.as("data_source_id"),
         dataSourceName: dataSources.name,
         activityType: activities.activityType,
         title: activities.title,
         body: activities.body,
-        url: sql<string>`COALESCE(${activities.githubData}->>'html_url', '')`.as(
+        url: sql<string>`COALESCE(${activities.githubData}::jsonb->>'html_url', '')`.as(
           "url",
         ),
         createdAt: activities.createdAt,
