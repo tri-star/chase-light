@@ -9,8 +9,9 @@ import {
   uniqueIndex,
   index,
   varchar,
+  jsonb,
 } from "drizzle-orm/pg-core"
-import { relations } from "drizzle-orm"
+import { relations, sql } from "drizzle-orm"
 
 // Users table
 export const users = pgTable(
@@ -197,6 +198,12 @@ export const userPreferences = pgTable(
     emailNotifications: boolean("email_notifications").notNull(),
     timezone: text("timezone"),
     theme: text("theme").notNull(),
+    digestDeliveryTimes: jsonb("digest_delivery_times")
+      .$type<string[]>()
+      .notNull()
+      .default(sql`'["18:00"]'::jsonb`),
+    digestTimezone: text("digest_timezone"),
+    digestEnabled: boolean("digest_enabled").notNull().default(true),
     createdAt: timestamp("created_at", { withTimezone: true })
       .defaultNow()
       .notNull(),
@@ -260,9 +267,17 @@ export const notifications = pgTable(
     }),
     title: text("title").notNull(),
     message: text("message").notNull(),
-    notificationType: text("notification_type").notNull(),
+    notificationType: text("notification_type")
+      .notNull()
+      .default("activity_digest"),
     isRead: boolean("is_read").notNull(),
     sentAt: timestamp("sent_at", { withTimezone: true }),
+    scheduledAt: timestamp("scheduled_at", { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+    status: text("status").notNull().default("pending"),
+    statusDetail: text("status_detail"),
+    metadata: jsonb("metadata").$type<Record<string, unknown>>(),
     createdAt: timestamp("created_at", { withTimezone: true })
       .defaultNow()
       .notNull(),
@@ -277,6 +292,10 @@ export const notifications = pgTable(
     notificationTypeIdx: index("idx_notifications_notification_type").on(
       table.notificationType,
     ),
+    scheduledAtIdx: index("idx_notifications_scheduled_at").on(
+      table.scheduledAt,
+    ),
+    statusIdx: index("idx_notifications_status").on(table.status),
     userReadIdx: index("idx_notifications_user_read").on(
       table.userId,
       table.isRead,
@@ -288,6 +307,10 @@ export const notifications = pgTable(
     sentAtIdx: index("idx_notifications_sent_at").on(table.sentAt),
     createdAtIdx: index("idx_notifications_created_at").on(table.createdAt),
     updatedAtIdx: index("idx_notifications_updated_at").on(table.updatedAt),
+    userActivityUnique: uniqueIndex("notifications_user_activity_unique").on(
+      table.userId,
+      table.activityId,
+    ),
   }),
 )
 
