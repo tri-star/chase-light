@@ -1,3 +1,5 @@
+import type { DigestGeneratorType, NotificationDigestMetadata } from "./digest"
+
 export const NOTIFICATION_STATUS = {
   PENDING: "pending",
   QUEUED: "queued",
@@ -17,15 +19,10 @@ export type NotificationType =
   (typeof NOTIFICATION_TYPE)[keyof typeof NOTIFICATION_TYPE]
 
 export interface NotificationMetadata extends Record<string, unknown> {
-  activityType: string
-  dataSourceId: string
-  dataSourceName: string
-  scheduledSlot: string
-  digestTimezone: string
+  digest?: NotificationDigestMetadata
 }
 
 export type NotificationDraft = {
-  activityId: string
   userId: string
   title: string
   message: string
@@ -34,4 +31,22 @@ export type NotificationDraft = {
   status: NotificationStatus
   statusDetail?: string | null
   metadata: NotificationMetadata
+  activityId?: string | null
+}
+
+export type DigestNotificationEntryDraft = {
+  dataSourceId: string
+  dataSourceName: string
+  activityType: string
+  activityId: string
+  position: number
+  title: string
+  summary: string
+  url: string | null
+  generator: DigestGeneratorType
+}
+
+export type DigestNotificationDraft = {
+  notification: NotificationDraft
+  entries: DigestNotificationEntryDraft[]
 }

@@ -1,12 +1,15 @@
-import type { NotificationTarget } from "../notification-target"
+import type { DigestCandidate, DigestWindow } from "../digest"
 
-export type FindNotificationTargetsParams = {
-  limit: number
-  activityIds?: string[]
+export type DigestUserWindow = {
+  userId: string
+  window: DigestWindow
 }
 
-export interface NotificationPreparationRepository {
-  findPendingTargets(
-    params: FindNotificationTargetsParams,
-  ): Promise<NotificationTarget[]>
+export type FindDigestCandidatesParams = {
+  userWindows: DigestUserWindow[]
+  maxEntriesPerGroup: number
+}
+
+export interface DigestPreparationRepository {
+  findCandidates(params: FindDigestCandidatesParams): Promise<DigestCandidate[]>
 }

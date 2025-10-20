@@ -1,4 +1,6 @@
 export * from "./notification"
 export * from "./notification-target"
 export * from "./recipient"
+export * from "./digest"
 export * from "./services/notification-schedule.service"
+export * from "./services/digest.service"
