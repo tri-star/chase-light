@@ -7,6 +7,7 @@ import {
   beforeEach,
   afterEach,
   setupComponentTest,
+  vi,
 } from "../../../../../test"
 import { db } from "../../../../../db/connection"
 import {
@@ -25,7 +26,14 @@ import { ACTIVITY_STATUS, ACTIVITY_TYPE } from "../../../../activities/domain"
 import {
   createDigestGroupId,
   DIGEST_NOTIFICATION_MESSAGE_PLACEHOLDER,
-} from "../../../domain"
+} from "../../../domain/digest"
+import { DIGEST_MAX_LOOKBACK_DAYS } from "shared"
+import { EXTERNAL_AI_API_USE_STUB_ENV } from "../../../constants/summarization"
+import {
+  createSummarizationPort,
+  resetSummarizationPort,
+} from "../../../infra/adapters/summarization/summarization-port.factory"
+import { StubSummarizationAdapter } from "../../../infra/adapters/summarization/stub-summarization.adapter"
 
 const lambdaContext = { awsRequestId: "test-request" } as Context
 
@@ -33,13 +41,14 @@ describe("generate-digest-notifications handler", () => {
   setupComponentTest()
 
   beforeEach(() => {
-    process.env.NOTIFICATION_SUMMARIZATION_ADAPTER = "stub"
+    process.env[EXTERNAL_AI_API_USE_STUB_ENV] = "true"
+    resetSummarizationPort()
   })
 
   afterEach(() => {
-    delete process.env.NOTIFICATION_SUMMARIZATION_ADAPTER
-    delete process.env.NOTIFICATION_SUMMARIZATION_SKIP_GROUPS
-    delete process.env.NOTIFICATION_SUMMARIZATION_FALLBACK_GROUPS
+    resetSummarizationPort()
+    delete process.env[EXTERNAL_AI_API_USE_STUB_ENV]
+    vi.useRealTimers()
   })
 
   it("集約対象があるユーザーにダイジェスト通知を作成する", async () => {
@@ -138,6 +147,64 @@ describe("generate-digest-notifications handler", () => {
     expect(state[0].lastSuccessfulRunAt).not.toBeNull()
   })
 
+  it("初回実行時は過去7日分を基準にダイジェストを生成する", async () => {
+    vi.useFakeTimers()
+    const now = new Date("2025-10-21T12:00:00Z")
+    vi.setSystemTime(now)
+
+    const user = await TestDataFactory.createCustomUser({
+      timezone: "Asia/Tokyo",
+    })
+    await createUserPreference({
+      userId: user.id,
+      digestEnabled: true,
+      digestTimezone: "Asia/Tokyo",
+    })
+
+    const dataSource = await TestDataFactory.createTestDataSource({
+      name: "owner/repo",
+      sourceId: "owner/repo",
+    })
+
+    await createUserWatch({
+      userId: user.id,
+      dataSourceId: dataSource.id,
+      notificationEnabled: true,
+      watchReleases: true,
+      watchIssues: false,
+      watchPullRequests: false,
+    })
+
+    await createActivity({
+      dataSourceId: dataSource.id,
+      activityType: ACTIVITY_TYPE.RELEASE,
+      status: ACTIVITY_STATUS.COMPLETED,
+      title: "Release v0.9.0",
+      occurredAt: new Date("2025-10-19T10:00:00Z"),
+      updatedAt: new Date("2025-10-19T10:00:00Z"),
+    })
+
+    const result = await handler({ limit: 10 }, lambdaContext)
+
+    expect(result.created).toBe(1)
+    expect(result.windowSummaries).toHaveLength(1)
+
+    const expectedFrom = new Date(
+      now.getTime() - DIGEST_MAX_LOOKBACK_DAYS * 24 * 60 * 60 * 1000,
+    ).toISOString()
+    expect(result.windowSummaries[0].from).toBe(expectedFrom)
+
+    const [notification] = await db
+      .select()
+      .from(notifications)
+      .where(eq(notifications.userId, user.id))
+
+    const metadata = notification.metadata as {
+      digest: { range: { from: string } }
+    }
+    expect(metadata.digest.range.from).toBe(expectedFrom)
+  })
+
   it("dryRun の場合は通知を作成せず、状態も更新しない", async () => {
     const user = await TestDataFactory.createCustomUser({})
     const dataSource = await TestDataFactory.createTestDataSource()
@@ -194,7 +261,12 @@ describe("generate-digest-notifications handler", () => {
     })
 
     const groupId = createDigestGroupId(dataSource.id, ACTIVITY_TYPE.RELEASE)
-    process.env.NOTIFICATION_SUMMARIZATION_SKIP_GROUPS = groupId
+    const summarizationPort = await createSummarizationPort()
+    if (summarizationPort instanceof StubSummarizationAdapter) {
+      summarizationPort.configure({ fallbackGroupIds: [groupId] })
+    } else {
+      throw new Error("Expected stub summarization adapter in test environment")
+    }
 
     const result = await handler({ limit: 5 }, lambdaContext)
 

@@ -1,22 +1,11 @@
 import type { Context } from "aws-lambda"
 import { connectDb } from "../../../../db/connection"
 import { TransactionManager } from "../../../../core/db"
-import { getOpenAiConfig } from "../../../../core/config/open-ai"
 import { GenerateDigestNotificationsUseCase } from "../../application/use-cases/generate-digest-notifications.use-case"
-import {
-  DrizzleDigestNotificationRepository,
-  DrizzleDigestPreparationRepository,
-  DrizzleDigestUserStateRepository,
-} from "../../infra/repositories"
-import {
-  createSummarizationAdapter,
-  SummarizationAdapterOptions,
-} from "../../infra/adapters/summarization/summarization.adapter"
-import {
-  createStubSummarizationAdapter,
-  StubSummarizationAdapterOptions,
-} from "../../infra/adapters/summarization/stub-summarization.adapter"
-import type { SummarizationPort } from "../../application/ports/summarization.port"
+import { DrizzleDigestPreparationRepository } from "../../infra/repositories/drizzle-digest-preparation.repository"
+import { DrizzleDigestNotificationRepository } from "../../infra/repositories/drizzle-digest-notification.repository"
+import { DrizzleDigestUserStateRepository } from "../../infra/repositories/drizzle-digest-user-state.repository"
+import { createSummarizationPort } from "../../infra/adapters/summarization/summarization-port.factory"
 import type { DigestWindowSummary } from "../../application/use-cases/generate-digest-notifications.use-case"
 
 export type GenerateDigestNotificationsInput = {
@@ -75,45 +64,10 @@ export const handler = async (
   })
 }
 
-async function createSummarizationPort(): Promise<SummarizationPort> {
-  if (process.env.NOTIFICATION_SUMMARIZATION_ADAPTER === "stub") {
-    const options = parseStubAdapterOptions()
-    return createStubSummarizationAdapter(options)
-  }
-
-  const config = await getOpenAiConfig()
-  const adapterOptions = parseSummarizationAdapterOptions()
-  return createSummarizationAdapter(config.apiKey, adapterOptions)
-}
-
 function parseDate(value?: string): Date | undefined {
   if (!value) {
     return undefined
   }
   const date = new Date(value)
   return Number.isNaN(date.getTime()) ? undefined : date
-}
-
-function parseSummarizationAdapterOptions(): SummarizationAdapterOptions {
-  const model = process.env.NOTIFICATION_SUMMARIZATION_MODEL
-  const maxTokens = process.env.NOTIFICATION_SUMMARIZATION_MAX_TOKENS
-  const temperature = process.env.NOTIFICATION_SUMMARIZATION_TEMPERATURE
-
-  return {
-    model: model ?? undefined,
-    maxTokens: maxTokens ? Number(maxTokens) : undefined,
-    temperature: temperature ? Number(temperature) : undefined,
-  }
-}
-
-function parseStubAdapterOptions(): StubSummarizationAdapterOptions {
-  const skip = process.env.NOTIFICATION_SUMMARIZATION_SKIP_GROUPS
-  const fallback = process.env.NOTIFICATION_SUMMARIZATION_FALLBACK_GROUPS
-
-  return {
-    skipGroupIds: skip ? skip.split(",").map((value) => value.trim()) : [],
-    fallbackGroupIds: fallback
-      ? fallback.split(",").map((value) => value.trim())
-      : [],
-  }
 }

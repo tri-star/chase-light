@@ -18,6 +18,11 @@ export type CalculateDigestWindowParams = {
   timezone: string
 }
 
+/**
+ * ユーザーのダイジェスト収集ウィンドウを計算します。
+ * ルックバックの上限、直近の成功実行時刻、および任意のオーバーライド境界を考慮します。
+ * 計算された開始時刻が終了時刻を超えるか等しい場合は null を返します。
+ */
 export function calculateDigestWindow(
   params: CalculateDigestWindowParams,
 ): DigestWindow | null {
@@ -42,6 +47,10 @@ export function calculateDigestWindow(
   }
 }
 
+/**
+ * エントリを時系列で並べ、決定論的な要約を生成することで、
+ * フォールバック（AI未使用）による要約経路を模倣するダイジェストグループを生成します。
+ */
 export function createFallbackGroupResult(
   group: DigestGroupCandidate,
 ): DigestGroupResult {
@@ -75,6 +84,10 @@ export type BuildDigestMetadataParams = {
   activityCount: number
 }
 
+/**
+ * 通知に付随して永続化されるダイジェストのメタデータを構築します。
+ * 時間範囲、グループ要約、および生成器（ジェネレータ）の統計情報を含みます。
+ */
 export function buildDigestMetadata(
   params: BuildDigestMetadataParams,
 ): NotificationDigestMetadata {

@@ -1,12 +1,12 @@
-import { randomUUID } from "node:crypto"
 import { sql } from "drizzle-orm"
+import { uuidv7 } from "uuidv7"
 import { TransactionManager } from "../../../../core/db"
 import { notificationDigestEntries, notifications } from "../../../../db/schema"
 import type {
   CreateDigestNotificationsResult,
   DigestNotificationRepository,
 } from "../../domain/repositories/digest-notification.repository"
-import type { DigestNotificationDraft } from "../../domain"
+import type { DigestNotificationDraft } from "../../domain/notification"
 
 export class DrizzleDigestNotificationRepository
   implements DigestNotificationRepository
@@ -22,7 +22,7 @@ export class DrizzleDigestNotificationRepository
     const now = new Date()
 
     const notificationValues = drafts.map((draft) => ({
-      id: randomUUID(),
+      id: uuidv7(),
       userId: draft.notification.userId,
       activityId: draft.notification.activityId ?? null,
       title: draft.notification.title,
@@ -61,7 +61,7 @@ export class DrizzleDigestNotificationRepository
       .flatMap((value, index) => {
         const draft = drafts[index]
         return draft.entries.map((entry) => ({
-          id: randomUUID(),
+          id: uuidv7(),
           notificationId: value.id,
           dataSourceId: entry.dataSourceId,
           dataSourceName: entry.dataSourceName,

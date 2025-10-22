@@ -10,6 +10,7 @@ import type {
   DigestUserState,
   DigestUserStateRepository,
   FetchDigestUserStatesParams,
+  DigestUserInitialContext,
   UpdateDigestUserStateInput,
 } from "../../domain/repositories/digest-user-state.repository"
 
@@ -24,19 +25,19 @@ export class DrizzleDigestUserStateRepository
     const connection = await TransactionManager.getConnection()
     const rows = await connection
       .select({
-        userId: users.id,
+        userId: notificationDigestUserStates.userId,
         lastSuccessfulRunAt: notificationDigestUserStates.lastSuccessfulRunAt,
         lastAttemptedRunAt: notificationDigestUserStates.lastAttemptedRunAt,
         digestTimezone: userPreferences.digestTimezone,
         userTimezone: users.timezone,
       })
-      .from(userWatches)
-      .innerJoin(users, eq(userWatches.userId, users.id))
-      .leftJoin(userPreferences, eq(userPreferences.userId, users.id))
-      .leftJoin(
-        notificationDigestUserStates,
-        eq(notificationDigestUserStates.userId, users.id),
+      .from(notificationDigestUserStates)
+      .innerJoin(users, eq(notificationDigestUserStates.userId, users.id))
+      .innerJoin(
+        userWatches,
+        eq(userWatches.userId, notificationDigestUserStates.userId),
       )
+      .leftJoin(userPreferences, eq(userPreferences.userId, users.id))
       .where(
         and(
           eq(userWatches.notificationEnabled, true),
@@ -52,7 +53,7 @@ export class DrizzleDigestUserStateRepository
         ),
       )
       .groupBy(
-        users.id,
+        notificationDigestUserStates.userId,
         notificationDigestUserStates.lastSuccessfulRunAt,
         notificationDigestUserStates.lastAttemptedRunAt,
         userPreferences.digestTimezone,
@@ -64,6 +65,38 @@ export class DrizzleDigestUserStateRepository
       userId: row.userId,
       lastSuccessfulRunAt: row.lastSuccessfulRunAt,
       lastAttemptedRunAt: row.lastAttemptedRunAt,
+      timezone: row.digestTimezone ?? row.userTimezone ?? DEFAULT_TIMEZONE,
+    }))
+  }
+
+  async fetchInitialUserContexts(
+    params: FetchDigestUserStatesParams,
+  ): Promise<DigestUserInitialContext[]> {
+    const connection = await TransactionManager.getConnection()
+    const rows = await connection
+      .select({
+        userId: users.id,
+        digestTimezone: userPreferences.digestTimezone,
+        userTimezone: users.timezone,
+      })
+      .from(userWatches)
+      .innerJoin(users, eq(userWatches.userId, users.id))
+      .leftJoin(userPreferences, eq(userPreferences.userId, users.id))
+      .where(
+        and(
+          eq(userWatches.notificationEnabled, true),
+          or(
+            eq(userWatches.watchReleases, true),
+            eq(userWatches.watchIssues, true),
+            eq(userWatches.watchPullRequests, true),
+          ),
+        ),
+      )
+      .groupBy(users.id, userPreferences.digestTimezone, users.timezone)
+      .limit(params.limit)
+
+    return rows.map((row) => ({
+      userId: row.userId,
       timezone: row.digestTimezone ?? row.userTimezone ?? DEFAULT_TIMEZONE,
     }))
   }

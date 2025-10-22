@@ -6,15 +6,19 @@ import {
 import {
   DIGEST_GENERATOR_TYPE,
   DIGEST_NOTIFICATION_MESSAGE_PLACEHOLDER,
-  NOTIFICATION_STATUS,
-  NOTIFICATION_TYPE,
+  type DigestCandidate,
+  type DigestGroupResult,
+} from "../../domain/digest"
+import {
   buildDigestMetadata,
   calculateDigestWindow,
   createFallbackGroupResult,
-  type DigestCandidate,
-  type DigestGroupResult,
+} from "../../domain/services/digest.service"
+import {
+  NOTIFICATION_STATUS,
+  NOTIFICATION_TYPE,
   type DigestNotificationDraft,
-} from "../../domain"
+} from "../../domain/notification"
 import type {
   DigestPreparationRepository,
   FindDigestCandidatesParams,
@@ -23,6 +27,7 @@ import type { DigestNotificationRepository } from "../../domain/repositories/dig
 import type {
   DigestUserState,
   DigestUserStateRepository,
+  DigestUserInitialContext,
   UpdateDigestUserStateInput,
 } from "../../domain/repositories/digest-user-state.repository"
 import type {
@@ -74,18 +79,27 @@ export class GenerateDigestNotificationsUseCase {
     const limit = input.limit ?? DEFAULT_DIGEST_NOTIFICATION_FETCH_LIMIT
     const executedAt = this.now()
 
-    const userStates = await this.digestUserStateRepository.fetchUserStates({
+    let userStates = await this.digestUserStateRepository.fetchUserStates({
       limit,
     })
 
     if (userStates.length === 0) {
-      return {
-        created: 0,
-        skippedByConflict: 0,
-        totalExamined: 0,
-        processedUsers: 0,
-        windowSummaries: [],
+      const initialContexts =
+        await this.digestUserStateRepository.fetchInitialUserContexts({
+          limit,
+        })
+
+      if (initialContexts.length === 0) {
+        return {
+          created: 0,
+          skippedByConflict: 0,
+          totalExamined: 0,
+          processedUsers: 0,
+          windowSummaries: [],
+        }
       }
+
+      userStates = this.createFallbackUserStates(initialContexts)
     }
 
     const userWindows = this.buildUserWindows(userStates, {
@@ -199,6 +213,40 @@ export class GenerateDigestNotificationsUseCase {
     }
   }
 
+  /**
+   * ユーザーごとのダイジェスト対象期間を算出し、候補検索で利用するウィンドウ配列を返す。
+   *
+   * 前回成功したダイジェスト日時、グローバルなlookback設定、呼び出し時に指定された `since` / `until`
+   * をもとに `calculateDigestWindow` を呼び出し、期間が確定したユーザーのみを結果に含める。
+   *
+   * @param userStates 各ユーザーのダイジェスト状態スナップショット。
+   * @param params ダイジェスト対象期間を計算するための現在時刻や上書きパラメータ。
+   * @returns `userId` と計算済みウィンドウのペア配列。期間が求められない場合はそのユーザーを除外する。
+   *
+   * @example
+   * ```ts
+   * const windows = buildUserWindows(
+   *   [
+   *     {
+   *       userId: 'user-123',
+   *       lastSuccessfulRunAt: new Date('2024-04-29T11:00:00Z'),
+   *       timezone: 'America/New_York',
+   *     },
+   *   ],
+   *   { now: new Date('2024-05-01T12:00:00Z') },
+   * )
+   *
+   * // => [
+   * //   {
+   * //     userId: 'user-123',
+   * //     window: {
+   * //       start: new Date('2024-04-29T11:00:00Z'),
+   * //       end: new Date('2024-05-01T12:00:00Z'),
+   * //     },
+   * //   },
+   * // ]
+   * ```
+   */
   private buildUserWindows(
     userStates: DigestUserState[],
     params: { now: Date; since?: Date; until?: Date },
@@ -242,7 +290,8 @@ export class GenerateDigestNotificationsUseCase {
     try {
       outputs =
         await this.summarizationPort.summarizeGroups(summarizationInputs)
-    } catch (_error) {
+    } catch (error) {
+      this.logSummarizationError(error, candidate)
       outputs = []
     }
 
@@ -290,6 +339,30 @@ export class GenerateDigestNotificationsUseCase {
     return { groupResults, fallbackGroups }
   }
 
+  private logSummarizationError(
+    error: unknown,
+    candidate: DigestCandidate,
+  ): void {
+    const serializedError =
+      error instanceof Error
+        ? { name: error.name, message: error.message }
+        : { message: String(error) }
+
+    console.warn(
+      "[GenerateDigestNotificationsUseCase] summarizeGroups failed; all groups will use fallback entries",
+      {
+        error: serializedError,
+        userId: candidate.userId,
+        window: {
+          from: candidate.window.from.toISOString(),
+          to: candidate.window.to.toISOString(),
+          timezone: candidate.window.timezone,
+        },
+        groupIds: candidate.groups.map((g) => g.id),
+      },
+    )
+  }
+
   private buildSummarizationInputs(
     groups: DigestCandidate["groups"],
   ): SummarizationGroupInput[] {
@@ -324,5 +397,16 @@ export class GenerateDigestNotificationsUseCase {
         generator: entry.generator,
       })),
     )
+  }
+
+  private createFallbackUserStates(
+    contexts: DigestUserInitialContext[],
+  ): DigestUserState[] {
+    return contexts.map((context) => ({
+      userId: context.userId,
+      lastSuccessfulRunAt: null,
+      lastAttemptedRunAt: null,
+      timezone: context.timezone,
+    }))
   }
 }

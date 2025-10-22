@@ -2,12 +2,17 @@ import OpenAI from "openai"
 import {
   DIGEST_GENERATOR_TYPE,
   type DigestGeneratorStats,
-} from "../../../domain"
+} from "../../../domain/digest"
 import type {
   SummarizationGroupInput,
   SummarizationGroupOutput,
   SummarizationPort,
 } from "../../../application/ports/summarization.port"
+import {
+  SUMMARIZATION_DEFAULT_MAX_TOKENS,
+  SUMMARIZATION_DEFAULT_MODEL,
+  SUMMARIZATION_DEFAULT_TEMPERATURE,
+} from "../../../constants/summarization"
 
 export type SummarizationAdapterOptions = {
   model?: string
@@ -30,9 +35,9 @@ export class SummarizationAdapter implements SummarizationPort {
   constructor(apiKey: string, options: SummarizationAdapterOptions = {}) {
     this.openai = new OpenAI({ apiKey })
     this.options = {
-      model: options.model ?? "gpt-4o-mini",
-      maxTokens: options.maxTokens ?? 1200,
-      temperature: options.temperature ?? 0.2,
+      model: options.model ?? SUMMARIZATION_DEFAULT_MODEL,
+      maxTokens: options.maxTokens ?? SUMMARIZATION_DEFAULT_MAX_TOKENS,
+      temperature: options.temperature ?? SUMMARIZATION_DEFAULT_TEMPERATURE,
     }
   }
 
@@ -45,7 +50,23 @@ export class SummarizationAdapter implements SummarizationPort {
       try {
         const result = await this.summarizeGroup(input)
         results.push(result)
-      } catch (_error) {
+      } catch (error) {
+        const serializedError =
+          error instanceof Error
+            ? { name: error.name, message: error.message }
+            : { message: String(error) }
+
+        console.warn(
+          "[SummarizationAdapter] Failed to summarize group; falling back to default entries",
+          {
+            error: serializedError,
+            groupId: input.groupId,
+            dataSourceName: input.dataSourceName,
+            activityType: input.activityType,
+            activityIds: input.entries.map((entry) => entry.activityId),
+            entryCount: input.entries.length,
+          },
+        )
         results.push(this.buildFallbackOutput(input))
       }
     }

@@ -1,4 +1,4 @@
-import type { DigestGeneratorStats, DigestGroupId } from "../../domain"
+import type { DigestGeneratorStats, DigestGroupId } from "../../domain/digest"
 
 export type SummarizationEntryInput = {
   activityId: string

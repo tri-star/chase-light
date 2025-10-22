@@ -7,7 +7,7 @@ import {
   type DigestCandidate,
   type DigestEntryCandidate,
   type DigestGroupCandidate,
-} from "../../domain"
+} from "../../domain/digest"
 import type {
   DigestPreparationRepository,
   FindDigestCandidatesParams,
