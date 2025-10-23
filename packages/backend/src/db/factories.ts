@@ -8,6 +8,8 @@ import {
   userWatches,
   dataSources,
   userPreferences,
+  notificationDigestEntries,
+  notificationDigestUserStates,
 } from "./schema"
 import type {
   ActivityStatus,
@@ -58,7 +60,7 @@ export async function createActivity(
 }
 
 export type CreateActivityNotificationInput = {
-  activityId: string
+  activityId?: string | null
   userId: string
   title?: string
   message?: string
@@ -80,7 +82,7 @@ export async function createActivityNotification(
     .values({
       id: randomUUID(),
       userId: input.userId,
-      activityId: input.activityId,
+      activityId: input.activityId ?? null,
       title: input.title ?? "Activity updated",
       message: input.message ?? "Activity notification",
       notificationType: input.notificationType ?? "activity_digest",
@@ -92,6 +94,81 @@ export async function createActivityNotification(
       metadata: input.metadata ?? null,
       createdAt: now,
       updatedAt: now,
+    })
+    .returning()
+
+  return record
+}
+
+export type CreateNotificationDigestEntryInput = {
+  notificationId: string
+  dataSourceId: string
+  activityId: string
+  dataSourceName?: string
+  activityType?: ActivityType
+  position?: number
+  title?: string
+  summary?: string
+  url?: string | null
+  generator?: string
+  createdAt?: Date
+  updatedAt?: Date
+}
+
+export async function createNotificationDigestEntry(
+  input: CreateNotificationDigestEntryInput,
+): Promise<typeof notificationDigestEntries.$inferSelect> {
+  const now = new Date()
+  const [record] = await db
+    .insert(notificationDigestEntries)
+    .values({
+      id: randomUUID(),
+      notificationId: input.notificationId,
+      dataSourceId: input.dataSourceId,
+      dataSourceName: input.dataSourceName ?? "Test Data Source",
+      activityType: input.activityType ?? ACTIVITY_TYPE.RELEASE,
+      activityId: input.activityId,
+      position: input.position ?? 0,
+      title: input.title ?? "Digest Entry Title",
+      summary: input.summary ?? "Digest entry summary",
+      url: input.url ?? null,
+      generator: input.generator ?? "fallback",
+      createdAt: input.createdAt ?? now,
+      updatedAt: input.updatedAt ?? now,
+    })
+    .returning()
+
+  return record
+}
+
+export type UpsertNotificationDigestUserStateInput = {
+  userId: string
+  lastSuccessfulRunAt?: Date | null
+  lastAttemptedRunAt?: Date | null
+  createdAt?: Date
+  updatedAt?: Date
+}
+
+export async function upsertNotificationDigestUserState(
+  input: UpsertNotificationDigestUserStateInput,
+): Promise<typeof notificationDigestUserStates.$inferSelect> {
+  const now = new Date()
+  const [record] = await db
+    .insert(notificationDigestUserStates)
+    .values({
+      userId: input.userId,
+      lastSuccessfulRunAt: input.lastSuccessfulRunAt ?? null,
+      lastAttemptedRunAt: input.lastAttemptedRunAt ?? null,
+      createdAt: input.createdAt ?? now,
+      updatedAt: input.updatedAt ?? now,
+    })
+    .onConflictDoUpdate({
+      target: notificationDigestUserStates.userId,
+      set: {
+        lastSuccessfulRunAt: input.lastSuccessfulRunAt ?? null,
+        lastAttemptedRunAt: input.lastAttemptedRunAt ?? null,
+        updatedAt: input.updatedAt ?? now,
+      },
     })
     .returning()
 

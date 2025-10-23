@@ -10,6 +10,7 @@ import {
   index,
   varchar,
   jsonb,
+  smallint,
 } from "drizzle-orm/pg-core"
 import { relations, sql } from "drizzle-orm"
 
@@ -254,6 +255,32 @@ export const bookmarks = pgTable(
   }),
 )
 
+export const notificationDigestUserStates = pgTable(
+  "notification_digest_user_states",
+  {
+    userId: uuid("user_id")
+      .primaryKey()
+      .references(() => users.id, { onDelete: "cascade" }),
+    lastSuccessfulRunAt: timestamp("last_successful_run_at", {
+      withTimezone: true,
+    }),
+    lastAttemptedRunAt: timestamp("last_attempted_run_at", {
+      withTimezone: true,
+    }),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+    updatedAt: timestamp("updated_at", { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+  },
+  (table) => ({
+    lastSuccessfulRunAtIdx: index(
+      "idx_notification_digest_user_states_last_successful_run_at",
+    ).on(table.lastSuccessfulRunAt),
+  }),
+)
+
 // Notifications table
 export const notifications = pgTable(
   "notifications",
@@ -314,6 +341,54 @@ export const notifications = pgTable(
   }),
 )
 
+export const notificationDigestEntries = pgTable(
+  "notification_digest_entries",
+  {
+    id: uuid("id").primaryKey(),
+    notificationId: uuid("notification_id")
+      .notNull()
+      .references(() => notifications.id, { onDelete: "cascade" }),
+    dataSourceId: uuid("data_source_id")
+      .notNull()
+      .references(() => dataSources.id, { onDelete: "cascade" }),
+    dataSourceName: text("data_source_name").notNull(),
+    activityType: text("activity_type").notNull(),
+    activityId: uuid("activity_id")
+      .notNull()
+      .references(() => activities.id, { onDelete: "cascade" }),
+    position: smallint("position").notNull(),
+    title: text("title").notNull(),
+    summary: text("summary").notNull(),
+    url: text("url"),
+    generator: text("generator").notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+    updatedAt: timestamp("updated_at", { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+  },
+  (table) => ({
+    notificationIdIdx: index(
+      "idx_notification_digest_entries_notification_id",
+    ).on(table.notificationId),
+    dataSourceIdIdx: index("idx_notification_digest_entries_data_source_id").on(
+      table.dataSourceId,
+    ),
+    activityIdIdx: index("idx_notification_digest_entries_activity_id").on(
+      table.activityId,
+    ),
+    notificationDataSourceTypePositionUnique: uniqueIndex(
+      "notification_digest_entries_unique",
+    ).on(
+      table.notificationId,
+      table.dataSourceId,
+      table.activityType,
+      table.position,
+    ),
+  }),
+)
+
 // Existing Sessions table (for authentication)
 export const sessions = pgTable(
   "sessions",
@@ -351,12 +426,17 @@ export const usersRelations = relations(users, ({ many, one }) => ({
   preferences: one(userPreferences),
   bookmarks: many(bookmarks),
   notifications: many(notifications),
+  digestUserState: one(notificationDigestUserStates, {
+    fields: [users.id],
+    references: [notificationDigestUserStates.userId],
+  }),
 }))
 
 export const dataSourcesRelations = relations(dataSources, ({ many }) => ({
   repositories: many(repositories),
   userWatches: many(userWatches),
   activities: many(activities),
+  digestEntries: many(notificationDigestEntries),
 }))
 
 export const repositoriesRelations = relations(repositories, ({ one }) => ({
@@ -383,6 +463,7 @@ export const activitiesRelations = relations(activities, ({ one, many }) => ({
     references: [dataSources.id],
   }),
   notifications: many(notifications),
+  digestEntries: many(notificationDigestEntries),
 }))
 
 export const userPreferencesRelations = relations(
@@ -402,13 +483,45 @@ export const bookmarksRelations = relations(bookmarks, ({ one }) => ({
   }),
 }))
 
-export const notificationsRelations = relations(notifications, ({ one }) => ({
-  user: one(users, {
-    fields: [notifications.userId],
-    references: [users.id],
+export const notificationsRelations = relations(
+  notifications,
+  ({ one, many }) => ({
+    user: one(users, {
+      fields: [notifications.userId],
+      references: [users.id],
+    }),
+    activity: one(activities, {
+      fields: [notifications.activityId],
+      references: [activities.id],
+    }),
+    digestEntries: many(notificationDigestEntries),
   }),
-  activity: one(activities, {
-    fields: [notifications.activityId],
-    references: [activities.id],
+)
+
+export const notificationDigestEntriesRelations = relations(
+  notificationDigestEntries,
+  ({ one }) => ({
+    notification: one(notifications, {
+      fields: [notificationDigestEntries.notificationId],
+      references: [notifications.id],
+    }),
+    dataSource: one(dataSources, {
+      fields: [notificationDigestEntries.dataSourceId],
+      references: [dataSources.id],
+    }),
+    activity: one(activities, {
+      fields: [notificationDigestEntries.activityId],
+      references: [activities.id],
+    }),
   }),
-}))
+)
+
+export const notificationDigestUserStatesRelations = relations(
+  notificationDigestUserStates,
+  ({ one }) => ({
+    user: one(users, {
+      fields: [notificationDigestUserStates.userId],
+      references: [users.id],
+    }),
+  }),
+)

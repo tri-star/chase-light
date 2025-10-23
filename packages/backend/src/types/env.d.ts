@@ -21,6 +21,12 @@ declare global {
        * 認証制御関連の環境変数
        */
       AUTH_EXCLUDE_PATHS?: string
+
+      /**
+       * 外部AI API呼び出しをスタブに切り替えるかどうか
+       * 開発・テスト用途のみ true を設定
+       */
+      USE_EXTERNAL_AI_API_STUB?: "true" | "false"
     }
   }
 }

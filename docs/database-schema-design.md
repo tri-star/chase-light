@@ -185,6 +185,53 @@ CREATE TABLE notifications (
 );
 ```
 
+通知本文 (`message`) はダイジェストレンダリングで利用するプレースホルダーを格納し、詳細な日本語タイトル・概要は `metadata.digest` と `notification_digest_entries` に保持します。`metadata.digest` の構造は以下を含みます。
+
+- `range.from` / `range.to`: 対象期間の境界
+- `activityCount`: 集約されたアクティビティの総数
+- `groups`: データソース × アクティビティ種別ごとの参照サマリ
+- `generatorStats`: SummarizationPort の呼び出し結果（モデル名、トークン数、フォールバック種別など）
+
+### notification_digest_user_states
+
+```sql
+CREATE TABLE notification_digest_user_states (
+    user_id UUID PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE,
+    last_successful_run_at TIMESTAMP WITH TIME ZONE,
+    last_attempted_run_at TIMESTAMP WITH TIME ZONE,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+```
+
+- `last_successful_run_at`: 直近でダイジェスト生成に成功した時刻。再実行時のウィンドウ計算に利用。
+- `last_attempted_run_at`: ダイジェスト生成を試行した最新時刻。エラー調査やリトライ制御に利用。
+
+### notification_digest_entries
+
+```sql
+CREATE TABLE notification_digest_entries (
+    id UUID PRIMARY KEY,
+    notification_id UUID NOT NULL REFERENCES notifications(id) ON DELETE CASCADE,
+    data_source_id UUID NOT NULL REFERENCES data_sources(id) ON DELETE CASCADE,
+    data_source_name TEXT NOT NULL,
+    activity_type TEXT NOT NULL,
+    activity_id UUID NOT NULL REFERENCES activities(id) ON DELETE CASCADE,
+    position SMALLINT NOT NULL,
+    title TEXT NOT NULL,
+    summary TEXT NOT NULL,
+    url TEXT,
+    generator TEXT NOT NULL,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE(notification_id, data_source_id, activity_type, position)
+);
+```
+
+- `position`: データソース × アクティビティ種別グループ内での表示順（0 起点、最新順）。
+- `generator`: 要約の生成種別（例: `ai`, `fallback`）。フォールバック時の検知に利用。
+- `url`: アクティビティ詳細ページへのリンク。存在しない場合は `NULL`。
+
 ## インデックス設計
 
 ### パフォーマンス最適化のためのインデックス
@@ -255,6 +302,15 @@ CREATE INDEX idx_bookmarks_type_target ON bookmarks(bookmark_type, target_id);
 CREATE INDEX idx_bookmarks_user_type ON bookmarks(user_id, bookmark_type); -- 複合インデックス
 CREATE INDEX idx_bookmarks_created_at ON bookmarks(created_at);
 
+-- notification_digest_user_states
+CREATE INDEX idx_notification_digest_user_states_last_successful_run_at ON notification_digest_user_states(last_successful_run_at);
+
+-- notification_digest_entries
+CREATE UNIQUE INDEX notification_digest_entries_unique ON notification_digest_entries(notification_id, data_source_id, activity_type, position);
+CREATE INDEX idx_notification_digest_entries_notification_id ON notification_digest_entries(notification_id);
+CREATE INDEX idx_notification_digest_entries_data_source_id ON notification_digest_entries(data_source_id);
+CREATE INDEX idx_notification_digest_entries_activity_id ON notification_digest_entries(activity_id);
+
 ```
 
 ### インデックス追加の理由
@@ -270,6 +326,9 @@ CREATE INDEX idx_bookmarks_created_at ON bookmarks(created_at);
 - `user_preferences.user_id`: ユーザー設定の取得時に必要
 - `notifications.activity_id`: 特定アクティビティに関する通知の検索
 - `bookmarks.target_id`: ブックマーク対象の逆引き検索
+- `notification_digest_entries.notification_id`: 通知に紐づくエントリの取得
+- `notification_digest_entries.data_source_id`: データソース別のエントリ検索
+- `notification_digest_entries.activity_id`: アクティビティ詳細の参照用
 
 #### フィルタリング・ソート用インデックス追加
 
@@ -282,6 +341,7 @@ CREATE INDEX idx_bookmarks_created_at ON bookmarks(created_at);
 - `notifications.sent_at`: 送信日時でのソート
 - `notifications.scheduled_at`: 配信予定時刻でのソート
 - `notifications.status`: 通知処理ステータスでの集計
+- `notification_digest_user_states.last_successful_run_at`: 直近成功時刻での再処理ウィンドウ計算
 
 #### 複合インデックス追加
 
@@ -292,3 +352,4 @@ CREATE INDEX idx_bookmarks_created_at ON bookmarks(created_at);
 - `notifications(user_id, created_at)`: ユーザー別通知履歴検索
 - `notifications(user_id, activity_id)`: 重複通知生成を防ぐユニーク制約
 - `bookmarks(user_id, bookmark_type)`: ユーザー別ブックマークタイプ検索
+- `notification_digest_entries(notification_id, data_source_id, activity_type, position)`: グループ内順序と重複制御

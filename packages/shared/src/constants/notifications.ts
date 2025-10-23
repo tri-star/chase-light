@@ -1,1 +1,4 @@
 export const DEFAULT_DIGEST_NOTIFICATION_FETCH_LIMIT = 200
+export const DIGEST_MAX_LOOKBACK_DAYS = 7
+export const DIGEST_MAX_ENTRIES_PER_GROUP = 3
+export const DIGEST_PLACEHOLDER_MESSAGE = "{{renderDigest}}"

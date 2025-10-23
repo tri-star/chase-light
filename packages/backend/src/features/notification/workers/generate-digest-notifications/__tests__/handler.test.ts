@@ -1,25 +1,39 @@
-import { randomUUID } from "node:crypto"
 import type { Context } from "aws-lambda"
+import { eq } from "drizzle-orm"
 import {
   describe,
   it,
   expect,
-  vi,
   beforeEach,
   afterEach,
   setupComponentTest,
+  vi,
 } from "../../../../../test"
-import { handler } from "../handler"
 import { db } from "../../../../../db/connection"
-import { notifications, userWatches } from "../../../../../db/schema"
 import {
   createActivity,
-  createActivityNotification,
   createUserPreference,
+  createUserWatch,
 } from "../../../../../db/factories"
+import {
+  notificationDigestEntries,
+  notificationDigestUserStates,
+  notifications,
+} from "../../../../../db/schema"
 import { TestDataFactory } from "../../../../../test/factories"
+import { handler } from "../handler"
 import { ACTIVITY_STATUS, ACTIVITY_TYPE } from "../../../../activities/domain"
-import { eq } from "drizzle-orm"
+import {
+  createDigestGroupId,
+  DIGEST_NOTIFICATION_MESSAGE_PLACEHOLDER,
+} from "../../../domain/digest"
+import { DIGEST_MAX_LOOKBACK_DAYS } from "shared"
+import { EXTERNAL_AI_API_USE_STUB_ENV } from "../../../constants/summarization"
+import {
+  createSummarizationPort,
+  resetSummarizationPort,
+} from "../../../infra/adapters/summarization/summarization-port.factory"
+import { StubSummarizationAdapter } from "../../../infra/adapters/summarization/stub-summarization.adapter"
 
 const lambdaContext = { awsRequestId: "test-request" } as Context
 
@@ -27,182 +41,256 @@ describe("generate-digest-notifications handler", () => {
   setupComponentTest()
 
   beforeEach(() => {
-    vi.useFakeTimers()
-    vi.setSystemTime(new Date("2025-10-16T09:30:00Z"))
+    process.env[EXTERNAL_AI_API_USE_STUB_ENV] = "true"
+    resetSummarizationPort()
   })
 
   afterEach(() => {
+    resetSummarizationPort()
+    delete process.env[EXTERNAL_AI_API_USE_STUB_ENV]
     vi.useRealTimers()
   })
 
-  it("購読者に通知を作成する", async () => {
+  it("集約対象があるユーザーにダイジェスト通知を作成する", async () => {
     const user = await TestDataFactory.createCustomUser({
       timezone: "Asia/Tokyo",
     })
-    const dataSource = await TestDataFactory.createTestDataSource({
-      sourceId: "owner/repo",
-      name: "owner/repo",
-    })
-
     await createUserPreference({
       userId: user.id,
-      timezone: "Asia/Tokyo",
+      digestEnabled: true,
       digestTimezone: "Asia/Tokyo",
-      digestDeliveryTimes: ["18:00"],
     })
 
-    await db.insert(userWatches).values({
-      id: randomUUID(),
+    const dataSource = await TestDataFactory.createTestDataSource({
+      name: "owner/repo",
+      sourceId: "owner/repo",
+    })
+
+    await createUserWatch({
       userId: user.id,
       dataSourceId: dataSource.id,
       notificationEnabled: true,
       watchReleases: true,
-      watchIssues: true,
-      watchPullRequests: true,
-      addedAt: new Date("2025-10-15T00:00:00Z"),
-    })
-
-    const activity = await createActivity({
-      dataSourceId: dataSource.id,
-      activityType: ACTIVITY_TYPE.RELEASE,
-      status: ACTIVITY_STATUS.COMPLETED,
-      title: "Release v1.0.0",
-      occurredAt: new Date("2025-10-16T08:00:00Z"),
-      updatedAt: new Date("2025-10-16T08:00:00Z"),
-    })
-
-    const result = await handler({ limit: 10 }, lambdaContext)
-
-    expect(result.created).toBe(1)
-    expect(result.skippedByConflict).toBe(0)
-    expect(result.totalExamined).toBe(1)
-    expect(result.lastProcessedActivityId).toBe(activity.id)
-
-    const records = await db
-      .select()
-      .from(notifications)
-      .where(eq(notifications.activityId, activity.id))
-
-    expect(records).toHaveLength(1)
-    const [record] = records
-    expect(record.metadata).toMatchObject({
-      activityType: ACTIVITY_TYPE.RELEASE,
-      dataSourceId: dataSource.id,
-      dataSourceName: "owner/repo",
-      scheduledSlot: "18:00",
-      digestTimezone: "Asia/Tokyo",
-    })
-  })
-
-  it("ウォッチ対象外のアクティビティはスキップする", async () => {
-    const user = await TestDataFactory.createCustomUser({
-      timezone: "Asia/Tokyo",
-    })
-    const dataSource = await TestDataFactory.createTestDataSource()
-
-    await db.insert(userWatches).values({
-      id: randomUUID(),
-      userId: user.id,
-      dataSourceId: dataSource.id,
-      notificationEnabled: true,
-      watchReleases: false,
-      watchIssues: true,
-      watchPullRequests: true,
-      addedAt: new Date("2025-10-15T00:00:00Z"),
+      watchIssues: false,
+      watchPullRequests: false,
     })
 
     await createActivity({
       dataSourceId: dataSource.id,
       activityType: ACTIVITY_TYPE.RELEASE,
       status: ACTIVITY_STATUS.COMPLETED,
-      occurredAt: new Date("2025-10-16T08:00:00Z"),
-      updatedAt: new Date("2025-10-16T08:00:00Z"),
+      title: "Release v1.0.0",
+      occurredAt: new Date("2025-10-20T09:00:00Z"),
+      updatedAt: new Date("2025-10-20T09:00:00Z"),
     })
 
-    const result = await handler({}, lambdaContext)
+    await createActivity({
+      dataSourceId: dataSource.id,
+      activityType: ACTIVITY_TYPE.RELEASE,
+      status: ACTIVITY_STATUS.COMPLETED,
+      title: "Release v1.1.0",
+      occurredAt: new Date("2025-10-20T10:00:00Z"),
+      updatedAt: new Date("2025-10-20T10:00:00Z"),
+    })
 
-    expect(result.created).toBe(0)
-    expect(result.totalExamined).toBe(0)
+    const result = await handler({ limit: 10 }, lambdaContext)
+
+    expect(result.created).toBe(1)
+    expect(result.skippedByConflict).toBe(0)
+    expect(result.processedUsers).toBe(1)
+    expect(result.totalExamined).toBe(2)
+    expect(result.windowSummaries).toHaveLength(1)
+    expect(result.windowSummaries[0]).toMatchObject({
+      userId: user.id,
+      activityCount: 2,
+      notificationCreated: true,
+      fallbackGroups: 0,
+    })
+
+    const notificationsForUser = await db
+      .select()
+      .from(notifications)
+      .where(eq(notifications.userId, user.id))
+
+    expect(notificationsForUser).toHaveLength(1)
+    const notification = notificationsForUser[0]
+    expect(notification.message).toBe(DIGEST_NOTIFICATION_MESSAGE_PLACEHOLDER)
+    const metadata = notification.metadata as {
+      digest: {
+        activityCount: number
+        groups: Array<{ activityIds: string[] }>
+        range: { from: string; to: string; timezone: string }
+        generatorStats: Array<{ type: string }>
+      }
+    }
+    expect(metadata.digest.activityCount).toBe(2)
+    expect(metadata.digest.groups[0].activityIds).toHaveLength(2)
+    expect(metadata.digest.generatorStats[0].type).toBe("ai")
+
+    const entries = await db
+      .select()
+      .from(notificationDigestEntries)
+      .where(eq(notificationDigestEntries.notificationId, notification.id))
+
+    expect(entries).toHaveLength(2)
+    entries.forEach((entry, index) => {
+      expect(entry.generator).toBe("ai")
+      expect(entry.position).toBe(index)
+    })
+
+    const state = await db
+      .select()
+      .from(notificationDigestUserStates)
+      .where(eq(notificationDigestUserStates.userId, user.id))
+
+    expect(state).toHaveLength(1)
+    expect(state[0].lastSuccessfulRunAt).not.toBeNull()
   })
 
-  it("dryRunの場合は通知を作成しない", async () => {
+  it("初回実行時は過去7日分を基準にダイジェストを生成する", async () => {
+    vi.useFakeTimers()
+    const now = new Date("2025-10-21T12:00:00Z")
+    vi.setSystemTime(now)
+
     const user = await TestDataFactory.createCustomUser({
       timezone: "Asia/Tokyo",
     })
-    const dataSource = await TestDataFactory.createTestDataSource()
+    await createUserPreference({
+      userId: user.id,
+      digestEnabled: true,
+      digestTimezone: "Asia/Tokyo",
+    })
 
-    await db.insert(userWatches).values({
-      id: randomUUID(),
+    const dataSource = await TestDataFactory.createTestDataSource({
+      name: "owner/repo",
+      sourceId: "owner/repo",
+    })
+
+    await createUserWatch({
       userId: user.id,
       dataSourceId: dataSource.id,
       notificationEnabled: true,
       watchReleases: true,
-      watchIssues: true,
-      watchPullRequests: true,
-      addedAt: new Date("2025-10-15T00:00:00Z"),
+      watchIssues: false,
+      watchPullRequests: false,
+    })
+
+    await createActivity({
+      dataSourceId: dataSource.id,
+      activityType: ACTIVITY_TYPE.RELEASE,
+      status: ACTIVITY_STATUS.COMPLETED,
+      title: "Release v0.9.0",
+      occurredAt: new Date("2025-10-19T10:00:00Z"),
+      updatedAt: new Date("2025-10-19T10:00:00Z"),
+    })
+
+    const result = await handler({ limit: 10 }, lambdaContext)
+
+    expect(result.created).toBe(1)
+    expect(result.windowSummaries).toHaveLength(1)
+
+    const expectedFrom = new Date(
+      now.getTime() - DIGEST_MAX_LOOKBACK_DAYS * 24 * 60 * 60 * 1000,
+    ).toISOString()
+    expect(result.windowSummaries[0].from).toBe(expectedFrom)
+
+    const [notification] = await db
+      .select()
+      .from(notifications)
+      .where(eq(notifications.userId, user.id))
+
+    const metadata = notification.metadata as {
+      digest: { range: { from: string } }
+    }
+    expect(metadata.digest.range.from).toBe(expectedFrom)
+  })
+
+  it("dryRun の場合は通知を作成せず、状態も更新しない", async () => {
+    const user = await TestDataFactory.createCustomUser({})
+    const dataSource = await TestDataFactory.createTestDataSource()
+
+    await createUserPreference({ userId: user.id, digestEnabled: true })
+    await createUserWatch({ userId: user.id, dataSourceId: dataSource.id })
+    await createActivity({
+      dataSourceId: dataSource.id,
+      activityType: ACTIVITY_TYPE.RELEASE,
+      status: ACTIVITY_STATUS.COMPLETED,
+    })
+
+    const result = await handler({ limit: 5, dryRun: true }, lambdaContext)
+
+    expect(result.created).toBe(0)
+    expect(result.skippedByConflict).toBe(0)
+
+    const notificationsForUser = await db
+      .select()
+      .from(notifications)
+      .where(eq(notifications.userId, user.id))
+
+    expect(notificationsForUser).toHaveLength(0)
+
+    const states = await db
+      .select()
+      .from(notificationDigestUserStates)
+      .where(eq(notificationDigestUserStates.userId, user.id))
+
+    expect(states).toHaveLength(0)
+  })
+
+  it("Summarization がスキップされたグループはフォールバックする", async () => {
+    const user = await TestDataFactory.createCustomUser({})
+    await createUserPreference({ userId: user.id, digestEnabled: true })
+    const dataSource = await TestDataFactory.createTestDataSource({
+      sourceId: "example/repo",
+      name: "example/repo",
+    })
+
+    await createUserWatch({
+      userId: user.id,
+      dataSourceId: dataSource.id,
+      watchReleases: true,
+      watchIssues: false,
+      watchPullRequests: false,
     })
 
     const activity = await createActivity({
       dataSourceId: dataSource.id,
       activityType: ACTIVITY_TYPE.RELEASE,
       status: ACTIVITY_STATUS.COMPLETED,
-      occurredAt: new Date("2025-10-16T08:00:00Z"),
-      updatedAt: new Date("2025-10-16T08:00:00Z"),
+      title: "Release v2.0.0",
     })
 
-    const result = await handler({ dryRun: true }, lambdaContext)
+    const groupId = createDigestGroupId(dataSource.id, ACTIVITY_TYPE.RELEASE)
+    const summarizationPort = await createSummarizationPort()
+    if (summarizationPort instanceof StubSummarizationAdapter) {
+      summarizationPort.configure({ fallbackGroupIds: [groupId] })
+    } else {
+      throw new Error("Expected stub summarization adapter in test environment")
+    }
 
-    expect(result.created).toBe(0)
-    expect(result.skippedByConflict).toBe(0)
+    const result = await handler({ limit: 5 }, lambdaContext)
 
-    const existing = await db
+    expect(result.created).toBe(1)
+    expect(result.windowSummaries[0].fallbackGroups).toBe(1)
+
+    const [notification] = await db
       .select()
       .from(notifications)
-      .where(eq(notifications.activityId, activity.id))
+      .where(eq(notifications.userId, user.id))
 
-    expect(existing).toHaveLength(0)
-  })
-
-  it("既存通知がある場合は競合としてカウントする", async () => {
-    const user = await TestDataFactory.createCustomUser({
-      timezone: "Asia/Tokyo",
-    })
-    const dataSource = await TestDataFactory.createTestDataSource()
-
-    await db.insert(userWatches).values({
-      id: randomUUID(),
-      userId: user.id,
-      dataSourceId: dataSource.id,
-      notificationEnabled: true,
-      watchReleases: true,
-      watchIssues: true,
-      watchPullRequests: true,
-      addedAt: new Date("2025-10-15T00:00:00Z"),
-    })
-
-    const activity = await createActivity({
-      dataSourceId: dataSource.id,
-      activityType: ACTIVITY_TYPE.RELEASE,
-      status: ACTIVITY_STATUS.COMPLETED,
-      occurredAt: new Date("2025-10-16T08:00:00Z"),
-      updatedAt: new Date("2025-10-16T08:00:00Z"),
-    })
-
-    await createActivityNotification({
-      activityId: activity.id,
-      userId: user.id,
-    })
-
-    const result = await handler({}, lambdaContext)
-
-    expect(result.created).toBe(0)
-    expect(result.skippedByConflict).toBe(0)
-
-    const existing = await db
+    expect(notification).toBeTruthy()
+    const entries = await db
       .select()
-      .from(notifications)
-      .where(eq(notifications.activityId, activity.id))
+      .from(notificationDigestEntries)
+      .where(eq(notificationDigestEntries.notificationId, notification.id))
 
-    expect(existing).toHaveLength(1)
+    expect(entries).toHaveLength(1)
+    expect(entries[0].activityId).toBe(activity.id)
+    expect(entries[0].generator).toBe("fallback")
+
+    const metadata = notification.metadata as {
+      digest: { generatorStats: Array<{ type: string }> }
+    }
+    expect(metadata.digest.generatorStats[0].type).toBe("fallback")
   })
 })
