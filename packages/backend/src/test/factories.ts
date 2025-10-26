@@ -316,21 +316,9 @@ export class TestDataFactory {
       activityType: customData?.activityType ?? ACTIVITY_TYPE.RELEASE,
       title: customData?.title ?? "Test Activity",
       body: customData?.body ?? "Test activity body",
-      translatedTitle:
-        customData &&
-        Object.prototype.hasOwnProperty.call(customData, "translatedTitle")
-          ? (customData.translatedTitle ?? null)
-          : null,
-      summary:
-        customData &&
-        Object.prototype.hasOwnProperty.call(customData, "summary")
-          ? (customData.summary ?? null)
-          : null,
-      translatedBody:
-        customData &&
-        Object.prototype.hasOwnProperty.call(customData, "translatedBody")
-          ? (customData.translatedBody ?? null)
-          : null,
+      translatedTitle: customData?.translatedTitle ?? null,
+      summary: customData?.summary ?? null,
+      translatedBody: customData?.translatedBody ?? null,
       version,
       status: customData?.status ?? ACTIVITY_STATUS.PENDING,
       statusDetail: customData?.statusDetail ?? null,
