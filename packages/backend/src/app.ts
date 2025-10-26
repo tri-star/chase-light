@@ -6,6 +6,7 @@ import { globalJWTAuth } from "./features/identity"
 import identityRoutes from "./features/identity/presentation"
 import dataSourceRoutes from "./features/data-sources"
 import activityRoutes from "./features/activities"
+import notificationRoutes from "./features/notification"
 import { createE2EControlRoutes } from "./features/data-sources/presentation/routes/e2e-control"
 
 /**
@@ -47,6 +48,9 @@ export const createApp = () => {
 
   // Activities API routes
   app.route("/api", activityRoutes)
+
+  // Notifications API routes
+  app.route("/api", notificationRoutes)
 
   // E2E Control API routes (only in stub mode)
   if (process.env.USE_GITHUB_API_STUB === "true") {

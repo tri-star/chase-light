@@ -374,6 +374,75 @@ export class TestDataFactory {
     return notification
   }
 
+  static async createDigestNotification(
+    userId: string,
+    options: {
+      title?: string
+      message?: string
+      notificationType?: string
+      isRead?: boolean
+      scheduledAt?: Date
+      sentAt?: Date | null
+      status?: string
+      metadata?: Record<string, unknown> | null
+      entries: Array<{
+        dataSourceId: string
+        dataSourceName: string
+        activityId: string
+        activityType: string
+        title: string
+        summary: string
+        url?: string | null
+        position?: number
+        generator?: string
+      }>
+    },
+  ): Promise<{
+    notificationId: string
+  }> {
+    const now = new Date()
+    const notificationId = uuidv7()
+
+    await db.insert(schema.notifications).values({
+      id: notificationId,
+      userId,
+      activityId: null,
+      title: options.title ?? "Digest Notification",
+      message: options.message ?? "Digest notification message",
+      notificationType: options.notificationType ?? "activity_digest",
+      isRead: options.isRead ?? false,
+      sentAt: options.sentAt ?? null,
+      scheduledAt: options.scheduledAt ?? now,
+      status: options.status ?? "pending",
+      statusDetail: null,
+      metadata: options.metadata ?? null,
+      createdAt: now,
+      updatedAt: now,
+    })
+
+    if (options.entries.length > 0) {
+      await db.insert(schema.notificationDigestEntries).values(
+        options.entries.map((entry, index) => ({
+          id: uuidv7(),
+          notificationId,
+          dataSourceId: entry.dataSourceId,
+          dataSourceName: entry.dataSourceName,
+          activityType: entry.activityType,
+          activityId: entry.activityId,
+          position: entry.position ?? index + 1,
+          title: entry.title,
+          summary: entry.summary,
+          url: entry.url ?? null,
+          generator: entry.generator ?? "ai",
+          createdAt: now,
+          updatedAt: now,
+        })),
+      )
+    }
+
+    return { notificationId }
+  }
+
   /**
    * 完全なデータソースセット（データソース + リポジトリ + ユーザーウォッチ）を作成
    */
