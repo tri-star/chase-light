@@ -5,6 +5,7 @@ import { getOpenAiConfig } from "../../../../core/config/open-ai"
 import { DrizzleActivityRepository } from "../../infra/repositories"
 import { ProcessUpdatesUseCase } from "../../application/use-cases"
 import { TranslationAdapter } from "../../infra/adapters/translation/translation.adapter"
+import { SummarizationAdapter } from "../../infra/adapters/summarization/summarization.adapter"
 
 interface ProcessUpdatesInput {
   activityId: string
@@ -17,7 +18,7 @@ interface ProcessUpdatesOutput {
 
 /**
  * process-updates Lambda関数のハンドラー
- * 検知されたイベントのAI翻訳・状態更新を行う
+ * 検知されたイベントのAI翻訳・要約・状態更新を行う
  */
 export const handler = async (
   event: ProcessUpdatesInput,
@@ -39,15 +40,30 @@ export const handler = async (
     // トランザクション内で処理を実行
     return await TransactionManager.transaction(async () => {
       // OpenAI APIキーを環境に応じて取得（AWS環境はSSM、ローカル環境は環境変数）
-      const openAiConfig = await getOpenAiConfig()
+      // 取得に失敗した場合はnullとし、翻訳・要約をスキップして処理を継続
+      let translationAdapter: TranslationAdapter | null = null
+      let summarizationAdapter: SummarizationAdapter | null = null
+
+      try {
+        const openAiConfig = await getOpenAiConfig()
+        translationAdapter = new TranslationAdapter(openAiConfig.apiKey)
+        summarizationAdapter = new SummarizationAdapter(openAiConfig.apiKey)
+      } catch (error) {
+        console.warn(
+          "OpenAI API key not configured. Translation and summarization will be skipped.",
+          {
+            error: error instanceof Error ? error.message : error,
+          },
+        )
+      }
 
       // リポジトリとサービスのインスタンス化
       const activityRepository = new DrizzleActivityRepository()
-      const translationAdapter = new TranslationAdapter(openAiConfig.apiKey)
 
       const processUpdatesService = new ProcessUpdatesUseCase(
         activityRepository,
         translationAdapter,
+        summarizationAdapter,
       )
 
       // イベント処理実行

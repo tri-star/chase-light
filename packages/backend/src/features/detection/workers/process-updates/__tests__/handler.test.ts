@@ -31,6 +31,9 @@ describe("process-updates handler", () => {
       status: ACTIVITY_STATUS.PENDING,
       statusDetail: null,
       githubData: null,
+      translatedTitle: null,
+      summary: null,
+      translatedBody: null,
       createdAt: new Date(),
       updatedAt: new Date(),
     }
@@ -84,10 +87,17 @@ describe("process-updates handler", () => {
     const { TranslationAdapter } = await import(
       "../../../infra/adapters/translation/translation.adapter"
     )
+    const { SummarizationAdapter } = await import(
+      "../../../infra/adapters/summarization/summarization.adapter"
+    )
     const originalTranslate = TranslationAdapter.prototype.translate
+    const originalSummarize = SummarizationAdapter.prototype.summarize
     TranslationAdapter.prototype.translate = vi.fn().mockResolvedValue({
       translatedTitle: "[翻訳済み] テストタイトル",
       translatedBody: "[翻訳済み] テスト本文",
+    })
+    SummarizationAdapter.prototype.summarize = vi.fn().mockResolvedValue({
+      summary: "[要約] テスト要約",
     })
 
     try {
@@ -102,10 +112,15 @@ describe("process-updates handler", () => {
       const updatedEvent = await activityRepository.findById(event1.id)
       expect(updatedEvent).not.toBeNull()
       expect(updatedEvent!.status).toBe(ACTIVITY_STATUS.COMPLETED)
-      expect(updatedEvent!.title).toBe("[翻訳済み] テストタイトル")
-      expect(updatedEvent!.body).toBe("[翻訳済み] テスト本文")
+      expect(updatedEvent!.translatedTitle).toBe("[翻訳済み] テストタイトル")
+      expect(updatedEvent!.summary).toBe("[要約] テスト要約")
+      expect(updatedEvent!.translatedBody).toBeNull()
+      // 原文は保持されている
+      expect(updatedEvent!.title).toBe("Version 1.0.0")
+      expect(updatedEvent!.body).toBe("Initial release with new features")
     } finally {
       TranslationAdapter.prototype.translate = originalTranslate
+      SummarizationAdapter.prototype.summarize = originalSummarize
     }
   })
 
@@ -191,13 +206,38 @@ describe("process-updates handler", () => {
     ).rejects.toThrow("Invalid input: activityId must be a string")
   })
 
-  test("OpenAI APIキーが設定されていない場合、エラーをスローする", async () => {
+  test("OpenAI APIキーが設定されていない場合、翻訳・要約をスキップして処理を継続する", async () => {
+    const event = createTestEvent({
+      title: "Test without OpenAI",
+      body: "This should be processed without translation",
+      activityType: ACTIVITY_TYPE.RELEASE,
+    })
+
+    await activityRepository.upsert({
+      ...event,
+      detectTargetId: toDetectTargetId(event.dataSourceId),
+    })
+
     delete process.env.OPENAI_API_KEY
 
-    await expect(
-      handler({ activityId: randomUUID() }, mockContext),
-    ).rejects.toThrow("Failed to get OpenAI configuration")
+    try {
+      const result = await handler({ activityId: event.id }, mockContext)
 
-    process.env.OPENAI_API_KEY = "test-api-key"
+      expect(result.processedActivityIds).toHaveLength(1)
+      expect(result.failedActivityIds).toHaveLength(0)
+
+      const updatedEvent = await activityRepository.findById(event.id)
+      expect(updatedEvent).not.toBeNull()
+      expect(updatedEvent!.status).toBe(ACTIVITY_STATUS.COMPLETED)
+      // 翻訳・要約はNULL
+      expect(updatedEvent!.translatedTitle).toBeNull()
+      expect(updatedEvent!.summary).toBeNull()
+      expect(updatedEvent!.translatedBody).toBeNull()
+      // 原文は保持されている
+      expect(updatedEvent!.title).toBe("Test without OpenAI")
+      expect(updatedEvent!.body).toBe("This should be processed without translation")
+    } finally {
+      process.env.OPENAI_API_KEY = "test-api-key"
+    }
   })
 })

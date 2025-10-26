@@ -155,6 +155,9 @@ export const activities = pgTable(
     status: text("status").notNull().default("pending"),
     statusDetail: text("status_detail"),
     githubData: text("github_data"),
+    translatedTitle: text("translated_title"),
+    summary: text("summary"),
+    translatedBody: text("translated_body"),
     createdAt: timestamp("created_at", { withTimezone: true }).notNull(),
     updatedAt: timestamp("updated_at", { withTimezone: true })
       .defaultNow()

@@ -1,4 +1,5 @@
 import { TranslationPort } from "../../application/ports/translation.port"
+import { SummarizationPort } from "../../application/ports/summarization.port"
 import { ACTIVITY_STATUS, type Activity } from "../../domain/activity"
 import { ActivityRepository } from "../../domain/repositories/activity.repository"
 
@@ -18,12 +19,13 @@ interface ProcessactivityResult {
 }
 
 /**
- * 検知されたイベントのAI翻訳・状態更新を行うサービス
+ * 検知されたイベントのAI翻訳・要約・状態更新を行うサービス
  */
 export class ProcessUpdatesUseCase {
   constructor(
     private activityRepository: ActivityRepository,
-    private translationPort: TranslationPort,
+    private translationPort: TranslationPort | null,
+    private summarizationPort: SummarizationPort | null,
   ) {}
 
   /**
@@ -91,24 +93,47 @@ export class ProcessUpdatesUseCase {
         return { activityId: activity.id, success: true }
       }
 
-      // AI翻訳を実行
-      const translationResult = await this.translationPort.translate(
-        activity.activityType,
-        activity.title,
-        activity.body,
-      )
+      let translatedTitle: string | null = null
+      let summary: string | null = null
 
-      // 翻訳結果でイベントを更新
-      const updateSuccess = await this.activityRepository.updateWithTranslation(
-        activity.id,
-        translationResult.translatedTitle,
-        translationResult.translatedBody,
-        ACTIVITY_STATUS.COMPLETED,
-        null,
-      )
+      // OpenAI APIが利用可能な場合のみ翻訳・要約を実行
+      if (this.translationPort && this.summarizationPort) {
+        // AI翻訳を実行
+        const translationResult = await this.translationPort.translate(
+          activity.activityType,
+          activity.title,
+          activity.body,
+        )
+        translatedTitle = translationResult.translatedTitle
+
+        // AI要約を実行
+        const summarizationResult = await this.summarizationPort.summarize(
+          activity.activityType,
+          activity.title,
+          activity.body,
+        )
+        summary = summarizationResult.summary
+      } else {
+        // OpenAI APIが利用不可の場合は警告ログを出力
+        console.warn(
+          `OpenAI API not available. Skipping translation and summarization for activity ${activity.id}`,
+        )
+      }
+
+      // 翻訳・要約結果でイベントを更新（原文は保持）
+      const updateSuccess =
+        await this.activityRepository.updateTranslationAndSummary(
+          activity.id,
+          translatedTitle,
+          summary,
+          ACTIVITY_STATUS.COMPLETED,
+          null,
+        )
 
       if (!updateSuccess) {
-        throw new Error("Failed to update activity with translation result")
+        throw new Error(
+          "Failed to update activity with translation and summary",
+        )
       }
 
       return { activityId: activity.id, success: true }

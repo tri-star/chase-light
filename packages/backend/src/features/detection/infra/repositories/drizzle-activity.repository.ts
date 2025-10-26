@@ -30,6 +30,9 @@ export class DrizzleActivityRepository implements ActivityRepository {
     status?: ActivityStatus
     statusDetail?: string | null
     githubData?: string | null
+    translatedTitle?: string | null
+    summary?: string | null
+    translatedBody?: string | null
     createdAt: Date
   }): Promise<{ id: string; isNew: boolean }> {
     const now = new Date()
@@ -47,6 +50,9 @@ export class DrizzleActivityRepository implements ActivityRepository {
       status: data.status || ACTIVITY_STATUS.PENDING,
       statusDetail: data.statusDetail ?? null,
       githubData: data.githubData ?? null,
+      translatedTitle: data.translatedTitle ?? null,
+      summary: data.summary ?? null,
+      translatedBody: data.translatedBody ?? null,
       createdAt: data.createdAt,
       updatedAt: now,
     } as const
@@ -68,6 +74,9 @@ export class DrizzleActivityRepository implements ActivityRepository {
           status: insertData.status,
           statusDetail: insertData.statusDetail,
           githubData: insertData.githubData,
+          translatedTitle: insertData.translatedTitle,
+          summary: insertData.summary,
+          translatedBody: insertData.translatedBody,
           updatedAt: insertData.updatedAt,
         },
       })
@@ -93,6 +102,9 @@ export class DrizzleActivityRepository implements ActivityRepository {
       status?: ActivityStatus
       statusDetail?: string | null
       githubData?: string | null
+      translatedTitle?: string | null
+      summary?: string | null
+      translatedBody?: string | null
       createdAt: Date
     }>,
   ): Promise<{ newActivityIds: string[]; updatedCount: number }> {
@@ -113,6 +125,9 @@ export class DrizzleActivityRepository implements ActivityRepository {
       status: data.status || ACTIVITY_STATUS.PENDING,
       statusDetail: data.statusDetail ?? null,
       githubData: data.githubData ?? null,
+      translatedTitle: data.translatedTitle ?? null,
+      summary: data.summary ?? null,
+      translatedBody: data.translatedBody ?? null,
       createdAt: data.createdAt,
       updatedAt: now,
     }))
@@ -134,6 +149,9 @@ export class DrizzleActivityRepository implements ActivityRepository {
           status: sql`excluded.status`,
           statusDetail: sql`excluded.status_detail`,
           githubData: sql`excluded.github_data`,
+          translatedTitle: sql`excluded.translated_title`,
+          summary: sql`excluded.summary`,
+          translatedBody: sql`excluded.translated_body`,
           updatedAt: sql`excluded.updated_at`,
         },
       })
@@ -208,12 +226,12 @@ export class DrizzleActivityRepository implements ActivityRepository {
   }
 
   /**
-   * 翻訳結果とステータスを更新
+   * 翻訳済みタイトルと要約を更新（原文は保持）
    */
-  async updateWithTranslation(
+  async updateTranslationAndSummary(
     activityId: string,
-    translatedTitle: string,
-    translatedBody: string,
+    translatedTitle: string | null,
+    summary: string | null,
     status: ActivityStatus,
     statusDetail?: string | null,
   ): Promise<boolean> {
@@ -223,8 +241,8 @@ export class DrizzleActivityRepository implements ActivityRepository {
     const result = await connection
       .update(activities)
       .set({
-        title: translatedTitle,
-        body: translatedBody,
+        translatedTitle,
+        summary,
         status,
         statusDetail,
         updatedAt: now,
@@ -339,6 +357,9 @@ export class DrizzleActivityRepository implements ActivityRepository {
       status: row.status as ActivityStatus,
       statusDetail: row.statusDetail,
       githubData: row.githubData,
+      translatedTitle: row.translatedTitle,
+      summary: row.summary,
+      translatedBody: row.translatedBody,
       createdAt: row.createdAt,
       updatedAt: row.updatedAt,
     }

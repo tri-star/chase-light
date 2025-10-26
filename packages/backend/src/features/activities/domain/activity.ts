@@ -57,6 +57,9 @@ export type ActivityRecord = {
   status: ActivityStatus
   statusDetail: string | null
   githubData: string | null
+  translatedTitle: string | null
+  summary: string | null
+  translatedBody: string | null
   createdAt: Date
   updatedAt: Date
 }

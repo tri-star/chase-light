@@ -17,6 +17,9 @@ export interface ActivityRepository {
     status?: ActivityStatus
     statusDetail?: string | null
     githubData?: string | null
+    translatedTitle?: string | null
+    summary?: string | null
+    translatedBody?: string | null
     createdAt: Date
   }): Promise<{ id: string; isNew: boolean }>
 
@@ -35,6 +38,9 @@ export interface ActivityRepository {
       status?: ActivityStatus
       statusDetail?: string | null
       githubData?: string | null
+      translatedTitle?: string | null
+      summary?: string | null
+      translatedBody?: string | null
       createdAt: Date
     }>,
   ): Promise<{ newActivityIds: string[]; updatedCount: number }>
@@ -62,12 +68,12 @@ export interface ActivityRepository {
   ): Promise<boolean>
 
   /**
-   * 翻訳結果とステータスを更新
+   * 翻訳済みタイトルと要約を更新（原文は保持）
    */
-  updateWithTranslation(
+  updateTranslationAndSummary(
     activityId: string,
-    translatedTitle: string,
-    translatedBody: string,
+    translatedTitle: string | null,
+    summary: string | null,
     status: ActivityStatus,
     statusDetail?: string | null,
   ): Promise<boolean>
