@@ -1,10 +1,9 @@
 import type { Context } from "aws-lambda"
 import { connectDb } from "../../../../db/connection"
 import { TransactionManager } from "../../../../core/db"
-import { getOpenAiConfig } from "../../../../core/config/open-ai"
 import { DrizzleActivityRepository } from "../../infra/repositories"
 import { ProcessUpdatesUseCase } from "../../application/use-cases"
-import { TranslationAdapter } from "../../infra/adapters/translation/translation.adapter"
+import { createTranslationPort } from "../../infra/adapters/translation/translation-port.factory"
 
 interface ProcessUpdatesInput {
   activityId: string
@@ -38,12 +37,9 @@ export const handler = async (
 
     // トランザクション内で処理を実行
     return await TransactionManager.transaction(async () => {
-      // OpenAI APIキーを環境に応じて取得（AWS環境はSSM、ローカル環境は環境変数）
-      const openAiConfig = await getOpenAiConfig()
-
       // リポジトリとサービスのインスタンス化
       const activityRepository = new DrizzleActivityRepository()
-      const translationAdapter = new TranslationAdapter(openAiConfig.apiKey)
+      const translationAdapter = await createTranslationPort()
 
       const processUpdatesService = new ProcessUpdatesUseCase(
         activityRepository,

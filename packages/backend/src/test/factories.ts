@@ -275,6 +275,9 @@ export class TestDataFactory {
       title?: string
       body?: string
       version?: string | null
+      translatedTitle?: string | null
+      summary?: string | null
+      translatedBody?: string | null
       status?: ActivityStatus
       statusDetail?: string | null
       githubData?: string | null
@@ -288,6 +291,9 @@ export class TestDataFactory {
     activityType: ActivityType
     title: string
     body: string
+    translatedTitle: string | null
+    summary: string | null
+    translatedBody: string | null
     version: string | null
     status: ActivityStatus
     statusDetail: string | null
@@ -310,6 +316,9 @@ export class TestDataFactory {
       activityType: customData?.activityType ?? ACTIVITY_TYPE.RELEASE,
       title: customData?.title ?? "Test Activity",
       body: customData?.body ?? "Test activity body",
+      translatedTitle: customData?.translatedTitle ?? null,
+      summary: customData?.summary ?? null,
+      translatedBody: customData?.translatedBody ?? null,
       version,
       status: customData?.status ?? ACTIVITY_STATUS.PENDING,
       statusDetail: customData?.statusDetail ?? null,

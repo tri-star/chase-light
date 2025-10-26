@@ -57,12 +57,16 @@ export class TranslationAdapter implements TranslationPort {
                   type: "string",
                   description: "翻訳されたタイトル",
                 },
-                translatedBody: {
+                summary: {
                   type: "string",
-                  description: "翻訳された本文",
+                  description: "本文の要約（日本語）",
+                },
+                translatedBody: {
+                  type: ["string", "null"],
+                  description: "翻訳された本文。今回の処理ではnullを許可",
                 },
               },
-              required: ["translatedTitle", "translatedBody"],
+              required: ["translatedTitle", "summary", "translatedBody"],
               additionalProperties: false,
             },
           },
@@ -76,14 +80,20 @@ export class TranslationAdapter implements TranslationPort {
         throw new Error("OpenAI API returned empty response")
       }
 
-      const result = JSON.parse(content) as TranslationResponse
+      const raw = JSON.parse(content) as TranslationResponse
 
       // レスポンス検証
-      if (!result.translatedTitle || !result.translatedBody) {
+      if (!raw.summary || !raw.translatedTitle) {
         throw new Error("Invalid translation response format")
       }
 
-      return result
+      return {
+        translatedTitle: this.normalizeText(raw.translatedTitle),
+        summary: this.normalizeText(raw.summary),
+        translatedBody: raw.translatedBody
+          ? this.normalizeText(raw.translatedBody)
+          : null,
+      }
     } catch (error) {
       if (error instanceof OpenAI.APIError) {
         if (error.status === 429) {
@@ -119,6 +129,14 @@ export class TranslationAdapter implements TranslationPort {
       .replace(/<user-input>/gi, "")
       .replace(/<\/user-input>/gi, "")
       .trim()
+  }
+
+  private normalizeText(value: string | null): string | null {
+    if (!value) {
+      return null
+    }
+    const normalized = value.trim()
+    return normalized.length > 0 ? normalized : null
   }
 }
 

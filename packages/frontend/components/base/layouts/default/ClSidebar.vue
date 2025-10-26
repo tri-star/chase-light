@@ -76,7 +76,7 @@ watch(
   >
     <div
       v-if="isOpen"
-      class="fixed inset-0 z-40 bg-dialog-backdrop bg-opacity-50"
+      class="fixed inset-x-0 top-16 bottom-0 z-40 bg-dialog-backdrop bg-opacity-50"
       @click="handleBackdropClick"
     />
   </Transition>
@@ -94,12 +94,12 @@ watch(
       v-if="!isMobile || isOpen"
       ref="sidebarRef"
       :class="[
-        'bg-sidebar-default border-r border-sidebar-default transition-all duration-300',
+        'bg-sidebar-default border-r border-sidebar-default transition-all duration-300 overflow-y-auto overflow-x-hidden',
         isMobile
-          ? 'fixed inset-y-0 left-0 z-50 w-64 overflow-y-auto'
+          ? 'fixed top-16 bottom-0 left-0 z-50 w-64'
           : isCollapsed
-            ? 'w-[3.4rem] overflow-hidden'
-            : 'w-64 overflow-y-auto',
+            ? 'fixed top-16 left-0 z-40 h-[calc(100vh-4rem)] w-[3.4rem]'
+            : 'fixed top-16 left-0 z-40 h-[calc(100vh-4rem)] w-64',
       ]"
       :aria-hidden="isMobile && !isOpen"
       role="navigation"

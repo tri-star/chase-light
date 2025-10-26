@@ -13,6 +13,18 @@ const props = withDefaults(defineProps<Props>(), {
 const sidebarOpen = ref(false)
 const isMobile = ref(false)
 
+const mainClasses = computed(() => {
+  const classes = [
+    'flex-1 min-h-[calc(100vh-4rem)] transition-[margin] duration-300',
+  ]
+
+  if (!isMobile.value) {
+    classes.push(sidebarOpen.value ? 'md:ml-64' : 'md:ml-[3.4rem]')
+  }
+
+  return classes
+})
+
 const toggleSidebar = () => {
   sidebarOpen.value = !sidebarOpen.value
 }
@@ -49,24 +61,20 @@ watch(isMobile, (newIsMobile) => {
 
 <template>
   <div class="min-h-screen bg-content-default">
-    <!-- Header -->
     <ClHeader
       :brand-text="props.brandText"
       :sidebar-open="sidebarOpen"
       @toggle-sidebar="toggleSidebar"
     />
 
-    <div class="flex h-[calc(100vh-4rem)]">
-      <!-- 4rem = header height (h-16) -->
-      <!-- Sidebar -->
+    <div class="pt-16">
       <ClSidebar
         :is-open="sidebarOpen"
         :is-mobile="isMobile"
         @close="closeSidebar"
       />
 
-      <!-- Main content -->
-      <main class="flex-1 overflow-y-auto">
+      <main :class="mainClasses">
         <div class="p-4 sm:p-6 lg:p-8">
           <slot />
         </div>

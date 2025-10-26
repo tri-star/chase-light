@@ -25,7 +25,9 @@ const showHamburger = computed(() => isLoggedIn.value)
 </script>
 
 <template>
-  <header class="bg-header-default shadow-sm border-b border-header-default">
+  <header
+    class="fixed inset-x-0 top-0 z-50 bg-header-default shadow-sm border-b border-header-default backdrop-blur-md"
+  >
     <div class="w-full px-2">
       <div class="flex justify-between items-center h-16">
         <!-- Left side: Brand and hamburger -->

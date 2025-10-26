@@ -1,20 +1,53 @@
-import { TranslationResponse } from "../../../application/ports/translation.port"
+import {
+  type TranslationPort,
+  type TranslationResponse,
+} from "../../../application/ports/translation.port"
 import { type ActivityType } from "../../../domain/activity"
+
+type TranslationStubHandler = (input: {
+  activityType: ActivityType
+  title: string
+  body: string
+}) => TranslationResponse | Promise<TranslationResponse>
 
 /**
  * TranslationServiceのスタブ実装
  * テスト用およびローカル開発環境用
  */
-export class TranslationAdapterStub {
+export class TranslationAdapterStub implements TranslationPort {
+  private handler: TranslationStubHandler
+
+  constructor(handler?: TranslationStubHandler) {
+    this.handler = handler ?? this.getDefaultHandler()
+  }
+
+  configure(handler: TranslationStubHandler): void {
+    this.handler = handler
+  }
+
+  reset(): void {
+    this.handler = this.getDefaultHandler()
+  }
+
   async translate(
     activityType: ActivityType,
     title: string,
     body: string,
   ): Promise<TranslationResponse> {
-    // スタブ実装: 固定の日本語翻訳を返す
-    return {
-      translatedTitle: `[翻訳済み] ${title}`,
-      translatedBody: `[翻訳済み] ${body}\n\n※これはテスト用のスタブ翻訳です。実際のAI翻訳は本番環境で実行されます。`,
-    }
+    return await this.handler({ activityType, title, body })
   }
+
+  private getDefaultHandler(): TranslationStubHandler {
+    return ({ activityType, title }) => ({
+      translatedTitle: `[翻訳済み] ${title}`,
+      summary: `【テスト要約:${activityType}】${title}`,
+      translatedBody: null,
+    })
+  }
+}
+
+export function createTranslationAdapterStub(
+  handler?: TranslationStubHandler,
+): TranslationAdapterStub {
+  return new TranslationAdapterStub(handler)
 }

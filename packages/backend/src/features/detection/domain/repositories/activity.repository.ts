@@ -66,8 +66,9 @@ export interface ActivityRepository {
    */
   updateWithTranslation(
     activityId: string,
-    translatedTitle: string,
-    translatedBody: string,
+    translatedTitle: string | null,
+    summary: string | null,
+    translatedBody: string | null,
     status: ActivityStatus,
     statusDetail?: string | null,
   ): Promise<boolean>
