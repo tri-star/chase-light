@@ -31,7 +31,10 @@ type BaseActivityRow = {
   dataSourceId: string
   activityType: ActivityType
   title: string
+  translatedTitle: string | null
   body: string
+  summary: string | null
+  translatedBody: string | null
   status: ActivityStatus
   statusDetail: string | null
   version: string | null
@@ -182,8 +185,10 @@ export class DrizzleActivityQueryRepository implements ActivityQueryRepository {
         id: row.activityId,
         activityType: row.activityType,
         title: row.title,
-        summary: this.createSummary(row.body),
+        translatedTitle: row.translatedTitle,
+        summary: this.resolveSummary(row.summary, row.body),
         detail: row.body,
+        translatedBody: row.translatedBody,
         status: row.status,
         statusDetail: row.statusDetail,
         version: row.version,
@@ -200,7 +205,10 @@ export class DrizzleActivityQueryRepository implements ActivityQueryRepository {
       dataSourceId: activities.dataSourceId,
       activityType: activities.activityType,
       title: activities.title,
+      translatedTitle: activities.translatedTitle,
       body: activities.body,
+      summary: activities.summary,
+      translatedBody: activities.translatedBody,
       status: activities.status,
       statusDetail: activities.statusDetail,
       version: activities.version,
@@ -312,8 +320,10 @@ export class DrizzleActivityQueryRepository implements ActivityQueryRepository {
         id: row.activityId,
         activityType: row.activityType,
         title: row.title,
-        summary: this.createSummary(row.body),
+        translatedTitle: row.translatedTitle,
+        summary: this.resolveSummary(row.summary, row.body),
         detail: null,
+        translatedBody: row.translatedBody,
         status: row.status,
         statusDetail: row.statusDetail,
         version: row.version,
@@ -344,7 +354,14 @@ export class DrizzleActivityQueryRepository implements ActivityQueryRepository {
     }
   }
 
-  private createSummary(body: string | null): string | null {
+  private resolveSummary(
+    summary: string | null,
+    body: string | null,
+  ): string | null {
+    if (summary && summary.trim().length > 0) {
+      return summary
+    }
+
     if (!body) {
       return null
     }

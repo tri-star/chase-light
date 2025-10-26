@@ -60,12 +60,20 @@ export const activitySummarySchema = z.object({
     description: "アクティビティのタイトル",
     example: "v1.2.0 をリリース",
   }),
+  translatedTitle: z.string().nullable().openapi({
+    description: "翻訳済みタイトル (日本語)",
+    example: "v1.2.0 をリリース",
+  }),
   summary: z.string().nullable().openapi({
-    description: "本文から生成したサマリ",
+    description: "本文の要約 (翻訳済み)",
     example: "主な変更点: パフォーマンス改善とバグ修正",
   }),
   detail: z.string().nullable().optional().openapi({
     description: "本文の抜粋 (一覧では省略される場合あり)",
+    example: null,
+  }),
+  translatedBody: z.string().nullable().openapi({
+    description: "翻訳済み本文 (現状はnull)",
     example: null,
   }),
   status: z

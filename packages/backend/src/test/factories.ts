@@ -275,6 +275,9 @@ export class TestDataFactory {
       title?: string
       body?: string
       version?: string | null
+      translatedTitle?: string | null
+      summary?: string | null
+      translatedBody?: string | null
       status?: ActivityStatus
       statusDetail?: string | null
       githubData?: string | null
@@ -288,6 +291,9 @@ export class TestDataFactory {
     activityType: ActivityType
     title: string
     body: string
+    translatedTitle: string | null
+    summary: string | null
+    translatedBody: string | null
     version: string | null
     status: ActivityStatus
     statusDetail: string | null
@@ -310,6 +316,21 @@ export class TestDataFactory {
       activityType: customData?.activityType ?? ACTIVITY_TYPE.RELEASE,
       title: customData?.title ?? "Test Activity",
       body: customData?.body ?? "Test activity body",
+      translatedTitle:
+        customData &&
+        Object.prototype.hasOwnProperty.call(customData, "translatedTitle")
+          ? (customData.translatedTitle ?? null)
+          : null,
+      summary:
+        customData &&
+        Object.prototype.hasOwnProperty.call(customData, "summary")
+          ? (customData.summary ?? null)
+          : null,
+      translatedBody:
+        customData &&
+        Object.prototype.hasOwnProperty.call(customData, "translatedBody")
+          ? (customData.translatedBody ?? null)
+          : null,
       version,
       status: customData?.status ?? ACTIVITY_STATUS.PENDING,
       statusDetail: customData?.statusDetail ?? null,

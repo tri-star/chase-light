@@ -102,6 +102,7 @@ export class ProcessUpdatesUseCase {
       const updateSuccess = await this.activityRepository.updateWithTranslation(
         activity.id,
         translationResult.translatedTitle,
+        translationResult.summary,
         translationResult.translatedBody,
         ACTIVITY_STATUS.COMPLETED,
         null,

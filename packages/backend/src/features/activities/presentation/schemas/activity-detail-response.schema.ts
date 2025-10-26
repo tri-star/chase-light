@@ -14,13 +14,21 @@ export const activityDetailSchema = z
       description: "アクティビティのタイトル",
       example: "Critical bug fix",
     }),
+    translatedTitle: z.string().nullable().openapi({
+      description: "翻訳済みタイトル (日本語)",
+      example: "重大なバグ修正",
+    }),
     summary: z.string().nullable().openapi({
-      description: "本文からのサマリ",
+      description: "本文の要約 (翻訳済み)",
       example: "メモリリークを修正しました",
     }),
     detail: z.string().openapi({
-      description: "表示用の詳細本文",
+      description: "表示用の詳細本文 (原文)",
       example: "## 修正内容\n- メモリリークの修正\n- テストの追加",
+    }),
+    translatedBody: z.string().nullable().openapi({
+      description: "翻訳済み本文 (現状はnull)",
+      example: null,
     }),
     status: z
       .enum(["pending", "processing", "completed", "failed"])

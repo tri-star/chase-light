@@ -53,6 +53,9 @@ export type ActivityRecord = {
   activityType: ActivityType
   title: string
   body: string
+  translatedTitle: string | null
+  summary: string | null
+  translatedBody: string | null
   version: string | null
   status: ActivityStatus
   statusDetail: string | null
@@ -83,8 +86,10 @@ export type ActivityListItemSummary = {
   id: string
   activityType: ActivityType
   title: string
+  translatedTitle: string | null
   summary: string | null
   detail?: string | null
+  translatedBody: string | null
   status: ActivityStatus
   statusDetail: string | null
   version: string | null

@@ -43,6 +43,9 @@ export class DrizzleActivityRepository implements ActivityRepository {
       activityType: data.activityType,
       title: data.title,
       body: data.body,
+      translatedTitle: null,
+      summary: null,
+      translatedBody: null,
       version: data.version ?? null,
       status: data.status || ACTIVITY_STATUS.PENDING,
       statusDetail: data.statusDetail ?? null,
@@ -109,6 +112,9 @@ export class DrizzleActivityRepository implements ActivityRepository {
       activityType: data.activityType,
       title: data.title,
       body: data.body,
+      translatedTitle: null,
+      summary: null,
+      translatedBody: null,
       version: data.version ?? null,
       status: data.status || ACTIVITY_STATUS.PENDING,
       statusDetail: data.statusDetail ?? null,
@@ -212,8 +218,9 @@ export class DrizzleActivityRepository implements ActivityRepository {
    */
   async updateWithTranslation(
     activityId: string,
-    translatedTitle: string,
-    translatedBody: string,
+    translatedTitle: string | null,
+    summary: string | null,
+    translatedBody: string | null,
     status: ActivityStatus,
     statusDetail?: string | null,
   ): Promise<boolean> {
@@ -223,8 +230,9 @@ export class DrizzleActivityRepository implements ActivityRepository {
     const result = await connection
       .update(activities)
       .set({
-        title: translatedTitle,
-        body: translatedBody,
+        translatedTitle,
+        summary,
+        translatedBody,
         status,
         statusDetail,
         updatedAt: now,
@@ -335,6 +343,9 @@ export class DrizzleActivityRepository implements ActivityRepository {
       activityType: row.activityType as ActivityType,
       title: row.title,
       body: row.body,
+      translatedTitle: row.translatedTitle,
+      summary: row.summary,
+      translatedBody: row.translatedBody,
       version: row.version,
       status: row.status as ActivityStatus,
       statusDetail: row.statusDetail,
