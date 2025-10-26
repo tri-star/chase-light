@@ -1,3 +1,4 @@
+import { promiseAllSettledChunked } from "shared"
 import { TranslationPort } from "../../application/ports/translation.port"
 import { ACTIVITY_STATUS, type Activity } from "../../domain/activity"
 import { ActivityRepository } from "../../domain/repositories/activity.repository"
@@ -16,6 +17,8 @@ interface ProcessactivityResult {
   success: boolean
   error?: string
 }
+
+const PROCESSING_CHUNK_SIZE = 10
 
 /**
  * 検知されたイベントのAI翻訳・状態更新を行うサービス
@@ -56,8 +59,10 @@ export class ProcessUpdatesUseCase {
     }
 
     // 各イベントを個別に処理
-    const results = await Promise.allSettled<ProcessactivityResult>(
-      targets.map((activity: Activity) => this.processactivity(activity)),
+    const results = await promiseAllSettledChunked(
+      targets,
+      (activity: Activity) => this.processactivity(activity),
+      PROCESSING_CHUNK_SIZE,
     )
 
     // 結果を集計
