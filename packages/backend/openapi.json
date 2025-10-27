@@ -687,20 +687,6 @@
         },
         "required": ["success", "error"]
       },
-      "DataSourceDetailResponse": {
-        "type": "object",
-        "properties": {
-          "success": {
-            "type": "boolean",
-            "example": true,
-            "description": "API実行の成功フラグ"
-          },
-          "data": {
-            "$ref": "#/components/schemas/DataSourceListItem"
-          }
-        },
-        "required": ["success", "data"]
-      },
       "CreateDataSourceResponse": {
         "type": "object",
         "properties": {
@@ -770,6 +756,1043 @@
           }
         },
         "required": ["repositoryUrl"]
+      },
+      "DataSourceDetailResponse": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "example": true,
+            "description": "API実行の成功フラグ"
+          },
+          "data": {
+            "$ref": "#/components/schemas/DataSourceListItem"
+          }
+        },
+        "required": ["success", "data"]
+      },
+      "ActivityListResponse": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "enum": [true],
+            "description": "成功フラグ",
+            "example": true
+          },
+          "data": {
+            "type": "object",
+            "properties": {
+              "items": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "activity": {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "string",
+                          "format": "uuid",
+                          "description": "アクティビティID",
+                          "example": "1f2e3d4c-5b6a-7980-1121-314151617181"
+                        },
+                        "activityType": {
+                          "type": "string",
+                          "enum": ["release", "issue", "pull_request"],
+                          "description": "アクティビティの種別",
+                          "example": "release"
+                        },
+                        "title": {
+                          "type": "string",
+                          "description": "アクティビティのタイトル",
+                          "example": "v1.2.0 をリリース"
+                        },
+                        "translatedTitle": {
+                          "type": "string",
+                          "nullable": true,
+                          "description": "翻訳済みタイトル (日本語)",
+                          "example": "v1.2.0 をリリース"
+                        },
+                        "summary": {
+                          "type": "string",
+                          "nullable": true,
+                          "description": "本文の要約 (翻訳済み)",
+                          "example": "主な変更点: パフォーマンス改善とバグ修正"
+                        },
+                        "detail": {
+                          "type": "string",
+                          "nullable": true,
+                          "description": "本文の抜粋 (一覧では省略される場合あり)",
+                          "example": null
+                        },
+                        "translatedBody": {
+                          "type": "string",
+                          "nullable": true,
+                          "description": "翻訳済み本文 (現状はnull)",
+                          "example": null
+                        },
+                        "status": {
+                          "type": "string",
+                          "enum": [
+                            "pending",
+                            "processing",
+                            "completed",
+                            "failed"
+                          ],
+                          "description": "処理ステータス",
+                          "example": "completed"
+                        },
+                        "statusDetail": {
+                          "type": "string",
+                          "nullable": true,
+                          "description": "ステータスに関する補足説明",
+                          "example": null
+                        },
+                        "version": {
+                          "type": "string",
+                          "nullable": true,
+                          "description": "リリースバージョンなど",
+                          "example": "v1.2.0"
+                        },
+                        "occurredAt": {
+                          "type": "string",
+                          "format": "date-time",
+                          "description": "アクティビティ発生日時",
+                          "example": "2024-01-02T12:00:00.000Z"
+                        },
+                        "lastUpdatedAt": {
+                          "type": "string",
+                          "format": "date-time",
+                          "description": "最終更新日時",
+                          "example": "2024-01-02T12:30:00.000Z"
+                        },
+                        "source": {
+                          "type": "object",
+                          "properties": {
+                            "id": {
+                              "type": "string",
+                              "format": "uuid",
+                              "description": "データソースID",
+                              "example": "8a9d3d7f-4c62-4b8c-8b3a-6b5c5d6e7f8a"
+                            },
+                            "sourceType": {
+                              "type": "string",
+                              "description": "データソース種別",
+                              "example": "github"
+                            },
+                            "name": {
+                              "type": "string",
+                              "description": "データソース名",
+                              "example": "octocat/hello-world"
+                            },
+                            "url": {
+                              "type": "string",
+                              "format": "uri",
+                              "description": "データソースURL",
+                              "example": "https://github.com/octocat/hello-world"
+                            },
+                            "metadata": {
+                              "type": "object",
+                              "properties": {
+                                "repositoryFullName": {
+                                  "type": "string",
+                                  "description": "GitHubリポジトリのフルネーム",
+                                  "example": "octocat/hello-world"
+                                },
+                                "repositoryLanguage": {
+                                  "type": "string",
+                                  "nullable": true,
+                                  "description": "リポジトリの主要言語",
+                                  "example": "TypeScript"
+                                },
+                                "starsCount": {
+                                  "type": "integer",
+                                  "description": "スター数",
+                                  "example": 1234
+                                },
+                                "forksCount": {
+                                  "type": "integer",
+                                  "description": "フォーク数",
+                                  "example": 256
+                                },
+                                "openIssuesCount": {
+                                  "type": "integer",
+                                  "description": "未解決Issue数",
+                                  "example": 42
+                                }
+                              },
+                              "description": "データソースに紐づく追加メタ情報"
+                            }
+                          },
+                          "required": ["id", "sourceType", "name", "url"]
+                        }
+                      },
+                      "required": [
+                        "id",
+                        "activityType",
+                        "title",
+                        "translatedTitle",
+                        "summary",
+                        "translatedBody",
+                        "status",
+                        "statusDetail",
+                        "version",
+                        "occurredAt",
+                        "lastUpdatedAt",
+                        "source"
+                      ]
+                    }
+                  },
+                  "required": ["activity"]
+                },
+                "description": "アクティビティ一覧"
+              },
+              "pagination": {
+                "type": "object",
+                "properties": {
+                  "page": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "description": "現在のページ番号",
+                    "example": 1
+                  },
+                  "perPage": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 100,
+                    "description": "1ページあたりの件数",
+                    "example": 20
+                  },
+                  "total": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "description": "総件数",
+                    "example": 120
+                  },
+                  "totalPages": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "description": "総ページ数",
+                    "example": 6
+                  },
+                  "hasNext": {
+                    "type": "boolean",
+                    "description": "次ページが存在するか",
+                    "example": true
+                  },
+                  "hasPrev": {
+                    "type": "boolean",
+                    "description": "前ページが存在するか",
+                    "example": false
+                  }
+                },
+                "required": [
+                  "page",
+                  "perPage",
+                  "total",
+                  "totalPages",
+                  "hasNext",
+                  "hasPrev"
+                ]
+              }
+            },
+            "required": ["items", "pagination"]
+          }
+        },
+        "required": ["success", "data"]
+      },
+      "ActivitiesErrorResponse": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "enum": [false],
+            "description": "成功フラグ (常にfalse)",
+            "example": false
+          },
+          "error": {
+            "type": "object",
+            "properties": {
+              "code": {
+                "type": "string",
+                "description": "エラーコード",
+                "example": "ACTIVITY_NOT_FOUND"
+              },
+              "message": {
+                "type": "string",
+                "description": "エラーメッセージ",
+                "example": "指定されたアクティビティが見つかりません"
+              },
+              "details": {
+                "nullable": true,
+                "description": "詳細情報"
+              }
+            },
+            "required": ["code", "message"],
+            "description": "エラー情報"
+          }
+        },
+        "required": ["success", "error"]
+      },
+      "ActivityDetail": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "アクティビティID",
+            "example": "1f2e3d4c-5b6a-7980-1121-314151617181"
+          },
+          "activityType": {
+            "type": "string",
+            "enum": ["release", "issue", "pull_request"],
+            "description": "アクティビティ種別",
+            "example": "issue"
+          },
+          "title": {
+            "type": "string",
+            "description": "アクティビティのタイトル",
+            "example": "Critical bug fix"
+          },
+          "translatedTitle": {
+            "type": "string",
+            "nullable": true,
+            "description": "翻訳済みタイトル (日本語)",
+            "example": "重大なバグ修正"
+          },
+          "summary": {
+            "type": "string",
+            "nullable": true,
+            "description": "本文の要約 (翻訳済み)",
+            "example": "メモリリークを修正しました"
+          },
+          "detail": {
+            "type": "string",
+            "description": "表示用の詳細本文 (原文)",
+            "example": "## 修正内容\n- メモリリークの修正\n- テストの追加"
+          },
+          "translatedBody": {
+            "type": "string",
+            "nullable": true,
+            "description": "翻訳済み本文 (現状はnull)",
+            "example": null
+          },
+          "status": {
+            "type": "string",
+            "enum": ["pending", "processing", "completed", "failed"],
+            "description": "処理ステータス",
+            "example": "completed"
+          },
+          "statusDetail": {
+            "type": "string",
+            "nullable": true,
+            "description": "ステータスに関する補足",
+            "example": null
+          },
+          "version": {
+            "type": "string",
+            "nullable": true,
+            "description": "リリースバージョン",
+            "example": "v1.2.0"
+          },
+          "occurredAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "発生日時",
+            "example": "2024-01-02T12:00:00.000Z"
+          },
+          "lastUpdatedAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "最終更新日時",
+            "example": "2024-01-02T12:30:00.000Z"
+          },
+          "source": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "format": "uuid",
+                "description": "データソースID",
+                "example": "8a9d3d7f-4c62-4b8c-8b3a-6b5c5d6e7f8a"
+              },
+              "sourceType": {
+                "type": "string",
+                "description": "データソース種別",
+                "example": "github"
+              },
+              "name": {
+                "type": "string",
+                "description": "データソース名",
+                "example": "octocat/hello-world"
+              },
+              "url": {
+                "type": "string",
+                "format": "uri",
+                "description": "データソースURL",
+                "example": "https://github.com/octocat/hello-world"
+              },
+              "metadata": {
+                "type": "object",
+                "properties": {
+                  "repositoryFullName": {
+                    "type": "string",
+                    "description": "GitHubリポジトリのフルネーム",
+                    "example": "octocat/hello-world"
+                  },
+                  "repositoryLanguage": {
+                    "type": "string",
+                    "nullable": true,
+                    "description": "リポジトリの主要言語",
+                    "example": "TypeScript"
+                  },
+                  "starsCount": {
+                    "type": "integer",
+                    "description": "スター数",
+                    "example": 1234
+                  },
+                  "forksCount": {
+                    "type": "integer",
+                    "description": "フォーク数",
+                    "example": 256
+                  },
+                  "openIssuesCount": {
+                    "type": "integer",
+                    "description": "未解決Issue数",
+                    "example": 42
+                  }
+                },
+                "description": "データソースに紐づく追加メタ情報"
+              }
+            },
+            "required": ["id", "sourceType", "name", "url"]
+          }
+        },
+        "required": [
+          "id",
+          "activityType",
+          "title",
+          "translatedTitle",
+          "summary",
+          "detail",
+          "translatedBody",
+          "status",
+          "statusDetail",
+          "version",
+          "occurredAt",
+          "lastUpdatedAt",
+          "source"
+        ]
+      },
+      "ActivityDetailResponse": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "enum": [true]
+          },
+          "data": {
+            "type": "object",
+            "properties": {
+              "activity": {
+                "$ref": "#/components/schemas/ActivityDetail"
+              }
+            },
+            "required": ["activity"]
+          }
+        },
+        "required": ["success", "data"]
+      },
+      "DataSourceActivityListResponse": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "enum": [true]
+          },
+          "data": {
+            "type": "object",
+            "properties": {
+              "dataSource": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string",
+                    "format": "uuid",
+                    "description": "データソースID",
+                    "example": "8a9d3d7f-4c62-4b8c-8b3a-6b5c5d6e7f8a"
+                  },
+                  "sourceType": {
+                    "type": "string",
+                    "description": "データソース種別",
+                    "example": "github"
+                  },
+                  "name": {
+                    "type": "string",
+                    "description": "データソース名",
+                    "example": "octocat/hello-world"
+                  },
+                  "url": {
+                    "type": "string",
+                    "format": "uri",
+                    "description": "データソースURL",
+                    "example": "https://github.com/octocat/hello-world"
+                  },
+                  "metadata": {
+                    "type": "object",
+                    "properties": {
+                      "repositoryFullName": {
+                        "type": "string",
+                        "description": "GitHubリポジトリのフルネーム",
+                        "example": "octocat/hello-world"
+                      },
+                      "repositoryLanguage": {
+                        "type": "string",
+                        "nullable": true,
+                        "description": "リポジトリの主要言語",
+                        "example": "TypeScript"
+                      },
+                      "starsCount": {
+                        "type": "integer",
+                        "description": "スター数",
+                        "example": 1234
+                      },
+                      "forksCount": {
+                        "type": "integer",
+                        "description": "フォーク数",
+                        "example": 256
+                      },
+                      "openIssuesCount": {
+                        "type": "integer",
+                        "description": "未解決Issue数",
+                        "example": 42
+                      }
+                    },
+                    "description": "データソースに紐づく追加メタ情報"
+                  }
+                },
+                "required": ["id", "sourceType", "name", "url"]
+              },
+              "items": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "activity": {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "string",
+                          "format": "uuid",
+                          "description": "アクティビティID",
+                          "example": "1f2e3d4c-5b6a-7980-1121-314151617181"
+                        },
+                        "activityType": {
+                          "type": "string",
+                          "enum": ["release", "issue", "pull_request"],
+                          "description": "アクティビティの種別",
+                          "example": "release"
+                        },
+                        "title": {
+                          "type": "string",
+                          "description": "アクティビティのタイトル",
+                          "example": "v1.2.0 をリリース"
+                        },
+                        "translatedTitle": {
+                          "type": "string",
+                          "nullable": true,
+                          "description": "翻訳済みタイトル (日本語)",
+                          "example": "v1.2.0 をリリース"
+                        },
+                        "summary": {
+                          "type": "string",
+                          "nullable": true,
+                          "description": "本文の要約 (翻訳済み)",
+                          "example": "主な変更点: パフォーマンス改善とバグ修正"
+                        },
+                        "detail": {
+                          "type": "string",
+                          "nullable": true,
+                          "description": "本文の抜粋 (一覧では省略される場合あり)",
+                          "example": null
+                        },
+                        "translatedBody": {
+                          "type": "string",
+                          "nullable": true,
+                          "description": "翻訳済み本文 (現状はnull)",
+                          "example": null
+                        },
+                        "status": {
+                          "type": "string",
+                          "enum": [
+                            "pending",
+                            "processing",
+                            "completed",
+                            "failed"
+                          ],
+                          "description": "処理ステータス",
+                          "example": "completed"
+                        },
+                        "statusDetail": {
+                          "type": "string",
+                          "nullable": true,
+                          "description": "ステータスに関する補足説明",
+                          "example": null
+                        },
+                        "version": {
+                          "type": "string",
+                          "nullable": true,
+                          "description": "リリースバージョンなど",
+                          "example": "v1.2.0"
+                        },
+                        "occurredAt": {
+                          "type": "string",
+                          "format": "date-time",
+                          "description": "アクティビティ発生日時",
+                          "example": "2024-01-02T12:00:00.000Z"
+                        },
+                        "lastUpdatedAt": {
+                          "type": "string",
+                          "format": "date-time",
+                          "description": "最終更新日時",
+                          "example": "2024-01-02T12:30:00.000Z"
+                        },
+                        "source": {
+                          "type": "object",
+                          "properties": {
+                            "id": {
+                              "type": "string",
+                              "format": "uuid",
+                              "description": "データソースID",
+                              "example": "8a9d3d7f-4c62-4b8c-8b3a-6b5c5d6e7f8a"
+                            },
+                            "sourceType": {
+                              "type": "string",
+                              "description": "データソース種別",
+                              "example": "github"
+                            },
+                            "name": {
+                              "type": "string",
+                              "description": "データソース名",
+                              "example": "octocat/hello-world"
+                            },
+                            "url": {
+                              "type": "string",
+                              "format": "uri",
+                              "description": "データソースURL",
+                              "example": "https://github.com/octocat/hello-world"
+                            },
+                            "metadata": {
+                              "type": "object",
+                              "properties": {
+                                "repositoryFullName": {
+                                  "type": "string",
+                                  "description": "GitHubリポジトリのフルネーム",
+                                  "example": "octocat/hello-world"
+                                },
+                                "repositoryLanguage": {
+                                  "type": "string",
+                                  "nullable": true,
+                                  "description": "リポジトリの主要言語",
+                                  "example": "TypeScript"
+                                },
+                                "starsCount": {
+                                  "type": "integer",
+                                  "description": "スター数",
+                                  "example": 1234
+                                },
+                                "forksCount": {
+                                  "type": "integer",
+                                  "description": "フォーク数",
+                                  "example": 256
+                                },
+                                "openIssuesCount": {
+                                  "type": "integer",
+                                  "description": "未解決Issue数",
+                                  "example": 42
+                                }
+                              },
+                              "description": "データソースに紐づく追加メタ情報"
+                            }
+                          },
+                          "required": ["id", "sourceType", "name", "url"]
+                        }
+                      },
+                      "required": [
+                        "id",
+                        "activityType",
+                        "title",
+                        "translatedTitle",
+                        "summary",
+                        "translatedBody",
+                        "status",
+                        "statusDetail",
+                        "version",
+                        "occurredAt",
+                        "lastUpdatedAt",
+                        "source"
+                      ]
+                    }
+                  },
+                  "required": ["activity"]
+                }
+              },
+              "pagination": {
+                "type": "object",
+                "properties": {
+                  "page": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "description": "現在のページ番号",
+                    "example": 1
+                  },
+                  "perPage": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 100,
+                    "description": "1ページあたりの件数",
+                    "example": 20
+                  },
+                  "total": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "description": "総件数",
+                    "example": 120
+                  },
+                  "totalPages": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "description": "総ページ数",
+                    "example": 6
+                  },
+                  "hasNext": {
+                    "type": "boolean",
+                    "description": "次ページが存在するか",
+                    "example": true
+                  },
+                  "hasPrev": {
+                    "type": "boolean",
+                    "description": "前ページが存在するか",
+                    "example": false
+                  }
+                },
+                "required": [
+                  "page",
+                  "perPage",
+                  "total",
+                  "totalPages",
+                  "hasNext",
+                  "hasPrev"
+                ]
+              }
+            },
+            "required": ["dataSource", "items", "pagination"]
+          }
+        },
+        "required": ["success", "data"]
+      },
+      "NotificationSummary": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "通知ID",
+            "example": "a1b2c3d4-5678-90ab-cdef-1234567890ab"
+          },
+          "type": {
+            "type": "string",
+            "description": "通知種別",
+            "example": "activity_digest"
+          },
+          "status": {
+            "type": "string",
+            "description": "通知ステータス",
+            "example": "pending"
+          },
+          "isRead": {
+            "type": "boolean",
+            "description": "既読フラグ",
+            "example": false
+          },
+          "scheduledAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "送信予定日時(ISO8601)",
+            "example": "2025-10-25T10:00:00.000Z"
+          },
+          "sentAt": {
+            "type": "string",
+            "nullable": true,
+            "format": "date-time",
+            "description": "送信日時(ISO8601)",
+            "example": "2025-10-25T10:05:00.000Z"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "作成日時(ISO8601)",
+            "example": "2025-10-25T09:55:00.000Z"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "更新日時(ISO8601)",
+            "example": "2025-10-25T09:59:00.000Z"
+          },
+          "lastActivityOccurredAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "通知に含まれる最新アクティビティの発生日時(ISO8601)",
+            "example": "2025-10-25T08:30:00.000Z"
+          },
+          "metadata": {
+            "type": "object",
+            "nullable": true,
+            "additionalProperties": {
+              "nullable": true
+            },
+            "description": "通知メタデータ(JSON)",
+            "example": {
+              "digest": {
+                "range": {
+                  "from": "2025-10-24T00:00:00.000Z",
+                  "to": "2025-10-25T00:00:00.000Z",
+                  "timezone": "Asia/Tokyo"
+                }
+              }
+            }
+          }
+        },
+        "required": [
+          "id",
+          "type",
+          "status",
+          "isRead",
+          "scheduledAt",
+          "sentAt",
+          "createdAt",
+          "updatedAt",
+          "lastActivityOccurredAt",
+          "metadata"
+        ]
+      },
+      "NotificationRepository": {
+        "type": "object",
+        "properties": {
+          "fullName": {
+            "type": "string",
+            "description": "GitHubリポジトリのフルネーム",
+            "example": "openai/openai"
+          }
+        },
+        "required": ["fullName"]
+      },
+      "NotificationDigestEntry": {
+        "type": "object",
+        "properties": {
+          "activityId": {
+            "type": "string",
+            "format": "uuid",
+            "description": "アクティビティID",
+            "example": "d5c6b7a8-1234-5678-9abc-def012345678"
+          },
+          "title": {
+            "type": "string",
+            "description": "エントリタイトル",
+            "example": "v1.5.0 をリリースしました"
+          },
+          "summary": {
+            "type": "string",
+            "description": "要約テキスト",
+            "example": "主要な改善点とバグ修正を含むリリースです。"
+          },
+          "occurredAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "アクティビティ発生日時(ISO8601)",
+            "example": "2025-10-25T12:34:56.000Z"
+          },
+          "url": {
+            "type": "string",
+            "nullable": true,
+            "format": "uri",
+            "description": "詳細ページURL",
+            "example": "https://github.com/org/repo/releases/tag/v1.5.0"
+          },
+          "displayOrder": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "通知内での表示順序",
+            "example": 1
+          }
+        },
+        "required": [
+          "activityId",
+          "title",
+          "summary",
+          "occurredAt",
+          "url",
+          "displayOrder"
+        ]
+      },
+      "NotificationDigestGroup": {
+        "type": "object",
+        "properties": {
+          "activityType": {
+            "type": "string",
+            "enum": ["issue", "pull_request", "release"],
+            "description": "アクティビティ種別",
+            "example": "release"
+          },
+          "entries": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/NotificationDigestEntry"
+            }
+          }
+        },
+        "required": ["activityType", "entries"]
+      },
+      "NotificationDataSource": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "データソースID",
+            "example": "c1d2e3f4-5678-90ab-cdef-1234567890ab"
+          },
+          "name": {
+            "type": "string",
+            "description": "データソース名",
+            "example": "openai/openai"
+          },
+          "url": {
+            "type": "string",
+            "format": "uri",
+            "description": "データソースURL",
+            "example": "https://github.com/openai/openai"
+          },
+          "sourceType": {
+            "type": "string",
+            "description": "データソース種別",
+            "example": "github_repository"
+          },
+          "repository": {
+            "$ref": "#/components/schemas/NotificationRepository"
+          },
+          "groups": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/NotificationDigestGroup"
+            }
+          }
+        },
+        "required": ["id", "name", "url", "sourceType", "groups"]
+      },
+      "NotificationListItem": {
+        "type": "object",
+        "properties": {
+          "notification": {
+            "$ref": "#/components/schemas/NotificationSummary"
+          },
+          "dataSources": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/NotificationDataSource"
+            }
+          }
+        },
+        "required": ["notification", "dataSources"]
+      },
+      "NotificationListPageInfo": {
+        "type": "object",
+        "properties": {
+          "hasNext": {
+            "type": "boolean",
+            "description": "次ページが存在するかどうか",
+            "example": true
+          },
+          "nextCursor": {
+            "type": "string",
+            "description": "次ページ用カーソル(Base64)",
+            "example": "MjAyNS0xMC0yNVQxMDo1MDo1Ni4wMDBaOXwxYjJjM2Q0LTU2NzgtOTBhYi1jZGVmLTEyMzQ1Njc4OTBhYg=="
+          }
+        },
+        "required": ["hasNext"]
+      },
+      "NotificationListResponse": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "enum": [true],
+            "example": true
+          },
+          "data": {
+            "type": "object",
+            "properties": {
+              "items": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/NotificationListItem"
+                }
+              },
+              "pageInfo": {
+                "$ref": "#/components/schemas/NotificationListPageInfo"
+              }
+            },
+            "required": ["items", "pageInfo"]
+          }
+        },
+        "required": ["success", "data"]
+      },
+      "NotificationErrorResponse": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "enum": [false],
+            "example": false
+          },
+          "error": {
+            "type": "object",
+            "properties": {
+              "code": {
+                "type": "string",
+                "example": "NOTIFICATIONS_INVALID_CURSOR"
+              },
+              "message": {
+                "type": "string",
+                "example": "カーソル形式が不正です"
+              }
+            },
+            "required": ["code", "message"]
+          }
+        },
+        "required": ["success", "error"]
+      },
+      "NotificationDetailResponse": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "enum": [true],
+            "example": true
+          },
+          "data": {
+            "type": "object",
+            "properties": {
+              "item": {
+                "$ref": "#/components/schemas/NotificationListItem"
+              }
+            },
+            "required": ["item"]
+          }
+        },
+        "required": ["success", "data"]
       }
     },
     "parameters": {}
@@ -844,7 +1867,7 @@
         }
       }
     },
-    "/api/users/profile": {
+    "/api/profile": {
       "get": {
         "summary": "プロフィール取得",
         "description": "認証済みユーザーのプロフィール情報を取得します",
@@ -990,7 +2013,7 @@
         }
       }
     },
-    "/api/users/settings": {
+    "/api/settings": {
       "get": {
         "summary": "ユーザー設定取得",
         "description": "認証済みユーザーの設定情報を取得します",
@@ -1386,8 +2409,8 @@
         }
       },
       "post": {
-        "summary": "データソース登録",
-        "description": "GitHubリポジトリをデータソースとして登録し、ユーザーの監視対象に追加します",
+        "summary": "データソース監視登録",
+        "description": "GitHubリポジトリのURLからデータソースを登録し、ユーザーのウォッチ設定を作成します",
         "tags": ["DataSources"],
         "security": [
           {
@@ -1395,7 +2418,6 @@
           }
         ],
         "requestBody": {
-          "description": "データソース作成リクエスト",
           "content": {
             "application/json": {
               "schema": {
@@ -1406,7 +2428,7 @@
         },
         "responses": {
           "201": {
-            "description": "データソースが正常に作成されました",
+            "description": "データソースが正常に登録されました",
             "content": {
               "application/json": {
                 "schema": {
@@ -1471,7 +2493,7 @@
     "/api/data-sources/{id}": {
       "get": {
         "summary": "データソース詳細取得",
-        "description": "指定されたIDのデータソース詳細情報を取得します。認証ユーザーがWatch中のデータソースのみアクセス可能です",
+        "description": "監視中のデータソースの詳細情報を取得します。認証ユーザーがアクセス権限を持つデータソースのみ取得可能です",
         "tags": ["DataSources"],
         "security": [
           {
@@ -1483,11 +2505,10 @@
             "schema": {
               "type": "string",
               "format": "uuid",
-              "example": "550e8400-e29b-41d4-a716-446655440000",
-              "description": "データソースID（UUID形式）"
+              "description": "データソースID"
             },
             "required": true,
-            "description": "データソースID（UUID形式）",
+            "description": "データソースID",
             "name": "id",
             "in": "path"
           }
@@ -1557,7 +2578,7 @@
       },
       "put": {
         "summary": "データソース更新",
-        "description": "指定されたIDのデータソース設定を更新します。認証ユーザーがWatch中のデータソースのみ更新可能です",
+        "description": "データソースの基本情報とウォッチ設定を更新します。認証ユーザーがウォッチ中のデータソースのみ更新可能です",
         "tags": ["DataSources"],
         "security": [
           {
@@ -1569,54 +2590,59 @@
             "schema": {
               "type": "string",
               "format": "uuid",
-              "example": "550e8400-e29b-41d4-a716-446655440000",
-              "description": "データソースID（UUID形式）"
+              "description": "データソースID"
             },
             "required": true,
-            "description": "データソースID（UUID形式）",
+            "description": "データソースID",
             "name": "id",
             "in": "path"
           }
         ],
         "requestBody": {
-          "description": "データソース更新リクエスト",
           "content": {
             "application/json": {
               "schema": {
                 "type": "object",
                 "properties": {
-                  "name": {
+                  "repositoryUrl": {
                     "type": "string",
                     "minLength": 1,
-                    "maxLength": 255,
-                    "example": "My Custom Repository Name",
-                    "description": "データソースの表示名（カスタマイズ可能）"
+                    "example": "https://github.com/facebook/react",
+                    "description": "GitHubリポジトリのURL"
+                  },
+                  "name": {
+                    "type": "string",
+                    "example": "React",
+                    "description": "カスタム表示名（省略時はリポジトリ名を使用）"
                   },
                   "description": {
                     "type": "string",
-                    "maxLength": 1000,
-                    "example": "This is my customized description for this repository",
-                    "description": "データソースの説明（カスタマイズ可能）"
+                    "example": "A declarative, efficient, and flexible JavaScript library for building user interfaces.",
+                    "description": "カスタム説明（省略時はリポジトリの説明を使用）"
                   },
                   "notificationEnabled": {
                     "type": "boolean",
+                    "default": true,
                     "example": true,
-                    "description": "通知の有効/無効"
+                    "description": "通知を有効にするか（デフォルト: true）"
                   },
                   "watchReleases": {
                     "type": "boolean",
+                    "default": true,
                     "example": true,
-                    "description": "リリース監視の有効/無効"
+                    "description": "リリースを監視するか（デフォルト: true）"
                   },
                   "watchIssues": {
                     "type": "boolean",
+                    "default": false,
                     "example": false,
-                    "description": "Issue監視の有効/無効"
+                    "description": "イシューを監視するか（デフォルト: false）"
                   },
                   "watchPullRequests": {
                     "type": "boolean",
+                    "default": false,
                     "example": false,
-                    "description": "PR監視の有効/無効"
+                    "description": "プルリクエストを監視するか（デフォルト: false）"
                   }
                 }
               }
@@ -1629,160 +2655,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object",
-                  "properties": {
-                    "success": {
-                      "type": "boolean",
-                      "enum": [true]
-                    },
-                    "data": {
-                      "type": "object",
-                      "properties": {
-                        "dataSource": {
-                          "type": "object",
-                          "properties": {
-                            "id": {
-                              "type": "string",
-                              "format": "uuid"
-                            },
-                            "sourceType": {
-                              "type": "string"
-                            },
-                            "sourceId": {
-                              "type": "string"
-                            },
-                            "name": {
-                              "type": "string"
-                            },
-                            "description": {
-                              "type": "string"
-                            },
-                            "url": {
-                              "type": "string"
-                            },
-                            "isPrivate": {
-                              "type": "boolean"
-                            },
-                            "repository": {
-                              "type": "object",
-                              "properties": {
-                                "id": {
-                                  "type": "string",
-                                  "format": "uuid"
-                                },
-                                "githubId": {
-                                  "type": "number"
-                                },
-                                "fullName": {
-                                  "type": "string"
-                                },
-                                "owner": {
-                                  "type": "string"
-                                },
-                                "language": {
-                                  "type": "string",
-                                  "nullable": true
-                                },
-                                "starsCount": {
-                                  "type": "number"
-                                },
-                                "forksCount": {
-                                  "type": "number"
-                                },
-                                "openIssuesCount": {
-                                  "type": "number"
-                                },
-                                "isFork": {
-                                  "type": "boolean"
-                                },
-                                "createdAt": {
-                                  "type": "string"
-                                },
-                                "updatedAt": {
-                                  "type": "string"
-                                }
-                              },
-                              "required": [
-                                "id",
-                                "githubId",
-                                "fullName",
-                                "owner",
-                                "language",
-                                "starsCount",
-                                "forksCount",
-                                "openIssuesCount",
-                                "isFork",
-                                "createdAt",
-                                "updatedAt"
-                              ]
-                            },
-                            "createdAt": {
-                              "type": "string"
-                            },
-                            "updatedAt": {
-                              "type": "string"
-                            }
-                          },
-                          "required": [
-                            "id",
-                            "sourceType",
-                            "sourceId",
-                            "name",
-                            "description",
-                            "url",
-                            "isPrivate",
-                            "repository",
-                            "createdAt",
-                            "updatedAt"
-                          ]
-                        },
-                        "userWatch": {
-                          "type": "object",
-                          "properties": {
-                            "id": {
-                              "type": "string",
-                              "format": "uuid"
-                            },
-                            "userId": {
-                              "type": "string",
-                              "format": "uuid"
-                            },
-                            "dataSourceId": {
-                              "type": "string",
-                              "format": "uuid"
-                            },
-                            "notificationEnabled": {
-                              "type": "boolean"
-                            },
-                            "watchReleases": {
-                              "type": "boolean"
-                            },
-                            "watchIssues": {
-                              "type": "boolean"
-                            },
-                            "watchPullRequests": {
-                              "type": "boolean"
-                            },
-                            "addedAt": {
-                              "type": "string"
-                            }
-                          },
-                          "required": [
-                            "id",
-                            "userId",
-                            "dataSourceId",
-                            "notificationEnabled",
-                            "watchReleases",
-                            "watchIssues",
-                            "watchPullRequests",
-                            "addedAt"
-                          ]
-                        }
-                      },
-                      "required": ["dataSource", "userWatch"]
-                    }
-                  },
-                  "required": ["success", "data"]
+                  "$ref": "#/components/schemas/CreateDataSourceResponse"
                 }
               }
             }
@@ -1853,11 +2726,10 @@
             "schema": {
               "type": "string",
               "format": "uuid",
-              "example": "550e8400-e29b-41d4-a716-446655440000",
-              "description": "データソースID（UUID形式）"
+              "description": "データソースID"
             },
             "required": true,
-            "description": "データソースID（UUID形式）",
+            "description": "データソースID",
             "name": "id",
             "in": "path"
           }
@@ -1912,6 +2784,546 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/DataSourceError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/activities": {
+      "get": {
+        "summary": "ウォッチ対象アクティビティ一覧取得",
+        "description": "ユーザーがウォッチしているデータソースのアクティビティをページネーション付きで取得します",
+        "tags": ["Activities"],
+        "security": [
+          {
+            "Bearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "default": 1,
+              "description": "ページ番号 (1始まり)",
+              "example": 1
+            },
+            "required": false,
+            "description": "ページ番号 (1始まり)",
+            "name": "page",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 20,
+              "description": "1ページあたりの件数 (最大100)",
+              "example": 20
+            },
+            "required": false,
+            "description": "1ページあたりの件数 (最大100)",
+            "name": "perPage",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "enum": ["release", "issue", "pull_request"],
+              "description": "アクティビティ種別",
+              "example": "release"
+            },
+            "required": false,
+            "description": "アクティビティ種別",
+            "name": "activityType",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "enum": ["pending", "processing", "completed", "failed"],
+              "default": "completed",
+              "description": "アクティビティステータス",
+              "example": "completed"
+            },
+            "required": false,
+            "description": "アクティビティステータス",
+            "name": "status",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "format": "date-time",
+              "description": "取得期間の開始日時 (ISO8601)",
+              "example": "2024-01-01T00:00:00.000Z"
+            },
+            "required": false,
+            "description": "取得期間の開始日時 (ISO8601)",
+            "name": "since",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "format": "date-time",
+              "description": "取得期間の終了日時 (ISO8601)",
+              "example": "2024-02-01T00:00:00.000Z"
+            },
+            "required": false,
+            "description": "取得期間の終了日時 (ISO8601)",
+            "name": "until",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "enum": ["createdAt", "updatedAt"],
+              "default": "createdAt",
+              "description": "ソート対象フィールド",
+              "example": "createdAt"
+            },
+            "required": false,
+            "description": "ソート対象フィールド",
+            "name": "sort",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "enum": ["asc", "desc"],
+              "default": "desc",
+              "description": "ソート順",
+              "example": "desc"
+            },
+            "required": false,
+            "description": "ソート順",
+            "name": "order",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "アクティビティ一覧の取得に成功しました",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ActivityListResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "バリデーションエラー",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ActivitiesErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "認証エラー",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ActivitiesErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "リソースが見つからない / アクセス権なし",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ActivitiesErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/activities/{activityId}": {
+      "get": {
+        "summary": "アクティビティ詳細取得",
+        "description": "指定したアクティビティの詳細情報を取得します。ウォッチ対象外の場合は404を返却します",
+        "tags": ["Activities"],
+        "security": [
+          {
+            "Bearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "description": "アクティビティID",
+              "example": "1f2e3d4c-5b6a-7980-1121-314151617181"
+            },
+            "required": true,
+            "description": "アクティビティID",
+            "name": "activityId",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "アクティビティ詳細の取得に成功しました",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ActivityDetailResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "バリデーションエラー",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ActivitiesErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "認証エラー",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ActivitiesErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "リソースが見つからない / アクセス権なし",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ActivitiesErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/data-sources/{dataSourceId}/activities": {
+      "get": {
+        "summary": "データソース別アクティビティ一覧取得",
+        "description": "指定データソースに紐づくアクティビティを取得します。ウォッチしていない場合は404を返却します",
+        "tags": ["Activities"],
+        "security": [
+          {
+            "Bearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "description": "データソースID",
+              "example": "8a9d3d7f-4c62-4b8c-8b3a-6b5c5d6e7f8a"
+            },
+            "required": true,
+            "description": "データソースID",
+            "name": "dataSourceId",
+            "in": "path"
+          },
+          {
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "default": 1,
+              "description": "ページ番号 (1始まり)",
+              "example": 1
+            },
+            "required": false,
+            "description": "ページ番号 (1始まり)",
+            "name": "page",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 20,
+              "description": "1ページあたりの件数 (最大100)",
+              "example": 20
+            },
+            "required": false,
+            "description": "1ページあたりの件数 (最大100)",
+            "name": "perPage",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "enum": ["release", "issue", "pull_request"],
+              "description": "アクティビティ種別",
+              "example": "release"
+            },
+            "required": false,
+            "description": "アクティビティ種別",
+            "name": "activityType",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "enum": ["pending", "processing", "completed", "failed"],
+              "default": "completed",
+              "description": "アクティビティステータス",
+              "example": "completed"
+            },
+            "required": false,
+            "description": "アクティビティステータス",
+            "name": "status",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "format": "date-time",
+              "description": "取得期間の開始日時 (ISO8601)",
+              "example": "2024-01-01T00:00:00.000Z"
+            },
+            "required": false,
+            "description": "取得期間の開始日時 (ISO8601)",
+            "name": "since",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "format": "date-time",
+              "description": "取得期間の終了日時 (ISO8601)",
+              "example": "2024-02-01T00:00:00.000Z"
+            },
+            "required": false,
+            "description": "取得期間の終了日時 (ISO8601)",
+            "name": "until",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "enum": ["createdAt", "updatedAt"],
+              "default": "createdAt",
+              "description": "ソート対象フィールド",
+              "example": "createdAt"
+            },
+            "required": false,
+            "description": "ソート対象フィールド",
+            "name": "sort",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "enum": ["asc", "desc"],
+              "default": "desc",
+              "description": "ソート順",
+              "example": "desc"
+            },
+            "required": false,
+            "description": "ソート順",
+            "name": "order",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "データソースのアクティビティ一覧を取得しました",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DataSourceActivityListResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "バリデーションエラー",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ActivitiesErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "認証エラー",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ActivitiesErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "リソースが見つからない / アクセス権なし",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ActivitiesErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/notifications": {
+      "get": {
+        "summary": "通知一覧の取得",
+        "description": "カーソルベースのページネーションに対応した通知一覧を返却します",
+        "tags": ["Notifications"],
+        "security": [
+          {
+            "Bearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "description": "次ページ取得用のカーソル(Base64)",
+              "example": "MjAyNS0xMC0yNVQxMDo1MDo1Ni4wMDBafDEyM2U0NTY3LWU4OWItMTJkMy1hNDU2LTQyNjYxNDE3NDAwMA=="
+            },
+            "required": false,
+            "description": "次ページ取得用のカーソル(Base64)",
+            "name": "cursor",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "default": 20,
+              "description": "取得件数 (1-50)",
+              "example": 20
+            },
+            "required": false,
+            "description": "取得件数 (1-50)",
+            "name": "limit",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "enum": ["all", "read", "unread"],
+              "default": "all",
+              "description": "既読フィルタ",
+              "example": "unread"
+            },
+            "required": false,
+            "description": "既読フィルタ",
+            "name": "read",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 120,
+              "description": "タイトル・サマリの部分一致検索キーワード",
+              "example": "TypeScript 5.5"
+            },
+            "required": false,
+            "description": "タイトル・サマリの部分一致検索キーワード",
+            "name": "search",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "通知一覧の取得に成功しました",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NotificationListResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "不正なカーソル指定",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NotificationErrorResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "許可されていないlimit値",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NotificationErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/notifications/{notificationId}": {
+      "get": {
+        "summary": "通知詳細の取得",
+        "description": "指定された通知の詳細を返却します",
+        "tags": ["Notifications"],
+        "security": [
+          {
+            "Bearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "description": "通知ID",
+              "example": "a1b2c3d4-5678-90ab-cdef-1234567890ab"
+            },
+            "required": true,
+            "description": "通知ID",
+            "name": "notificationId",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "通知詳細の取得に成功しました",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NotificationDetailResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "通知が存在しない、またはアクセス権がありません",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NotificationErrorResponse"
                 }
               }
             }
