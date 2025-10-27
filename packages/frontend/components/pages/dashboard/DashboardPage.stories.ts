@@ -1,8 +1,14 @@
 import type { StoryObj, Meta } from '@nuxtjs/storybook'
 import { http, HttpResponse } from 'msw'
 import DashboardPage from './DashboardPage.vue'
-import { getGetApiDataSourcesMockHandler } from '~/generated/api/backend.msw'
-import type { DataSourceListResponse } from '~/generated/api/schemas'
+import {
+  getGetApiDataSourcesMockHandler,
+  getGetApiNotificationsMockHandler,
+} from '~/generated/api/backend.msw'
+import type {
+  DataSourceListResponse,
+  NotificationListResponse,
+} from '~/generated/api/schemas'
 import { expect, within } from 'storybook/test'
 
 const meta: Meta<typeof DashboardPage> = {
@@ -12,7 +18,7 @@ const meta: Meta<typeof DashboardPage> = {
     docs: {
       description: {
         component:
-          'ダッシュボードページのメインコンポーネントです。ウォッチ中のリポジトリ一覧と統計情報を表示します。実際のAPIコールをMSWでモックして動作確認します。',
+          'ダッシュボードページのメインコンポーネントです。新着通知一覧と統計情報を表示します。実際のAPIコールをMSWでモックして動作確認します。',
       },
     },
     layout: 'fullscreen',
@@ -40,159 +46,168 @@ const meta: Meta<typeof DashboardPage> = {
 export default meta
 type Story = StoryObj<typeof meta>
 
-// より現実的なモックデータを生成する関数
-const createRealisticMockResponse = (
-  itemCount: number
-): DataSourceListResponse => {
-  const realisticRepos = [
-    {
-      name: 'awesome-vue',
-      fullName: 'vuejs/awesome-vue',
-      language: 'TypeScript',
-      starsCount: 15420,
-      description: 'A curated list of awesome things related to Vue.js',
-    },
-    {
-      name: 'nuxt',
-      fullName: 'nuxt/nuxt',
-      language: 'TypeScript',
-      starsCount: 52100,
-      description: 'The Intuitive Vue Framework',
-    },
-    {
-      name: 'pinia',
-      fullName: 'vuejs/pinia',
-      language: 'TypeScript',
-      starsCount: 12800,
-      description: 'Intuitive, type safe, light and flexible Store for Vue',
-    },
-    {
-      name: 'vueuse',
-      fullName: 'vueuse/vueuse',
-      language: 'TypeScript',
-      starsCount: 19500,
-      description: 'Collection of essential Vue Composition Utilities',
-    },
-    {
-      name: 'tailwindcss',
-      fullName: 'tailwindlabs/tailwindcss',
-      language: 'JavaScript',
-      starsCount: 81200,
-      description: 'A utility-first CSS framework',
-    },
-    {
-      name: 'vitest',
-      fullName: 'vitest-dev/vitest',
-      language: 'TypeScript',
-      starsCount: 12600,
-      description: 'A blazing fast unit test framework',
-    },
-    {
-      name: 'playwright',
-      fullName: 'microsoft/playwright',
-      language: 'TypeScript',
-      starsCount: 65200,
-      description: 'Playwright is a framework for Web Testing and Automation',
-    },
-    {
-      name: 'prisma',
-      fullName: 'prisma/prisma',
-      language: 'TypeScript',
-      starsCount: 38900,
-      description: 'Next-generation Node.js and TypeScript ORM',
-    },
-  ]
-
-  const items = Array.from(
-    { length: Math.min(itemCount, realisticRepos.length) },
-    (_, i) => {
-      const repo = realisticRepos[i]
-      return {
-        dataSource: {
-          id: `repo-${i + 1}`,
-          sourceType: 'github',
-          sourceId: `${i + 1}`,
-          name: repo.name,
-          description: repo.description,
-          url: `https://github.com/${repo.fullName}`,
-          isPrivate: false,
-          repository: {
-            id: `repo-${i + 1}`,
-            githubId: i + 1,
-            fullName: repo.fullName,
-            language: repo.language,
-            starsCount: repo.starsCount,
-            forksCount: Math.floor(repo.starsCount / 10),
-            openIssuesCount: 1,
-            isFork: false,
-            createdAt: new Date(
-              Date.now() - Math.random() * 365 * 24 * 60 * 60 * 1000
-            ).toISOString(),
-            updatedAt: new Date(
-              Date.now() - Math.random() * 7 * 24 * 60 * 60 * 1000
-            ).toISOString(),
-          },
-          createdAt: new Date(
-            Date.now() - Math.random() * 365 * 24 * 60 * 60 * 1000
-          ).toISOString(),
-          updatedAt: new Date(
-            Date.now() - Math.random() * 7 * 24 * 60 * 60 * 1000
-          ).toISOString(),
-        },
-        userWatch: {
-          id: `watch-${i + 1}`,
-          userId: 'user-123',
-          dataSourceId: `repo-${i + 1}`,
-          notificationEnabled: true,
-          watchReleases: true,
-          watchIssues: true,
-          watchPullRequests: true,
-          addedAt: new Date(
-            Date.now() - Math.random() * 30 * 24 * 60 * 60 * 1000
-          ).toISOString(),
-        },
-      }
-    }
-  )
-
+// データソース統計用のモックレスポンス
+const createDataSourcesResponse = (total: number): DataSourceListResponse => {
   return {
     success: true,
     data: {
-      items,
+      items: [],
       pagination: {
         page: 1,
-        perPage: 20,
-        total: itemCount,
-        totalPages: Math.ceil(itemCount / 20),
-        hasNext: itemCount > 20,
+        perPage: 1,
+        total,
+        totalPages: total,
+        hasNext: false,
         hasPrev: false,
       },
     },
   }
 }
 
+// 通知用のモックレスポンス
+const createNotificationsResponse = (
+  itemCount: number
+): NotificationListResponse => {
+  const mockItems = [
+    {
+      dataSource: {
+        name: 'facebook/react',
+        url: 'https://github.com/facebook/react',
+      },
+      groups: [
+        {
+          activityType: 'release' as const,
+          entries: [
+            {
+              title: 'React 19.0.0 リリース',
+              summary: 'React 19の新機能が多数追加されました',
+              occurredAt: new Date(Date.now() - 3600000).toISOString(),
+            },
+          ],
+        },
+      ],
+    },
+    {
+      dataSource: {
+        name: 'vuejs/core',
+        url: 'https://github.com/vuejs/core',
+      },
+      groups: [
+        {
+          activityType: 'issue' as const,
+          entries: [
+            {
+              title: 'Vue 3.5でのパフォーマンス改善',
+              summary: 'レンダリング速度が大幅に向上しました',
+              occurredAt: new Date(Date.now() - 7200000).toISOString(),
+            },
+          ],
+        },
+      ],
+    },
+    {
+      dataSource: {
+        name: 'nuxt/nuxt',
+        url: 'https://github.com/nuxt/nuxt',
+      },
+      groups: [
+        {
+          activityType: 'pull_request' as const,
+          entries: [
+            {
+              title: 'Nuxt 4でのTypeScript強化',
+              summary: '型安全性が向上しました',
+              occurredAt: new Date(Date.now() - 10800000).toISOString(),
+            },
+          ],
+        },
+      ],
+    },
+  ]
+
+  const items = Array.from({ length: Math.min(itemCount, 10) }, (_, i) => {
+    const mock = mockItems[i % mockItems.length]
+    return {
+      notification: {
+        id: `notif-${i + 1}`,
+        type: 'activity_digest',
+        status: 'sent',
+        isRead: i % 3 === 0,
+        scheduledAt: new Date(Date.now() - 86400000).toISOString(),
+        sentAt: new Date(Date.now() - 82800000).toISOString(),
+        createdAt: new Date(Date.now() - 86400000).toISOString(),
+        updatedAt: new Date(Date.now() - 82800000).toISOString(),
+        lastActivityOccurredAt: new Date(
+          Date.now() - 3600000 * i
+        ).toISOString(),
+        metadata: {},
+      },
+      dataSources: [
+        {
+          id: `ds-${i + 1}`,
+          name: mock.dataSource.name,
+          url: mock.dataSource.url,
+          sourceType: 'github_repository',
+          repository: {
+            fullName: mock.dataSource.name,
+          },
+          groups: mock.groups.map((group) => ({
+            activityType: group.activityType,
+            entries: group.entries.map((entry, entryIdx) => ({
+              activityId: `act-${i + 1}-${entryIdx}`,
+              title: entry.title,
+              summary: entry.summary,
+              occurredAt: entry.occurredAt,
+              url: `${mock.dataSource.url}/releases/tag/v1.0.0`,
+              displayOrder: entryIdx,
+            })),
+          })),
+        },
+      ],
+    }
+  })
+
+  return {
+    success: true,
+    data: {
+      items,
+      pageInfo: {
+        hasNext: itemCount > 10,
+        nextCursor: itemCount > 10 ? 'next-cursor' : undefined,
+      },
+    },
+  }
+}
+
 // MSWハンドラー設定
-const successHandler = getGetApiDataSourcesMockHandler(
-  createRealisticMockResponse(8)
+const dataSourcesSuccessHandler = getGetApiDataSourcesMockHandler(
+  createDataSourcesResponse(8)
 )
 
-const emptyHandler = http.get('*/api/data-sources', async () => {
-  return HttpResponse.json(createRealisticMockResponse(0))
+const notificationsSuccessHandler = getGetApiNotificationsMockHandler(
+  createNotificationsResponse(5)
+)
+
+const notificationsEmptyHandler = http.get('*/api/notifications', async () => {
+  return HttpResponse.json(createNotificationsResponse(0))
 })
 
-const loadingHandler = http.get('*/api/data-sources', async () => {
-  await new Promise((resolve) => setTimeout(resolve, 2000))
-  return HttpResponse.json(createRealisticMockResponse(8))
-})
+const notificationsLoadingHandler = http.get(
+  '*/api/notifications',
+  async () => {
+    await new Promise((resolve) => setTimeout(resolve, 2000))
+    return HttpResponse.json(createNotificationsResponse(5))
+  }
+)
 
-const errorHandler = http.get('*/api/data-sources', async () => {
+const notificationsErrorHandler = http.get('*/api/notifications', async () => {
   return new HttpResponse(null, { status: 500 })
 })
 
 export const Default: Story = {
   parameters: {
     msw: {
-      handlers: [successHandler],
+      handlers: [dataSourcesSuccessHandler, notificationsSuccessHandler],
     },
   },
   // インタラクションテスト（Storybook Test Runnerで実行）
@@ -203,21 +218,24 @@ export const Default: Story = {
       await expect(await canvas.findByText('ダッシュボード')).toBeVisible()
       await expect(
         await canvas.findByText(
-          'ウォッチ中のリポジトリの最新情報をチェックしましょう'
+          'ウォッチ中のリポジトリの最新通知をチェックしましょう'
         )
       ).toBeVisible()
     })
 
-    await step('統計カードとリストが描画される', async () => {
+    await step('統計カードと通知リストが描画される', async () => {
       await expect(
         await canvas.findByText('ウォッチ中リポジトリ')
       ).toBeVisible()
-      // 合計数が8として表示される（モックの件数）
       await expect(await canvas.findByText('8')).toBeVisible()
 
-      // リアルなダミーの一部が描画されていること
-      await expect(await canvas.findByText('nuxt/nuxt')).toBeVisible()
-      await expect(await canvas.findByText('vuejs/awesome-vue')).toBeVisible()
+      await expect(await canvas.findByText('未読通知')).toBeVisible()
+
+      // 通知の内容が表示される
+      await expect(
+        await canvas.findByText('React 19.0.0 リリース')
+      ).toBeVisible()
+      await expect(await canvas.findByText('facebook/react')).toBeVisible()
     })
   },
 }
@@ -225,7 +243,7 @@ export const Default: Story = {
 export const Loading: Story = {
   parameters: {
     msw: {
-      handlers: [loadingHandler],
+      handlers: [dataSourcesSuccessHandler, notificationsLoadingHandler],
     },
   },
 }
@@ -233,13 +251,13 @@ export const Loading: Story = {
 export const Empty: Story = {
   parameters: {
     msw: {
-      handlers: [emptyHandler],
+      handlers: [dataSourcesSuccessHandler, notificationsEmptyHandler],
     },
   },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement)
     await expect(
-      await canvas.findByText('ウォッチ中のリポジトリがありません')
+      await canvas.findByText('新しい通知はありません')
     ).toBeVisible()
   },
 }
@@ -247,29 +265,30 @@ export const Empty: Story = {
 export const Error: Story = {
   parameters: {
     msw: {
-      handlers: [errorHandler],
+      handlers: [dataSourcesSuccessHandler, notificationsErrorHandler],
     },
   },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement)
     // エラー文言の表示
     await expect(
-      await canvas.findByText('データの読み込みに失敗しました')
+      await canvas.findByText('通知の読み込みに失敗しました')
     ).toBeVisible()
   },
 }
 
-export const ManyRepositories: Story = {
+export const ManyNotifications: Story = {
   parameters: {
     msw: {
       handlers: [
-        getGetApiDataSourcesMockHandler(createRealisticMockResponse(25)),
+        getGetApiDataSourcesMockHandler(createDataSourcesResponse(25)),
+        getGetApiNotificationsMockHandler(createNotificationsResponse(10)),
       ],
     },
   },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement)
-    // 合計が25として表示される
+    // データソース数が25として表示される
     await expect(await canvas.findByText('25')).toBeVisible()
   },
 }
