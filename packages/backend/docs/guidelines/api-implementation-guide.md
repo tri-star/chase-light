@@ -33,6 +33,7 @@
 - Hono のルート定義は `presentation/routes` に格納し、ルート毎に `createRoute` + `app.openapi`（または `app.on`）で宣言と実装を隣接させます。
 - Request/Response の整形はプレゼンテーション層で完結させ、ユースケースにはドメインで扱いやすい形を渡します。
 - バリデーションには Zod を使用し、マジックナンバーは `constants/` に切り出します。
+- ルート定義を追加・変更した場合、OpenAPI仕様書の更新も必要です。これは、 `pnpm openapi:update` コマンドで実行してください。
 
 ### 5. Workers (`/workers`)
 

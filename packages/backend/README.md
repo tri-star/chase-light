@@ -19,10 +19,10 @@ Chase LightのバックエンドAPIサーバーです。Hono + TypeScript + Open
 
 ```bash
 # リポジトリルートから実行
-pnpm --filter backend openapi:pull
+pnpm --filter backend openapi:update
 
 # backend ディレクトリ内から実行
-pnpm openapi:pull
+pnpm openapi:update
 ```
 
 出力先: `packages/backend/openapi.json`
