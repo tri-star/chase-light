@@ -1,9 +1,11 @@
 import type { StoryObj, Meta } from '@nuxtjs/storybook'
 import { http, HttpResponse } from 'msw'
-import DashboardPage from './DashboardPage.vue'
-import { getGetApiDataSourcesMockHandler } from '~/generated/api/backend.msw'
-import type { DataSourceListResponse } from '~/generated/api/schemas'
 import { expect, within } from 'storybook/test'
+import DashboardPage from './DashboardPage.vue'
+import type {
+  DataSourceListResponse,
+  NotificationListResponse,
+} from '~/generated/api/schemas'
 
 const meta: Meta<typeof DashboardPage> = {
   title: 'Components/Pages/DashboardPage',
@@ -12,7 +14,7 @@ const meta: Meta<typeof DashboardPage> = {
     docs: {
       description: {
         component:
-          'ダッシュボードページのメインコンポーネントです。ウォッチ中のリポジトリ一覧と統計情報を表示します。実際のAPIコールをMSWでモックして動作確認します。',
+          'ダッシュボードページのメインコンポーネントです。未読通知のダイジェスト一覧と統計カードを表示し、通知 API を MSW でモックして動作確認します。',
       },
     },
     layout: 'fullscreen',
@@ -38,186 +40,180 @@ const meta: Meta<typeof DashboardPage> = {
 }
 
 export default meta
+
 type Story = StoryObj<typeof meta>
 
-// より現実的なモックデータを生成する関数
-const createRealisticMockResponse = (
-  itemCount: number
-): DataSourceListResponse => {
-  const realisticRepos = [
+const createDataSourceResponse = (total: number): DataSourceListResponse => ({
+  success: true,
+  data: {
+    items: [],
+    pagination: {
+      page: 1,
+      perPage: 1,
+      total,
+      totalPages: 1,
+      hasNext: false,
+      hasPrev: false,
+    },
+  },
+})
+
+const createNotificationResponse = (
+  overrides: Partial<NotificationListResponse> = {}
+): NotificationListResponse => {
+  const now = new Date('2025-10-28T09:00:00.000Z')
+
+  const notifications: NotificationListResponse['data']['items'] = [
     {
-      name: 'awesome-vue',
-      fullName: 'vuejs/awesome-vue',
-      language: 'TypeScript',
-      starsCount: 15420,
-      description: 'A curated list of awesome things related to Vue.js',
+      notification: {
+        id: 'notification-1',
+        type: 'digest',
+        status: 'scheduled',
+        isRead: false,
+        scheduledAt: now.toISOString(),
+        sentAt: null,
+        createdAt: new Date(now.getTime() - 60 * 60 * 1000).toISOString(),
+        updatedAt: now.toISOString(),
+        lastActivityOccurredAt: new Date(
+          now.getTime() - 30 * 60 * 1000
+        ).toISOString(),
+        metadata: null,
+      },
+      dataSources: [
+        {
+          id: 'source-1',
+          name: 'nuxt/nuxt',
+          url: 'https://github.com/nuxt/nuxt',
+          sourceType: 'github',
+          repository: {
+            fullName: 'nuxt/nuxt',
+          },
+          groups: [
+            {
+              activityType: 'release',
+              entries: [
+                {
+                  activityId: 'activity-1',
+                  title: 'v3.12.0 リリース',
+                  summary: 'Nuxt 3.12.0 が公開されました',
+                  occurredAt: new Date(
+                    now.getTime() - 50 * 60 * 1000
+                  ).toISOString(),
+                  url: 'https://github.com/nuxt/nuxt/releases/v3.12.0',
+                  displayOrder: 0,
+                },
+              ],
+            },
+            {
+              activityType: 'issue',
+              entries: [
+                {
+                  activityId: 'activity-2',
+                  title: 'docs: 誤記修正',
+                  summary: 'ガイド内のリンク切れを修正しました',
+                  occurredAt: new Date(
+                    now.getTime() - 90 * 60 * 1000
+                  ).toISOString(),
+                  url: null,
+                  displayOrder: 1,
+                },
+              ],
+            },
+          ],
+        },
+      ],
     },
     {
-      name: 'nuxt',
-      fullName: 'nuxt/nuxt',
-      language: 'TypeScript',
-      starsCount: 52100,
-      description: 'The Intuitive Vue Framework',
-    },
-    {
-      name: 'pinia',
-      fullName: 'vuejs/pinia',
-      language: 'TypeScript',
-      starsCount: 12800,
-      description: 'Intuitive, type safe, light and flexible Store for Vue',
-    },
-    {
-      name: 'vueuse',
-      fullName: 'vueuse/vueuse',
-      language: 'TypeScript',
-      starsCount: 19500,
-      description: 'Collection of essential Vue Composition Utilities',
-    },
-    {
-      name: 'tailwindcss',
-      fullName: 'tailwindlabs/tailwindcss',
-      language: 'JavaScript',
-      starsCount: 81200,
-      description: 'A utility-first CSS framework',
-    },
-    {
-      name: 'vitest',
-      fullName: 'vitest-dev/vitest',
-      language: 'TypeScript',
-      starsCount: 12600,
-      description: 'A blazing fast unit test framework',
-    },
-    {
-      name: 'playwright',
-      fullName: 'microsoft/playwright',
-      language: 'TypeScript',
-      starsCount: 65200,
-      description: 'Playwright is a framework for Web Testing and Automation',
-    },
-    {
-      name: 'prisma',
-      fullName: 'prisma/prisma',
-      language: 'TypeScript',
-      starsCount: 38900,
-      description: 'Next-generation Node.js and TypeScript ORM',
+      notification: {
+        id: 'notification-2',
+        type: 'digest',
+        status: 'sent',
+        isRead: true,
+        scheduledAt: new Date(
+          now.getTime() - 12 * 60 * 60 * 1000
+        ).toISOString(),
+        sentAt: new Date(now.getTime() - 11 * 60 * 60 * 1000).toISOString(),
+        createdAt: new Date(now.getTime() - 13 * 60 * 60 * 1000).toISOString(),
+        updatedAt: new Date(now.getTime() - 11 * 60 * 60 * 1000).toISOString(),
+        lastActivityOccurredAt: new Date(
+          now.getTime() - 11.5 * 60 * 60 * 1000
+        ).toISOString(),
+        metadata: null,
+      },
+      dataSources: [
+        {
+          id: 'source-2',
+          name: 'vuejs/pinia',
+          url: 'https://github.com/vuejs/pinia',
+          sourceType: 'github',
+          repository: {
+            fullName: 'vuejs/pinia',
+          },
+          groups: [
+            {
+              activityType: 'pull_request',
+              entries: [
+                {
+                  activityId: 'activity-3',
+                  title: 'chore: CI を高速化',
+                  summary: 'Vitest のキャッシュを導入してビルド時間を短縮',
+                  occurredAt: new Date(
+                    now.getTime() - 12 * 60 * 60 * 1000
+                  ).toISOString(),
+                  url: 'https://github.com/vuejs/pinia/pull/999',
+                  displayOrder: 0,
+                },
+              ],
+            },
+          ],
+        },
+      ],
     },
   ]
-
-  const items = Array.from(
-    { length: Math.min(itemCount, realisticRepos.length) },
-    (_, i) => {
-      const repo = realisticRepos[i]
-      return {
-        dataSource: {
-          id: `repo-${i + 1}`,
-          sourceType: 'github',
-          sourceId: `${i + 1}`,
-          name: repo.name,
-          description: repo.description,
-          url: `https://github.com/${repo.fullName}`,
-          isPrivate: false,
-          repository: {
-            id: `repo-${i + 1}`,
-            githubId: i + 1,
-            fullName: repo.fullName,
-            language: repo.language,
-            starsCount: repo.starsCount,
-            forksCount: Math.floor(repo.starsCount / 10),
-            openIssuesCount: 1,
-            isFork: false,
-            createdAt: new Date(
-              Date.now() - Math.random() * 365 * 24 * 60 * 60 * 1000
-            ).toISOString(),
-            updatedAt: new Date(
-              Date.now() - Math.random() * 7 * 24 * 60 * 60 * 1000
-            ).toISOString(),
-          },
-          createdAt: new Date(
-            Date.now() - Math.random() * 365 * 24 * 60 * 60 * 1000
-          ).toISOString(),
-          updatedAt: new Date(
-            Date.now() - Math.random() * 7 * 24 * 60 * 60 * 1000
-          ).toISOString(),
-        },
-        userWatch: {
-          id: `watch-${i + 1}`,
-          userId: 'user-123',
-          dataSourceId: `repo-${i + 1}`,
-          notificationEnabled: true,
-          watchReleases: true,
-          watchIssues: true,
-          watchPullRequests: true,
-          addedAt: new Date(
-            Date.now() - Math.random() * 30 * 24 * 60 * 60 * 1000
-          ).toISOString(),
-        },
-      }
-    }
-  )
 
   return {
     success: true,
     data: {
-      items,
-      pagination: {
-        page: 1,
-        perPage: 20,
-        total: itemCount,
-        totalPages: Math.ceil(itemCount / 20),
-        hasNext: itemCount > 20,
-        hasPrev: false,
+      items: notifications,
+      pageInfo: {
+        hasNext: false,
       },
     },
+    ...overrides,
   }
 }
 
-// MSWハンドラー設定
-const successHandler = getGetApiDataSourcesMockHandler(
-  createRealisticMockResponse(8)
-)
+const notificationsHandler = (response: NotificationListResponse) =>
+  http.get('*/api/notifications', () => HttpResponse.json(response))
 
-const emptyHandler = http.get('*/api/data-sources', async () => {
-  return HttpResponse.json(createRealisticMockResponse(0))
-})
-
-const loadingHandler = http.get('*/api/data-sources', async () => {
-  await new Promise((resolve) => setTimeout(resolve, 2000))
-  return HttpResponse.json(createRealisticMockResponse(8))
-})
-
-const errorHandler = http.get('*/api/data-sources', async () => {
-  return new HttpResponse(null, { status: 500 })
-})
+const dataSourceHandler = (total: number) =>
+  http.get('*/api/data-sources', () =>
+    HttpResponse.json(createDataSourceResponse(total))
+  )
 
 export const Default: Story = {
   parameters: {
     msw: {
-      handlers: [successHandler],
+      handlers: [
+        notificationsHandler(createNotificationResponse()),
+        dataSourceHandler(18),
+      ],
     },
   },
-  // インタラクションテスト（Storybook Test Runnerで実行）
   play: async ({ canvasElement, step }) => {
     const canvas = within(canvasElement)
 
-    await step('ページヘッダが表示される', async () => {
+    await step('ページタイトルが表示される', async () => {
       await expect(await canvas.findByText('ダッシュボード')).toBeVisible()
       await expect(
-        await canvas.findByText(
-          'ウォッチ中のリポジトリの最新情報をチェックしましょう'
-        )
+        await canvas.findByText('未読の通知ダイジェストをまとめて確認できます')
       ).toBeVisible()
     })
 
-    await step('統計カードとリストが描画される', async () => {
-      await expect(
-        await canvas.findByText('ウォッチ中リポジトリ')
-      ).toBeVisible()
-      // 合計数が8として表示される（モックの件数）
-      await expect(await canvas.findByText('8')).toBeVisible()
-
-      // リアルなダミーの一部が描画されていること
+    await step('通知カードが描画される', async () => {
       await expect(await canvas.findByText('nuxt/nuxt')).toBeVisible()
-      await expect(await canvas.findByText('vuejs/awesome-vue')).toBeVisible()
+      await expect(await canvas.findByText('v3.12.0 リリース')).toBeVisible()
+      await expect(await canvas.findByText('vuejs/pinia')).toBeVisible()
     })
   },
 }
@@ -225,7 +221,13 @@ export const Default: Story = {
 export const Loading: Story = {
   parameters: {
     msw: {
-      handlers: [loadingHandler],
+      handlers: [
+        http.get('*/api/notifications', async () => {
+          await new Promise((resolve) => setTimeout(resolve, 1500))
+          return HttpResponse.json(createNotificationResponse())
+        }),
+        dataSourceHandler(18),
+      ],
     },
   },
 }
@@ -233,43 +235,66 @@ export const Loading: Story = {
 export const Empty: Story = {
   parameters: {
     msw: {
-      handlers: [emptyHandler],
+      handlers: [
+        notificationsHandler(
+          createNotificationResponse({
+            data: {
+              items: [],
+              pageInfo: {
+                hasNext: false,
+              },
+            },
+          })
+        ),
+        dataSourceHandler(0),
+      ],
     },
   },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement)
-    await expect(
-      await canvas.findByText('ウォッチ中のリポジトリがありません')
-    ).toBeVisible()
+    await expect(await canvas.findByText('未読通知はありません')).toBeVisible()
   },
 }
 
 export const Error: Story = {
   parameters: {
     msw: {
-      handlers: [errorHandler],
-    },
-  },
-  play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement)
-    // エラー文言の表示
-    await expect(
-      await canvas.findByText('データの読み込みに失敗しました')
-    ).toBeVisible()
-  },
-}
-
-export const ManyRepositories: Story = {
-  parameters: {
-    msw: {
       handlers: [
-        getGetApiDataSourcesMockHandler(createRealisticMockResponse(25)),
+        http.get(
+          '*/api/notifications',
+          () => new HttpResponse(null, { status: 500 })
+        ),
+        dataSourceHandler(18),
       ],
     },
   },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement)
-    // 合計が25として表示される
-    await expect(await canvas.findByText('25')).toBeVisible()
+    await expect(await canvas.findByText('再読み込み')).toBeVisible()
+  },
+}
+
+export const WithNextPage: Story = {
+  parameters: {
+    msw: {
+      handlers: [
+        notificationsHandler(
+          createNotificationResponse({
+            data: {
+              ...createNotificationResponse().data,
+              pageInfo: {
+                hasNext: true,
+                nextCursor: 'cursor-2',
+              },
+            },
+          })
+        ),
+        dataSourceHandler(42),
+      ],
+    },
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    await expect(await canvas.findByText('もっと見る')).toBeVisible()
   },
 }
