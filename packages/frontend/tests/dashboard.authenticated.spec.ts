@@ -11,7 +11,7 @@ test.describe('Authenticated Dashboard', () => {
       page.locator('h1').filter({ hasText: 'ダッシュボード' })
     ).toBeVisible()
     await expect(
-      page.locator('text=ウォッチ中のリポジトリの最新情報をチェックしましょう')
+      page.locator('text=ウォッチ中のリポジトリの最新通知をチェックしましょう')
     ).toBeVisible()
 
     // 統計情報カードが表示されることを確認
@@ -42,12 +42,12 @@ test.describe('Authenticated Dashboard', () => {
     }
   })
 
-  test('should display repository list section', async ({ page }) => {
+  test('should display notification list section', async ({ page }) => {
     await page.goto('/dashboard')
 
-    // リポジトリ一覧セクションが表示されることを確認（h2要素を狙い撃ち）
+    // 通知一覧セクションが表示されることを確認（h2要素を狙い撃ち）
     await expect(
-      page.locator('h2').filter({ hasText: 'ウォッチ中のリポジトリ' })
+      page.locator('h2').filter({ hasText: '新着通知（未読のみ）' })
     ).toBeVisible()
 
     // 更新ボタンが表示されることを確認
