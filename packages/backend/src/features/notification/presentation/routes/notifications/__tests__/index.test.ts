@@ -2,11 +2,6 @@ import { beforeEach, describe, expect, test } from "vitest"
 import { OpenAPIHono } from "@hono/zod-openapi"
 import { setupComponentTest, TestDataFactory } from "../../../../../../test"
 import { createNotificationPresentationRoutes } from "../../../routes"
-import {
-  GetNotificationDetailUseCase,
-  ListNotificationsUseCase,
-} from "../../../../application/use-cases"
-import { DrizzleNotificationQueryRepository } from "../../../../infra"
 import { globalJWTAuth } from "../../../../../identity"
 import { AuthTestHelper } from "../../../../../identity/test-helpers/auth-test-helper"
 import type { User } from "../../../../../identity/domain/user"
@@ -187,21 +182,9 @@ describe("Notifications API", () => {
       ],
     })
 
-    const repository = new DrizzleNotificationQueryRepository()
-    const listNotificationsUseCase = new ListNotificationsUseCase(repository)
-    const getNotificationDetailUseCase = new GetNotificationDetailUseCase(
-      repository,
-    )
-
     app = new OpenAPIHono()
     app.use("*", globalJWTAuth)
-    app.route(
-      "/",
-      createNotificationPresentationRoutes(
-        listNotificationsUseCase,
-        getNotificationDetailUseCase,
-      ),
-    )
+    app.route("/", createNotificationPresentationRoutes())
   })
 
   test("GET /notifications で最新の通知が先頭に並ぶ", async () => {

@@ -1,10 +1,6 @@
 import { OpenAPIHono, createRoute, z } from "@hono/zod-openapi"
 import { requireAuth } from "../../../../identity/middleware/jwt-auth.middleware"
 import {
-  type GetNotificationDetailUseCase,
-  type ListNotificationsUseCase,
-} from "../../../application/use-cases"
-import {
   notificationDetailResponseSchema,
   notificationListRequestSchema,
   notificationListResponseSchema,
@@ -18,6 +14,8 @@ import {
   NOTIFICATIONS_MAX_LIMIT,
 } from "../../../constants/query.constants"
 import { NotificationInvalidCursorError } from "../../../errors/notification-invalid-cursor.error"
+import { ListNotificationsUseCase } from "../../../application/use-cases/list-notifications.use-case"
+import { GetNotificationDetailUseCase } from "../../../application/use-cases/get-notification-detail.use-case"
 
 type ErrorResponse = {
   success: false
