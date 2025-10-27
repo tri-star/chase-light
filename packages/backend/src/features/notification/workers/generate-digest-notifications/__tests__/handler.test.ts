@@ -52,6 +52,10 @@ describe("generate-digest-notifications handler", () => {
   })
 
   it("集約対象があるユーザーにダイジェスト通知を作成する", async () => {
+    vi.useFakeTimers()
+    const now = new Date("2025-10-21T12:00:00Z")
+    vi.setSystemTime(now)
+
     const user = await TestDataFactory.createCustomUser({
       timezone: "Asia/Tokyo",
     })

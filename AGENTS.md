@@ -33,14 +33,7 @@
 ## Commit & Pull Request Guidelines
 
 - Commit style: Conventional Commits preferred (feat, fix, chore, docs). Include scope when helpful (e.g., `feat(frontend): ...`) and ticket when available (e.g., `feat(CHASE-92): ...`).
-- PRs: include clear description, linked issue, test plan, and screenshots for UI changes. Ensure CI passes and run `pnpm lint && pnpm test` before requesting review.
-
-## Security & Configuration
-
-- Do not commit secrets. Copy and edit `.env.example` files locally (`cp packages/backend/.env.example packages/backend/.env`).
-- Backend local helpers: `pnpm --filter backend local:start|local:stop` to manage local dependencies.
-
-## Git コミット時の注意点
+- PRs: include clear description, linked issue. Ensure CI passes and run `pnpm format && pnpm lint` before requesting review.
 
 - コミットする時、コミット内容・粒度はconventional commitを意識して書いてください。
 - git commit --author="Codex CLI <codex-cli@users.noreply.github.com>" でCodex CLIをコミッターとして指定してください。
@@ -49,6 +42,10 @@
   - コミットメッセージにPlaneの課題IDを含めてください(CHASE-XXX)。
   - Planeのタスクを更新して、作業内容を反映させてください。
 - コミット前に以下を実行し、エラーがある場合は調査、修正案を検討し、修正を行ってください。
-  - format
-  - lint
-  - test
+  - pnpm format
+  - pnpm lint
+
+## Security & Configuration
+
+- Do not commit secrets. Copy and edit `.env.example` files locally (`cp packages/backend/.env.example packages/backend/.env`).
+- Backend local helpers: `pnpm --filter backend local:start|local:stop` to manage local dependencies.

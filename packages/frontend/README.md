@@ -90,7 +90,7 @@ Backend の OpenAPI 定義からフロントエンド用の HTTP クライアン
 
 ```bash
 pnpm dev                 # http://localhost:3001/doc を提供
-pnpm openapi:pull        # packages/backend/openapi.json を保存
+pnpm openapi:update        # packages/backend/openapi.json を保存
 ```
 
 2. `packages/frontend` でクライアント生成
