@@ -18,10 +18,14 @@ import type {
 } from 'msw';
 
 import type {
+  ActivityDetailResponse,
+  ActivityListResponse,
   CreateDataSourceResponse,
+  DataSourceActivityListResponse,
   DataSourceDetailResponse,
   DataSourceListResponse,
-  PutApiDataSourcesId200,
+  NotificationDetailResponse,
+  NotificationListResponse,
   SignUpResponse,
   UserProfileResponse,
   UserSettingsResponse
@@ -30,13 +34,13 @@ import type {
 
 export const getPostApiAuthSignupResponseMock = (overrideResponse: Partial< SignUpResponse | SignUpResponse > = {}): SignUpResponse | SignUpResponse => (faker.helpers.arrayElement([{user: {id: faker.string.uuid(), email: faker.internet.email(), name: faker.string.alpha({length: {min: 10, max: 20}}), githubUsername: faker.helpers.arrayElement([faker.string.alpha({length: {min: 10, max: 20}}), undefined]), avatarUrl: faker.internet.url(), createdAt: `${faker.date.past().toISOString().split('.')[0]}Z`}, message: faker.string.alpha({length: {min: 10, max: 20}}), alreadyExists: faker.helpers.arrayElement([faker.datatype.boolean(), undefined]), ...overrideResponse}, {user: {id: faker.string.uuid(), email: faker.internet.email(), name: faker.string.alpha({length: {min: 10, max: 20}}), githubUsername: faker.helpers.arrayElement([faker.string.alpha({length: {min: 10, max: 20}}), undefined]), avatarUrl: faker.internet.url(), createdAt: `${faker.date.past().toISOString().split('.')[0]}Z`}, message: faker.string.alpha({length: {min: 10, max: 20}}), alreadyExists: faker.helpers.arrayElement([faker.datatype.boolean(), undefined]), ...overrideResponse}]))
 
-export const getGetApiUsersProfileResponseMock = (overrideResponse: Partial< UserProfileResponse > = {}): UserProfileResponse => ({user: {id: faker.string.uuid(), email: faker.internet.email(), name: faker.string.alpha({length: {min: 10, max: 20}}), githubUsername: faker.helpers.arrayElement([faker.string.alpha({length: {min: 10, max: 20}}), null]), avatarUrl: faker.internet.url(), timezone: faker.string.alpha({length: {min: 10, max: 20}}), createdAt: `${faker.date.past().toISOString().split('.')[0]}Z`, updatedAt: `${faker.date.past().toISOString().split('.')[0]}Z`}, ...overrideResponse})
+export const getGetApiProfileResponseMock = (overrideResponse: Partial< UserProfileResponse > = {}): UserProfileResponse => ({user: {id: faker.string.uuid(), email: faker.internet.email(), name: faker.string.alpha({length: {min: 10, max: 20}}), githubUsername: faker.helpers.arrayElement([faker.string.alpha({length: {min: 10, max: 20}}), null]), avatarUrl: faker.internet.url(), timezone: faker.string.alpha({length: {min: 10, max: 20}}), createdAt: `${faker.date.past().toISOString().split('.')[0]}Z`, updatedAt: `${faker.date.past().toISOString().split('.')[0]}Z`}, ...overrideResponse})
 
-export const getPutApiUsersProfileResponseMock = (overrideResponse: Partial< UserProfileResponse > = {}): UserProfileResponse => ({user: {id: faker.string.uuid(), email: faker.internet.email(), name: faker.string.alpha({length: {min: 10, max: 20}}), githubUsername: faker.helpers.arrayElement([faker.string.alpha({length: {min: 10, max: 20}}), null]), avatarUrl: faker.internet.url(), timezone: faker.string.alpha({length: {min: 10, max: 20}}), createdAt: `${faker.date.past().toISOString().split('.')[0]}Z`, updatedAt: `${faker.date.past().toISOString().split('.')[0]}Z`}, ...overrideResponse})
+export const getPutApiProfileResponseMock = (overrideResponse: Partial< UserProfileResponse > = {}): UserProfileResponse => ({user: {id: faker.string.uuid(), email: faker.internet.email(), name: faker.string.alpha({length: {min: 10, max: 20}}), githubUsername: faker.helpers.arrayElement([faker.string.alpha({length: {min: 10, max: 20}}), null]), avatarUrl: faker.internet.url(), timezone: faker.string.alpha({length: {min: 10, max: 20}}), createdAt: `${faker.date.past().toISOString().split('.')[0]}Z`, updatedAt: `${faker.date.past().toISOString().split('.')[0]}Z`}, ...overrideResponse})
 
-export const getGetApiUsersSettingsResponseMock = (overrideResponse: Partial< UserSettingsResponse > = {}): UserSettingsResponse => ({user: {id: faker.string.uuid(), email: faker.internet.email(), name: faker.string.alpha({length: {min: 10, max: 20}}), githubUsername: faker.helpers.arrayElement([faker.string.alpha({length: {min: 10, max: 20}}), null]), avatarUrl: faker.internet.url(), timezone: faker.string.alpha({length: {min: 10, max: 20}}), createdAt: `${faker.date.past().toISOString().split('.')[0]}Z`, updatedAt: `${faker.date.past().toISOString().split('.')[0]}Z`, settings: {timezone: faker.string.alpha({length: {min: 10, max: 20}}), emailNotifications: faker.datatype.boolean(), pushNotifications: faker.datatype.boolean(), language: faker.helpers.arrayElement(['ja','en'] as const)}}, ...overrideResponse})
+export const getGetApiSettingsResponseMock = (overrideResponse: Partial< UserSettingsResponse > = {}): UserSettingsResponse => ({user: {id: faker.string.uuid(), email: faker.internet.email(), name: faker.string.alpha({length: {min: 10, max: 20}}), githubUsername: faker.helpers.arrayElement([faker.string.alpha({length: {min: 10, max: 20}}), null]), avatarUrl: faker.internet.url(), timezone: faker.string.alpha({length: {min: 10, max: 20}}), createdAt: `${faker.date.past().toISOString().split('.')[0]}Z`, updatedAt: `${faker.date.past().toISOString().split('.')[0]}Z`, settings: {timezone: faker.string.alpha({length: {min: 10, max: 20}}), emailNotifications: faker.datatype.boolean(), pushNotifications: faker.datatype.boolean(), language: faker.helpers.arrayElement(['ja','en'] as const)}}, ...overrideResponse})
 
-export const getPutApiUsersSettingsResponseMock = (overrideResponse: Partial< UserSettingsResponse > = {}): UserSettingsResponse => ({user: {id: faker.string.uuid(), email: faker.internet.email(), name: faker.string.alpha({length: {min: 10, max: 20}}), githubUsername: faker.helpers.arrayElement([faker.string.alpha({length: {min: 10, max: 20}}), null]), avatarUrl: faker.internet.url(), timezone: faker.string.alpha({length: {min: 10, max: 20}}), createdAt: `${faker.date.past().toISOString().split('.')[0]}Z`, updatedAt: `${faker.date.past().toISOString().split('.')[0]}Z`, settings: {timezone: faker.string.alpha({length: {min: 10, max: 20}}), emailNotifications: faker.datatype.boolean(), pushNotifications: faker.datatype.boolean(), language: faker.helpers.arrayElement(['ja','en'] as const)}}, ...overrideResponse})
+export const getPutApiSettingsResponseMock = (overrideResponse: Partial< UserSettingsResponse > = {}): UserSettingsResponse => ({user: {id: faker.string.uuid(), email: faker.internet.email(), name: faker.string.alpha({length: {min: 10, max: 20}}), githubUsername: faker.helpers.arrayElement([faker.string.alpha({length: {min: 10, max: 20}}), null]), avatarUrl: faker.internet.url(), timezone: faker.string.alpha({length: {min: 10, max: 20}}), createdAt: `${faker.date.past().toISOString().split('.')[0]}Z`, updatedAt: `${faker.date.past().toISOString().split('.')[0]}Z`, settings: {timezone: faker.string.alpha({length: {min: 10, max: 20}}), emailNotifications: faker.datatype.boolean(), pushNotifications: faker.datatype.boolean(), language: faker.helpers.arrayElement(['ja','en'] as const)}}, ...overrideResponse})
 
 export const getGetApiDataSourcesResponseMock = (overrideResponse: Partial< DataSourceListResponse > = {}): DataSourceListResponse => ({success: faker.datatype.boolean(), data: {items: Array.from({ length: faker.number.int({ min: 1, max: 10 }) }, (_, i) => i + 1).map(() => ({dataSource: {id: faker.string.alpha({length: {min: 10, max: 20}}), sourceType: faker.string.alpha({length: {min: 10, max: 20}}), sourceId: faker.string.alpha({length: {min: 10, max: 20}}), name: faker.string.alpha({length: {min: 10, max: 20}}), description: faker.string.alpha({length: {min: 10, max: 20}}), url: faker.string.alpha({length: {min: 10, max: 20}}), isPrivate: faker.datatype.boolean(), repository: {id: faker.string.alpha({length: {min: 10, max: 20}}), githubId: faker.number.float({min: undefined, max: undefined, fractionDigits: 2}), fullName: faker.string.alpha({length: {min: 10, max: 20}}), language: faker.helpers.arrayElement([faker.string.alpha({length: {min: 10, max: 20}}), null]), starsCount: faker.number.float({min: undefined, max: undefined, fractionDigits: 2}), forksCount: faker.number.float({min: undefined, max: undefined, fractionDigits: 2}), openIssuesCount: faker.number.float({min: undefined, max: undefined, fractionDigits: 2}), isFork: faker.datatype.boolean(), createdAt: faker.string.alpha({length: {min: 10, max: 20}}), updatedAt: faker.string.alpha({length: {min: 10, max: 20}})}, createdAt: faker.string.alpha({length: {min: 10, max: 20}}), updatedAt: faker.string.alpha({length: {min: 10, max: 20}})}, userWatch: {id: faker.string.alpha({length: {min: 10, max: 20}}), userId: faker.string.alpha({length: {min: 10, max: 20}}), dataSourceId: faker.string.alpha({length: {min: 10, max: 20}}), notificationEnabled: faker.datatype.boolean(), watchReleases: faker.datatype.boolean(), watchIssues: faker.datatype.boolean(), watchPullRequests: faker.datatype.boolean(), addedAt: faker.string.alpha({length: {min: 10, max: 20}})}})), pagination: {page: faker.number.int({min: 1, max: undefined}), perPage: faker.number.int({min: 1, max: 100}), total: faker.number.int({min: 0, max: undefined}), totalPages: faker.number.int({min: 0, max: undefined}), hasNext: faker.datatype.boolean(), hasPrev: faker.datatype.boolean()}}, ...overrideResponse})
 
@@ -44,7 +48,21 @@ export const getPostApiDataSourcesResponseMock = (overrideResponse: Partial< Cre
 
 export const getGetApiDataSourcesIdResponseMock = (overrideResponse: Partial< DataSourceDetailResponse > = {}): DataSourceDetailResponse => ({success: faker.datatype.boolean(), data: {dataSource: {id: faker.string.alpha({length: {min: 10, max: 20}}), sourceType: faker.string.alpha({length: {min: 10, max: 20}}), sourceId: faker.string.alpha({length: {min: 10, max: 20}}), name: faker.string.alpha({length: {min: 10, max: 20}}), description: faker.string.alpha({length: {min: 10, max: 20}}), url: faker.string.alpha({length: {min: 10, max: 20}}), isPrivate: faker.datatype.boolean(), repository: {id: faker.string.alpha({length: {min: 10, max: 20}}), githubId: faker.number.float({min: undefined, max: undefined, fractionDigits: 2}), fullName: faker.string.alpha({length: {min: 10, max: 20}}), language: faker.helpers.arrayElement([faker.string.alpha({length: {min: 10, max: 20}}), null]), starsCount: faker.number.float({min: undefined, max: undefined, fractionDigits: 2}), forksCount: faker.number.float({min: undefined, max: undefined, fractionDigits: 2}), openIssuesCount: faker.number.float({min: undefined, max: undefined, fractionDigits: 2}), isFork: faker.datatype.boolean(), createdAt: faker.string.alpha({length: {min: 10, max: 20}}), updatedAt: faker.string.alpha({length: {min: 10, max: 20}})}, createdAt: faker.string.alpha({length: {min: 10, max: 20}}), updatedAt: faker.string.alpha({length: {min: 10, max: 20}})}, userWatch: {id: faker.string.alpha({length: {min: 10, max: 20}}), userId: faker.string.alpha({length: {min: 10, max: 20}}), dataSourceId: faker.string.alpha({length: {min: 10, max: 20}}), notificationEnabled: faker.datatype.boolean(), watchReleases: faker.datatype.boolean(), watchIssues: faker.datatype.boolean(), watchPullRequests: faker.datatype.boolean(), addedAt: faker.string.alpha({length: {min: 10, max: 20}})}}, ...overrideResponse})
 
-export const getPutApiDataSourcesIdResponseMock = (overrideResponse: Partial< PutApiDataSourcesId200 > = {}): PutApiDataSourcesId200 => ({success: faker.datatype.boolean(), data: {dataSource: {id: faker.string.uuid(), sourceType: faker.string.alpha({length: {min: 10, max: 20}}), sourceId: faker.string.alpha({length: {min: 10, max: 20}}), name: faker.string.alpha({length: {min: 10, max: 20}}), description: faker.string.alpha({length: {min: 10, max: 20}}), url: faker.string.alpha({length: {min: 10, max: 20}}), isPrivate: faker.datatype.boolean(), repository: {id: faker.string.uuid(), githubId: faker.number.float({min: undefined, max: undefined, fractionDigits: 2}), fullName: faker.string.alpha({length: {min: 10, max: 20}}), owner: faker.string.alpha({length: {min: 10, max: 20}}), language: faker.helpers.arrayElement([faker.string.alpha({length: {min: 10, max: 20}}), null]), starsCount: faker.number.float({min: undefined, max: undefined, fractionDigits: 2}), forksCount: faker.number.float({min: undefined, max: undefined, fractionDigits: 2}), openIssuesCount: faker.number.float({min: undefined, max: undefined, fractionDigits: 2}), isFork: faker.datatype.boolean(), createdAt: faker.string.alpha({length: {min: 10, max: 20}}), updatedAt: faker.string.alpha({length: {min: 10, max: 20}})}, createdAt: faker.string.alpha({length: {min: 10, max: 20}}), updatedAt: faker.string.alpha({length: {min: 10, max: 20}})}, userWatch: {id: faker.string.uuid(), userId: faker.string.uuid(), dataSourceId: faker.string.uuid(), notificationEnabled: faker.datatype.boolean(), watchReleases: faker.datatype.boolean(), watchIssues: faker.datatype.boolean(), watchPullRequests: faker.datatype.boolean(), addedAt: faker.string.alpha({length: {min: 10, max: 20}})}}, ...overrideResponse})
+export const getPutApiDataSourcesIdResponseMock = (overrideResponse: Partial< CreateDataSourceResponse > = {}): CreateDataSourceResponse => ({success: faker.datatype.boolean(), data: {dataSource: {id: faker.string.alpha({length: {min: 10, max: 20}}), sourceType: faker.string.alpha({length: {min: 10, max: 20}}), sourceId: faker.string.alpha({length: {min: 10, max: 20}}), name: faker.string.alpha({length: {min: 10, max: 20}}), description: faker.string.alpha({length: {min: 10, max: 20}}), url: faker.string.alpha({length: {min: 10, max: 20}}), isPrivate: faker.datatype.boolean(), repository: {id: faker.string.alpha({length: {min: 10, max: 20}}), githubId: faker.number.float({min: undefined, max: undefined, fractionDigits: 2}), fullName: faker.string.alpha({length: {min: 10, max: 20}}), language: faker.helpers.arrayElement([faker.string.alpha({length: {min: 10, max: 20}}), null]), starsCount: faker.number.float({min: undefined, max: undefined, fractionDigits: 2}), forksCount: faker.number.float({min: undefined, max: undefined, fractionDigits: 2}), openIssuesCount: faker.number.float({min: undefined, max: undefined, fractionDigits: 2}), isFork: faker.datatype.boolean(), createdAt: faker.string.alpha({length: {min: 10, max: 20}}), updatedAt: faker.string.alpha({length: {min: 10, max: 20}})}, createdAt: faker.string.alpha({length: {min: 10, max: 20}}), updatedAt: faker.string.alpha({length: {min: 10, max: 20}})}, userWatch: {id: faker.string.alpha({length: {min: 10, max: 20}}), userId: faker.string.alpha({length: {min: 10, max: 20}}), dataSourceId: faker.string.alpha({length: {min: 10, max: 20}}), notificationEnabled: faker.datatype.boolean(), watchReleases: faker.datatype.boolean(), watchIssues: faker.datatype.boolean(), watchPullRequests: faker.datatype.boolean(), addedAt: faker.string.alpha({length: {min: 10, max: 20}})}}, ...overrideResponse})
+
+export const getGetApiActivitiesResponseMock = (overrideResponse: Partial< ActivityListResponse > = {}): ActivityListResponse => ({success: faker.datatype.boolean(), data: {items: Array.from({ length: faker.number.int({ min: 1, max: 10 }) }, (_, i) => i + 1).map(() => ({activity: {id: faker.string.uuid(), activityType: faker.helpers.arrayElement(['release','issue','pull_request'] as const), title: faker.string.alpha({length: {min: 10, max: 20}}), translatedTitle: faker.helpers.arrayElement([faker.string.alpha({length: {min: 10, max: 20}}), null]), summary: faker.helpers.arrayElement([faker.string.alpha({length: {min: 10, max: 20}}), null]), detail: faker.helpers.arrayElement([faker.helpers.arrayElement([faker.string.alpha({length: {min: 10, max: 20}}), null]), undefined]), translatedBody: faker.helpers.arrayElement([faker.string.alpha({length: {min: 10, max: 20}}), null]), status: faker.helpers.arrayElement(['pending','processing','completed','failed'] as const), statusDetail: faker.helpers.arrayElement([faker.string.alpha({length: {min: 10, max: 20}}), null]), version: faker.helpers.arrayElement([faker.string.alpha({length: {min: 10, max: 20}}), null]), occurredAt: `${faker.date.past().toISOString().split('.')[0]}Z`, lastUpdatedAt: `${faker.date.past().toISOString().split('.')[0]}Z`, source: {id: faker.string.uuid(), sourceType: faker.string.alpha({length: {min: 10, max: 20}}), name: faker.string.alpha({length: {min: 10, max: 20}}), url: faker.internet.url(), metadata: faker.helpers.arrayElement([{repositoryFullName: faker.helpers.arrayElement([faker.string.alpha({length: {min: 10, max: 20}}), undefined]), repositoryLanguage: faker.helpers.arrayElement([faker.helpers.arrayElement([faker.string.alpha({length: {min: 10, max: 20}}), null]), undefined]), starsCount: faker.helpers.arrayElement([faker.number.int({min: undefined, max: undefined}), undefined]), forksCount: faker.helpers.arrayElement([faker.number.int({min: undefined, max: undefined}), undefined]), openIssuesCount: faker.helpers.arrayElement([faker.number.int({min: undefined, max: undefined}), undefined])}, undefined])}}})), pagination: {page: faker.number.int({min: 1, max: undefined}), perPage: faker.number.int({min: 1, max: 100}), total: faker.number.int({min: 0, max: undefined}), totalPages: faker.number.int({min: 0, max: undefined}), hasNext: faker.datatype.boolean(), hasPrev: faker.datatype.boolean()}}, ...overrideResponse})
+
+export const getGetApiActivitiesActivityIdResponseMock = (overrideResponse: Partial< ActivityDetailResponse > = {}): ActivityDetailResponse => ({success: faker.datatype.boolean(), data: {activity: {id: faker.string.uuid(), activityType: faker.helpers.arrayElement(['release','issue','pull_request'] as const), title: faker.string.alpha({length: {min: 10, max: 20}}), translatedTitle: faker.helpers.arrayElement([faker.string.alpha({length: {min: 10, max: 20}}), null]), summary: faker.helpers.arrayElement([faker.string.alpha({length: {min: 10, max: 20}}), null]), detail: faker.string.alpha({length: {min: 10, max: 20}}), translatedBody: faker.helpers.arrayElement([faker.string.alpha({length: {min: 10, max: 20}}), null]), status: faker.helpers.arrayElement(['pending','processing','completed','failed'] as const), statusDetail: faker.helpers.arrayElement([faker.string.alpha({length: {min: 10, max: 20}}), null]), version: faker.helpers.arrayElement([faker.string.alpha({length: {min: 10, max: 20}}), null]), occurredAt: `${faker.date.past().toISOString().split('.')[0]}Z`, lastUpdatedAt: `${faker.date.past().toISOString().split('.')[0]}Z`, source: {id: faker.string.uuid(), sourceType: faker.string.alpha({length: {min: 10, max: 20}}), name: faker.string.alpha({length: {min: 10, max: 20}}), url: faker.internet.url(), metadata: faker.helpers.arrayElement([{repositoryFullName: faker.helpers.arrayElement([faker.string.alpha({length: {min: 10, max: 20}}), undefined]), repositoryLanguage: faker.helpers.arrayElement([faker.helpers.arrayElement([faker.string.alpha({length: {min: 10, max: 20}}), null]), undefined]), starsCount: faker.helpers.arrayElement([faker.number.int({min: undefined, max: undefined}), undefined]), forksCount: faker.helpers.arrayElement([faker.number.int({min: undefined, max: undefined}), undefined]), openIssuesCount: faker.helpers.arrayElement([faker.number.int({min: undefined, max: undefined}), undefined])}, undefined])}}}, ...overrideResponse})
+
+export const getGetApiDataSourcesDataSourceIdActivitiesResponseMock = (overrideResponse: Partial< DataSourceActivityListResponse > = {}): DataSourceActivityListResponse => ({success: faker.datatype.boolean(), data: {dataSource: {id: faker.string.uuid(), sourceType: faker.string.alpha({length: {min: 10, max: 20}}), name: faker.string.alpha({length: {min: 10, max: 20}}), url: faker.internet.url(), metadata: faker.helpers.arrayElement([{repositoryFullName: faker.helpers.arrayElement([faker.string.alpha({length: {min: 10, max: 20}}), undefined]), repositoryLanguage: faker.helpers.arrayElement([faker.helpers.arrayElement([faker.string.alpha({length: {min: 10, max: 20}}), null]), undefined]), starsCount: faker.helpers.arrayElement([faker.number.int({min: undefined, max: undefined}), undefined]), forksCount: faker.helpers.arrayElement([faker.number.int({min: undefined, max: undefined}), undefined]), openIssuesCount: faker.helpers.arrayElement([faker.number.int({min: undefined, max: undefined}), undefined])}, undefined])}, items: Array.from({ length: faker.number.int({ min: 1, max: 10 }) }, (_, i) => i + 1).map(() => ({activity: {id: faker.string.uuid(), activityType: faker.helpers.arrayElement(['release','issue','pull_request'] as const), title: faker.string.alpha({length: {min: 10, max: 20}}), translatedTitle: faker.helpers.arrayElement([faker.string.alpha({length: {min: 10, max: 20}}), null]), summary: faker.helpers.arrayElement([faker.string.alpha({length: {min: 10, max: 20}}), null]), detail: faker.helpers.arrayElement([faker.helpers.arrayElement([faker.string.alpha({length: {min: 10, max: 20}}), null]), undefined]), translatedBody: faker.helpers.arrayElement([faker.string.alpha({length: {min: 10, max: 20}}), null]), status: faker.helpers.arrayElement(['pending','processing','completed','failed'] as const), statusDetail: faker.helpers.arrayElement([faker.string.alpha({length: {min: 10, max: 20}}), null]), version: faker.helpers.arrayElement([faker.string.alpha({length: {min: 10, max: 20}}), null]), occurredAt: `${faker.date.past().toISOString().split('.')[0]}Z`, lastUpdatedAt: `${faker.date.past().toISOString().split('.')[0]}Z`, source: {id: faker.string.uuid(), sourceType: faker.string.alpha({length: {min: 10, max: 20}}), name: faker.string.alpha({length: {min: 10, max: 20}}), url: faker.internet.url(), metadata: faker.helpers.arrayElement([{repositoryFullName: faker.helpers.arrayElement([faker.string.alpha({length: {min: 10, max: 20}}), undefined]), repositoryLanguage: faker.helpers.arrayElement([faker.helpers.arrayElement([faker.string.alpha({length: {min: 10, max: 20}}), null]), undefined]), starsCount: faker.helpers.arrayElement([faker.number.int({min: undefined, max: undefined}), undefined]), forksCount: faker.helpers.arrayElement([faker.number.int({min: undefined, max: undefined}), undefined]), openIssuesCount: faker.helpers.arrayElement([faker.number.int({min: undefined, max: undefined}), undefined])}, undefined])}}})), pagination: {page: faker.number.int({min: 1, max: undefined}), perPage: faker.number.int({min: 1, max: 100}), total: faker.number.int({min: 0, max: undefined}), totalPages: faker.number.int({min: 0, max: undefined}), hasNext: faker.datatype.boolean(), hasPrev: faker.datatype.boolean()}}, ...overrideResponse})
+
+export const getGetApiNotificationsResponseMock = (overrideResponse: Partial< NotificationListResponse > = {}): NotificationListResponse => ({success: faker.datatype.boolean(), data: {items: Array.from({ length: faker.number.int({ min: 1, max: 10 }) }, (_, i) => i + 1).map(() => ({notification: {id: faker.string.uuid(), type: faker.string.alpha({length: {min: 10, max: 20}}), status: faker.string.alpha({length: {min: 10, max: 20}}), isRead: faker.datatype.boolean(), scheduledAt: `${faker.date.past().toISOString().split('.')[0]}Z`, sentAt: faker.helpers.arrayElement([`${faker.date.past().toISOString().split('.')[0]}Z`, null]), createdAt: `${faker.date.past().toISOString().split('.')[0]}Z`, updatedAt: `${faker.date.past().toISOString().split('.')[0]}Z`, lastActivityOccurredAt: `${faker.date.past().toISOString().split('.')[0]}Z`, metadata: {
+        [faker.string.alphanumeric(5)]: {}
+      }}, dataSources: Array.from({ length: faker.number.int({ min: 1, max: 10 }) }, (_, i) => i + 1).map(() => ({id: faker.string.uuid(), name: faker.string.alpha({length: {min: 10, max: 20}}), url: faker.internet.url(), sourceType: faker.string.alpha({length: {min: 10, max: 20}}), repository: faker.helpers.arrayElement([{fullName: faker.string.alpha({length: {min: 10, max: 20}})}, undefined]), groups: Array.from({ length: faker.number.int({ min: 1, max: 10 }) }, (_, i) => i + 1).map(() => ({activityType: faker.helpers.arrayElement(['issue','pull_request','release'] as const), entries: Array.from({ length: faker.number.int({ min: 1, max: 10 }) }, (_, i) => i + 1).map(() => ({activityId: faker.string.uuid(), title: faker.string.alpha({length: {min: 10, max: 20}}), summary: faker.string.alpha({length: {min: 10, max: 20}}), occurredAt: `${faker.date.past().toISOString().split('.')[0]}Z`, url: faker.helpers.arrayElement([faker.internet.url(), null]), displayOrder: faker.number.int({min: 0, max: undefined})}))}))}))})), pageInfo: {hasNext: faker.datatype.boolean(), nextCursor: faker.helpers.arrayElement([faker.string.alpha({length: {min: 10, max: 20}}), undefined])}}, ...overrideResponse})
+
+export const getGetApiNotificationsNotificationIdResponseMock = (overrideResponse: Partial< NotificationDetailResponse > = {}): NotificationDetailResponse => ({success: faker.datatype.boolean(), data: {item: {notification: {id: faker.string.uuid(), type: faker.string.alpha({length: {min: 10, max: 20}}), status: faker.string.alpha({length: {min: 10, max: 20}}), isRead: faker.datatype.boolean(), scheduledAt: `${faker.date.past().toISOString().split('.')[0]}Z`, sentAt: faker.helpers.arrayElement([`${faker.date.past().toISOString().split('.')[0]}Z`, null]), createdAt: `${faker.date.past().toISOString().split('.')[0]}Z`, updatedAt: `${faker.date.past().toISOString().split('.')[0]}Z`, lastActivityOccurredAt: `${faker.date.past().toISOString().split('.')[0]}Z`, metadata: {
+        [faker.string.alphanumeric(5)]: {}
+      }}, dataSources: Array.from({ length: faker.number.int({ min: 1, max: 10 }) }, (_, i) => i + 1).map(() => ({id: faker.string.uuid(), name: faker.string.alpha({length: {min: 10, max: 20}}), url: faker.internet.url(), sourceType: faker.string.alpha({length: {min: 10, max: 20}}), repository: faker.helpers.arrayElement([{fullName: faker.string.alpha({length: {min: 10, max: 20}})}, undefined]), groups: Array.from({ length: faker.number.int({ min: 1, max: 10 }) }, (_, i) => i + 1).map(() => ({activityType: faker.helpers.arrayElement(['issue','pull_request','release'] as const), entries: Array.from({ length: faker.number.int({ min: 1, max: 10 }) }, (_, i) => i + 1).map(() => ({activityId: faker.string.uuid(), title: faker.string.alpha({length: {min: 10, max: 20}}), summary: faker.string.alpha({length: {min: 10, max: 20}}), occurredAt: `${faker.date.past().toISOString().split('.')[0]}Z`, url: faker.helpers.arrayElement([faker.internet.url(), null]), displayOrder: faker.number.int({min: 0, max: undefined})}))}))}))}}, ...overrideResponse})
 
 
 export const getPostApiAuthSignupMockHandler = (overrideResponse?: SignUpResponse | SignUpResponse | ((info: Parameters<Parameters<typeof http.post>[1]>[0]) => Promise<SignUpResponse | SignUpResponse> | SignUpResponse | SignUpResponse), options?: RequestHandlerOptions) => {
@@ -59,48 +77,48 @@ export const getPostApiAuthSignupMockHandler = (overrideResponse?: SignUpRespons
   }, options)
 }
 
-export const getGetApiUsersProfileMockHandler = (overrideResponse?: UserProfileResponse | ((info: Parameters<Parameters<typeof http.get>[1]>[0]) => Promise<UserProfileResponse> | UserProfileResponse), options?: RequestHandlerOptions) => {
-  return http.get('*/api/users/profile', async (info) => {
+export const getGetApiProfileMockHandler = (overrideResponse?: UserProfileResponse | ((info: Parameters<Parameters<typeof http.get>[1]>[0]) => Promise<UserProfileResponse> | UserProfileResponse), options?: RequestHandlerOptions) => {
+  return http.get('*/api/profile', async (info) => {
   
     return new HttpResponse(JSON.stringify(overrideResponse !== undefined
     ? (typeof overrideResponse === "function" ? await overrideResponse(info) : overrideResponse)
-    : getGetApiUsersProfileResponseMock()),
+    : getGetApiProfileResponseMock()),
       { status: 200,
         headers: { 'Content-Type': 'application/json' }
       })
   }, options)
 }
 
-export const getPutApiUsersProfileMockHandler = (overrideResponse?: UserProfileResponse | ((info: Parameters<Parameters<typeof http.put>[1]>[0]) => Promise<UserProfileResponse> | UserProfileResponse), options?: RequestHandlerOptions) => {
-  return http.put('*/api/users/profile', async (info) => {
+export const getPutApiProfileMockHandler = (overrideResponse?: UserProfileResponse | ((info: Parameters<Parameters<typeof http.put>[1]>[0]) => Promise<UserProfileResponse> | UserProfileResponse), options?: RequestHandlerOptions) => {
+  return http.put('*/api/profile', async (info) => {
   
     return new HttpResponse(JSON.stringify(overrideResponse !== undefined
     ? (typeof overrideResponse === "function" ? await overrideResponse(info) : overrideResponse)
-    : getPutApiUsersProfileResponseMock()),
+    : getPutApiProfileResponseMock()),
       { status: 200,
         headers: { 'Content-Type': 'application/json' }
       })
   }, options)
 }
 
-export const getGetApiUsersSettingsMockHandler = (overrideResponse?: UserSettingsResponse | ((info: Parameters<Parameters<typeof http.get>[1]>[0]) => Promise<UserSettingsResponse> | UserSettingsResponse), options?: RequestHandlerOptions) => {
-  return http.get('*/api/users/settings', async (info) => {
+export const getGetApiSettingsMockHandler = (overrideResponse?: UserSettingsResponse | ((info: Parameters<Parameters<typeof http.get>[1]>[0]) => Promise<UserSettingsResponse> | UserSettingsResponse), options?: RequestHandlerOptions) => {
+  return http.get('*/api/settings', async (info) => {
   
     return new HttpResponse(JSON.stringify(overrideResponse !== undefined
     ? (typeof overrideResponse === "function" ? await overrideResponse(info) : overrideResponse)
-    : getGetApiUsersSettingsResponseMock()),
+    : getGetApiSettingsResponseMock()),
       { status: 200,
         headers: { 'Content-Type': 'application/json' }
       })
   }, options)
 }
 
-export const getPutApiUsersSettingsMockHandler = (overrideResponse?: UserSettingsResponse | ((info: Parameters<Parameters<typeof http.put>[1]>[0]) => Promise<UserSettingsResponse> | UserSettingsResponse), options?: RequestHandlerOptions) => {
-  return http.put('*/api/users/settings', async (info) => {
+export const getPutApiSettingsMockHandler = (overrideResponse?: UserSettingsResponse | ((info: Parameters<Parameters<typeof http.put>[1]>[0]) => Promise<UserSettingsResponse> | UserSettingsResponse), options?: RequestHandlerOptions) => {
+  return http.put('*/api/settings', async (info) => {
   
     return new HttpResponse(JSON.stringify(overrideResponse !== undefined
     ? (typeof overrideResponse === "function" ? await overrideResponse(info) : overrideResponse)
-    : getPutApiUsersSettingsResponseMock()),
+    : getPutApiSettingsResponseMock()),
       { status: 200,
         headers: { 'Content-Type': 'application/json' }
       })
@@ -143,7 +161,7 @@ export const getGetApiDataSourcesIdMockHandler = (overrideResponse?: DataSourceD
   }, options)
 }
 
-export const getPutApiDataSourcesIdMockHandler = (overrideResponse?: PutApiDataSourcesId200 | ((info: Parameters<Parameters<typeof http.put>[1]>[0]) => Promise<PutApiDataSourcesId200> | PutApiDataSourcesId200), options?: RequestHandlerOptions) => {
+export const getPutApiDataSourcesIdMockHandler = (overrideResponse?: CreateDataSourceResponse | ((info: Parameters<Parameters<typeof http.put>[1]>[0]) => Promise<CreateDataSourceResponse> | CreateDataSourceResponse), options?: RequestHandlerOptions) => {
   return http.put('*/api/data-sources/:id', async (info) => {
   
     return new HttpResponse(JSON.stringify(overrideResponse !== undefined
@@ -164,15 +182,80 @@ export const getDeleteApiDataSourcesIdMockHandler = (overrideResponse?: void | (
       })
   }, options)
 }
+
+export const getGetApiActivitiesMockHandler = (overrideResponse?: ActivityListResponse | ((info: Parameters<Parameters<typeof http.get>[1]>[0]) => Promise<ActivityListResponse> | ActivityListResponse), options?: RequestHandlerOptions) => {
+  return http.get('*/api/activities', async (info) => {
+  
+    return new HttpResponse(JSON.stringify(overrideResponse !== undefined
+    ? (typeof overrideResponse === "function" ? await overrideResponse(info) : overrideResponse)
+    : getGetApiActivitiesResponseMock()),
+      { status: 200,
+        headers: { 'Content-Type': 'application/json' }
+      })
+  }, options)
+}
+
+export const getGetApiActivitiesActivityIdMockHandler = (overrideResponse?: ActivityDetailResponse | ((info: Parameters<Parameters<typeof http.get>[1]>[0]) => Promise<ActivityDetailResponse> | ActivityDetailResponse), options?: RequestHandlerOptions) => {
+  return http.get('*/api/activities/:activityId', async (info) => {
+  
+    return new HttpResponse(JSON.stringify(overrideResponse !== undefined
+    ? (typeof overrideResponse === "function" ? await overrideResponse(info) : overrideResponse)
+    : getGetApiActivitiesActivityIdResponseMock()),
+      { status: 200,
+        headers: { 'Content-Type': 'application/json' }
+      })
+  }, options)
+}
+
+export const getGetApiDataSourcesDataSourceIdActivitiesMockHandler = (overrideResponse?: DataSourceActivityListResponse | ((info: Parameters<Parameters<typeof http.get>[1]>[0]) => Promise<DataSourceActivityListResponse> | DataSourceActivityListResponse), options?: RequestHandlerOptions) => {
+  return http.get('*/api/data-sources/:dataSourceId/activities', async (info) => {
+  
+    return new HttpResponse(JSON.stringify(overrideResponse !== undefined
+    ? (typeof overrideResponse === "function" ? await overrideResponse(info) : overrideResponse)
+    : getGetApiDataSourcesDataSourceIdActivitiesResponseMock()),
+      { status: 200,
+        headers: { 'Content-Type': 'application/json' }
+      })
+  }, options)
+}
+
+export const getGetApiNotificationsMockHandler = (overrideResponse?: NotificationListResponse | ((info: Parameters<Parameters<typeof http.get>[1]>[0]) => Promise<NotificationListResponse> | NotificationListResponse), options?: RequestHandlerOptions) => {
+  return http.get('*/api/notifications', async (info) => {
+  
+    return new HttpResponse(JSON.stringify(overrideResponse !== undefined
+    ? (typeof overrideResponse === "function" ? await overrideResponse(info) : overrideResponse)
+    : getGetApiNotificationsResponseMock()),
+      { status: 200,
+        headers: { 'Content-Type': 'application/json' }
+      })
+  }, options)
+}
+
+export const getGetApiNotificationsNotificationIdMockHandler = (overrideResponse?: NotificationDetailResponse | ((info: Parameters<Parameters<typeof http.get>[1]>[0]) => Promise<NotificationDetailResponse> | NotificationDetailResponse), options?: RequestHandlerOptions) => {
+  return http.get('*/api/notifications/:notificationId', async (info) => {
+  
+    return new HttpResponse(JSON.stringify(overrideResponse !== undefined
+    ? (typeof overrideResponse === "function" ? await overrideResponse(info) : overrideResponse)
+    : getGetApiNotificationsNotificationIdResponseMock()),
+      { status: 200,
+        headers: { 'Content-Type': 'application/json' }
+      })
+  }, options)
+}
 export const getChaseLightAPIMock = () => [
   getPostApiAuthSignupMockHandler(),
-  getGetApiUsersProfileMockHandler(),
-  getPutApiUsersProfileMockHandler(),
-  getGetApiUsersSettingsMockHandler(),
-  getPutApiUsersSettingsMockHandler(),
+  getGetApiProfileMockHandler(),
+  getPutApiProfileMockHandler(),
+  getGetApiSettingsMockHandler(),
+  getPutApiSettingsMockHandler(),
   getGetApiDataSourcesMockHandler(),
   getPostApiDataSourcesMockHandler(),
   getGetApiDataSourcesIdMockHandler(),
   getPutApiDataSourcesIdMockHandler(),
-  getDeleteApiDataSourcesIdMockHandler()
+  getDeleteApiDataSourcesIdMockHandler(),
+  getGetApiActivitiesMockHandler(),
+  getGetApiActivitiesActivityIdMockHandler(),
+  getGetApiDataSourcesDataSourceIdActivitiesMockHandler(),
+  getGetApiNotificationsMockHandler(),
+  getGetApiNotificationsNotificationIdMockHandler()
 ]
