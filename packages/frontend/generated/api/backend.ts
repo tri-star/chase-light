@@ -6,14 +6,23 @@
  * OpenAPI spec version: 1.0.0
  */
 import type {
+  ActivitiesErrorResponse,
+  ActivityDetailResponse,
+  ActivityListResponse,
   AuthErrorResponse,
   CreateDataSourceRequest,
   CreateDataSourceResponse,
+  DataSourceActivityListResponse,
   DataSourceDetailResponse,
   DataSourceError,
   DataSourceListResponse,
+  GetApiActivitiesParams,
+  GetApiDataSourcesDataSourceIdActivitiesParams,
   GetApiDataSourcesParams,
-  PutApiDataSourcesId200,
+  GetApiNotificationsParams,
+  NotificationDetailResponse,
+  NotificationErrorResponse,
+  NotificationListResponse,
   PutApiDataSourcesIdBody,
   SignUpRequest,
   SignUpResponse,
@@ -69,7 +78,7 @@ export const getPostApiAuthSignupUrl = () => {
 
   
 
-  return `http://localhost:3001/api/auth/signup`
+  return `missing backend url/api/auth/signup`
 }
 
 export const postApiAuthSignup = async (signUpRequest: SignUpRequest, options?: RequestInit): Promise<postApiAuthSignupResponse> => {
@@ -90,56 +99,56 @@ export const postApiAuthSignup = async (signUpRequest: SignUpRequest, options?: 
  * 認証済みユーザーのプロフィール情報を取得します
  * @summary プロフィール取得
  */
-export type getApiUsersProfileResponse200 = {
+export type getApiProfileResponse200 = {
   data: UserProfileResponse
   status: 200
 }
 
-export type getApiUsersProfileResponse400 = {
+export type getApiProfileResponse400 = {
   data: UserErrorResponse
   status: 400
 }
 
-export type getApiUsersProfileResponse401 = {
+export type getApiProfileResponse401 = {
   data: UserErrorResponse
   status: 401
 }
 
-export type getApiUsersProfileResponse404 = {
+export type getApiProfileResponse404 = {
   data: UserErrorResponse
   status: 404
 }
 
-export type getApiUsersProfileResponse409 = {
+export type getApiProfileResponse409 = {
   data: UserErrorResponse
   status: 409
 }
 
-export type getApiUsersProfileResponse500 = {
+export type getApiProfileResponse500 = {
   data: UserErrorResponse
   status: 500
 }
     
-export type getApiUsersProfileResponseSuccess = (getApiUsersProfileResponse200) & {
+export type getApiProfileResponseSuccess = (getApiProfileResponse200) & {
   headers: Headers;
 };
-export type getApiUsersProfileResponseError = (getApiUsersProfileResponse400 | getApiUsersProfileResponse401 | getApiUsersProfileResponse404 | getApiUsersProfileResponse409 | getApiUsersProfileResponse500) & {
+export type getApiProfileResponseError = (getApiProfileResponse400 | getApiProfileResponse401 | getApiProfileResponse404 | getApiProfileResponse409 | getApiProfileResponse500) & {
   headers: Headers;
 };
 
-export type getApiUsersProfileResponse = (getApiUsersProfileResponseSuccess | getApiUsersProfileResponseError)
+export type getApiProfileResponse = (getApiProfileResponseSuccess | getApiProfileResponseError)
 
-export const getGetApiUsersProfileUrl = () => {
+export const getGetApiProfileUrl = () => {
 
 
   
 
-  return `http://localhost:3001/api/users/profile`
+  return `missing backend url/api/profile`
 }
 
-export const getApiUsersProfile = async ( options?: RequestInit): Promise<getApiUsersProfileResponse> => {
+export const getApiProfile = async ( options?: RequestInit): Promise<getApiProfileResponse> => {
   
-  return customFetch<getApiUsersProfileResponse>(getGetApiUsersProfileUrl(),
+  return customFetch<getApiProfileResponse>(getGetApiProfileUrl(),
   {      
     ...options,
     method: 'GET'
@@ -154,56 +163,56 @@ export const getApiUsersProfile = async ( options?: RequestInit): Promise<getApi
  * 認証済みユーザーのプロフィール情報を更新します
  * @summary プロフィール更新
  */
-export type putApiUsersProfileResponse200 = {
+export type putApiProfileResponse200 = {
   data: UserProfileResponse
   status: 200
 }
 
-export type putApiUsersProfileResponse400 = {
+export type putApiProfileResponse400 = {
   data: UserErrorResponse
   status: 400
 }
 
-export type putApiUsersProfileResponse401 = {
+export type putApiProfileResponse401 = {
   data: UserErrorResponse
   status: 401
 }
 
-export type putApiUsersProfileResponse404 = {
+export type putApiProfileResponse404 = {
   data: UserErrorResponse
   status: 404
 }
 
-export type putApiUsersProfileResponse409 = {
+export type putApiProfileResponse409 = {
   data: UserErrorResponse
   status: 409
 }
 
-export type putApiUsersProfileResponse500 = {
+export type putApiProfileResponse500 = {
   data: UserErrorResponse
   status: 500
 }
     
-export type putApiUsersProfileResponseSuccess = (putApiUsersProfileResponse200) & {
+export type putApiProfileResponseSuccess = (putApiProfileResponse200) & {
   headers: Headers;
 };
-export type putApiUsersProfileResponseError = (putApiUsersProfileResponse400 | putApiUsersProfileResponse401 | putApiUsersProfileResponse404 | putApiUsersProfileResponse409 | putApiUsersProfileResponse500) & {
+export type putApiProfileResponseError = (putApiProfileResponse400 | putApiProfileResponse401 | putApiProfileResponse404 | putApiProfileResponse409 | putApiProfileResponse500) & {
   headers: Headers;
 };
 
-export type putApiUsersProfileResponse = (putApiUsersProfileResponseSuccess | putApiUsersProfileResponseError)
+export type putApiProfileResponse = (putApiProfileResponseSuccess | putApiProfileResponseError)
 
-export const getPutApiUsersProfileUrl = () => {
+export const getPutApiProfileUrl = () => {
 
 
   
 
-  return `http://localhost:3001/api/users/profile`
+  return `missing backend url/api/profile`
 }
 
-export const putApiUsersProfile = async (updateProfileRequest: UpdateProfileRequest, options?: RequestInit): Promise<putApiUsersProfileResponse> => {
+export const putApiProfile = async (updateProfileRequest: UpdateProfileRequest, options?: RequestInit): Promise<putApiProfileResponse> => {
   
-  return customFetch<putApiUsersProfileResponse>(getPutApiUsersProfileUrl(),
+  return customFetch<putApiProfileResponse>(getPutApiProfileUrl(),
   {      
     ...options,
     method: 'PUT',
@@ -219,56 +228,56 @@ export const putApiUsersProfile = async (updateProfileRequest: UpdateProfileRequ
  * 認証済みユーザーの設定情報を取得します
  * @summary ユーザー設定取得
  */
-export type getApiUsersSettingsResponse200 = {
+export type getApiSettingsResponse200 = {
   data: UserSettingsResponse
   status: 200
 }
 
-export type getApiUsersSettingsResponse400 = {
+export type getApiSettingsResponse400 = {
   data: UserErrorResponse
   status: 400
 }
 
-export type getApiUsersSettingsResponse401 = {
+export type getApiSettingsResponse401 = {
   data: UserErrorResponse
   status: 401
 }
 
-export type getApiUsersSettingsResponse404 = {
+export type getApiSettingsResponse404 = {
   data: UserErrorResponse
   status: 404
 }
 
-export type getApiUsersSettingsResponse409 = {
+export type getApiSettingsResponse409 = {
   data: UserErrorResponse
   status: 409
 }
 
-export type getApiUsersSettingsResponse500 = {
+export type getApiSettingsResponse500 = {
   data: UserErrorResponse
   status: 500
 }
     
-export type getApiUsersSettingsResponseSuccess = (getApiUsersSettingsResponse200) & {
+export type getApiSettingsResponseSuccess = (getApiSettingsResponse200) & {
   headers: Headers;
 };
-export type getApiUsersSettingsResponseError = (getApiUsersSettingsResponse400 | getApiUsersSettingsResponse401 | getApiUsersSettingsResponse404 | getApiUsersSettingsResponse409 | getApiUsersSettingsResponse500) & {
+export type getApiSettingsResponseError = (getApiSettingsResponse400 | getApiSettingsResponse401 | getApiSettingsResponse404 | getApiSettingsResponse409 | getApiSettingsResponse500) & {
   headers: Headers;
 };
 
-export type getApiUsersSettingsResponse = (getApiUsersSettingsResponseSuccess | getApiUsersSettingsResponseError)
+export type getApiSettingsResponse = (getApiSettingsResponseSuccess | getApiSettingsResponseError)
 
-export const getGetApiUsersSettingsUrl = () => {
+export const getGetApiSettingsUrl = () => {
 
 
   
 
-  return `http://localhost:3001/api/users/settings`
+  return `missing backend url/api/settings`
 }
 
-export const getApiUsersSettings = async ( options?: RequestInit): Promise<getApiUsersSettingsResponse> => {
+export const getApiSettings = async ( options?: RequestInit): Promise<getApiSettingsResponse> => {
   
-  return customFetch<getApiUsersSettingsResponse>(getGetApiUsersSettingsUrl(),
+  return customFetch<getApiSettingsResponse>(getGetApiSettingsUrl(),
   {      
     ...options,
     method: 'GET'
@@ -283,56 +292,56 @@ export const getApiUsersSettings = async ( options?: RequestInit): Promise<getAp
  * 認証済みユーザーの設定情報を更新します
  * @summary ユーザー設定更新
  */
-export type putApiUsersSettingsResponse200 = {
+export type putApiSettingsResponse200 = {
   data: UserSettingsResponse
   status: 200
 }
 
-export type putApiUsersSettingsResponse400 = {
+export type putApiSettingsResponse400 = {
   data: UserErrorResponse
   status: 400
 }
 
-export type putApiUsersSettingsResponse401 = {
+export type putApiSettingsResponse401 = {
   data: UserErrorResponse
   status: 401
 }
 
-export type putApiUsersSettingsResponse404 = {
+export type putApiSettingsResponse404 = {
   data: UserErrorResponse
   status: 404
 }
 
-export type putApiUsersSettingsResponse409 = {
+export type putApiSettingsResponse409 = {
   data: UserErrorResponse
   status: 409
 }
 
-export type putApiUsersSettingsResponse500 = {
+export type putApiSettingsResponse500 = {
   data: UserErrorResponse
   status: 500
 }
     
-export type putApiUsersSettingsResponseSuccess = (putApiUsersSettingsResponse200) & {
+export type putApiSettingsResponseSuccess = (putApiSettingsResponse200) & {
   headers: Headers;
 };
-export type putApiUsersSettingsResponseError = (putApiUsersSettingsResponse400 | putApiUsersSettingsResponse401 | putApiUsersSettingsResponse404 | putApiUsersSettingsResponse409 | putApiUsersSettingsResponse500) & {
+export type putApiSettingsResponseError = (putApiSettingsResponse400 | putApiSettingsResponse401 | putApiSettingsResponse404 | putApiSettingsResponse409 | putApiSettingsResponse500) & {
   headers: Headers;
 };
 
-export type putApiUsersSettingsResponse = (putApiUsersSettingsResponseSuccess | putApiUsersSettingsResponseError)
+export type putApiSettingsResponse = (putApiSettingsResponseSuccess | putApiSettingsResponseError)
 
-export const getPutApiUsersSettingsUrl = () => {
+export const getPutApiSettingsUrl = () => {
 
 
   
 
-  return `http://localhost:3001/api/users/settings`
+  return `missing backend url/api/settings`
 }
 
-export const putApiUsersSettings = async (updateSettingsRequest: UpdateSettingsRequest, options?: RequestInit): Promise<putApiUsersSettingsResponse> => {
+export const putApiSettings = async (updateSettingsRequest: UpdateSettingsRequest, options?: RequestInit): Promise<putApiSettingsResponse> => {
   
-  return customFetch<putApiUsersSettingsResponse>(getPutApiUsersSettingsUrl(),
+  return customFetch<putApiSettingsResponse>(getPutApiSettingsUrl(),
   {      
     ...options,
     method: 'PUT',
@@ -399,7 +408,7 @@ export const getGetApiDataSourcesUrl = (params?: GetApiDataSourcesParams,) => {
 
   const stringifiedParams = normalizedParams.toString();
 
-  return stringifiedParams.length > 0 ? `http://localhost:3001/api/data-sources?${stringifiedParams}` : `http://localhost:3001/api/data-sources`
+  return stringifiedParams.length > 0 ? `missing backend url/api/data-sources?${stringifiedParams}` : `missing backend url/api/data-sources`
 }
 
 export const getApiDataSources = async (params?: GetApiDataSourcesParams, options?: RequestInit): Promise<getApiDataSourcesResponse> => {
@@ -416,8 +425,8 @@ export const getApiDataSources = async (params?: GetApiDataSourcesParams, option
 
 
 /**
- * GitHubリポジトリをデータソースとして登録し、ユーザーの監視対象に追加します
- * @summary データソース登録
+ * GitHubリポジトリのURLからデータソースを登録し、ユーザーのウォッチ設定を作成します
+ * @summary データソース監視登録
  */
 export type postApiDataSourcesResponse201 = {
   data: CreateDataSourceResponse
@@ -463,7 +472,7 @@ export const getPostApiDataSourcesUrl = () => {
 
   
 
-  return `http://localhost:3001/api/data-sources`
+  return `missing backend url/api/data-sources`
 }
 
 export const postApiDataSources = async (createDataSourceRequest: CreateDataSourceRequest, options?: RequestInit): Promise<postApiDataSourcesResponse> => {
@@ -481,7 +490,7 @@ export const postApiDataSources = async (createDataSourceRequest: CreateDataSour
 
 
 /**
- * 指定されたIDのデータソース詳細情報を取得します。認証ユーザーがWatch中のデータソースのみアクセス可能です
+ * 監視中のデータソースの詳細情報を取得します。認証ユーザーがアクセス権限を持つデータソースのみ取得可能です
  * @summary データソース詳細取得
  */
 export type getApiDataSourcesIdResponse200 = {
@@ -528,7 +537,7 @@ export const getGetApiDataSourcesIdUrl = (id: string,) => {
 
   
 
-  return `http://localhost:3001/api/data-sources/${id}`
+  return `missing backend url/api/data-sources/${id}`
 }
 
 export const getApiDataSourcesId = async (id: string, options?: RequestInit): Promise<getApiDataSourcesIdResponse> => {
@@ -545,11 +554,11 @@ export const getApiDataSourcesId = async (id: string, options?: RequestInit): Pr
 
 
 /**
- * 指定されたIDのデータソース設定を更新します。認証ユーザーがWatch中のデータソースのみ更新可能です
+ * データソースの基本情報とウォッチ設定を更新します。認証ユーザーがウォッチ中のデータソースのみ更新可能です
  * @summary データソース更新
  */
 export type putApiDataSourcesIdResponse200 = {
-  data: PutApiDataSourcesId200
+  data: CreateDataSourceResponse
   status: 200
 }
 
@@ -592,7 +601,7 @@ export const getPutApiDataSourcesIdUrl = (id: string,) => {
 
   
 
-  return `http://localhost:3001/api/data-sources/${id}`
+  return `missing backend url/api/data-sources/${id}`
 }
 
 export const putApiDataSourcesId = async (id: string,
@@ -658,7 +667,7 @@ export const getDeleteApiDataSourcesIdUrl = (id: string,) => {
 
   
 
-  return `http://localhost:3001/api/data-sources/${id}`
+  return `missing backend url/api/data-sources/${id}`
 }
 
 export const deleteApiDataSourcesId = async (id: string, options?: RequestInit): Promise<deleteApiDataSourcesIdResponse> => {
@@ -667,6 +676,284 @@ export const deleteApiDataSourcesId = async (id: string, options?: RequestInit):
   {      
     ...options,
     method: 'DELETE'
+    
+    
+  }
+);}
+
+
+
+/**
+ * ユーザーがウォッチしているデータソースのアクティビティをページネーション付きで取得します
+ * @summary ウォッチ対象アクティビティ一覧取得
+ */
+export type getApiActivitiesResponse200 = {
+  data: ActivityListResponse
+  status: 200
+}
+
+export type getApiActivitiesResponse400 = {
+  data: ActivitiesErrorResponse
+  status: 400
+}
+
+export type getApiActivitiesResponse401 = {
+  data: ActivitiesErrorResponse
+  status: 401
+}
+
+export type getApiActivitiesResponse404 = {
+  data: ActivitiesErrorResponse
+  status: 404
+}
+    
+export type getApiActivitiesResponseSuccess = (getApiActivitiesResponse200) & {
+  headers: Headers;
+};
+export type getApiActivitiesResponseError = (getApiActivitiesResponse400 | getApiActivitiesResponse401 | getApiActivitiesResponse404) & {
+  headers: Headers;
+};
+
+export type getApiActivitiesResponse = (getApiActivitiesResponseSuccess | getApiActivitiesResponseError)
+
+export const getGetApiActivitiesUrl = (params?: GetApiActivitiesParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+    
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : value.toString())
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `missing backend url/api/activities?${stringifiedParams}` : `missing backend url/api/activities`
+}
+
+export const getApiActivities = async (params?: GetApiActivitiesParams, options?: RequestInit): Promise<getApiActivitiesResponse> => {
+  
+  return customFetch<getApiActivitiesResponse>(getGetApiActivitiesUrl(params),
+  {      
+    ...options,
+    method: 'GET'
+    
+    
+  }
+);}
+
+
+
+/**
+ * 指定したアクティビティの詳細情報を取得します。ウォッチ対象外の場合は404を返却します
+ * @summary アクティビティ詳細取得
+ */
+export type getApiActivitiesActivityIdResponse200 = {
+  data: ActivityDetailResponse
+  status: 200
+}
+
+export type getApiActivitiesActivityIdResponse400 = {
+  data: ActivitiesErrorResponse
+  status: 400
+}
+
+export type getApiActivitiesActivityIdResponse401 = {
+  data: ActivitiesErrorResponse
+  status: 401
+}
+
+export type getApiActivitiesActivityIdResponse404 = {
+  data: ActivitiesErrorResponse
+  status: 404
+}
+    
+export type getApiActivitiesActivityIdResponseSuccess = (getApiActivitiesActivityIdResponse200) & {
+  headers: Headers;
+};
+export type getApiActivitiesActivityIdResponseError = (getApiActivitiesActivityIdResponse400 | getApiActivitiesActivityIdResponse401 | getApiActivitiesActivityIdResponse404) & {
+  headers: Headers;
+};
+
+export type getApiActivitiesActivityIdResponse = (getApiActivitiesActivityIdResponseSuccess | getApiActivitiesActivityIdResponseError)
+
+export const getGetApiActivitiesActivityIdUrl = (activityId: string,) => {
+
+
+  
+
+  return `missing backend url/api/activities/${activityId}`
+}
+
+export const getApiActivitiesActivityId = async (activityId: string, options?: RequestInit): Promise<getApiActivitiesActivityIdResponse> => {
+  
+  return customFetch<getApiActivitiesActivityIdResponse>(getGetApiActivitiesActivityIdUrl(activityId),
+  {      
+    ...options,
+    method: 'GET'
+    
+    
+  }
+);}
+
+
+
+/**
+ * 指定データソースに紐づくアクティビティを取得します。ウォッチしていない場合は404を返却します
+ * @summary データソース別アクティビティ一覧取得
+ */
+export type getApiDataSourcesDataSourceIdActivitiesResponse200 = {
+  data: DataSourceActivityListResponse
+  status: 200
+}
+
+export type getApiDataSourcesDataSourceIdActivitiesResponse400 = {
+  data: ActivitiesErrorResponse
+  status: 400
+}
+
+export type getApiDataSourcesDataSourceIdActivitiesResponse401 = {
+  data: ActivitiesErrorResponse
+  status: 401
+}
+
+export type getApiDataSourcesDataSourceIdActivitiesResponse404 = {
+  data: ActivitiesErrorResponse
+  status: 404
+}
+    
+export type getApiDataSourcesDataSourceIdActivitiesResponseSuccess = (getApiDataSourcesDataSourceIdActivitiesResponse200) & {
+  headers: Headers;
+};
+export type getApiDataSourcesDataSourceIdActivitiesResponseError = (getApiDataSourcesDataSourceIdActivitiesResponse400 | getApiDataSourcesDataSourceIdActivitiesResponse401 | getApiDataSourcesDataSourceIdActivitiesResponse404) & {
+  headers: Headers;
+};
+
+export type getApiDataSourcesDataSourceIdActivitiesResponse = (getApiDataSourcesDataSourceIdActivitiesResponseSuccess | getApiDataSourcesDataSourceIdActivitiesResponseError)
+
+export const getGetApiDataSourcesDataSourceIdActivitiesUrl = (dataSourceId: string,
+    params?: GetApiDataSourcesDataSourceIdActivitiesParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+    
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : value.toString())
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `missing backend url/api/data-sources/${dataSourceId}/activities?${stringifiedParams}` : `missing backend url/api/data-sources/${dataSourceId}/activities`
+}
+
+export const getApiDataSourcesDataSourceIdActivities = async (dataSourceId: string,
+    params?: GetApiDataSourcesDataSourceIdActivitiesParams, options?: RequestInit): Promise<getApiDataSourcesDataSourceIdActivitiesResponse> => {
+  
+  return customFetch<getApiDataSourcesDataSourceIdActivitiesResponse>(getGetApiDataSourcesDataSourceIdActivitiesUrl(dataSourceId,params),
+  {      
+    ...options,
+    method: 'GET'
+    
+    
+  }
+);}
+
+
+
+/**
+ * カーソルベースのページネーションに対応した通知一覧を返却します
+ * @summary 通知一覧の取得
+ */
+export type getApiNotificationsResponse200 = {
+  data: NotificationListResponse
+  status: 200
+}
+
+export type getApiNotificationsResponse400 = {
+  data: NotificationErrorResponse
+  status: 400
+}
+
+export type getApiNotificationsResponse422 = {
+  data: NotificationErrorResponse
+  status: 422
+}
+    
+export type getApiNotificationsResponseSuccess = (getApiNotificationsResponse200) & {
+  headers: Headers;
+};
+export type getApiNotificationsResponseError = (getApiNotificationsResponse400 | getApiNotificationsResponse422) & {
+  headers: Headers;
+};
+
+export type getApiNotificationsResponse = (getApiNotificationsResponseSuccess | getApiNotificationsResponseError)
+
+export const getGetApiNotificationsUrl = (params?: GetApiNotificationsParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+    
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : value.toString())
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `missing backend url/api/notifications?${stringifiedParams}` : `missing backend url/api/notifications`
+}
+
+export const getApiNotifications = async (params?: GetApiNotificationsParams, options?: RequestInit): Promise<getApiNotificationsResponse> => {
+  
+  return customFetch<getApiNotificationsResponse>(getGetApiNotificationsUrl(params),
+  {      
+    ...options,
+    method: 'GET'
+    
+    
+  }
+);}
+
+
+
+/**
+ * 指定された通知の詳細を返却します
+ * @summary 通知詳細の取得
+ */
+export type getApiNotificationsNotificationIdResponse200 = {
+  data: NotificationDetailResponse
+  status: 200
+}
+
+export type getApiNotificationsNotificationIdResponse404 = {
+  data: NotificationErrorResponse
+  status: 404
+}
+    
+export type getApiNotificationsNotificationIdResponseSuccess = (getApiNotificationsNotificationIdResponse200) & {
+  headers: Headers;
+};
+export type getApiNotificationsNotificationIdResponseError = (getApiNotificationsNotificationIdResponse404) & {
+  headers: Headers;
+};
+
+export type getApiNotificationsNotificationIdResponse = (getApiNotificationsNotificationIdResponseSuccess | getApiNotificationsNotificationIdResponseError)
+
+export const getGetApiNotificationsNotificationIdUrl = (notificationId: string,) => {
+
+
+  
+
+  return `missing backend url/api/notifications/${notificationId}`
+}
+
+export const getApiNotificationsNotificationId = async (notificationId: string, options?: RequestInit): Promise<getApiNotificationsNotificationIdResponse> => {
+  
+  return customFetch<getApiNotificationsNotificationIdResponse>(getGetApiNotificationsNotificationIdUrl(notificationId),
+  {      
+    ...options,
+    method: 'GET'
     
     
   }
