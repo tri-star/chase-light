@@ -28,9 +28,7 @@ const mapDigestGroup = (
   group: NotificationListItem["dataSources"][number]["groups"][number],
 ) => ({
   activityType: group.activityType,
-  entries: [...group.entries]
-    .sort((a, b) => a.displayOrder - b.displayOrder)
-    .map(mapDigestEntry),
+  entries: group.entries.map(mapDigestEntry),
 })
 
 const mapDataSource = (

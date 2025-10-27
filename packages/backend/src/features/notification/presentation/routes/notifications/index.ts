@@ -9,10 +9,7 @@ import {
   mapListResultToResponse,
   mapNotificationDetailToResponse,
 } from "../../utils/response-mapper"
-import {
-  NOTIFICATIONS_ERROR,
-  NOTIFICATIONS_MAX_LIMIT,
-} from "../../../constants/query.constants"
+import { NOTIFICATIONS_ERROR } from "../../../constants/query.constants"
 import { NotificationInvalidCursorError } from "../../../errors/notification-invalid-cursor.error"
 import { ListNotificationsUseCase } from "../../../application/use-cases/list-notifications.use-case"
 import { GetNotificationDetailUseCase } from "../../../application/use-cases/get-notification-detail.use-case"
@@ -41,7 +38,6 @@ const createErrorResponse = (code: string, message: string): ErrorResponse => ({
 })
 
 const NOTIFICATION_NOT_FOUND = "NOTIFICATION_NOT_FOUND"
-const NOTIFICATIONS_LIMIT_TOO_LARGE = "NOTIFICATIONS_LIMIT_TOO_LARGE"
 
 export function createNotificationRoutes(
   listNotificationsUseCase: ListNotificationsUseCase,
@@ -76,12 +72,6 @@ export function createNotificationRoutes(
           "application/json": { schema: errorResponseSchema },
         },
       },
-      422: {
-        description: "許可されていないlimit値",
-        content: {
-          "application/json": { schema: errorResponseSchema },
-        },
-      },
     },
   })
 
@@ -89,16 +79,6 @@ export function createNotificationRoutes(
   app.openapi(listNotificationsRoute, async (c) => {
     const authenticated = requireAuth(c)
     const query = c.req.valid("query")
-
-    if (query.limit > NOTIFICATIONS_MAX_LIMIT) {
-      return c.json(
-        createErrorResponse(
-          NOTIFICATIONS_LIMIT_TOO_LARGE,
-          `limitは${NOTIFICATIONS_MAX_LIMIT}以下で指定してください`,
-        ),
-        422,
-      )
-    }
 
     try {
       const result = await listNotificationsUseCase.execute({

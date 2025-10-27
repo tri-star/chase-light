@@ -37,6 +37,7 @@ export const notificationListRequestSchema = z
       .number()
       .int()
       .min(NOTIFICATIONS_MIN_LIMIT)
+      .max(NOTIFICATIONS_MAX_LIMIT)
       .default(NOTIFICATIONS_DEFAULT_LIMIT)
       .openapi({
         description: `取得件数 (${NOTIFICATIONS_MIN_LIMIT}-${NOTIFICATIONS_MAX_LIMIT})`,
@@ -45,7 +46,6 @@ export const notificationListRequestSchema = z
     read: notificationReadFilterSchema,
     search: z
       .string()
-      .min(1)
       .max(NOTIFICATIONS_SEARCH_MAX_LENGTH)
       .openapi({
         description: "タイトル・サマリの部分一致検索キーワード",

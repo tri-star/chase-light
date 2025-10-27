@@ -237,6 +237,18 @@ describe("Notifications API", () => {
     ).toContain("ログイン")
   })
 
+  test("GET /notifications?search= で検索なしと同じ結果になる", async () => {
+    const response = await app.request("/notifications?search=", {
+      headers: AuthTestHelper.createAuthHeaders(testToken),
+    })
+
+    expect(response.status).toBe(200)
+    const body = await response.json()
+
+    expect(body.success).toBe(true)
+    expect(body.data.items).toHaveLength(3)
+  })
+
   test("カーソルを使って次ページを取得できる", async () => {
     const firstResponse = await app.request("/notifications?limit=1", {
       headers: AuthTestHelper.createAuthHeaders(testToken),
@@ -292,7 +304,7 @@ describe("Notifications API", () => {
     expect(body.error.code).toBe(NOTIFICATIONS_ERROR.INVALID_CURSOR)
   })
 
-  test("limitが許可上限を超える場合は422を返す", async () => {
+  test("limitが許可上限を超える場合はバリデーションエラーになる", async () => {
     const response = await app.request(
       `/notifications?limit=${NOTIFICATIONS_MAX_LIMIT + 1}`,
       {
@@ -300,9 +312,7 @@ describe("Notifications API", () => {
       },
     )
 
-    expect(response.status).toBe(422)
-    const body = await response.json()
-    expect(body.error.code).toBe("NOTIFICATIONS_LIMIT_TOO_LARGE")
+    expect(response.status).toBe(400)
   })
 
   test("GET /notifications/{id} で詳細情報を取得できる", async () => {
