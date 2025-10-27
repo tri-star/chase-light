@@ -51,6 +51,9 @@ export function createNotificationRoutes(
 ) {
   const app = new OpenAPIHono()
 
+  // ===== 通知一覧取得機能 =====
+
+  // 通知一覧取得ルート定義
   const listNotificationsRoute = createRoute({
     method: "get",
     path: "/",
@@ -84,6 +87,7 @@ export function createNotificationRoutes(
     },
   })
 
+  // 通知一覧取得エンドポイント
   app.openapi(listNotificationsRoute, async (c) => {
     const authenticated = requireAuth(c)
     const query = c.req.valid("query")
@@ -123,6 +127,9 @@ export function createNotificationRoutes(
     }
   })
 
+  // ===== 通知詳細取得機能 =====
+
+  // 通知詳細取得ルート定義
   const notificationIdParamSchema = z
     .object({
       notificationId: z.string().uuid().openapi({
@@ -158,6 +165,7 @@ export function createNotificationRoutes(
     },
   })
 
+  // 通知詳細取得エンドポイント
   app.openapi(getNotificationDetailRoute, async (c) => {
     const authenticated = requireAuth(c)
     const params = c.req.valid("param")
