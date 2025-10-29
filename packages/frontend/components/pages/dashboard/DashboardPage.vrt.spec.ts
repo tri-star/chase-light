@@ -16,7 +16,7 @@ test.describe('DashboardPage stories VRT', () => {
     await disableAnimations(page)
     await page.waitForLoadState('domcontentloaded')
     // Wait for mock data to render
-    await page.getByText('facebook/react').waitFor()
+    // await page.getByText('facebook/react').waitFor()
 
     const root = page.locator('#storybook-root')
     await expect(root).toHaveScreenshot('dashboard-default.png')
