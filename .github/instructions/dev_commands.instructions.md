@@ -94,11 +94,8 @@ pnpm --filter frontend test:e2e:install
 ### リント・フォーマット
 
 ```bash
-# リント
+# リント+型チェック
 pnpm --filter frontend lint
-
-# 型チェック
-pnpm --filter frontend lint:type
 
 # フォーマット修正
 pnpm --filter frontend format
@@ -144,11 +141,8 @@ pnpm --filter backend deploy
 ### リント・フォーマット
 
 ```bash
-# リント
+# リント + 型チェック
 pnpm --filter backend lint
-
-# 型チェック
-pnpm --filter backend lint:type
 
 # フォーマット修正
 pnpm --filter backend format
@@ -156,7 +150,6 @@ pnpm --filter backend format
 
 ## 注意事項
 
-- `backend`パッケージには現在testスクリプトが定義されていません
 - `shared`パッケージが存在する前提でリントコマンドが設定されています
 - AWS CLIが設定済みの環境でないとbackendのデプロイコマンドは失敗します
 - Playwright使用前は `test:e2e:install` でブラウザをインストールする必要があります

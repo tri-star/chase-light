@@ -36,7 +36,7 @@ export const postApiAuthSignupResponse = zod.object({
  * 認証済みユーザーのプロフィール情報を取得します
  * @summary プロフィール取得
  */
-export const getApiUsersProfileResponse = zod.object({
+export const getApiProfileResponse = zod.object({
   "user": zod.object({
   "id": zod.uuid().describe('ユーザーID（UUID）'),
   "email": zod.email().describe('メールアドレス'),
@@ -54,17 +54,17 @@ export const getApiUsersProfileResponse = zod.object({
  * 認証済みユーザーのプロフィール情報を更新します
  * @summary プロフィール更新
  */
-export const putApiUsersProfileBodyNameMax = 100;
-export const putApiUsersProfileBodyEmailMax = 255;
+export const putApiProfileBodyNameMax = 100;
+export const putApiProfileBodyEmailMax = 255;
 
 
-export const putApiUsersProfileBody = zod.object({
-  "name": zod.string().min(1).max(putApiUsersProfileBodyNameMax).describe('ユーザー名'),
-  "email": zod.string().min(1).max(putApiUsersProfileBodyEmailMax).describe('メールアドレス'),
+export const putApiProfileBody = zod.object({
+  "name": zod.string().min(1).max(putApiProfileBodyNameMax).describe('ユーザー名'),
+  "email": zod.string().min(1).max(putApiProfileBodyEmailMax).describe('メールアドレス'),
   "timezone": zod.string().optional().describe('タイムゾーン（IANA形式）')
 })
 
-export const putApiUsersProfileResponse = zod.object({
+export const putApiProfileResponse = zod.object({
   "user": zod.object({
   "id": zod.uuid().describe('ユーザーID（UUID）'),
   "email": zod.email().describe('メールアドレス'),
@@ -82,7 +82,7 @@ export const putApiUsersProfileResponse = zod.object({
  * 認証済みユーザーの設定情報を取得します
  * @summary ユーザー設定取得
  */
-export const getApiUsersSettingsResponse = zod.object({
+export const getApiSettingsResponse = zod.object({
   "user": zod.object({
   "id": zod.uuid().describe('ユーザーID（UUID）'),
   "email": zod.email().describe('メールアドレス'),
@@ -106,14 +106,14 @@ export const getApiUsersSettingsResponse = zod.object({
  * 認証済みユーザーの設定情報を更新します
  * @summary ユーザー設定更新
  */
-export const putApiUsersSettingsBody = zod.object({
+export const putApiSettingsBody = zod.object({
   "timezone": zod.string().optional().describe('タイムゾーン（IANA形式）'),
   "emailNotifications": zod.boolean().optional().describe('メール通知の有効/無効'),
   "pushNotifications": zod.boolean().optional().describe('プッシュ通知の有効/無効'),
   "language": zod.enum(['ja', 'en']).optional().describe('表示言語（ja/en）')
 })
 
-export const putApiUsersSettingsResponse = zod.object({
+export const putApiSettingsResponse = zod.object({
   "user": zod.object({
   "id": zod.uuid().describe('ユーザーID（UUID）'),
   "email": zod.email().describe('メールアドレス'),
@@ -214,8 +214,8 @@ export const getApiDataSourcesResponse = zod.object({
 
 
 /**
- * GitHubリポジトリをデータソースとして登録し、ユーザーの監視対象に追加します
- * @summary データソース登録
+ * GitHubリポジトリのURLからデータソースを登録し、ユーザーのウォッチ設定を作成します
+ * @summary データソース監視登録
  */
 export const postApiDataSourcesBodyNotificationEnabledDefault = true;export const postApiDataSourcesBodyWatchReleasesDefault = true;export const postApiDataSourcesBodyWatchIssuesDefault = false;export const postApiDataSourcesBodyWatchPullRequestsDefault = false;
 
@@ -231,11 +231,11 @@ export const postApiDataSourcesBody = zod.object({
 
 
 /**
- * 指定されたIDのデータソース詳細情報を取得します。認証ユーザーがWatch中のデータソースのみアクセス可能です
+ * 監視中のデータソースの詳細情報を取得します。認証ユーザーがアクセス権限を持つデータソースのみ取得可能です
  * @summary データソース詳細取得
  */
 export const getApiDataSourcesIdParams = zod.object({
-  "id": zod.uuid().describe('データソースID（UUID形式）')
+  "id": zod.uuid().describe('データソースID')
 })
 
 export const getApiDataSourcesIdResponse = zod.object({
@@ -279,64 +279,62 @@ export const getApiDataSourcesIdResponse = zod.object({
 
 
 /**
- * 指定されたIDのデータソース設定を更新します。認証ユーザーがWatch中のデータソースのみ更新可能です
+ * データソースの基本情報とウォッチ設定を更新します。認証ユーザーがウォッチ中のデータソースのみ更新可能です
  * @summary データソース更新
  */
 export const putApiDataSourcesIdParams = zod.object({
-  "id": zod.uuid().describe('データソースID（UUID形式）')
+  "id": zod.uuid().describe('データソースID')
 })
 
-export const putApiDataSourcesIdBodyNameMax = 255;
-export const putApiDataSourcesIdBodyDescriptionMax = 1000;
-
+export const putApiDataSourcesIdBodyNotificationEnabledDefault = true;export const putApiDataSourcesIdBodyWatchReleasesDefault = true;export const putApiDataSourcesIdBodyWatchIssuesDefault = false;export const putApiDataSourcesIdBodyWatchPullRequestsDefault = false;
 
 export const putApiDataSourcesIdBody = zod.object({
-  "name": zod.string().min(1).max(putApiDataSourcesIdBodyNameMax).optional().describe('データソースの表示名（カスタマイズ可能）'),
-  "description": zod.string().max(putApiDataSourcesIdBodyDescriptionMax).optional().describe('データソースの説明（カスタマイズ可能）'),
-  "notificationEnabled": zod.boolean().optional().describe('通知の有効/無効'),
-  "watchReleases": zod.boolean().optional().describe('リリース監視の有効/無効'),
-  "watchIssues": zod.boolean().optional().describe('Issue監視の有効/無効'),
-  "watchPullRequests": zod.boolean().optional().describe('PR監視の有効/無効')
+  "repositoryUrl": zod.string().min(1).optional().describe('GitHubリポジトリのURL'),
+  "name": zod.string().optional().describe('カスタム表示名（省略時はリポジトリ名を使用）'),
+  "description": zod.string().optional().describe('カスタム説明（省略時はリポジトリの説明を使用）'),
+  "notificationEnabled": zod.boolean().default(putApiDataSourcesIdBodyNotificationEnabledDefault).describe('通知を有効にするか（デフォルト: true）'),
+  "watchReleases": zod.boolean().default(putApiDataSourcesIdBodyWatchReleasesDefault).describe('リリースを監視するか（デフォルト: true）'),
+  "watchIssues": zod.boolean().optional().describe('イシューを監視するか（デフォルト: false）'),
+  "watchPullRequests": zod.boolean().optional().describe('プルリクエストを監視するか（デフォルト: false）')
 })
 
 export const putApiDataSourcesIdResponse = zod.object({
-  "success": zod.literal(true),
+  "success": zod.boolean().describe('成功フラグ'),
   "data": zod.object({
   "dataSource": zod.object({
-  "id": zod.uuid(),
-  "sourceType": zod.string(),
-  "sourceId": zod.string(),
-  "name": zod.string(),
-  "description": zod.string(),
-  "url": zod.string(),
-  "isPrivate": zod.boolean(),
+  "id": zod.string().describe('データソースID'),
+  "sourceType": zod.string().describe('データソースタイプ'),
+  "sourceId": zod.string().describe('外部サービスでのID'),
+  "name": zod.string().describe('データソース名'),
+  "description": zod.string().describe('データソースの説明'),
+  "url": zod.string().describe('データソースのURL'),
+  "isPrivate": zod.boolean().describe('プライベートリポジトリかどうか'),
   "repository": zod.object({
-  "id": zod.uuid(),
-  "githubId": zod.number(),
-  "fullName": zod.string(),
-  "owner": zod.string(),
-  "language": zod.string().nullable(),
-  "starsCount": zod.number(),
-  "forksCount": zod.number(),
-  "openIssuesCount": zod.number(),
-  "isFork": zod.boolean(),
-  "createdAt": zod.string(),
-  "updatedAt": zod.string()
+  "id": zod.string().describe('リポジトリID'),
+  "githubId": zod.number().describe('GitHub リポジトリID'),
+  "fullName": zod.string().describe('リポジトリのフルネーム'),
+  "language": zod.string().nullable().describe('主要プログラミング言語'),
+  "starsCount": zod.number().describe('スター数'),
+  "forksCount": zod.number().describe('フォーク数'),
+  "openIssuesCount": zod.number().describe('未解決イシュー数'),
+  "isFork": zod.boolean().describe('フォークリポジトリかどうか'),
+  "createdAt": zod.string().describe('作成日時'),
+  "updatedAt": zod.string().describe('更新日時')
 }),
-  "createdAt": zod.string(),
-  "updatedAt": zod.string()
+  "createdAt": zod.string().describe('作成日時'),
+  "updatedAt": zod.string().describe('更新日時')
 }),
   "userWatch": zod.object({
-  "id": zod.uuid(),
-  "userId": zod.uuid(),
-  "dataSourceId": zod.uuid(),
-  "notificationEnabled": zod.boolean(),
-  "watchReleases": zod.boolean(),
-  "watchIssues": zod.boolean(),
-  "watchPullRequests": zod.boolean(),
-  "addedAt": zod.string()
+  "id": zod.string().describe('ユーザーウォッチID'),
+  "userId": zod.string().describe('ユーザーID'),
+  "dataSourceId": zod.string().describe('データソースID'),
+  "notificationEnabled": zod.boolean().describe('通知が有効かどうか'),
+  "watchReleases": zod.boolean().describe('リリースを監視するか'),
+  "watchIssues": zod.boolean().describe('イシューを監視するか'),
+  "watchPullRequests": zod.boolean().describe('プルリクエストを監視するか'),
+  "addedAt": zod.string().describe('追加日時')
 })
-})
+}).describe('作成されたデータ')
 })
 
 
@@ -345,7 +343,318 @@ export const putApiDataSourcesIdResponse = zod.object({
  * @summary データソース削除
  */
 export const deleteApiDataSourcesIdParams = zod.object({
-  "id": zod.uuid().describe('データソースID（UUID形式）')
+  "id": zod.uuid().describe('データソースID')
+})
+
+
+/**
+ * ユーザーがウォッチしているデータソースのアクティビティをページネーション付きで取得します
+ * @summary ウォッチ対象アクティビティ一覧取得
+ */
+export const getApiActivitiesQueryPageDefault = 1;export const getApiActivitiesQueryPerPageDefault = 20;
+export const getApiActivitiesQueryPerPageMax = 100;
+export const getApiActivitiesQueryStatusDefault = "completed";export const getApiActivitiesQuerySortDefault = "createdAt";export const getApiActivitiesQueryOrderDefault = "desc";
+
+export const getApiActivitiesQueryParams = zod.object({
+  "page": zod.number().min(1).default(getApiActivitiesQueryPageDefault).describe('ページ番号 (1始まり)'),
+  "perPage": zod.number().min(1).max(getApiActivitiesQueryPerPageMax).default(getApiActivitiesQueryPerPageDefault).describe('1ページあたりの件数 (最大100)'),
+  "activityType": zod.enum(['release', 'issue', 'pull_request']).optional().describe('アクティビティ種別'),
+  "status": zod.enum(['pending', 'processing', 'completed', 'failed']).default(getApiActivitiesQueryStatusDefault).describe('アクティビティステータス'),
+  "since": zod.iso.datetime({}).optional().describe('取得期間の開始日時 (ISO8601)'),
+  "until": zod.iso.datetime({}).optional().describe('取得期間の終了日時 (ISO8601)'),
+  "sort": zod.enum(['createdAt', 'updatedAt']).default(getApiActivitiesQuerySortDefault).describe('ソート対象フィールド'),
+  "order": zod.enum(['asc', 'desc']).default(getApiActivitiesQueryOrderDefault).describe('ソート順')
+})
+
+export const getApiActivitiesResponseDataPaginationPerPageMax = 100;
+export const getApiActivitiesResponseDataPaginationTotalMin = 0;
+export const getApiActivitiesResponseDataPaginationTotalPagesMin = 0;
+
+
+export const getApiActivitiesResponse = zod.object({
+  "success": zod.literal(true).describe('成功フラグ'),
+  "data": zod.object({
+  "items": zod.array(zod.object({
+  "activity": zod.object({
+  "id": zod.uuid().describe('アクティビティID'),
+  "activityType": zod.enum(['release', 'issue', 'pull_request']).describe('アクティビティの種別'),
+  "title": zod.string().describe('アクティビティのタイトル'),
+  "translatedTitle": zod.string().nullable().describe('翻訳済みタイトル (日本語)'),
+  "summary": zod.string().nullable().describe('本文の要約 (翻訳済み)'),
+  "detail": zod.string().nullish().describe('本文の抜粋 (一覧では省略される場合あり)'),
+  "translatedBody": zod.string().nullable().describe('翻訳済み本文 (現状はnull)'),
+  "status": zod.enum(['pending', 'processing', 'completed', 'failed']).describe('処理ステータス'),
+  "statusDetail": zod.string().nullable().describe('ステータスに関する補足説明'),
+  "version": zod.string().nullable().describe('リリースバージョンなど'),
+  "occurredAt": zod.iso.datetime({}).describe('アクティビティ発生日時'),
+  "lastUpdatedAt": zod.iso.datetime({}).describe('最終更新日時'),
+  "source": zod.object({
+  "id": zod.uuid().describe('データソースID'),
+  "sourceType": zod.string().describe('データソース種別'),
+  "name": zod.string().describe('データソース名'),
+  "url": zod.url().describe('データソースURL'),
+  "metadata": zod.object({
+  "repositoryFullName": zod.string().optional().describe('GitHubリポジトリのフルネーム'),
+  "repositoryLanguage": zod.string().nullish().describe('リポジトリの主要言語'),
+  "starsCount": zod.number().optional().describe('スター数'),
+  "forksCount": zod.number().optional().describe('フォーク数'),
+  "openIssuesCount": zod.number().optional().describe('未解決Issue数')
+}).optional().describe('データソースに紐づく追加メタ情報')
+})
+})
+})).describe('アクティビティ一覧'),
+  "pagination": zod.object({
+  "page": zod.number().min(1).describe('現在のページ番号'),
+  "perPage": zod.number().min(1).max(getApiActivitiesResponseDataPaginationPerPageMax).describe('1ページあたりの件数'),
+  "total": zod.number().min(getApiActivitiesResponseDataPaginationTotalMin).describe('総件数'),
+  "totalPages": zod.number().min(getApiActivitiesResponseDataPaginationTotalPagesMin).describe('総ページ数'),
+  "hasNext": zod.boolean().describe('次ページが存在するか'),
+  "hasPrev": zod.boolean().describe('前ページが存在するか')
+})
+})
+})
+
+
+/**
+ * 指定したアクティビティの詳細情報を取得します。ウォッチ対象外の場合は404を返却します
+ * @summary アクティビティ詳細取得
+ */
+export const getApiActivitiesActivityIdParams = zod.object({
+  "activityId": zod.uuid().describe('アクティビティID')
+})
+
+export const getApiActivitiesActivityIdResponse = zod.object({
+  "success": zod.literal(true),
+  "data": zod.object({
+  "activity": zod.object({
+  "id": zod.uuid().describe('アクティビティID'),
+  "activityType": zod.enum(['release', 'issue', 'pull_request']).describe('アクティビティ種別'),
+  "title": zod.string().describe('アクティビティのタイトル'),
+  "translatedTitle": zod.string().nullable().describe('翻訳済みタイトル (日本語)'),
+  "summary": zod.string().nullable().describe('本文の要約 (翻訳済み)'),
+  "detail": zod.string().describe('表示用の詳細本文 (原文)'),
+  "translatedBody": zod.string().nullable().describe('翻訳済み本文 (現状はnull)'),
+  "status": zod.enum(['pending', 'processing', 'completed', 'failed']).describe('処理ステータス'),
+  "statusDetail": zod.string().nullable().describe('ステータスに関する補足'),
+  "version": zod.string().nullable().describe('リリースバージョン'),
+  "occurredAt": zod.iso.datetime({}).describe('発生日時'),
+  "lastUpdatedAt": zod.iso.datetime({}).describe('最終更新日時'),
+  "source": zod.object({
+  "id": zod.uuid().describe('データソースID'),
+  "sourceType": zod.string().describe('データソース種別'),
+  "name": zod.string().describe('データソース名'),
+  "url": zod.url().describe('データソースURL'),
+  "metadata": zod.object({
+  "repositoryFullName": zod.string().optional().describe('GitHubリポジトリのフルネーム'),
+  "repositoryLanguage": zod.string().nullish().describe('リポジトリの主要言語'),
+  "starsCount": zod.number().optional().describe('スター数'),
+  "forksCount": zod.number().optional().describe('フォーク数'),
+  "openIssuesCount": zod.number().optional().describe('未解決Issue数')
+}).optional().describe('データソースに紐づく追加メタ情報')
+})
+})
+})
+})
+
+
+/**
+ * 指定データソースに紐づくアクティビティを取得します。ウォッチしていない場合は404を返却します
+ * @summary データソース別アクティビティ一覧取得
+ */
+export const getApiDataSourcesDataSourceIdActivitiesParams = zod.object({
+  "dataSourceId": zod.uuid().describe('データソースID')
+})
+
+export const getApiDataSourcesDataSourceIdActivitiesQueryPageDefault = 1;export const getApiDataSourcesDataSourceIdActivitiesQueryPerPageDefault = 20;
+export const getApiDataSourcesDataSourceIdActivitiesQueryPerPageMax = 100;
+export const getApiDataSourcesDataSourceIdActivitiesQueryStatusDefault = "completed";export const getApiDataSourcesDataSourceIdActivitiesQuerySortDefault = "createdAt";export const getApiDataSourcesDataSourceIdActivitiesQueryOrderDefault = "desc";
+
+export const getApiDataSourcesDataSourceIdActivitiesQueryParams = zod.object({
+  "page": zod.number().min(1).default(getApiDataSourcesDataSourceIdActivitiesQueryPageDefault).describe('ページ番号 (1始まり)'),
+  "perPage": zod.number().min(1).max(getApiDataSourcesDataSourceIdActivitiesQueryPerPageMax).default(getApiDataSourcesDataSourceIdActivitiesQueryPerPageDefault).describe('1ページあたりの件数 (最大100)'),
+  "activityType": zod.enum(['release', 'issue', 'pull_request']).optional().describe('アクティビティ種別'),
+  "status": zod.enum(['pending', 'processing', 'completed', 'failed']).default(getApiDataSourcesDataSourceIdActivitiesQueryStatusDefault).describe('アクティビティステータス'),
+  "since": zod.iso.datetime({}).optional().describe('取得期間の開始日時 (ISO8601)'),
+  "until": zod.iso.datetime({}).optional().describe('取得期間の終了日時 (ISO8601)'),
+  "sort": zod.enum(['createdAt', 'updatedAt']).default(getApiDataSourcesDataSourceIdActivitiesQuerySortDefault).describe('ソート対象フィールド'),
+  "order": zod.enum(['asc', 'desc']).default(getApiDataSourcesDataSourceIdActivitiesQueryOrderDefault).describe('ソート順')
+})
+
+export const getApiDataSourcesDataSourceIdActivitiesResponseDataPaginationPerPageMax = 100;
+export const getApiDataSourcesDataSourceIdActivitiesResponseDataPaginationTotalMin = 0;
+export const getApiDataSourcesDataSourceIdActivitiesResponseDataPaginationTotalPagesMin = 0;
+
+
+export const getApiDataSourcesDataSourceIdActivitiesResponse = zod.object({
+  "success": zod.literal(true),
+  "data": zod.object({
+  "dataSource": zod.object({
+  "id": zod.uuid().describe('データソースID'),
+  "sourceType": zod.string().describe('データソース種別'),
+  "name": zod.string().describe('データソース名'),
+  "url": zod.url().describe('データソースURL'),
+  "metadata": zod.object({
+  "repositoryFullName": zod.string().optional().describe('GitHubリポジトリのフルネーム'),
+  "repositoryLanguage": zod.string().nullish().describe('リポジトリの主要言語'),
+  "starsCount": zod.number().optional().describe('スター数'),
+  "forksCount": zod.number().optional().describe('フォーク数'),
+  "openIssuesCount": zod.number().optional().describe('未解決Issue数')
+}).optional().describe('データソースに紐づく追加メタ情報')
+}),
+  "items": zod.array(zod.object({
+  "activity": zod.object({
+  "id": zod.uuid().describe('アクティビティID'),
+  "activityType": zod.enum(['release', 'issue', 'pull_request']).describe('アクティビティの種別'),
+  "title": zod.string().describe('アクティビティのタイトル'),
+  "translatedTitle": zod.string().nullable().describe('翻訳済みタイトル (日本語)'),
+  "summary": zod.string().nullable().describe('本文の要約 (翻訳済み)'),
+  "detail": zod.string().nullish().describe('本文の抜粋 (一覧では省略される場合あり)'),
+  "translatedBody": zod.string().nullable().describe('翻訳済み本文 (現状はnull)'),
+  "status": zod.enum(['pending', 'processing', 'completed', 'failed']).describe('処理ステータス'),
+  "statusDetail": zod.string().nullable().describe('ステータスに関する補足説明'),
+  "version": zod.string().nullable().describe('リリースバージョンなど'),
+  "occurredAt": zod.iso.datetime({}).describe('アクティビティ発生日時'),
+  "lastUpdatedAt": zod.iso.datetime({}).describe('最終更新日時'),
+  "source": zod.object({
+  "id": zod.uuid().describe('データソースID'),
+  "sourceType": zod.string().describe('データソース種別'),
+  "name": zod.string().describe('データソース名'),
+  "url": zod.url().describe('データソースURL'),
+  "metadata": zod.object({
+  "repositoryFullName": zod.string().optional().describe('GitHubリポジトリのフルネーム'),
+  "repositoryLanguage": zod.string().nullish().describe('リポジトリの主要言語'),
+  "starsCount": zod.number().optional().describe('スター数'),
+  "forksCount": zod.number().optional().describe('フォーク数'),
+  "openIssuesCount": zod.number().optional().describe('未解決Issue数')
+}).optional().describe('データソースに紐づく追加メタ情報')
+})
+})
+})),
+  "pagination": zod.object({
+  "page": zod.number().min(1).describe('現在のページ番号'),
+  "perPage": zod.number().min(1).max(getApiDataSourcesDataSourceIdActivitiesResponseDataPaginationPerPageMax).describe('1ページあたりの件数'),
+  "total": zod.number().min(getApiDataSourcesDataSourceIdActivitiesResponseDataPaginationTotalMin).describe('総件数'),
+  "totalPages": zod.number().min(getApiDataSourcesDataSourceIdActivitiesResponseDataPaginationTotalPagesMin).describe('総ページ数'),
+  "hasNext": zod.boolean().describe('次ページが存在するか'),
+  "hasPrev": zod.boolean().describe('前ページが存在するか')
+})
+})
+})
+
+
+/**
+ * カーソルベースのページネーションに対応した通知一覧を返却します
+ * @summary 通知一覧の取得
+ */
+export const getApiNotificationsQueryLimitDefault = 20;
+export const getApiNotificationsQueryLimitMax = 50;
+export const getApiNotificationsQueryReadDefault = "all";export const getApiNotificationsQuerySearchMax = 120;
+
+
+export const getApiNotificationsQueryParams = zod.object({
+  "cursor": zod.string().optional().describe('次ページ取得用のカーソル(Base64)'),
+  "limit": zod.number().min(1).max(getApiNotificationsQueryLimitMax).default(getApiNotificationsQueryLimitDefault).describe('取得件数 (1-50)'),
+  "read": zod.enum(['all', 'read', 'unread']).default(getApiNotificationsQueryReadDefault).describe('既読フィルタ'),
+  "search": zod.string().max(getApiNotificationsQuerySearchMax).optional().describe('タイトル・サマリの部分一致検索キーワード')
+})
+
+export const getApiNotificationsResponseDataItemsItemDataSourcesItemGroupsItemEntriesItemDisplayOrderMin = 0;
+
+
+export const getApiNotificationsResponse = zod.object({
+  "success": zod.literal(true),
+  "data": zod.object({
+  "items": zod.array(zod.object({
+  "notification": zod.object({
+  "id": zod.uuid().describe('通知ID'),
+  "type": zod.string().describe('通知種別'),
+  "status": zod.string().describe('通知ステータス'),
+  "isRead": zod.boolean().describe('既読フラグ'),
+  "scheduledAt": zod.iso.datetime({}).describe('送信予定日時(ISO8601)'),
+  "sentAt": zod.iso.datetime({}).nullable().describe('送信日時(ISO8601)'),
+  "createdAt": zod.iso.datetime({}).describe('作成日時(ISO8601)'),
+  "updatedAt": zod.iso.datetime({}).describe('更新日時(ISO8601)'),
+  "lastActivityOccurredAt": zod.iso.datetime({}).describe('通知に含まれる最新アクティビティの発生日時(ISO8601)'),
+  "metadata": zod.record(zod.string(), zod.any().nullable()).nullable().describe('通知メタデータ(JSON)')
+}),
+  "dataSources": zod.array(zod.object({
+  "id": zod.uuid().describe('データソースID'),
+  "name": zod.string().describe('データソース名'),
+  "url": zod.url().describe('データソースURL'),
+  "sourceType": zod.string().describe('データソース種別'),
+  "repository": zod.object({
+  "fullName": zod.string().describe('GitHubリポジトリのフルネーム')
+}).optional(),
+  "groups": zod.array(zod.object({
+  "activityType": zod.enum(['issue', 'pull_request', 'release']).describe('アクティビティ種別'),
+  "entries": zod.array(zod.object({
+  "activityId": zod.uuid().describe('アクティビティID'),
+  "title": zod.string().describe('エントリタイトル'),
+  "summary": zod.string().describe('要約テキスト'),
+  "occurredAt": zod.iso.datetime({}).describe('アクティビティ発生日時(ISO8601)'),
+  "url": zod.url().nullable().describe('詳細ページURL'),
+  "displayOrder": zod.number().min(getApiNotificationsResponseDataItemsItemDataSourcesItemGroupsItemEntriesItemDisplayOrderMin).describe('通知内での表示順序')
+}))
+}))
+}))
+})),
+  "pageInfo": zod.object({
+  "hasNext": zod.boolean().describe('次ページが存在するかどうか'),
+  "nextCursor": zod.string().optional().describe('次ページ用カーソル(Base64)')
+})
+})
+})
+
+
+/**
+ * 指定された通知の詳細を返却します
+ * @summary 通知詳細の取得
+ */
+export const getApiNotificationsNotificationIdParams = zod.object({
+  "notificationId": zod.uuid().describe('通知ID')
+})
+
+export const getApiNotificationsNotificationIdResponseDataItemDataSourcesItemGroupsItemEntriesItemDisplayOrderMin = 0;
+
+
+export const getApiNotificationsNotificationIdResponse = zod.object({
+  "success": zod.literal(true),
+  "data": zod.object({
+  "item": zod.object({
+  "notification": zod.object({
+  "id": zod.uuid().describe('通知ID'),
+  "type": zod.string().describe('通知種別'),
+  "status": zod.string().describe('通知ステータス'),
+  "isRead": zod.boolean().describe('既読フラグ'),
+  "scheduledAt": zod.iso.datetime({}).describe('送信予定日時(ISO8601)'),
+  "sentAt": zod.iso.datetime({}).nullable().describe('送信日時(ISO8601)'),
+  "createdAt": zod.iso.datetime({}).describe('作成日時(ISO8601)'),
+  "updatedAt": zod.iso.datetime({}).describe('更新日時(ISO8601)'),
+  "lastActivityOccurredAt": zod.iso.datetime({}).describe('通知に含まれる最新アクティビティの発生日時(ISO8601)'),
+  "metadata": zod.record(zod.string(), zod.any().nullable()).nullable().describe('通知メタデータ(JSON)')
+}),
+  "dataSources": zod.array(zod.object({
+  "id": zod.uuid().describe('データソースID'),
+  "name": zod.string().describe('データソース名'),
+  "url": zod.url().describe('データソースURL'),
+  "sourceType": zod.string().describe('データソース種別'),
+  "repository": zod.object({
+  "fullName": zod.string().describe('GitHubリポジトリのフルネーム')
+}).optional(),
+  "groups": zod.array(zod.object({
+  "activityType": zod.enum(['issue', 'pull_request', 'release']).describe('アクティビティ種別'),
+  "entries": zod.array(zod.object({
+  "activityId": zod.uuid().describe('アクティビティID'),
+  "title": zod.string().describe('エントリタイトル'),
+  "summary": zod.string().describe('要約テキスト'),
+  "occurredAt": zod.iso.datetime({}).describe('アクティビティ発生日時(ISO8601)'),
+  "url": zod.url().nullable().describe('詳細ページURL'),
+  "displayOrder": zod.number().min(getApiNotificationsNotificationIdResponseDataItemDataSourcesItemGroupsItemEntriesItemDisplayOrderMin).describe('通知内での表示順序')
+}))
+}))
+}))
+})
+})
 })
 
 

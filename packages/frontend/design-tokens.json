@@ -419,7 +419,7 @@
           "$description": "Header area with glass effect",
           "default": {
             "bg": {
-              "value": "oklch(100% 0 none / 0.8)"
+              "value": "oklch(100% 0 none / 0.6)"
             },
             "text": {
               "value": "{color.primitive.gray.900}"

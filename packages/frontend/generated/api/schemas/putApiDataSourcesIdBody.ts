@@ -8,22 +8,20 @@
 
 export type PutApiDataSourcesIdBody = {
   /**
-   * データソースの表示名（カスタマイズ可能）
+   * GitHubリポジトリのURL
    * @minLength 1
-   * @maxLength 255
    */
+  repositoryUrl?: string;
+  /** カスタム表示名（省略時はリポジトリ名を使用） */
   name?: string;
-  /**
-   * データソースの説明（カスタマイズ可能）
-   * @maxLength 1000
-   */
+  /** カスタム説明（省略時はリポジトリの説明を使用） */
   description?: string;
-  /** 通知の有効/無効 */
+  /** 通知を有効にするか（デフォルト: true） */
   notificationEnabled?: boolean;
-  /** リリース監視の有効/無効 */
+  /** リリースを監視するか（デフォルト: true） */
   watchReleases?: boolean;
-  /** Issue監視の有効/無効 */
+  /** イシューを監視するか（デフォルト: false） */
   watchIssues?: boolean;
-  /** PR監視の有効/無効 */
+  /** プルリクエストを監視するか（デフォルト: false） */
   watchPullRequests?: boolean;
 };

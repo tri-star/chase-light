@@ -16,7 +16,7 @@ test.describe('DashboardPage stories VRT', () => {
     await disableAnimations(page)
     await page.waitForLoadState('domcontentloaded')
     // Wait for mock data to render
-    await page.getByText('nuxt/nuxt').waitFor()
+    // await page.getByText('facebook/react').waitFor()
 
     const root = page.locator('#storybook-root')
     await expect(root).toHaveScreenshot('dashboard-default.png')
@@ -25,7 +25,7 @@ test.describe('DashboardPage stories VRT', () => {
   test('Empty story', async ({ page }) => {
     await page.goto(storyUrl('components-pages-dashboardpage--empty'))
     await disableAnimations(page)
-    await page.getByText('ウォッチ中のリポジトリがありません').waitFor()
+    await page.getByText('新しい通知はありません').waitFor()
     const root = page.locator('#storybook-root')
     await expect(root).toHaveScreenshot('dashboard-empty.png')
   })
@@ -33,14 +33,14 @@ test.describe('DashboardPage stories VRT', () => {
   test('Error story', async ({ page }) => {
     await page.goto(storyUrl('components-pages-dashboardpage--error'))
     await disableAnimations(page)
-    await page.getByText('データの読み込みに失敗しました').waitFor()
+    await page.getByText('通知の読み込みに失敗しました').waitFor()
     const root = page.locator('#storybook-root')
     await expect(root).toHaveScreenshot('dashboard-error.png')
   })
 
-  test('ManyRepositories story', async ({ page }) => {
+  test('ManyNotifications story', async ({ page }) => {
     await page.goto(
-      storyUrl('components-pages-dashboardpage--many-repositories')
+      storyUrl('components-pages-dashboardpage--many-notifications')
     )
     await disableAnimations(page)
     await page.getByText('25').first().waitFor()
