@@ -70,7 +70,7 @@
   --background-color-interactive-hovered: oklch(97.818% 0.00342 247.86);
   --text-color-interactive-hovered: oklch(27.85% 0.0132 253.04);
   --border-color-interactive-hovered: oklch(66.576% 0.01812 250.92);
-  --background-color-header-default: oklch(100% 0 none / 0.8);
+  --background-color-header-default: oklch(100% 0 none / 0.6);
   --text-color-header-default: oklch(27.85% 0.0132 253.04);
   --border-color-header-default: oklch(87.585% 0.0123 247.97 / 0.2);
   --background-color-sidebar-default: oklch(97.818% 0.00342 247.86);
