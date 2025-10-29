@@ -282,7 +282,7 @@ export const ManyNotifications: Story = {
     msw: {
       handlers: [
         getGetApiDataSourcesMockHandler(createDataSourcesResponse(25)),
-        getGetApiNotificationsMockHandler(createNotificationsResponse(10)),
+        getGetApiNotificationsMockHandler(createNotificationsResponse(11)),
       ],
     },
   },
@@ -290,5 +290,7 @@ export const ManyNotifications: Story = {
     const canvas = within(canvasElement)
     // データソース数が25として表示される
     await expect(await canvas.findByText('25')).toBeVisible()
+    // 通知が10件表示される（hasNextがtrueで無限スクロールが有効）
+    await expect(await canvas.findByText('React 19.0.0 リリース')).toBeVisible()
   },
 }

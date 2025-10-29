@@ -1,9 +1,9 @@
 import { getApiNotifications } from '~/generated/api/backend'
-import type {
-  GetApiNotificationsParams,
-  NotificationListResponseData,
-} from '~/generated/api/schemas'
-import { getApiNotificationsResponse } from '~/generated/api/zod/chaseLightAPI.zod'
+import type { NotificationListResponseData } from '~/generated/api/schemas'
+import {
+  getApiNotificationsResponse,
+  getApiNotificationsQueryParams,
+} from '~/generated/api/zod/chaseLightAPI.zod'
 import { validateWithZod } from '~/utils/validation'
 
 export default defineEventHandler(
@@ -16,19 +16,19 @@ export default defineEventHandler(
     // 認証チェック
     await requireUserSession(event)
 
-    // クエリパラメータを取得
+    // クエリパラメータを取得してバリデーション
     const query = getQuery(event)
-    const params: GetApiNotificationsParams = {
-      cursor: query.cursor as string | undefined,
-      limit: query.limit ? parseInt(query.limit as string, 10) : 20,
-      read: (query.read as 'all' | 'read' | 'unread') || 'unread', // デフォルトで未読のみ
-      search: query.search as string | undefined,
-    }
-
-    // 未定義値を除去
-    const cleanParams = Object.fromEntries(
-      Object.entries(params).filter(([, value]) => value !== undefined)
-    ) as GetApiNotificationsParams
+    const cleanParams = validateWithZod(
+      getApiNotificationsQueryParams.extend({
+        // BFFの要件に合わせてデフォルトを 'unread' にオーバーライド
+        read: getApiNotificationsQueryParams.shape.read.default('unread'),
+      }),
+      {
+        ...query,
+        limit: query.limit ? Number(query.limit) : undefined,
+      },
+      'notifications query params'
+    )
 
     try {
       // Backend APIを呼び出し

@@ -123,7 +123,7 @@ const totalWatchedRepositories = computed(() =>
 )
 
 const unreadNotificationsCount = computed(() => {
-  return notifications.value.filter((item) => !item.notification.isRead).length
+  return notifications.value.length
 })
 
 const statCards = computed(() => [
