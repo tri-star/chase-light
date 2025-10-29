@@ -78,7 +78,7 @@ export const getPostApiAuthSignupUrl = () => {
 
   
 
-  return `missing backend url/api/auth/signup`
+  return `/api/auth/signup`
 }
 
 export const postApiAuthSignup = async (signUpRequest: SignUpRequest, options?: RequestInit): Promise<postApiAuthSignupResponse> => {
@@ -143,7 +143,7 @@ export const getGetApiProfileUrl = () => {
 
   
 
-  return `missing backend url/api/profile`
+  return `/api/profile`
 }
 
 export const getApiProfile = async ( options?: RequestInit): Promise<getApiProfileResponse> => {
@@ -207,7 +207,7 @@ export const getPutApiProfileUrl = () => {
 
   
 
-  return `missing backend url/api/profile`
+  return `/api/profile`
 }
 
 export const putApiProfile = async (updateProfileRequest: UpdateProfileRequest, options?: RequestInit): Promise<putApiProfileResponse> => {
@@ -272,7 +272,7 @@ export const getGetApiSettingsUrl = () => {
 
   
 
-  return `missing backend url/api/settings`
+  return `/api/settings`
 }
 
 export const getApiSettings = async ( options?: RequestInit): Promise<getApiSettingsResponse> => {
@@ -336,7 +336,7 @@ export const getPutApiSettingsUrl = () => {
 
   
 
-  return `missing backend url/api/settings`
+  return `/api/settings`
 }
 
 export const putApiSettings = async (updateSettingsRequest: UpdateSettingsRequest, options?: RequestInit): Promise<putApiSettingsResponse> => {
@@ -408,7 +408,7 @@ export const getGetApiDataSourcesUrl = (params?: GetApiDataSourcesParams,) => {
 
   const stringifiedParams = normalizedParams.toString();
 
-  return stringifiedParams.length > 0 ? `missing backend url/api/data-sources?${stringifiedParams}` : `missing backend url/api/data-sources`
+  return stringifiedParams.length > 0 ? `/api/data-sources?${stringifiedParams}` : `/api/data-sources`
 }
 
 export const getApiDataSources = async (params?: GetApiDataSourcesParams, options?: RequestInit): Promise<getApiDataSourcesResponse> => {
@@ -472,7 +472,7 @@ export const getPostApiDataSourcesUrl = () => {
 
   
 
-  return `missing backend url/api/data-sources`
+  return `/api/data-sources`
 }
 
 export const postApiDataSources = async (createDataSourceRequest: CreateDataSourceRequest, options?: RequestInit): Promise<postApiDataSourcesResponse> => {
@@ -537,7 +537,7 @@ export const getGetApiDataSourcesIdUrl = (id: string,) => {
 
   
 
-  return `missing backend url/api/data-sources/${id}`
+  return `/api/data-sources/${id}`
 }
 
 export const getApiDataSourcesId = async (id: string, options?: RequestInit): Promise<getApiDataSourcesIdResponse> => {
@@ -601,7 +601,7 @@ export const getPutApiDataSourcesIdUrl = (id: string,) => {
 
   
 
-  return `missing backend url/api/data-sources/${id}`
+  return `/api/data-sources/${id}`
 }
 
 export const putApiDataSourcesId = async (id: string,
@@ -667,7 +667,7 @@ export const getDeleteApiDataSourcesIdUrl = (id: string,) => {
 
   
 
-  return `missing backend url/api/data-sources/${id}`
+  return `/api/data-sources/${id}`
 }
 
 export const deleteApiDataSourcesId = async (id: string, options?: RequestInit): Promise<deleteApiDataSourcesIdResponse> => {
@@ -728,7 +728,7 @@ export const getGetApiActivitiesUrl = (params?: GetApiActivitiesParams,) => {
 
   const stringifiedParams = normalizedParams.toString();
 
-  return stringifiedParams.length > 0 ? `missing backend url/api/activities?${stringifiedParams}` : `missing backend url/api/activities`
+  return stringifiedParams.length > 0 ? `/api/activities?${stringifiedParams}` : `/api/activities`
 }
 
 export const getApiActivities = async (params?: GetApiActivitiesParams, options?: RequestInit): Promise<getApiActivitiesResponse> => {
@@ -782,7 +782,7 @@ export const getGetApiActivitiesActivityIdUrl = (activityId: string,) => {
 
   
 
-  return `missing backend url/api/activities/${activityId}`
+  return `/api/activities/${activityId}`
 }
 
 export const getApiActivitiesActivityId = async (activityId: string, options?: RequestInit): Promise<getApiActivitiesActivityIdResponse> => {
@@ -844,7 +844,7 @@ export const getGetApiDataSourcesDataSourceIdActivitiesUrl = (dataSourceId: stri
 
   const stringifiedParams = normalizedParams.toString();
 
-  return stringifiedParams.length > 0 ? `missing backend url/api/data-sources/${dataSourceId}/activities?${stringifiedParams}` : `missing backend url/api/data-sources/${dataSourceId}/activities`
+  return stringifiedParams.length > 0 ? `/api/data-sources/${dataSourceId}/activities?${stringifiedParams}` : `/api/data-sources/${dataSourceId}/activities`
 }
 
 export const getApiDataSourcesDataSourceIdActivities = async (dataSourceId: string,
@@ -874,16 +874,11 @@ export type getApiNotificationsResponse400 = {
   data: NotificationErrorResponse
   status: 400
 }
-
-export type getApiNotificationsResponse422 = {
-  data: NotificationErrorResponse
-  status: 422
-}
     
 export type getApiNotificationsResponseSuccess = (getApiNotificationsResponse200) & {
   headers: Headers;
 };
-export type getApiNotificationsResponseError = (getApiNotificationsResponse400 | getApiNotificationsResponse422) & {
+export type getApiNotificationsResponseError = (getApiNotificationsResponse400) & {
   headers: Headers;
 };
 
@@ -901,7 +896,7 @@ export const getGetApiNotificationsUrl = (params?: GetApiNotificationsParams,) =
 
   const stringifiedParams = normalizedParams.toString();
 
-  return stringifiedParams.length > 0 ? `missing backend url/api/notifications?${stringifiedParams}` : `missing backend url/api/notifications`
+  return stringifiedParams.length > 0 ? `/api/notifications?${stringifiedParams}` : `/api/notifications`
 }
 
 export const getApiNotifications = async (params?: GetApiNotificationsParams, options?: RequestInit): Promise<getApiNotificationsResponse> => {
@@ -945,7 +940,7 @@ export const getGetApiNotificationsNotificationIdUrl = (notificationId: string,)
 
   
 
-  return `missing backend url/api/notifications/${notificationId}`
+  return `/api/notifications/${notificationId}`
 }
 
 export const getApiNotificationsNotificationId = async (notificationId: string, options?: RequestInit): Promise<getApiNotificationsNotificationIdResponse> => {
