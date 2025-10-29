@@ -15,6 +15,7 @@ cursor?: string;
 /**
  * 取得件数 (1-50)
  * @minimum 1
+ * @maximum 50
  */
 limit?: number;
 /**
@@ -23,7 +24,6 @@ limit?: number;
 read?: GetApiNotificationsRead;
 /**
  * タイトル・サマリの部分一致検索キーワード
- * @minLength 1
  * @maxLength 120
  */
 search?: string;

@@ -546,14 +546,16 @@ export const getApiDataSourcesDataSourceIdActivitiesResponse = zod.object({
  * カーソルベースのページネーションに対応した通知一覧を返却します
  * @summary 通知一覧の取得
  */
-export const getApiNotificationsQueryLimitDefault = 20;export const getApiNotificationsQueryReadDefault = "all";export const getApiNotificationsQuerySearchMax = 120;
+export const getApiNotificationsQueryLimitDefault = 20;
+export const getApiNotificationsQueryLimitMax = 50;
+export const getApiNotificationsQueryReadDefault = "all";export const getApiNotificationsQuerySearchMax = 120;
 
 
 export const getApiNotificationsQueryParams = zod.object({
   "cursor": zod.string().optional().describe('次ページ取得用のカーソル(Base64)'),
-  "limit": zod.number().min(1).default(getApiNotificationsQueryLimitDefault).describe('取得件数 (1-50)'),
+  "limit": zod.number().min(1).max(getApiNotificationsQueryLimitMax).default(getApiNotificationsQueryLimitDefault).describe('取得件数 (1-50)'),
   "read": zod.enum(['all', 'read', 'unread']).default(getApiNotificationsQueryReadDefault).describe('既読フィルタ'),
-  "search": zod.string().min(1).max(getApiNotificationsQuerySearchMax).optional().describe('タイトル・サマリの部分一致検索キーワード')
+  "search": zod.string().max(getApiNotificationsQuerySearchMax).optional().describe('タイトル・サマリの部分一致検索キーワード')
 })
 
 export const getApiNotificationsResponseDataItemsItemDataSourcesItemGroupsItemEntriesItemDisplayOrderMin = 0;

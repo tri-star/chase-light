@@ -3213,6 +3213,7 @@
             "schema": {
               "type": "integer",
               "minimum": 1,
+              "maximum": 50,
               "default": 20,
               "description": "取得件数 (1-50)",
               "example": 20
@@ -3238,7 +3239,6 @@
           {
             "schema": {
               "type": "string",
-              "minLength": 1,
               "maxLength": 120,
               "description": "タイトル・サマリの部分一致検索キーワード",
               "example": "TypeScript 5.5"
@@ -3262,16 +3262,6 @@
           },
           "400": {
             "description": "不正なカーソル指定",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/NotificationErrorResponse"
-                }
-              }
-            }
-          },
-          "422": {
-            "description": "許可されていないlimit値",
             "content": {
               "application/json": {
                 "schema": {
