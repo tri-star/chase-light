@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import type { NotificationListItem } from '~/generated/api/schemas'
 import NotificationCard from './NotificationCard.vue'
+import ClSection from '~/components/base/ClSection.vue'
 
 interface Props {
   notifications?: NotificationListItem[]
@@ -54,10 +55,10 @@ const props = withDefaults(defineProps<Props>(), {
             d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z"
           />
         </svg>
-        <h3 class="mt-2 text-sm font-medium text-content-default">
+        <h3 class="mt-2 text-sm font-medium text-card-value">
           通知の読み込みに失敗しました
         </h3>
-        <p class="mt-1 text-sm text-content-default opacity-75">
+        <p class="mt-1 text-sm text-card-value opacity-75">
           {{ props.error }}
         </p>
       </div>
@@ -67,7 +68,7 @@ const props = withDefaults(defineProps<Props>(), {
     <div v-else-if="props.notifications.length === 0" class="p-6">
       <div class="text-center">
         <svg
-          class="mx-auto h-12 w-12 text-content-default opacity-50"
+          class="mx-auto h-12 w-12 text-card-value opacity-50"
           fill="none"
           stroke="currentColor"
           viewBox="0 0 24 24"
@@ -81,22 +82,23 @@ const props = withDefaults(defineProps<Props>(), {
             d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"
           />
         </svg>
-        <h3 class="mt-2 text-sm font-medium text-content-default">
+        <h3 class="mt-2 text-sm font-medium text-card-value">
           新しい通知はありません
         </h3>
-        <p class="mt-1 text-sm text-content-default opacity-75">
+        <p class="mt-1 text-sm text-card-value opacity-75">
           ウォッチ中のリポジトリで新しいアクティビティがあると、ここに通知が表示されます。
         </p>
       </div>
     </div>
 
     <!-- 通知一覧 -->
-    <div v-else class="divide-y divide-surface-secondary-default">
-      <NotificationCard
+    <div v-else class="flex flex-col gap-6">
+      <ClSection
         v-for="item in props.notifications"
         :key="item.notification.id"
-        :item="item"
-      />
+      >
+        <NotificationCard :item="item" />
+      </ClSection>
     </div>
   </div>
 </template>

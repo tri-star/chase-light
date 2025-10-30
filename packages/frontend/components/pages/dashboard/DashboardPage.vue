@@ -183,21 +183,19 @@ const statCards = computed(() => [
 
       <!-- 通知一覧 -->
       <ClHeading :level="2">新着通知</ClHeading>
-      <ClSection>
-        <NotificationList
-          :notifications="notifications"
-          :loading="pending"
-          :error="error?.message"
-        />
+      <NotificationList
+        :notifications="notifications"
+        :loading="pending"
+        :error="error?.message"
+      />
 
-        <!-- 無限スクロールローディング -->
-        <div
-          v-if="isLoading && hasNext"
-          class="p-6 text-center text-sm text-content-default opacity-60"
-        >
-          読み込み中...
-        </div>
-      </ClSection>
+      <!-- 無限スクロールローディング -->
+      <div
+        v-if="isLoading && hasNext"
+        class="p-6 text-center text-sm text-content-default opacity-60"
+      >
+        読み込み中...
+      </div>
     </div>
   </div>
 </template>
