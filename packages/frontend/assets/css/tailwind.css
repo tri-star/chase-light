@@ -12,7 +12,7 @@
   --shadow-*: initial;
   --transition-*: initial;
 
-  --background-color-content-default: oklch(100% 0 none);
+  --background-color-content-default: oklch(97.818% 0.00342 247.86);
   --text-color-content-default: oklch(27.85% 0.0132 253.04);
   --background-color-surface-primary-default: oklch(53.992% 0.19058 257.48);
   --text-color-surface-primary-default: oklch(100% 0 none);
@@ -73,8 +73,8 @@
   --background-color-header-default: oklch(100% 0 none / 0.6);
   --text-color-header-default: oklch(27.85% 0.0132 253.04);
   --border-color-header-default: oklch(87.585% 0.0123 247.97 / 0.2);
-  --background-color-sidebar-default: oklch(97.818% 0.00342 247.86);
-  --text-color-sidebar-default: oklch(27.85% 0.0132 253.04);
+  --background-color-sidebar-default: oklch(100% 0 none);
+  --text-color-sidebar-default: oklch(33.779% 0.0148 252.3);
   --border-color-sidebar-default: oklch(87.585% 0.0123 247.97);
   --background-color-sidebar-menu-default: oklch(88% 0.06 240 / 0.16);
   --text-color-sidebar-menu-default: oklch(32.103% 0.10845 259.11);

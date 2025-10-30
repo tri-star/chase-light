@@ -181,7 +181,7 @@
           "$description": "Page content and background colors",
           "default": {
             "bg": {
-              "value": "{color.primitive.white}"
+              "value": "{color.primitive.gray.50}"
             },
             "text": {
               "value": "{color.primitive.gray.900}"
@@ -433,10 +433,10 @@
           "$description": "Sidebar area",
           "default": {
             "bg": {
-              "value": "{color.primitive.gray.50}"
+              "value": "{color.primitive.white}"
             },
             "text": {
-              "value": "{color.primitive.gray.900}"
+              "value": "{color.primitive.gray.800}"
             },
             "border": {
               "value": "{color.primitive.gray.200}"
