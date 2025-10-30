@@ -157,10 +157,7 @@ const statCards = computed(() => [
   <div ref="targetRef">
     <!-- ページタイトル -->
     <div class="mb-6">
-      <h1 class="text-3xl font-bold text-content-default">ダッシュボード</h1>
-      <p class="mt-2 text-content-default opacity-75">
-        ウォッチ中のリポジトリの最新通知をチェックしましょう
-      </p>
+      <ClHeading :level="1">ダッシュボード</ClHeading>
     </div>
 
     <!-- メインコンテンツ -->

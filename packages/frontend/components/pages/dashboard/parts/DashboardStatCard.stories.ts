@@ -33,9 +33,7 @@ export const WithoutIcon: Story = {
 }
 
 export const Disabled: Story = {
-  args: {
-    disabled: true,
-  },
+  args: {},
 }
 
 export const WithSuffix: Story = {
