@@ -7,6 +7,8 @@ import type {
   NotificationListResponse,
   NotificationListItem,
 } from '~/generated/api/schemas'
+import ClHeading from '~/components/base/ClHeading.vue'
+import ClSection from '~/components/base/ClSection.vue'
 
 // データソース統計の取得（SSRファースト）
 const {
@@ -42,7 +44,7 @@ const {
   data: notificationsResponse,
   pending,
   error,
-  refresh,
+  refresh: _refresh,
 } = await useFetch<NotificationListResponse>('/api/notifications', {
   key: 'dashboard-notifications',
   params: {
@@ -180,25 +182,8 @@ const statCards = computed(() => [
       </dl>
 
       <!-- 通知一覧 -->
-      <div
-        class="bg-surface-secondary-default rounded-lg border border-surface-secondary-default"
-      >
-        <div class="px-6 py-4 border-b border-surface-secondary-default">
-          <div class="flex items-center justify-between">
-            <h2 class="text-lg font-medium text-content-default">
-              新着通知（未読のみ）
-            </h2>
-            <button
-              type="button"
-              class="text-sm text-surface-primary-default hover:text-surface-primary-hovered focus:outline-none focus:ring-2 focus:ring-status-focus-default rounded-md px-2 py-1"
-              :disabled="pending"
-              @click="refresh()"
-            >
-              {{ pending ? '更新中...' : '更新' }}
-            </button>
-          </div>
-        </div>
-
+      <ClHeading :level="2">新着通知</ClHeading>
+      <ClSection>
         <NotificationList
           :notifications="notifications"
           :loading="pending"
@@ -212,7 +197,7 @@ const statCards = computed(() => [
         >
           読み込み中...
         </div>
-      </div>
+      </ClSection>
     </div>
   </div>
 </template>
