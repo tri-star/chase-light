@@ -432,6 +432,42 @@
         "sidebar.default.border": {
           "tailwindClass": "border-sidebar-default"
         },
+        "sidebar.menu.default.bg": {
+          "tailwindClass": "bg-sidebar-menu-default"
+        },
+        "sidebar.menu.default.text": {
+          "tailwindClass": "text-sidebar-menu-default"
+        },
+        "sidebar.menu.default.border": {
+          "tailwindClass": "border-sidebar-menu-default"
+        },
+        "sidebar.menu.hovered.bg": {
+          "tailwindClass": "bg-sidebar-menu-hovered"
+        },
+        "sidebar.menu.hovered.text": {
+          "tailwindClass": "text-sidebar-menu-hovered"
+        },
+        "sidebar.menu.hovered.border": {
+          "tailwindClass": "border-sidebar-menu-hovered"
+        },
+        "sidebar.menu.active.bg": {
+          "tailwindClass": "bg-sidebar-menu-active"
+        },
+        "sidebar.menu.active.text": {
+          "tailwindClass": "text-sidebar-menu-active"
+        },
+        "sidebar.menu.active.border": {
+          "tailwindClass": "border-sidebar-menu-active"
+        },
+        "sidebar.menu.disabled.bg": {
+          "tailwindClass": "bg-sidebar-menu-disabled"
+        },
+        "sidebar.menu.disabled.text": {
+          "tailwindClass": "text-sidebar-menu-disabled"
+        },
+        "sidebar.menu.disabled.border": {
+          "tailwindClass": "border-sidebar-menu-disabled"
+        },
         "dialog.default.bg": {
           "tailwindClass": "bg-dialog-default"
         },

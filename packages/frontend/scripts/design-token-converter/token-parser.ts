@@ -21,6 +21,11 @@ export class TokenParser {
       for (const [key, value] of Object.entries(obj)) {
         if (key.startsWith('$')) continue
 
+        if (key === 'children' && value && typeof value === 'object') {
+          traverse(value as TokenGroup, path)
+          continue
+        }
+
         const currentPath = [...path, key]
 
         if (value && typeof value === 'object' && 'value' in value) {

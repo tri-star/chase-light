@@ -228,6 +228,17 @@ export class DesignTokenHelper {
     // カテゴリ別にグループ化
     const grouped = this.groupSemanticTokens(semanticTokens)
 
+    const sidebarBaseStates = this.createSemanticColorInfos(
+      grouped.sidebar,
+      'sidebar'
+    )
+    const sidebarMenuStates = this.createSemanticColorInfos(
+      grouped['sidebar.menu'],
+      'sidebar',
+      'menu',
+      { subcategoryFirst: true }
+    )
+
     return {
       contentStates: this.createSemanticColorInfos(grouped.content, 'content'),
       surfacePrimaryStates: this.createSemanticColorInfos(
@@ -250,7 +261,7 @@ export class DesignTokenHelper {
         'interactive'
       ),
       headerStates: this.createSemanticColorInfos(grouped.header, 'header'),
-      sidebarStates: this.createSemanticColorInfos(grouped.sidebar, 'sidebar'),
+      sidebarStates: [...sidebarBaseStates, ...sidebarMenuStates],
       dialogStates: this.createSemanticColorInfos(grouped.dialog, 'dialog'),
       statusColors: this.createStatusColorInfos(grouped.status),
     }
@@ -266,26 +277,34 @@ export class DesignTokenHelper {
 
     tokens.forEach((token) => {
       const path = token.originalPath.slice(2) // color.semanticを除く
-      const category = path[0]
-      const _property = path[path.length - 1] // bg, text, border
+      // bg, text, border プロパティを持つためには最低2レベル必要
+      if (path.length < 2) return
+
+      const property = path[path.length - 1] // bg, text, border
+      const withoutProperty = path.slice(0, -1)
+      const state = withoutProperty[withoutProperty.length - 1] || 'default'
+      const groupParts = withoutProperty.slice(0, -1)
+
+      if (!['bg', 'text', 'border'].includes(property)) return
 
       let groupKey: string
       let stateKey: string
 
-      if (category === 'surface') {
-        const subcategory = path[1]
-        const state = path[2] || 'default'
-        groupKey = `${category}.${subcategory}`
-        stateKey = state
-      } else if (category === 'common') {
+      if (withoutProperty[0] === 'common') {
         // common.info.default.bg -> groupKey='status', stateKey='info'にする
-        const statusType = path[1] // info, success, warn, alert
+        const statusType = withoutProperty[1] // info, success, warn, alert
+        if (!statusType) return
         groupKey = 'status'
         stateKey = statusType
       } else {
-        // content, interactive, header, sidebar, dialog など
-        const state = path[1] || 'default'
-        groupKey = category
+        // baseGroupは、groupPartsが存在する場合はそれらを'.'で連結したもの、
+        // そうでない場合はwithoutProperty[0]（例: 'primary'や'secondary'など）を使う。
+        // どちらも存在しない場合は'default'とする。
+        const hasGroupParts = groupParts.length > 0
+        const baseGroup = hasGroupParts
+          ? groupParts.join('.')
+          : withoutProperty[0] || 'default'
+        groupKey = baseGroup
         stateKey = state
       }
 
@@ -308,7 +327,8 @@ export class DesignTokenHelper {
   private static createSemanticColorInfos(
     stateGroups: Record<string, ParsedToken[]> = {},
     category: string,
-    subcategory?: string
+    subcategory?: string,
+    options: { subcategoryFirst?: boolean } = {}
   ): SemanticColorInfo[] {
     const result: SemanticColorInfo[] = []
 
@@ -324,12 +344,8 @@ export class DesignTokenHelper {
       )
 
       if (bgToken) {
-        const _baseClass = subcategory
-          ? `${category}-${subcategory}-${state}`
-          : `${category}-${state}`
-
         result.push({
-          name: this.formatStateName(state, subcategory),
+          name: this.formatStateName(state, subcategory, options),
           bgCssVar: bgToken.cssVarName,
           textCssVar:
             textToken?.cssVarName ||
@@ -425,12 +441,20 @@ export class DesignTokenHelper {
   /**
    * ステート名をフォーマット
    */
-  private static formatStateName(state: string, subcategory?: string): string {
-    const formatted = this.capitalizeFirst(state)
+  private static formatStateName(
+    state: string,
+    subcategory?: string,
+    options: { subcategoryFirst?: boolean } = {}
+  ): string {
+    const formattedState = this.capitalizeFirst(state)
     if (subcategory) {
-      return `${formatted} ${this.capitalizeFirst(subcategory)}`
+      const formattedSubcategory = this.capitalizeFirst(subcategory)
+      if (options.subcategoryFirst) {
+        return `${formattedSubcategory} ${formattedState}`
+      }
+      return `${formattedState} ${formattedSubcategory}`
     }
-    return `${formatted} ${this.capitalizeFirst('state')}`
+    return `${formattedState} ${this.capitalizeFirst('state')}`
   }
 
   /**
