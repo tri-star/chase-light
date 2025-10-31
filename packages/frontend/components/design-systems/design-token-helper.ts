@@ -297,10 +297,13 @@ export class DesignTokenHelper {
         groupKey = 'status'
         stateKey = statusType
       } else {
-        const baseGroup =
-          groupParts.length > 0
-            ? groupParts.join('.')
-            : withoutProperty[0] || 'default'
+        // baseGroupは、groupPartsが存在する場合はそれらを'.'で連結したもの、
+        // そうでない場合はwithoutProperty[0]（例: 'primary'や'secondary'など）を使う。
+        // どちらも存在しない場合は'default'とする。
+        const hasGroupParts = groupParts.length > 0
+        const baseGroup = hasGroupParts
+          ? groupParts.join('.')
+          : (withoutProperty[0] || 'default')
         groupKey = baseGroup
         stateKey = state
       }
