@@ -1,5 +1,6 @@
 import type { StoryObj, Meta } from '@nuxtjs/storybook'
 import { DesignTokenHelper } from './design-token-helper'
+import type { SemanticColorInfo } from './design-token-helper'
 
 const meta: Meta = {
   title: 'Design System/Colors',
@@ -684,67 +685,153 @@ const SemanticColors = {
       </div>
 
       <h3 class="text-xl font-semibold mb-4">Sidebar Colors</h3>
-      <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-        <div v-for="state in sidebarStates" :key="state.name" class="space-y-3">
-          <div 
-            :style="{
-              backgroundColor: 'var(' + state.bgCssVar + ')',
-              color: 'var(' + state.textCssVar + ')',
-              border: '1px solid var(' + state.borderCssVar + ')',
-              borderRadius: '8px',
-              padding: '16px',
-              textAlign: 'center'
-            }"
+      <div class="space-y-6 mb-8">
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <div
+            v-for="state in sidebarBaseStates"
+            :key="'sidebar-base-' + state.name"
+            class="space-y-3"
           >
-            {{ state.name }}
+            <div 
+              :style="{
+                backgroundColor: 'var(' + state.bgCssVar + ')',
+                color: 'var(' + state.textCssVar + ')',
+                border: '1px solid var(' + state.borderCssVar + ')',
+                borderRadius: '8px',
+                padding: '16px',
+                textAlign: 'center'
+              }"
+            >
+              {{ state.name }}
+            </div>
+            <div class="text-xs">
+              <div><strong>Classes:</strong></div>
+              <div class="ml-2 space-y-1">
+                <div>
+                  <span 
+                    @click="selectText($event)"
+                    :style="{
+                      fontFamily: 'monospace',
+                      cursor: 'pointer',
+                      padding: '1px 3px',
+                      borderRadius: '2px',
+                      fontSize: '11px',
+                      backgroundColor: 'var(--color-primitive-gray-100)'
+                    }"
+                  >
+                    {{ state.bgClass }}
+                  </span>
+                </div>
+                <div>
+                  <span 
+                    @click="selectText($event)"
+                    :style="{
+                      fontFamily: 'monospace',
+                      cursor: 'pointer',
+                      padding: '1px 3px',
+                      borderRadius: '2px',
+                      fontSize: '11px',
+                      backgroundColor: 'var(--color-primitive-gray-100)'
+                    }"
+                  >
+                    {{ state.textClass }}
+                  </span>
+                </div>
+                <div>
+                  <span 
+                    @click="selectText($event)"
+                    :style="{
+                      fontFamily: 'monospace',
+                      cursor: 'pointer',
+                      padding: '1px 3px',
+                      borderRadius: '2px',
+                      fontSize: '11px',
+                      backgroundColor: 'var(--color-primitive-gray-100)'
+                    }"
+                  >
+                    {{ state.borderClass }}
+                  </span>
+                </div>
+              </div>
+            </div>
           </div>
-          <div class="text-xs">
-            <div><strong>Classes:</strong></div>
-            <div class="ml-2 space-y-1">
-              <div>
-                <span 
-                  @click="selectText($event)"
-                  :style="{
-                    fontFamily: 'monospace',
-                    cursor: 'pointer',
-                    padding: '1px 3px',
-                    borderRadius: '2px',
-                    fontSize: '11px',
-                    backgroundColor: 'var(--color-primitive-gray-100)'
-                  }"
-                >
-                  {{ state.bgClass }}
-                </span>
+        </div>
+        <div
+          v-for="group in sidebarChildGroups"
+          :key="group.subcategory"
+          class="space-y-3 pl-4 md:pl-6"
+          :style="{ borderLeft: '1px dashed var(--border-color-sidebar-default)' }"
+        >
+          <h4 class="text-lg font-semibold">
+            {{ formatSidebarSubcategory(group.subcategory) }}
+          </h4>
+          <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div
+              v-for="state in group.states"
+              :key="'sidebar-' + group.subcategory + '-' + state.name"
+              class="space-y-3"
+            >
+              <div 
+                :style="{
+                  backgroundColor: 'var(' + state.bgCssVar + ')',
+                  color: 'var(' + state.textCssVar + ')',
+                  border: '1px solid var(' + state.borderCssVar + ')',
+                  borderRadius: '8px',
+                  padding: '16px',
+                  textAlign: 'center'
+                }"
+              >
+                {{ state.name }}
               </div>
-              <div>
-                <span 
-                  @click="selectText($event)"
-                  :style="{
-                    fontFamily: 'monospace',
-                    cursor: 'pointer',
-                    padding: '1px 3px',
-                    borderRadius: '2px',
-                    fontSize: '11px',
-                    backgroundColor: 'var(--color-primitive-gray-100)'
-                  }"
-                >
-                  {{ state.textClass }}
-                </span>
-              </div>
-              <div>
-                <span 
-                  @click="selectText($event)"
-                  :style="{
-                    fontFamily: 'monospace',
-                    cursor: 'pointer',
-                    padding: '1px 3px',
-                    borderRadius: '2px',
-                    fontSize: '11px',
-                    backgroundColor: 'var(--color-primitive-gray-100)'
-                  }"
-                >
-                  {{ state.borderClass }}
-                </span>
+              <div class="text-xs">
+                <div><strong>Classes:</strong></div>
+                <div class="ml-2 space-y-1">
+                  <div>
+                    <span 
+                      @click="selectText($event)"
+                      :style="{
+                        fontFamily: 'monospace',
+                        cursor: 'pointer',
+                        padding: '1px 3px',
+                        borderRadius: '2px',
+                        fontSize: '11px',
+                        backgroundColor: 'var(--color-primitive-gray-100)'
+                      }"
+                    >
+                      {{ state.bgClass }}
+                    </span>
+                  </div>
+                  <div>
+                    <span 
+                      @click="selectText($event)"
+                      :style="{
+                        fontFamily: 'monospace',
+                        cursor: 'pointer',
+                        padding: '1px 3px',
+                        borderRadius: '2px',
+                        fontSize: '11px',
+                        backgroundColor: 'var(--color-primitive-gray-100)'
+                      }"
+                    >
+                      {{ state.textClass }}
+                    </span>
+                  </div>
+                  <div>
+                    <span 
+                      @click="selectText($event)"
+                      :style="{
+                        fontFamily: 'monospace',
+                        cursor: 'pointer',
+                        padding: '1px 3px',
+                        borderRadius: '2px',
+                        fontSize: '11px',
+                        backgroundColor: 'var(--color-primitive-gray-100)'
+                      }"
+                    >
+                      {{ state.borderClass }}
+                    </span>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -890,6 +977,31 @@ const SemanticColors = {
   `,
   setup() {
     const semanticColors = DesignTokenHelper.getSemanticColors()
+    const sidebarBaseStates = computed(() =>
+      semanticColors.sidebarStates.filter((state) => !state.subcategory)
+    )
+    const sidebarChildGroups = computed(() => {
+      const groups = new Map<string, SemanticColorInfo[]>()
+      semanticColors.sidebarStates
+        .filter((state) => state.subcategory)
+        .forEach((state) => {
+          const key = state.subcategory
+          if (!groups.has(key)) {
+            groups.set(key, [] as SemanticColorInfo[])
+          }
+          groups.get(key)!.push(state)
+        })
+
+      return Array.from(groups.entries()).map(([subcategory, states]) => ({
+        subcategory,
+        states,
+      }))
+    })
+    const formatSidebarSubcategory = (value: string) =>
+      value
+        .split('-')
+        .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+        .join(' ')
 
     const selectText = (event: Event) => {
       const target = event.target as HTMLElement
@@ -906,6 +1018,9 @@ const SemanticColors = {
 
     return {
       ...semanticColors,
+      sidebarBaseStates,
+      sidebarChildGroups,
+      formatSidebarSubcategory,
       selectText,
     }
   },

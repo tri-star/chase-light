@@ -132,6 +132,49 @@ describe('TokenParser', () => {
         '--background-color-status-warn-subtle'
       )
     })
+
+    test('childrenサブ階層のCSS変数を生成できる', () => {
+      const tokensWithChildren: DesignTokens = {
+        color: {
+          $type: 'color',
+          semantic: {
+            sidebar: {
+              $description: 'Sidebar area',
+              default: {
+                bg: { value: 'oklch(90% 0.02 240 / 0.1)' },
+              },
+              children: {
+                menu: {
+                  $description: 'Sidebar menu states',
+                  default: {
+                    bg: { value: 'oklch(88% 0.06 240 / 0.16)' },
+                    text: { value: 'oklch(26% 0.11 250)' },
+                    border: { value: 'oklch(82% 0.05 240 / 0.2)' },
+                  },
+                },
+              },
+            },
+          },
+        },
+      }
+
+      const flatTokens = TokenParser.flattenTokens(tokensWithChildren)
+      const paths = flatTokens.map((token) => token.path.join('.'))
+
+      expect(
+        paths.includes('color.semantic.sidebar.menu.default.bg')
+      ).toBeTruthy()
+      expect(paths.some((path) => path.includes('children'))).toBeFalsy()
+
+      const cssVars = TokenParser.toCSSVars(flatTokens)
+      const menuBg = cssVars.find(
+        (token) =>
+          token.originalPath.join('.') ===
+          'color.semantic.sidebar.menu.default.bg'
+      )
+
+      expect(menuBg?.cssVarName).toBe('--background-color-sidebar-menu-default')
+    })
   })
 
   describe('resolveReferences', () => {

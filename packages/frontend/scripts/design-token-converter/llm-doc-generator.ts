@@ -142,6 +142,10 @@ export class LLMDocGenerator {
     const walk = (obj: TokenGroup, path: string[] = []): void => {
       for (const [key, val] of Object.entries(obj)) {
         if (key.startsWith('$')) continue
+        if (key === 'children' && this.isRecord(val)) {
+          walk(val as TokenGroup, path)
+          continue
+        }
         const current = [...path, key]
         if (this.isRecord(val) && 'value' in val) {
           // leaf token

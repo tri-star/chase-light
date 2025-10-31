@@ -441,6 +441,55 @@
             "border": {
               "value": "{color.primitive.gray.200}"
             }
+          },
+          "children": {
+            "menu": {
+              "$description": "Sidebar menu states",
+              "default": {
+                "bg": {
+                  "value": "oklch(88% 0.06 240 / 0.16)"
+                },
+                "text": {
+                  "value": "{color.primitive.blue.800}"
+                },
+                "border": {
+                  "value": "oklch(82% 0.05 240 / 0.2)"
+                }
+              },
+              "hovered": {
+                "bg": {
+                  "value": "oklch(82% 0.08 240 / 0.22)"
+                },
+                "text": {
+                  "value": "{color.primitive.blue.900}"
+                },
+                "border": {
+                  "value": "oklch(74% 0.08 240 / 0.28)"
+                }
+              },
+              "active": {
+                "bg": {
+                  "value": "oklch(74% 0.1 240 / 0.28)"
+                },
+                "text": {
+                  "value": "{color.primitive.white}"
+                },
+                "border": {
+                  "value": "oklch(64% 0.1 240 / 0.3)"
+                }
+              },
+              "disabled": {
+                "bg": {
+                  "value": "oklch(94% 0.01 247 / 0.5)"
+                },
+                "text": {
+                  "value": "{color.primitive.gray.500}"
+                },
+                "border": {
+                  "value": "oklch(90% 0.01 247 / 0.4)"
+                }
+              }
+            }
           }
         },
         "dialog": {
@@ -887,6 +936,55 @@
             },
             "border": {
               "value": "{color.primitive.gray.700}"
+            }
+          },
+          "children": {
+            "menu": {
+              "$description": "Sidebar menu states",
+              "default": {
+                "bg": {
+                  "value": "oklch(38% 0.09 240 / 0.4)"
+                },
+                "text": {
+                  "value": "{color.primitive.blue.200}"
+                },
+                "border": {
+                  "value": "oklch(50% 0.08 240 / 0.48)"
+                }
+              },
+              "hovered": {
+                "bg": {
+                  "value": "oklch(44% 0.1 240 / 0.48)"
+                },
+                "text": {
+                  "value": "{color.primitive.white}"
+                },
+                "border": {
+                  "value": "oklch(56% 0.1 240 / 0.56)"
+                }
+              },
+              "active": {
+                "bg": {
+                  "value": "oklch(52% 0.12 240 / 0.52)"
+                },
+                "text": {
+                  "value": "{color.primitive.white}"
+                },
+                "border": {
+                  "value": "oklch(62% 0.12 240 / 0.58)"
+                }
+              },
+              "disabled": {
+                "bg": {
+                  "value": "oklch(28% 0.02 250 / 0.4)"
+                },
+                "text": {
+                  "value": "{color.primitive.gray.400}"
+                },
+                "border": {
+                  "value": "oklch(34% 0.03 250 / 0.35)"
+                }
+              }
             }
           }
         },
