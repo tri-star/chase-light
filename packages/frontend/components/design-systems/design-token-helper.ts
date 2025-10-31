@@ -277,6 +277,7 @@ export class DesignTokenHelper {
 
     tokens.forEach((token) => {
       const path = token.originalPath.slice(2) // color.semanticを除く
+      // bg, text, border プロパティを持つためには最低2レベル必要
       if (path.length < 2) return
 
       const property = path[path.length - 1] // bg, text, border
