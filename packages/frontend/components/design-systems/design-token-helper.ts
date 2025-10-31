@@ -303,7 +303,7 @@ export class DesignTokenHelper {
         const hasGroupParts = groupParts.length > 0
         const baseGroup = hasGroupParts
           ? groupParts.join('.')
-          : (withoutProperty[0] || 'default')
+          : withoutProperty[0] || 'default'
         groupKey = baseGroup
         stateKey = state
       }

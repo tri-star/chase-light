@@ -981,17 +981,23 @@ const SemanticColors = {
       semanticColors.sidebarStates.filter((state) => !state.subcategory)
     )
     const sidebarChildGroups = computed(() => {
-      const groups = new Map<string, SemanticColorInfo[]>()
-      semanticColors.sidebarStates
-        .filter((state) => state.subcategory)
-        .forEach((state) => {
+      const statesWithSubcategory = semanticColors.sidebarStates.filter(
+        (state): state is SemanticColorInfo & { subcategory: string } =>
+          Boolean(state.subcategory)
+      )
+      const groups = statesWithSubcategory.reduce(
+        (acc, state) => {
           const key = state.subcategory
-          const groupStates = groups.get(key) ?? []
-          groupStates.push(state)
-          groups.set(key, groupStates)
-        })
+          if (!acc[key]) {
+            acc[key] = []
+          }
+          acc[key].push(state)
+          return acc
+        },
+        {} as Record<string, SemanticColorInfo[]>
+      )
 
-      return Array.from(groups.entries()).map(([subcategory, states]) => ({
+      return Object.entries(groups).map(([subcategory, states]) => ({
         subcategory,
         states,
       }))
