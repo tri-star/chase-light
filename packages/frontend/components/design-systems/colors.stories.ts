@@ -986,10 +986,9 @@ const SemanticColors = {
         .filter((state) => state.subcategory)
         .forEach((state) => {
           const key = state.subcategory
-          if (!groups.has(key)) {
-            groups.set(key, [] as SemanticColorInfo[])
-          }
-          groups.get(key)!.push(state)
+          const groupStates = groups.get(key) ?? []
+          groupStates.push(state)
+          groups.set(key, groupStates)
         })
 
       return Array.from(groups.entries()).map(([subcategory, states]) => ({
