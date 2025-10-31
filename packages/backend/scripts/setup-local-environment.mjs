@@ -679,6 +679,23 @@ function generateEnvJson() {
       AWS_ACCESS_KEY_ID: "dummy",
       AWS_SECRET_ACCESS_KEY: "dummy",
     },
+    GenerateDigestNotificationsFunction: {
+      USE_AWS: "false",
+      STAGE: "local",
+      APP_STAGE: "local",
+      DB_HOST: "host.docker.internal",
+      DB_PORT: "5432",
+      DB_USER: "postgres",
+      DB_PASSWORD: "password",
+      DB_NAME: "chase_light",
+      DB_SSL: "false",
+      NODE_ENV: "development",
+      LOG_LEVEL: "debug",
+      OPENAI_API_KEY: openaiApiKey,
+      AWS_REGION: "ap-northeast-1",
+      AWS_ACCESS_KEY_ID: "dummy",
+      AWS_SECRET_ACCESS_KEY: "dummy",
+    },
   }
 
   // env.jsonファイルに書き込み
