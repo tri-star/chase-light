@@ -1,5 +1,5 @@
 import { describe, test, expect } from 'vitest'
-import { mount, shallowMount } from '@vue/test-utils'
+import { mount } from '@vue/test-utils'
 import NotificationList from '../NotificationList.vue'
 import type { NotificationListItem } from '~/generated/api/schemas'
 import NotificationCard from '~/components/pages/dashboard/parts/NotificationCard.vue'

@@ -8,7 +8,6 @@ import type {
   NotificationListItem,
 } from '~/generated/api/schemas'
 import ClHeading from '~/components/base/ClHeading.vue'
-import ClSection from '~/components/base/ClSection.vue'
 
 // データソース統計の取得（SSRファースト）
 const {

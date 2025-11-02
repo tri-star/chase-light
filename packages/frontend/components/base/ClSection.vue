@@ -1,6 +1,4 @@
-<script setup lang="ts">
-const test = 'test'
-</script>
+<script setup lang="ts"></script>
 
 <template>
   <div class="rounded-md drop-shadow-sm p-4 bg-card-default">
