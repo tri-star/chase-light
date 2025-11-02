@@ -94,31 +94,6 @@ describe('DashboardStatCard', () => {
     })
   })
 
-  test('disabled の場合は属性とクラスが適切に付与される', () => {
-    const wrapper = factory({
-      name: 'disabled-card',
-      label: '無効カード',
-      value: 'N/A',
-      disabled: true,
-    })
-
-    const root = wrapper.find('[aria-disabled="true"]')
-
-    expect({
-      exists: root.exists(),
-      hasOpacity: root.classes().includes('opacity-50'),
-      hasCursor: root.classes().includes('cursor-not-allowed'),
-      hasHover: root.classes().includes('hover:bg-card-hovered'),
-      tabindex: root.attributes('tabindex'),
-    }).toEqual({
-      exists: true,
-      hasOpacity: true,
-      hasCursor: true,
-      hasHover: false,
-      tabindex: undefined,
-    })
-  })
-
   test('suffix スロットの内容が表示される', () => {
     const wrapper = factory(
       { name: 'today-updates', label: '今日の更新', value: '4' },

@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed, useSlots } from 'vue'
+import ClSection from '~/components/base/ClSection.vue'
 
 interface Props {
   name: string
@@ -7,37 +8,22 @@ interface Props {
   iconClass?: string
   label: string
   value: string | number
-  disabled?: boolean
 }
 
 const props = withDefaults(defineProps<Props>(), {
   icon: undefined,
   iconClass: 'text-surface-primary-default',
-  disabled: false,
 })
 
 export type DashboardStatCardProps = Props
 
 const slots = useSlots()
 
-const cardClasses = computed(() => {
-  const classes = [
-    'flex justify-center gap-4 rounded-lg border p-4 transition-colors',
-    'bg-card-default border-card-default',
-  ]
-
-  if (props.disabled) {
-    classes.push('cursor-not-allowed opacity-50')
-  }
-
-  return classes
-})
-
 const hasIcon = computed(() => Boolean(props.icon) || Boolean(slots.icon))
 </script>
 
 <template>
-  <div :class="cardClasses" :aria-disabled="props.disabled || undefined">
+  <ClSection class="flex justify-center gap-4 rounded-lg">
     <div
       v-if="hasIcon"
       class="flex flex-shrink-0 items-center justify-center rounded-md"
@@ -68,5 +54,5 @@ const hasIcon = computed(() => Boolean(props.icon) || Boolean(slots.icon))
         <slot name="suffix" />
       </dd>
     </div>
-  </div>
+  </ClSection>
 </template>

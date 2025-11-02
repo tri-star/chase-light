@@ -56,7 +56,7 @@ describe('NotificationCard', () => {
       props: { item },
     })
 
-    expect(wrapper.find('.bg-content-default').exists()).toBe(true)
+    expect(wrapper.text()).toContain('React 19.0.0 リリース')
   })
 
   test('データソース名とリンクが表示される', () => {
@@ -65,9 +65,10 @@ describe('NotificationCard', () => {
       props: { item },
     })
 
-    const link = wrapper.find('a[href="https://github.com/facebook/react"]')
+    const link = wrapper.find('[data-id="data-source-link"]')
     expect(link.exists()).toBe(true)
     expect(link.text()).toContain('facebook/react')
+    expect(link.attributes('href')).toBe('https://github.com/facebook/react')
   })
 
   test('アクティビティグループ別にラベルが表示される', () => {
@@ -76,7 +77,7 @@ describe('NotificationCard', () => {
       props: { item },
     })
 
-    const groupLabel = wrapper.find('.bg-status-info-subtle')
+    const groupLabel = wrapper.find('[data-id="activity-group-label"]')
     expect(groupLabel.exists()).toBe(true)
     expect(groupLabel.text()).toBe('リリース')
   })
@@ -87,7 +88,9 @@ describe('NotificationCard', () => {
       props: { item },
     })
 
-    expect(wrapper.text()).toContain('React 19.0.0 リリース')
+    const title = wrapper.find('[data-id="activity-title"]')
+    expect(title.exists()).toBe(true)
+    expect(title.text()).toContain('React 19.0.0 リリース')
     expect(wrapper.text()).toContain('React 19の新機能が多数追加されました')
   })
 
@@ -97,10 +100,12 @@ describe('NotificationCard', () => {
       props: { item },
     })
 
-    const activityLink = wrapper.find(
-      'a[href="https://github.com/facebook/react/releases/tag/v19.0.0"]'
-    )
+    const activityLink = wrapper.find('[data-id="activity-title"]')
     expect(activityLink.exists()).toBe(true)
+    expect(activityLink.element.tagName).toBe('A')
+    expect(activityLink.attributes('href')).toBe(
+      'https://github.com/facebook/react/releases/tag/v19.0.0'
+    )
     expect(activityLink.text()).toBe('React 19.0.0 リリース')
   })
 
@@ -137,43 +142,11 @@ describe('NotificationCard', () => {
       props: { item },
     })
 
-    const titleSpan = wrapper.find('h4 span')
-    expect(titleSpan.exists()).toBe(true)
-    expect(titleSpan.text()).toBe('テストイシュー')
-  })
-
-  test('未読通知の場合は未読インジケーターが表示される', () => {
-    const item = createMockNotification({
-      notification: {
-        ...createMockNotification().notification,
-        isRead: false,
-      },
-    })
-    const wrapper = mount(NotificationCard, {
-      props: { item },
-    })
-
-    const unreadIndicator = wrapper.find(
-      '.w-2.h-2.bg-status-info-default.rounded-full'
-    )
-    expect(unreadIndicator.exists()).toBe(true)
-  })
-
-  test('既読通知の場合は未読インジケーターが表示されない', () => {
-    const item = createMockNotification({
-      notification: {
-        ...createMockNotification().notification,
-        isRead: true,
-      },
-    })
-    const wrapper = mount(NotificationCard, {
-      props: { item },
-    })
-
-    const unreadIndicator = wrapper.find(
-      '.w-2.h-2.bg-status-info-default.rounded-full'
-    )
-    expect(unreadIndicator.exists()).toBe(false)
+    const titleEl = wrapper.find('[data-id="activity-title"]')
+    expect(titleEl.exists()).toBe(true)
+    // URLがnullのときはリンクではなくテキスト
+    expect(titleEl.element.tagName).not.toBe('A')
+    expect(titleEl.text()).toBe('テストイシュー')
   })
 
   test('複数のアクティビティグループが表示される', () => {
@@ -222,8 +195,10 @@ describe('NotificationCard', () => {
       props: { item },
     })
 
-    expect(wrapper.text()).toContain('リリース')
-    expect(wrapper.text()).toContain('Issue')
+    const labels = wrapper.findAll('[data-id="activity-group-label"]')
+    const labelTexts = labels.map((l) => l.text())
+    expect(labelTexts).toContain('リリース')
+    expect(labelTexts).toContain('Issue')
   })
 
   test('アクティビティエントリが6件以上の場合は最大5件までしか表示されない', () => {
@@ -259,9 +234,14 @@ describe('NotificationCard', () => {
       props: { item },
     })
 
-    expect(wrapper.text()).toContain('エントリ1')
-    expect(wrapper.text()).toContain('エントリ5')
-    expect(wrapper.text()).not.toContain('エントリ6')
+    const titles = wrapper.findAll('[data-id="activity-title"]')
+    expect(titles.length).toBe(5)
+    // 先頭と末尾のタイトルが見えること
+    expect(titles[0].text()).toContain('エントリ1')
+    expect(titles[4].text()).toContain('エントリ5')
+    // 6件目は表示されない
+    const allText = wrapper.text()
+    expect(allText).not.toContain('エントリ6')
     expect(wrapper.text()).toContain('他 2 件')
   })
 
@@ -322,7 +302,10 @@ describe('NotificationCard', () => {
       props: { item },
     })
 
-    expect(wrapper.text()).toContain('facebook/react')
-    expect(wrapper.text()).toContain('vuejs/core')
+    const srcLinks = wrapper.findAll('[data-id="data-source-link"]')
+    expect(srcLinks.length).toBe(2)
+    const texts = srcLinks.map((n) => n.text())
+    expect(texts.join(' ')).toContain('facebook/react')
+    expect(texts.join(' ')).toContain('vuejs/core')
   })
 })

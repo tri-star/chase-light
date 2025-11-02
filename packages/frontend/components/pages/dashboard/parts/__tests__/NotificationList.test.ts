@@ -2,6 +2,7 @@ import { describe, test, expect } from 'vitest'
 import { mount } from '@vue/test-utils'
 import NotificationList from '../NotificationList.vue'
 import type { NotificationListItem } from '~/generated/api/schemas'
+import NotificationCard from '~/components/pages/dashboard/parts/NotificationCard.vue'
 
 const createMockNotifications = (): NotificationListItem[] => {
   return [
@@ -95,7 +96,7 @@ describe('NotificationList', () => {
       props: { notifications },
     })
 
-    const cards = wrapper.findAll('.bg-content-default')
+    const cards = wrapper.findAllComponents(NotificationCard)
     expect(cards.length).toBe(2)
   })
 
@@ -158,16 +159,5 @@ describe('NotificationList', () => {
     const vueIndex = text.indexOf('vuejs/core')
 
     expect(reactIndex).toBeLessThan(vueIndex)
-  })
-
-  test('通知カード間に区切り線が表示される', () => {
-    const notifications = createMockNotifications()
-    const wrapper = mount(NotificationList, {
-      props: { notifications },
-    })
-
-    expect(
-      wrapper.find('.divide-y.divide-surface-secondary-default').exists()
-    ).toBe(true)
   })
 })

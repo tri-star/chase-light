@@ -7,6 +7,7 @@ import type {
   NotificationListResponse,
   NotificationListItem,
 } from '~/generated/api/schemas'
+import ClHeading from '~/components/base/ClHeading.vue'
 
 // データソース統計の取得（SSRファースト）
 const {
@@ -42,7 +43,7 @@ const {
   data: notificationsResponse,
   pending,
   error,
-  refresh,
+  refresh: _refresh,
 } = await useFetch<NotificationListResponse>('/api/notifications', {
   key: 'dashboard-notifications',
   params: {
@@ -155,10 +156,7 @@ const statCards = computed(() => [
   <div ref="targetRef">
     <!-- ページタイトル -->
     <div class="mb-6">
-      <h1 class="text-3xl font-bold text-content-default">ダッシュボード</h1>
-      <p class="mt-2 text-content-default opacity-75">
-        ウォッチ中のリポジトリの最新通知をチェックしましょう
-      </p>
+      <ClHeading :level="1">ダッシュボード</ClHeading>
     </div>
 
     <!-- メインコンテンツ -->
@@ -180,38 +178,19 @@ const statCards = computed(() => [
       </dl>
 
       <!-- 通知一覧 -->
+      <ClHeading :level="2">新着通知</ClHeading>
+      <NotificationList
+        :notifications="notifications"
+        :loading="pending"
+        :error="error?.message"
+      />
+
+      <!-- 無限スクロールローディング -->
       <div
-        class="bg-surface-secondary-default rounded-lg border border-surface-secondary-default"
+        v-if="isLoading && hasNext"
+        class="p-6 text-center text-sm text-content-default opacity-60"
       >
-        <div class="px-6 py-4 border-b border-surface-secondary-default">
-          <div class="flex items-center justify-between">
-            <h2 class="text-lg font-medium text-content-default">
-              新着通知（未読のみ）
-            </h2>
-            <button
-              type="button"
-              class="text-sm text-surface-primary-default hover:text-surface-primary-hovered focus:outline-none focus:ring-2 focus:ring-status-focus-default rounded-md px-2 py-1"
-              :disabled="pending"
-              @click="refresh()"
-            >
-              {{ pending ? '更新中...' : '更新' }}
-            </button>
-          </div>
-        </div>
-
-        <NotificationList
-          :notifications="notifications"
-          :loading="pending"
-          :error="error?.message"
-        />
-
-        <!-- 無限スクロールローディング -->
-        <div
-          v-if="isLoading && hasNext"
-          class="p-6 text-center text-sm text-content-default opacity-60"
-        >
-          読み込み中...
-        </div>
+        読み込み中...
       </div>
     </div>
   </div>

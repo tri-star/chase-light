@@ -142,16 +142,16 @@ watch(
           :key="item.name"
           :to="item.href"
           :class="[
-            'group flex items-center h-10 px-2 py-2 text-sm font-medium rounded-md text-sidebar-default hover:bg-interactive-hovered hover:text-interactive-hovered transition-colors',
+            'group flex items-center h-10 px-2 py-2 text-sm font-medium rounded-md transition-colors',
             $route.path === item.href
-              ? 'bg-surface-primary-default text-surface-primary-default'
-              : '',
+              ? 'bg-sidebar-menu-active text-sidebar-menu-active'
+              : 'bg-sidebar-menu-default text-sidebar-menu-default hover:bg-sidebar-menu-hovered ',
           ]"
           :title="isCollapsed ? item.name : undefined"
           @click="isMobile && emit('close')"
         >
           <!-- Icon container - アイコンコンテナ（位置固定用） -->
-          <div class="flex-shrink-0 w-5 flex justify-start">
+          <div class="flex-shrink-0 w-5 flex justify-center">
             <Icon :name="item.icon" class="w-5 h-5" aria-hidden="true" />
           </div>
 

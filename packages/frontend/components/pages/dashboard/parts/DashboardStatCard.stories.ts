@@ -32,12 +32,6 @@ export const WithoutIcon: Story = {
   },
 }
 
-export const Disabled: Story = {
-  args: {
-    disabled: true,
-  },
-}
-
 export const WithSuffix: Story = {
   render: (args) => ({
     components: { DashboardStatCard },
