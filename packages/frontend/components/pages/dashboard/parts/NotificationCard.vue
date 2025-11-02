@@ -36,7 +36,7 @@ const formatDate = (dateStr: string): string => {
 </script>
 
 <template>
-  <div class="bg-card-default py-6 px-6">
+  <div>
     <!-- 通知ヘッダー -->
     <div class="flex items-center justify-between mb-4">
       <div class="flex items-center space-x-2">
