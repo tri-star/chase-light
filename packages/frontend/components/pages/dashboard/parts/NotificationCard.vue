@@ -58,6 +58,7 @@ const formatDate = (dateStr: string): string => {
             :href="dataSource.url"
             target="_blank"
             rel="noopener noreferrer"
+            data-id="data-source-link"
             class="text-sm font-medium text-card-value hover:text-card-value transition-colors inline-flex items-center space-x-1"
           >
             <ClHeading :level="3" class="flex gap-2 items-center"
@@ -104,6 +105,7 @@ const formatDate = (dateStr: string): string => {
                 >
                   <span
                     class="inline-flex items-center justify-center px-2 py-1 rounded w-16 font-medium"
+                    data-id="activity-group-label"
                     :class="{
                       'bg-status-info-subtle text-status-info-default':
                         group.activityType === 'release',
@@ -124,11 +126,12 @@ const formatDate = (dateStr: string): string => {
                     :href="entry.url"
                     target="_blank"
                     rel="noopener noreferrer"
+                    data-id="activity-title"
                     class="hover:text-surface-primary-default transition-colors"
                   >
                     {{ entry.title }}
                   </a>
-                  <span v-else>{{ entry.title }}</span>
+                  <span v-else data-id="activity-title">{{ entry.title }}</span>
                 </h4>
 
                 <!-- 要約 -->
