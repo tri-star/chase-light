@@ -447,7 +447,7 @@
               "$description": "Sidebar menu states",
               "default": {
                 "bg": {
-                  "value": "oklch(88% 0.06 240 / 0.16)"
+                  "value": "transparent"
                 },
                 "text": {
                   "value": "{color.primitive.blue.800}"
@@ -472,7 +472,7 @@
                   "value": "oklch(74% 0.1 240 / 0.28)"
                 },
                 "text": {
-                  "value": "{color.primitive.white}"
+                  "value": "{color.primitive.blue.700}"
                 },
                 "border": {
                   "value": "oklch(64% 0.1 240 / 0.3)"

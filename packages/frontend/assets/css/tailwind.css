@@ -76,14 +76,14 @@
   --background-color-sidebar-default: oklch(100% 0 none);
   --text-color-sidebar-default: oklch(33.779% 0.0148 252.3);
   --border-color-sidebar-default: oklch(87.585% 0.0123 247.97);
-  --background-color-sidebar-menu-default: oklch(88% 0.06 240 / 0.16);
+  --background-color-sidebar-menu-default: transparent;
   --text-color-sidebar-menu-default: oklch(32.103% 0.10845 259.11);
   --border-color-sidebar-menu-default: oklch(82% 0.05 240 / 0.2);
   --background-color-sidebar-menu-hovered: oklch(82% 0.08 240 / 0.22);
   --text-color-sidebar-menu-hovered: oklch(26.347% 0.10217 259.01);
   --border-color-sidebar-menu-hovered: oklch(74% 0.08 240 / 0.28);
   --background-color-sidebar-menu-active: oklch(74% 0.1 240 / 0.28);
-  --text-color-sidebar-menu-active: oklch(100% 0 none);
+  --text-color-sidebar-menu-active: oklch(37.904% 0.14115 258.7);
   --border-color-sidebar-menu-active: oklch(64% 0.1 240 / 0.3);
   --background-color-sidebar-menu-disabled: oklch(94% 0.01 247 / 0.5);
   --text-color-sidebar-menu-disabled: oklch(56.511% 0.01888 250.97);
