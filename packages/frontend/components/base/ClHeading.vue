@@ -14,6 +14,7 @@ const fontVarNameMap = {
   <component
     :is="`h${level ?? 1}`"
     :style="{ font: `var(${fontVarNameMap[level]})` }"
+    class="text-content-default"
   >
     <slot />
   </component>
