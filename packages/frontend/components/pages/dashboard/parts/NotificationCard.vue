@@ -13,26 +13,6 @@ const activityTypeLabels: Record<string, string> = {
   issue: 'Issue',
   pull_request: 'PR',
 }
-
-const formatDate = (dateStr: string): string => {
-  const date = new Date(dateStr)
-  const now = new Date()
-  const diffMs = now.getTime() - date.getTime()
-  const diffMins = Math.floor(diffMs / 60000)
-  const diffHours = Math.floor(diffMs / 3600000)
-  const diffDays = Math.floor(diffMs / 86400000)
-
-  if (diffMins < 1) return 'たった今'
-  if (diffMins < 60) return `${diffMins}分前`
-  if (diffHours < 24) return `${diffHours}時間前`
-  if (diffDays < 7) return `${diffDays}日前`
-
-  return date.toLocaleDateString('ja-JP', {
-    year: 'numeric',
-    month: 'short',
-    day: 'numeric',
-  })
-}
 </script>
 
 <template>
@@ -41,7 +21,12 @@ const formatDate = (dateStr: string): string => {
     <div class="flex items-center justify-between mb-4">
       <div class="flex items-center space-x-2">
         <ClHeading :level="2" class="text-card-value">
-          {{ props.item.notification.lastActivityOccurredAt }}
+          {{
+            formatDate(
+              props.item.notification.lastActivityOccurredAt,
+              'minutes'
+            )
+          }}
         </ClHeading>
       </div>
     </div>
@@ -142,9 +127,9 @@ const formatDate = (dateStr: string): string => {
                 <!-- 発生日時 -->
                 <div
                   class="md:ml-8 text-card-value opacity-60"
-                  :title="entry.occurredAt"
+                  :title="formatDate(entry.occurredAt, 'full')"
                 >
-                  {{ formatDate(entry.occurredAt) }}
+                  {{ formatRelativeDate(entry.occurredAt) }}
                 </div>
               </div>
             </div>
