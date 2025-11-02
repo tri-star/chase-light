@@ -915,7 +915,7 @@
           "$description": "Header area with glass effect",
           "default": {
             "bg": {
-              "value": "oklch(27.85% 0.0132 253.04 / 0.8)"
+              "value": "oklch(27.85% 0.0132 253.04 / 0.6)"
             },
             "text": {
               "value": "{color.primitive.gray.100}"
@@ -943,10 +943,10 @@
               "$description": "Sidebar menu states",
               "default": {
                 "bg": {
-                  "value": "oklch(38% 0.09 240 / 0.4)"
+                  "value": "transparent"
                 },
                 "text": {
-                  "value": "{color.primitive.blue.200}"
+                  "value": "{color.primitive.white}"
                 },
                 "border": {
                   "value": "oklch(50% 0.08 240 / 0.48)"
@@ -954,7 +954,7 @@
               },
               "hovered": {
                 "bg": {
-                  "value": "oklch(44% 0.1 240 / 0.48)"
+                  "value": "{color.primitive.gray.700}"
                 },
                 "text": {
                   "value": "{color.primitive.white}"
@@ -965,7 +965,7 @@
               },
               "active": {
                 "bg": {
-                  "value": "oklch(52% 0.12 240 / 0.52)"
+                  "value": "{color.primitive.gray.600}"
                 },
                 "text": {
                   "value": "{color.primitive.white}"
