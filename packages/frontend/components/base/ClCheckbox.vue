@@ -153,31 +153,28 @@ const checkboxClasses = computed(() => {
     'items-center',
     'justify-center',
     'cursor-pointer',
+    'bg-interactive-default',
   ]
 
   // disabled状態
   if (props.disabled) {
-    baseClasses.push(
-      'bg-surface-primary-disabled',
-      'opacity-50',
-      'cursor-not-allowed'
-    )
+    baseClasses.push('opacity-50', 'cursor-not-allowed')
     return baseClasses
   }
 
   // インデターミネート状態またはチェック状態
   if (props.indeterminate || isChecked.value) {
     baseClasses.push(
-      'bg-surface-primary-default',
-      'border-surface-primary-default',
-      'hover:bg-surface-primary-hovered'
+      'border-interactive-default',
+      'hover:border-interactive-hovered',
+      'hover:bg-interactive-hovered'
     )
   } else {
     // 未チェック状態
     baseClasses.push(
-      'bg-surface-outlined-default',
-      'border-surface-outlined-default',
-      'hover:border-surface-primary-hovered'
+      'border-interactive-default',
+      'hover:border-interactive-hovered',
+      'hover:bg-interactive-hovered'
     )
   }
 
@@ -201,7 +198,7 @@ const labelClasses = computed(() => {
 
 // ユニークなIDの生成
 const checkboxId = computed(() => {
-  return props.id || `checkbox-${Math.random().toString(36).substr(2, 9)}`
+  return props.id || `checkbox-${Math.random().toString(36).substring(2, 9)}`
 })
 </script>
 
@@ -233,34 +230,19 @@ const checkboxId = computed(() => {
       @keydown="handleKeydown"
     >
       <!-- チェックマーク（インデターミネート時はハイフン、チェック時はチェック） -->
-      <svg
+      <Icon
+        name="heroicons-solid-minus"
         v-if="indeterminate"
-        xmlns="http://www.w3.org/2000/svg"
-        viewBox="0 0 20 20"
-        fill="currentColor"
-        class="w-4 h-4 text-white"
-      >
-        <!-- Heroicons minus -->
-        <path
-          fill-rule="evenodd"
-          d="M4 10a.75.75 0 01.75-.75h10.5a.75.75 0 010 1.5H4.75A.75.75 0 014 10z"
-          clip-rule="evenodd"
-        />
-      </svg>
-      <svg
+        size="20"
+        class="text-interactive-default"
+      />
+      <Icon
         v-else-if="isChecked"
-        xmlns="http://www.w3.org/2000/svg"
-        viewBox="0 0 20 20"
-        fill="currentColor"
-        class="w-4 h-4 text-white"
-      >
-        <!-- Heroicons check -->
-        <path
-          fill-rule="evenodd"
-          d="M16.704 4.153a.75.75 0 01.143 1.052l-8 10.5a.75.75 0 01-1.127.075l-4.5-4.5a.75.75 0 011.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 011.05-.143z"
-          clip-rule="evenodd"
-        />
-      </svg>
+        name="heroicons-solid:check"
+        v-if="isChecked"
+        size="20"
+        class="text-interactive-default"
+      />
     </div>
 
     <!-- ラベル -->
