@@ -1,5 +1,5 @@
 import { describe, test, expect, vi } from 'vitest'
-import { mount } from '@vue/test-utils'
+import { mount, shallowMount } from '@vue/test-utils'
 import ClCheckbox from '../ClCheckbox.vue'
 
 describe('ClCheckbox', () => {
@@ -76,26 +76,14 @@ describe('ClCheckbox', () => {
 
   // 3. インデターミネート状態
   describe('インデターミネート状態', () => {
-    test.skip('indeterminate prop が true の場合、ハイフンマークが表示される', () => {
-      // NOTE: Nuxtの自動インポートIconコンポーネントがテスト環境で正しくスタブ化できないため、
-      // このテストはスキップします。実際のブラウザでは正常に動作することを確認済みです。
-      // indeterminate状態の機能自体は、aria-checked="mixed"のテストでカバーされています。
-      const wrapper = mount(ClCheckbox, {
+    test('indeterminate prop が true の場合、ハイフンマークが表示される', () => {
+      const wrapper = shallowMount(ClCheckbox, {
         props: { indeterminate: true },
-        global: {
-          stubs: {
-            Icon: {
-              name: 'IconStub',
-              template: '<span data-icon-stub>icon</span>',
-              props: ['name', 'size'],
-            },
-          },
-        },
       })
 
       // indeterminate時にIconスタブがレンダリングされていることを確認
-      const iconStub = wrapper.find('[data-icon-stub]')
-      expect(iconStub.exists()).toBe(true)
+      const iconStub = wrapper.findComponent('nuxt-icon-stub')
+      expect(iconStub.attributes()['name']).toBe('heroicons-solid-minus')
     })
 
     test('indeterminate 時の aria-checked 属性が "mixed" になる', () => {
