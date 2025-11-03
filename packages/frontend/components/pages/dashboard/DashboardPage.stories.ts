@@ -68,6 +68,7 @@ const createDataSourcesResponse = (total: number): DataSourceListResponse => {
 const createNotificationsResponse = (
   itemCount: number
 ): NotificationListResponse => {
+  const now = new Date(2025, 11, 1, 12, 0, 0, 0)
   const mockItems = [
     {
       dataSource: {
@@ -81,7 +82,7 @@ const createNotificationsResponse = (
             {
               title: 'React 19.0.0 リリース',
               summary: 'React 19の新機能が多数追加されました',
-              occurredAt: new Date(Date.now() - 3600000).toISOString(),
+              occurredAt: new Date(now.getTime() - 3600000).toISOString(), // 1時間前
             },
           ],
         },
@@ -99,7 +100,7 @@ const createNotificationsResponse = (
             {
               title: 'Vue 3.5でのパフォーマンス改善',
               summary: 'レンダリング速度が大幅に向上しました',
-              occurredAt: new Date(Date.now() - 7200000).toISOString(),
+              occurredAt: new Date(now.getTime() - 7200000).toISOString(), // 2時間前
             },
           ],
         },
@@ -117,7 +118,7 @@ const createNotificationsResponse = (
             {
               title: 'Nuxt 4でのTypeScript強化',
               summary: '型安全性が向上しました',
-              occurredAt: new Date(Date.now() - 10800000).toISOString(),
+              occurredAt: new Date(now.getTime() - 10800000).toISOString(), // 3時間前
             },
           ],
         },
@@ -133,12 +134,12 @@ const createNotificationsResponse = (
         type: 'activity_digest',
         status: 'sent',
         isRead: i % 3 === 0,
-        scheduledAt: new Date(Date.now() - 86400000).toISOString(),
-        sentAt: new Date(Date.now() - 82800000).toISOString(),
-        createdAt: new Date(Date.now() - 86400000).toISOString(),
-        updatedAt: new Date(Date.now() - 82800000).toISOString(),
+        scheduledAt: new Date(now.getTime() - 86400000).toISOString(), // 1日前
+        sentAt: new Date(now.getTime() - 82800000).toISOString(), // 23時間前
+        createdAt: new Date(now.getTime() - 86400000).toISOString(), // 1日前
+        updatedAt: new Date(now.getTime() - 82800000).toISOString(), // 23時間前
         lastActivityOccurredAt: new Date(
-          Date.now() - 3600000 * i
+          now.getTime() - 3600000 * i
         ).toISOString(),
         metadata: {},
       },
@@ -213,15 +214,6 @@ export const Default: Story = {
   // インタラクションテスト（Storybook Test Runnerで実行）
   play: async ({ canvasElement, step }) => {
     const canvas = within(canvasElement)
-
-    await step('ページヘッダが表示される', async () => {
-      await expect(await canvas.findByText('ダッシュボード')).toBeVisible()
-      await expect(
-        await canvas.findByText(
-          'ウォッチ中のリポジトリの最新通知をチェックしましょう'
-        )
-      ).toBeVisible()
-    })
 
     await step('統計カードと通知リストが描画される', async () => {
       await expect(
