@@ -225,7 +225,6 @@ const handleNativeInputFocus = () => {
       :aria-checked="ariaChecked"
       class="sr-only"
       tabindex="-1"
-      @click="handleClick"
       @change="handleClick"
       @keydown="handleKeydown"
       @focus="handleNativeInputFocus"

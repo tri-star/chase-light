@@ -472,8 +472,8 @@ describe('ClCheckbox', () => {
       await wrapper.find('label').trigger('click')
 
       // Vue Test Utilsではlabelのfor属性によるネイティブinputへの自動クリックが
-      // シミュレートされないため、明示的にネイティブinputのクリックも発火させる
-      await wrapper.find('input[type="checkbox"]').trigger('click')
+      // シミュレートされないため、明示的にネイティブinputのchangeイベントを発火させる
+      await wrapper.find('input[type="checkbox"]').trigger('change')
 
       // ラベルをクリックしてもイベントが発火される
       expect(wrapper.emitted('update:modelValue')).toBeTruthy()
