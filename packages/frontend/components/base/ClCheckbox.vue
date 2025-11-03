@@ -200,6 +200,16 @@ const labelClasses = computed(() => {
 const checkboxId = computed(() => {
   return props.id || `checkbox-${Math.random().toString(36).substring(2, 9)}`
 })
+
+// カスタムチェックボックスのref
+const customCheckboxRef = ref<HTMLDivElement | null>(null)
+
+// ネイティブinputがフォーカスを受け取ったら、カスタムdivにフォーカスを転送
+const handleNativeInputFocus = () => {
+  if (customCheckboxRef.value) {
+    customCheckboxRef.value.focus()
+  }
+}
 </script>
 
 <template>
@@ -214,32 +224,39 @@ const checkboxId = computed(() => {
       :aria-label="ariaLabel"
       :aria-checked="ariaChecked"
       class="sr-only"
+      tabindex="-1"
+      @click="handleClick"
       @change="handleClick"
       @keydown="handleKeydown"
+      @focus="handleNativeInputFocus"
     />
 
     <!-- カスタムチェックボックス -->
     <div
-      :class="[...checkboxClasses, focusClasses]"
+      ref="customCheckboxRef"
+      :class="[
+        ...checkboxClasses,
+        focusClasses,
+        disabled ? 'pointer-events-none' : '',
+      ]"
       :tabindex="disabled ? -1 : 0"
       role="checkbox"
       :aria-checked="ariaChecked"
-      :aria-disabled="disabled"
+      :aria-disabled="disabled ? 'true' : undefined"
       :aria-label="ariaLabel"
       @click="handleClick"
       @keydown="handleKeydown"
     >
       <!-- チェックマーク（インデターミネート時はハイフン、チェック時はチェック） -->
       <Icon
-        name="heroicons-solid-minus"
         v-if="indeterminate"
+        name="heroicons-solid-minus"
         size="20"
         class="text-interactive-default"
       />
       <Icon
         v-else-if="isChecked"
         name="heroicons-solid:check"
-        v-if="isChecked"
         size="20"
         class="text-interactive-default"
       />
