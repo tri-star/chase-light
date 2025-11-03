@@ -3,7 +3,7 @@ import { ref } from 'vue'
 import ClCheckbox from './ClCheckbox.vue'
 
 const meta: Meta<typeof ClCheckbox> = {
-  title: 'Base/ClCheckbox',
+  title: 'Components/Base/ClCheckbox',
   component: ClCheckbox,
   tags: ['autodocs'],
   argTypes: {
