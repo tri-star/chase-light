@@ -198,7 +198,7 @@ const labelClasses = computed(() => {
 
 // ユニークなIDの生成
 const checkboxId = computed(() => {
-  return props.id || `checkbox-${Math.random().toString(36).substring(2, 9)}`
+  return props.id || useId()
 })
 
 // カスタムチェックボックスのref
