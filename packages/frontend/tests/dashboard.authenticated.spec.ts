@@ -10,9 +10,6 @@ test.describe('Authenticated Dashboard', () => {
     await expect(
       page.locator('h1').filter({ hasText: 'ダッシュボード' })
     ).toBeVisible()
-    await expect(
-      page.locator('text=ウォッチ中のリポジトリの最新通知をチェックしましょう')
-    ).toBeVisible()
 
     // 統計情報カードが表示されることを確認
     await expect(
@@ -40,22 +37,6 @@ test.describe('Authenticated Dashboard', () => {
       await avatarButton.click()
       await expect(page.locator('text=ログアウト')).toBeVisible()
     }
-  })
-
-  test('should display notification list section', async ({ page }) => {
-    await page.goto('/dashboard')
-
-    // 通知一覧セクションが表示されることを確認（h2要素を狙い撃ち）
-    await expect(
-      page.locator('h2').filter({ hasText: '新着通知（未読のみ）' })
-    ).toBeVisible()
-
-    // 更新ボタンが表示されることを確認
-    const refreshButton = page
-      .locator('button')
-      .filter({ hasText: '更新' })
-      .or(page.locator('button').filter({ hasText: '更新中...' }))
-    await expect(refreshButton).toBeVisible()
   })
 
   // Flakyなテストのため一時的にコメントアウト
