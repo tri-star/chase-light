@@ -39,6 +39,51 @@ test.describe('Authenticated Dashboard', () => {
     }
   })
 
+  test('should register a new data source from FAB modal', async ({ page }) => {
+    await page.route('**/api/data-sources', async (route) => {
+      if (route.request().method() === 'POST') {
+        await route.fulfill({
+          status: 201,
+          contentType: 'application/json',
+          body: JSON.stringify({
+            success: true,
+            data: {
+              dataSource: {
+                id: 'ds-new',
+                name: 'nuxt/nuxt',
+                url: 'https://github.com/nuxt/nuxt',
+              },
+              userWatch: {
+                id: 'watch-new',
+              },
+            },
+          }),
+        })
+      } else {
+        await route.continue()
+      }
+    })
+
+    await page.goto('/dashboard')
+
+    await page.getByRole('button', { name: 'データソースを追加' }).click()
+
+    const dialog = page.getByRole('dialog', { name: 'データソースを追加' })
+    await expect(dialog).toBeVisible()
+
+    await dialog
+      .getByLabel('リポジトリ URL')
+      .fill('https://github.com/nuxt/nuxt')
+
+    await dialog.getByRole('button', { name: '登録する' }).click()
+
+    await expect(
+      page.getByText('データソースを追加しました', { exact: false })
+    ).toBeVisible()
+
+    await expect(dialog).toBeHidden()
+  })
+
   // Flakyなテストのため一時的にコメントアウト
   // test('should be able to refresh repository data', async ({ page }) => {
   //   await page.goto('/dashboard')

@@ -205,10 +205,59 @@ const notificationsErrorHandler = http.get('*/api/notifications', async () => {
   return new HttpResponse(null, { status: 500 })
 })
 
+const postDataSourceSuccessHandler = http.post(
+  '*/api/data-sources',
+  async ({ request }) => {
+    const body = (await request.json()) as
+      | {
+          repositoryUrl?: string
+        }
+      | undefined
+    const repositoryUrl =
+      typeof body?.repositoryUrl === 'string'
+        ? body.repositoryUrl
+        : 'https://github.com/example/example'
+    return HttpResponse.json(
+      {
+        success: true,
+        data: {
+          dataSource: {
+            id: 'ds-new',
+            name: repositoryUrl,
+            url: repositoryUrl,
+            sourceType: 'github_repository',
+            repository: {
+              fullName: repositoryUrl,
+            },
+          },
+          userWatch: {
+            id: 'watch-new',
+          },
+        },
+      },
+      { status: 201 }
+    )
+  }
+)
+
+const postDataSourceErrorHandler = http.post('*/api/data-sources', async () =>
+  HttpResponse.json(
+    {
+      success: false,
+      message: 'アップストリームエラー',
+    },
+    { status: 500 }
+  )
+)
+
 export const Default: Story = {
   parameters: {
     msw: {
-      handlers: [dataSourcesSuccessHandler, notificationsSuccessHandler],
+      handlers: [
+        dataSourcesSuccessHandler,
+        notificationsSuccessHandler,
+        postDataSourceSuccessHandler,
+      ],
     },
   },
   // インタラクションテスト（Storybook Test Runnerで実行）
@@ -232,6 +281,29 @@ export const Default: Story = {
   },
 }
 
+export const WithModalInteraction: Story = {
+  parameters: {
+    msw: {
+      handlers: [
+        dataSourcesSuccessHandler,
+        notificationsSuccessHandler,
+        postDataSourceSuccessHandler,
+      ],
+    },
+  },
+  play: async ({ canvasElement, step }) => {
+    const canvas = within(canvasElement)
+
+    await step('FAB をクリックしてモーダルを開く', async () => {
+      const button = await canvas.findByRole('button', {
+        name: 'データソースを追加',
+      })
+      await button.click()
+      await expect(await canvas.findByText('リポジトリ URL')).toBeVisible()
+    })
+  },
+}
+
 export const Loading: Story = {
   parameters: {
     msw: {
@@ -243,7 +315,11 @@ export const Loading: Story = {
 export const Empty: Story = {
   parameters: {
     msw: {
-      handlers: [dataSourcesSuccessHandler, notificationsEmptyHandler],
+      handlers: [
+        dataSourcesSuccessHandler,
+        notificationsEmptyHandler,
+        postDataSourceSuccessHandler,
+      ],
     },
   },
   play: async ({ canvasElement }) => {
@@ -257,7 +333,11 @@ export const Empty: Story = {
 export const Error: Story = {
   parameters: {
     msw: {
-      handlers: [dataSourcesSuccessHandler, notificationsErrorHandler],
+      handlers: [
+        dataSourcesSuccessHandler,
+        notificationsErrorHandler,
+        postDataSourceSuccessHandler,
+      ],
     },
   },
   play: async ({ canvasElement }) => {
@@ -275,6 +355,7 @@ export const ManyNotifications: Story = {
       handlers: [
         getGetApiDataSourcesMockHandler(createDataSourcesResponse(25)),
         getGetApiNotificationsMockHandler(createNotificationsResponse(11)),
+        postDataSourceSuccessHandler,
       ],
     },
   },
@@ -284,5 +365,17 @@ export const ManyNotifications: Story = {
     await expect(await canvas.findByText('25')).toBeVisible()
     // 通知が10件表示される（hasNextがtrueで無限スクロールが有効）
     await expect(await canvas.findByText('React 19.0.0 リリース')).toBeVisible()
+  },
+}
+
+export const PostError: Story = {
+  parameters: {
+    msw: {
+      handlers: [
+        dataSourcesSuccessHandler,
+        notificationsSuccessHandler,
+        postDataSourceErrorHandler,
+      ],
+    },
   },
 }

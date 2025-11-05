@@ -22,6 +22,16 @@ test.describe('DashboardPage stories VRT', () => {
     await expect(root).toHaveScreenshot('dashboard-default.png')
   })
 
+  test('Default story with modal open', async ({ page }) => {
+    await page.goto(storyUrl('components-pages-dashboardpage--default'))
+    await disableAnimations(page)
+    await page.waitForLoadState('domcontentloaded')
+    await page.getByRole('button', { name: 'データソースを追加' }).click()
+    await page.getByText('リポジトリ URL').waitFor()
+    const root = page.locator('#storybook-root')
+    await expect(root).toHaveScreenshot('dashboard-default-modal.png')
+  })
+
   test('Empty story', async ({ page }) => {
     await page.goto(storyUrl('components-pages-dashboardpage--empty'))
     await disableAnimations(page)

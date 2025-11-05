@@ -2,6 +2,8 @@
 import { computed, ref } from 'vue'
 import NotificationList from './parts/NotificationList.vue'
 import DashboardStatCard from './parts/DashboardStatCard.vue'
+import AddDataSourceModal from './parts/AddDataSourceModal.vue'
+import DataSourceFabButton from './parts/DataSourceFabButton.vue'
 import type {
   DataSourceListResponse,
   NotificationListResponse,
@@ -150,6 +152,22 @@ const statCards = computed(() => [
     iconClass: 'text-status-success-default',
   },
 ])
+
+const isAddDataSourceModalOpen = ref(false)
+
+const openAddDataSourceModal = () => {
+  isAddDataSourceModalOpen.value = true
+}
+
+const handleAddDataSourceSuccess = async () => {
+  isAddDataSourceModalOpen.value = false
+  if (typeof refreshNuxtData === 'function') {
+    await Promise.allSettled([
+      refreshNuxtData('dashboard-data-sources'),
+      refreshNuxtData('dashboard-notifications'),
+    ])
+  }
+}
 </script>
 
 <template>
@@ -194,4 +212,9 @@ const statCards = computed(() => [
       </div>
     </div>
   </div>
+  <DataSourceFabButton @click="openAddDataSourceModal" />
+  <AddDataSourceModal
+    v-model:open="isAddDataSourceModalOpen"
+    @success="handleAddDataSourceSuccess"
+  />
 </template>
