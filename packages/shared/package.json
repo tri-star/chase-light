@@ -8,7 +8,9 @@
     "dev": "tsc --watch",
     "lint": "eslint src/",
     "lint:type": "tsc --noEmit",
-    "format": "eslint src/ --fix && biome format src/ --write"
+    "format": "eslint src/ --fix && biome format src/ --write",
+    "test": "vitest run",
+    "test:watch": "vitest"
   },
   "devDependencies": {
     "@eslint/js": "^9.15.0",
@@ -16,6 +18,7 @@
     "@typescript-eslint/eslint-plugin": "^8.15.0",
     "@typescript-eslint/parser": "^8.15.0",
     "eslint": "^9.15.0",
-    "typescript": "^5.7.2"
+    "typescript": "^5.7.2",
+    "vitest": "^3.2.2"
   }
 }
