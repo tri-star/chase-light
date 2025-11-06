@@ -238,7 +238,7 @@ defineExpose({
           type="url"
           name="repositoryUrl"
           placeholder="https://github.com/owner/repo"
-          class="w-full rounded-md border border-content-default/20 bg-surface-primary-default px-3 py-2 text-sm text-content-default shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-status-focus-default"
+          class="w-full rounded-md border border-interactive-default/20 bg-interactive-default px-3 py-2 text-sm text-interactive-default shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-status-focus-default"
           :aria-invalid="repositoryError ? 'true' : 'false'"
           autocomplete="off"
         />
@@ -257,13 +257,18 @@ defineExpose({
         />
       </fieldset>
 
-      <fieldset class="space-y-3">
+      <fieldset class="">
         <legend class="text-sm font-medium text-content-default">
           監視するアクティビティ
         </legend>
-        <ClCheckbox v-model="form.watchReleases" :label="'リリース'" />
-        <ClCheckbox v-model="form.watchIssues" :label="'Issue'" />
-        <ClCheckbox v-model="form.watchPullRequests" :label="'Pull Request'" />
+        <div class="flex gap-3 my-3">
+          <ClCheckbox v-model="form.watchReleases" :label="'リリース'" />
+          <ClCheckbox v-model="form.watchIssues" :label="'Issue'" />
+          <ClCheckbox
+            v-model="form.watchPullRequests"
+            :label="'Pull Request'"
+          />
+        </div>
       </fieldset>
 
       <p v-if="submitError" class="text-sm text-status-alert-default">

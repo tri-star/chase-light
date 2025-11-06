@@ -117,7 +117,7 @@ defineExpose({
 <template>
   <dialog
     ref="dialogRef"
-    class="z-[1200] w-full max-w-lg rounded-2xl border border-dialog-default bg-dialog-default text-dialog-default shadow-2xl focus-visible:outline-none"
+    class="rounded-2xl border border-dialog-default bg-dialog-default left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 backdrop-blur-lg backdrop:bg-dialog-backdrop text-dialog-default shadow-2xl shadow-primitive-black focus-visible:outline-none"
     role="dialog"
     aria-modal="true"
     :aria-labelledby="props.labelledby"
@@ -153,10 +153,3 @@ defineExpose({
     </div>
   </dialog>
 </template>
-
-<style scoped>
-dialog::backdrop {
-  background-color: rgba(15, 23, 42, 0.45);
-  backdrop-filter: blur(4px);
-}
-</style>

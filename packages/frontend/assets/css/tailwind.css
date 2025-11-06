@@ -88,10 +88,10 @@
   --background-color-sidebar-menu-disabled: oklch(94% 0.01 247 / 0.5);
   --text-color-sidebar-menu-disabled: oklch(56.511% 0.01888 250.97);
   --border-color-sidebar-menu-disabled: oklch(90% 0.01 247 / 0.4);
-  --background-color-dialog-default: oklch(100% 0 none / 0.9);
+  --background-color-dialog-default: oklch(100% 0 none / 0.2);
   --text-color-dialog-default: oklch(27.85% 0.0132 253.04);
-  --border-color-dialog-default: oklch(87.585% 0.0123 247.97 / 0.3);
-  --background-color-dialog-backdrop: oklch(23.735% 0.01132 254.06 / 0.5);
+  --border-color-dialog-default: oklch(87.585% 0.0123 247.97 / 0.7);
+  --background-color-dialog-backdrop: oklch(100% 0 0 / 0.3);
   --background-color-status-info-default: oklch(89.336% 0.06061 235.67);
   --text-color-status-info-default: oklch(32.103% 0.10845 259.11);
   --border-color-status-info-default: oklch(73.111% 0.14618 248.34);
@@ -429,10 +429,10 @@
   --background-color-sidebar-menu-disabled: oklch(28% 0.02 250 / 0.4);
   --text-color-sidebar-menu-disabled: oklch(66.576% 0.01812 250.92);
   --border-color-sidebar-menu-disabled: oklch(34% 0.03 250 / 0.35);
-  --background-color-dialog-default: oklch(27.85% 0.0132 253.04 / 0.9);
+  --background-color-dialog-default: oklch(27.85% 0.0132 253.04 / 0.3);
   --text-color-dialog-default: oklch(94.722% 0.00689 247.9);
-  --border-color-dialog-default: oklch(48.485% 0.01961 251.02 / 0.3);
-  --background-color-dialog-backdrop: oklch(23.735% 0.01132 254.06 / 0.7);
+  --border-color-dialog-default: oklch(48.485% 0.01961 251.02 / 0.6);
+  --background-color-dialog-backdrop: oklch(23.735% 0.01132 254.06 / 0.4);
   --background-color-status-info-default: oklch(32.103% 0.10845 259.11);
   --text-color-status-info-default: oklch(81.491% 0.10452 239.21);
   --border-color-status-info-default: oklch(45.095% 0.16414 258.18);
