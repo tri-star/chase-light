@@ -474,3 +474,12 @@
   --color-semantic-common-focus-default-style: solid;
   --color-semantic-common-focus-default-offset: 2px;
 }
+
+a {
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+button {
+  cursor: pointer;
+}
