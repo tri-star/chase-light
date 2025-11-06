@@ -14,15 +14,15 @@
 
   --background-color-content-default: oklch(97.818% 0.00342 247.86);
   --text-color-content-default: oklch(27.85% 0.0132 253.04);
-  --background-color-surface-primary-default: oklch(53.992% 0.19058 257.48);
+  --background-color-surface-primary-default: oklch(64.176% 0.19508 254.98);
   --text-color-surface-primary-default: oklch(100% 0 none);
-  --border-color-surface-primary-default: oklch(53.992% 0.19058 257.48);
+  --border-color-surface-primary-default: oklch(45.095% 0.16414 258.18);
   --background-color-surface-primary-disabled: oklch(87.585% 0.0123 247.97);
   --text-color-surface-primary-disabled: oklch(56.511% 0.01888 250.97);
   --border-color-surface-primary-disabled: oklch(87.585% 0.0123 247.97);
-  --background-color-surface-primary-hovered: oklch(45.095% 0.16414 258.18);
+  --background-color-surface-primary-hovered: oklch(73.111% 0.14618 248.34);
   --text-color-surface-primary-hovered: oklch(100% 0 none);
-  --border-color-surface-primary-hovered: oklch(45.095% 0.16414 258.18);
+  --border-color-surface-primary-hovered: oklch(53.992% 0.19058 257.48);
   --background-color-surface-primary-pressed: oklch(37.904% 0.14115 258.7);
   --text-color-surface-primary-pressed: oklch(100% 0 none);
   --border-color-surface-primary-pressed: oklch(37.904% 0.14115 258.7);

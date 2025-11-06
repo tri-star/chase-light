@@ -193,13 +193,13 @@
           "primary": {
             "default": {
               "bg": {
-                "value": "{color.primitive.blue.500}"
+                "value": "{color.primitive.blue.400}"
               },
               "text": {
                 "value": "{color.primitive.white}"
               },
               "border": {
-                "value": "{color.primitive.blue.500}"
+                "value": "{color.primitive.blue.600}"
               }
             },
             "disabled": {
@@ -215,13 +215,13 @@
             },
             "hovered": {
               "bg": {
-                "value": "{color.primitive.blue.600}"
+                "value": "{color.primitive.blue.300}"
               },
               "text": {
                 "value": "{color.primitive.white}"
               },
               "border": {
-                "value": "{color.primitive.blue.600}"
+                "value": "{color.primitive.blue.500}"
               }
             },
             "pressed": {

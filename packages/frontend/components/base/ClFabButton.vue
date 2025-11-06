@@ -1,13 +1,13 @@
 <script setup lang="ts">
 const sizeClasses = {
-  md: 'h-12 px-5 text-sm',
-  lg: 'h-14 px-6 text-base',
+  md: 'h-12 w-12 p-3',
+  lg: 'h-14 w-14 p-6',
 } as const
 
 type Size = keyof typeof sizeClasses
 
 interface Props {
-  label: string
+  label?: string
   icon?: string
   size?: Size
 }
@@ -23,8 +23,8 @@ const emit = defineEmits<{
 
 const classes = computed(() => {
   return [
-    'inline-flex items-center gap-2 rounded-full bg-interactive-default text-white shadow-lg shadow-black/20 transition',
-    'hover:bg-interactive-hovered focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-status-focus-default',
+    'inline-flex justify-center items-center gap-2 rounded-full bg-surface-primary-default text-surface-primary-default border-surface-primary-default shadow-lg shadow-black/20 transition',
+    'hover:bg-surface-primary-hovered hover:text-surface-primary-hovered focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-status-focus-default',
     sizeClasses[props.size],
   ]
 })
@@ -42,7 +42,9 @@ const handleClick = (event: MouseEvent) => {
     data-testid="fab-button"
     @click="handleClick"
   >
-    <span :class="['text-xl', props.icon]" aria-hidden="true" />
-    <span class="hidden font-semibold sm:inline">{{ props.label }}</span>
+    <Icon :name="icon" v-if="icon" size="20" />
+    <span class="hidden font-semibold sm:inline" v-if="label">{{
+      props.label
+    }}</span>
   </button>
 </template>
