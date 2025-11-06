@@ -145,7 +145,7 @@ const checkboxClasses = computed(() => {
   const baseClasses = [
     'w-5',
     'h-5',
-    'rounded',
+    'rounded-md',
     'border-2',
     'transition-all',
     'duration-200',
