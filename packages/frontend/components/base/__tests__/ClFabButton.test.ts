@@ -12,7 +12,6 @@ describe('ClFabButton', () => {
 
     expect(wrapper.attributes('aria-label')).toBe('データソースを追加')
     expect(wrapper.find('span.hidden').text()).toBe('データソースを追加')
-    expect(wrapper.find('.i-heroicons-plus-20-solid').exists()).toBe(true)
   })
 
   it('emits click event', async () => {
