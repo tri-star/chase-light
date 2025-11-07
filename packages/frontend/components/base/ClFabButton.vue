@@ -42,8 +42,8 @@ const handleClick = (event: MouseEvent) => {
     data-testid="fab-button"
     @click="handleClick"
   >
-    <Icon :name="icon" v-if="icon" size="20" />
-    <span class="hidden font-semibold sm:inline" v-if="label">{{
+    <Icon v-if="icon" :name="icon" size="20" />
+    <span v-if="label" class="hidden font-semibold sm:inline">{{
       props.label
     }}</span>
   </button>

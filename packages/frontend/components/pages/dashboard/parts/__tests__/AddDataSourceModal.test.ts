@@ -83,9 +83,9 @@ describe('AddDataSourceModal', () => {
 
     const input = wrapper.get('#repository-url')
     await input.setValue('https://example.com/invalid')
-    await wrapper
-      .get('[data-testid="add-data-source-submit"]')
-      .trigger('submit')
+
+    const form = wrapper.get('#add-data-source-form')
+    await form.trigger('submit')
 
     expect(wrapper.text()).toContain(
       'https://github.com/{owner}/{repo} の形式で入力してください。'
@@ -103,9 +103,8 @@ describe('AddDataSourceModal', () => {
     const input = wrapper.get('#repository-url')
     await input.setValue('https://github.com/nuxt/nuxt')
 
-    await wrapper
-      .get('[data-testid="add-data-source-submit"]')
-      .trigger('submit')
+    const form = wrapper.get('#add-data-source-form')
+    await form.trigger('submit')
 
     await vi.runAllTimersAsync()
 
@@ -130,9 +129,8 @@ describe('AddDataSourceModal', () => {
     const input = wrapper.get('#repository-url')
     await input.setValue('https://github.com/vuejs/core')
 
-    await wrapper
-      .get('[data-testid="add-data-source-submit"]')
-      .trigger('submit')
+    const form = wrapper.get('#add-data-source-form')
+    await form.trigger('submit')
     await vi.runAllTimersAsync()
 
     expect(showToastMock).toHaveBeenCalledWith(

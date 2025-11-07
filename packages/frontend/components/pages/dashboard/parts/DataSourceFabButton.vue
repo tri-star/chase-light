@@ -19,6 +19,7 @@ const handleClick = (event: MouseEvent) => {
     class="pointer-events-none fixed bottom-5 right-5 z-[1050] sm:bottom-10 sm:right-10"
   >
     <ClFabButton
+      data-testid="fab-button"
       class="pointer-events-auto shadow-lg shadow-black/20"
       icon="mdi:plus"
       @click="handleClick"
