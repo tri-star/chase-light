@@ -13,6 +13,7 @@ interface Props {
 }
 
 const props = withDefaults(defineProps<Props>(), {
+  label: undefined,
   icon: 'i-heroicons-plus-20-solid',
   size: 'md',
 })
