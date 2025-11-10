@@ -1,10 +1,10 @@
-import { computed, onMounted, reactive, ref, watch } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
+import { useForm } from '@tanstack/vue-form'
 import { useToast } from '~/composables/use-toast'
 import { isGitHubRepositoryUrl } from 'shared'
 
 export interface FormState {
   repositoryUrl: string
-  notificationEnabled: boolean
   watchReleases: boolean
   watchIssues: boolean
   watchPullRequests: boolean
@@ -26,78 +26,100 @@ export function useAddDataSourceModal(props: Props, emit: Emits) {
 
   const defaultValues: FormState = {
     repositoryUrl: '',
-    notificationEnabled: true,
     watchReleases: true,
     watchIssues: true,
     watchPullRequests: true,
   }
 
-  const form = reactive<FormState>({
-    repositoryUrl: '',
-    notificationEnabled: true,
-    watchReleases: true,
-    watchIssues: true,
-    watchPullRequests: true,
+  const form = useForm({
+    defaultValues,
+    onSubmit: async ({ value }) => {
+      submitError.value = null
+
+      const trimmedRepositoryUrl = value.repositoryUrl.trim()
+
+      try {
+        await $fetch('/api/data-sources', {
+          method: 'POST',
+          body: {
+            repositoryUrl: trimmedRepositoryUrl,
+            notificationEnabled: true,
+            watchReleases: value.watchReleases,
+            watchIssues: value.watchIssues,
+            watchPullRequests: value.watchPullRequests,
+          },
+        })
+
+        toast.showToast({
+          intent: 'success',
+          title: 'データソースを追加しました',
+          message: `${trimmedRepositoryUrl} を監視対象に登録しました。`,
+        })
+
+        emit('success')
+        emit('update:open', false)
+        resetForm()
+      } catch (error) {
+        const message = extractErrorMessage(error)
+        submitError.value = message
+
+        toast.showToast({
+          intent: 'alert',
+          title: 'データソースの追加に失敗しました',
+          message,
+          duration: null,
+        })
+
+        emit('error', message)
+        throw error
+      }
+    },
   })
 
-  const repositoryError = ref<string | null>(null)
   const submitError = ref<string | null>(null)
-  const isSubmitting = ref(false)
-
-  const trimmedRepositoryUrl = computed(() => form.repositoryUrl.trim())
-
-  const isRepositoryUrlValid = computed(() =>
-    trimmedRepositoryUrl.value
-      ? isGitHubRepositoryUrl(trimmedRepositoryUrl.value)
-      : false
+  const repositoryUrlValue = form.useStore(
+    (state) => state.values.repositoryUrl ?? ''
   )
+  const trimmedRepositoryUrl = computed(() => repositoryUrlValue.value.trim())
 
-  const isSubmitDisabled = computed(
-    () => isSubmitting.value || !trimmedRepositoryUrl.value
-  )
+  const repositoryValidatorMessages = {
+    required: 'GitHub リポジトリのURLを入力してください。',
+    invalid: 'https://github.com/{owner}/{repo} の形式で入力してください。',
+  }
+
+  const repositoryFieldValidators = {
+    onChange: ({ value }: { value: string }) => {
+      const trimmed = value.trim()
+      if (!trimmed) {
+        return undefined
+      }
+      if (!isGitHubRepositoryUrl(trimmed)) {
+        return repositoryValidatorMessages.invalid
+      }
+      return undefined
+    },
+    onSubmit: ({ value }: { value: string }) => {
+      const trimmed = value.trim()
+      if (!trimmed) {
+        return repositoryValidatorMessages.required
+      }
+      if (!isGitHubRepositoryUrl(trimmed)) {
+        return repositoryValidatorMessages.invalid
+      }
+      return undefined
+    },
+  }
 
   const resetForm = () => {
-    Object.assign(form, {
+    form.reset({
       ...defaultValues,
       ...props.initialValues,
     })
-    repositoryError.value = null
     submitError.value = null
 
-    if (form.repositoryUrl && !isGitHubRepositoryUrl(form.repositoryUrl)) {
-      repositoryError.value =
-        'https://github.com/{owner}/{repo} の形式で入力してください。'
+    if (trimmedRepositoryUrl.value) {
+      void form.validateField('repositoryUrl', 'change')
     }
-  }
-
-  const validateUrl = () => {
-    repositoryError.value = null
-
-    if (!trimmedRepositoryUrl.value) {
-      return
-    }
-
-    if (!isRepositoryUrlValid.value) {
-      repositoryError.value =
-        'https://github.com/{owner}/{repo} の形式で入力してください。'
-    }
-  }
-
-  const handleValidation = () => {
-    repositoryError.value = null
-
-    if (!trimmedRepositoryUrl.value) {
-      repositoryError.value = 'GitHub リポジトリのURLを入力してください。'
-      return false
-    }
-
-    if (!isRepositoryUrlValid.value) {
-      repositoryError.value =
-        'https://github.com/{owner}/{repo} の形式で入力してください。'
-      return false
-    }
-
-    return true
   }
 
   const extractErrorMessage = (error: unknown) => {
@@ -115,71 +137,17 @@ export function useAddDataSourceModal(props: Props, emit: Emits) {
     return 'データソースの登録に失敗しました。時間をおいて再度お試しください。'
   }
 
-  const handleSubmit = async () => {
-    if (isSubmitting.value) {
-      return
-    }
-
-    submitError.value = null
-
-    if (!handleValidation()) {
-      return
-    }
-
-    isSubmitting.value = true
-
-    try {
-      await $fetch('/api/data-sources', {
-        method: 'POST',
-        body: {
-          repositoryUrl: trimmedRepositoryUrl.value,
-          notificationEnabled: true,
-          watchReleases: form.watchReleases,
-          watchIssues: form.watchIssues,
-          watchPullRequests: form.watchPullRequests,
-        },
-      })
-
-      toast.showToast({
-        intent: 'success',
-        title: 'データソースを追加しました',
-        message: `${trimmedRepositoryUrl.value} を監視対象に登録しました。`,
-      })
-
-      emit('success')
-      emit('update:open', false)
-      resetForm()
-    } catch (error) {
-      const message = extractErrorMessage(error)
-      submitError.value = message
-
-      toast.showToast({
-        intent: 'alert',
-        title: 'データソースの追加に失敗しました',
-        message,
-        duration: null,
-      })
-
-      emit('error', message)
-    } finally {
-      isSubmitting.value = false
-    }
-  }
+  const handleSubmit = () => form.handleSubmit().catch(() => undefined)
 
   const handleCancel = () => {
     emit('update:open', false)
   }
 
-  // URL入力と同時にバリデーション
-  watch(
-    () => form.repositoryUrl,
-    () => {
-      validateUrl()
-      if (submitError.value) {
-        submitError.value = null
-      }
+  watch(repositoryUrlValue, () => {
+    if (submitError.value) {
+      submitError.value = null
     }
-  )
+  })
 
   watch(
     () => props.open,
@@ -198,12 +166,8 @@ export function useAddDataSourceModal(props: Props, emit: Emits) {
 
   return {
     form,
-    repositoryError,
+    repositoryFieldValidators,
     submitError,
-    isSubmitting,
-    trimmedRepositoryUrl,
-    isRepositoryUrlValid,
-    isSubmitDisabled,
     resetForm,
     handleSubmit,
     handleCancel,

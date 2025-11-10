@@ -23,10 +23,8 @@ const emit = defineEmits<{
 
 const {
   form,
-  repositoryError,
+  repositoryFieldValidators,
   submitError,
-  isSubmitDisabled,
-  isSubmitting,
   resetForm,
   handleSubmit,
   handleCancel,
@@ -67,41 +65,72 @@ defineExpose({
         >
           リポジトリ URL
         </label>
-        <input
-          id="repository-url"
-          v-model="form.repositoryUrl"
+        <form.Field
           name="repositoryUrl"
-          placeholder="https://github.com/owner/repo"
-          class="w-full rounded-md border border-interactive-default/20 bg-interactive-default px-3 py-2 text-sm text-interactive-default shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-status-focus-default"
-          :aria-invalid="repositoryError ? 'true' : 'false'"
-          autocomplete="off"
-        />
-        <p v-if="repositoryError" class="text-sm text-status-alert-default">
-          {{ repositoryError }}
-        </p>
+          :validators="repositoryFieldValidators"
+        >
+          <template #default="{ field }">
+            <input
+              id="repository-url"
+              :name="field.name"
+              :value="field.state.value"
+              placeholder="https://github.com/owner/repo"
+              class="w-full rounded-md border border-interactive-default/20 bg-interactive-default px-3 py-2 text-sm text-interactive-default shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-status-focus-default"
+              :aria-invalid="field.state.meta.errors?.length ? 'true' : 'false'"
+              autocomplete="off"
+              @input="
+                field.handleChange(($event.target as HTMLInputElement).value)
+              "
+              @blur="field.handleBlur"
+            />
+            <p
+              v-if="field.state.meta.errors?.length"
+              class="text-sm text-status-alert-default"
+            >
+              {{ field.state.meta.errors[0] }}
+            </p>
+          </template>
+        </form.Field>
       </div>
-
-      <fieldset class="space-y-3">
-        <legend class="text-sm font-medium text-content-default">
-          通知設定
-        </legend>
-        <ClCheckbox
-          v-model="form.notificationEnabled"
-          :label="'通知を有効にする'"
-        />
-      </fieldset>
 
       <fieldset class="">
         <legend class="text-sm font-medium text-content-default">
           監視するアクティビティ
         </legend>
         <div class="flex gap-3 my-3">
-          <ClCheckbox v-model="form.watchReleases" :label="'リリース'" />
-          <ClCheckbox v-model="form.watchIssues" :label="'Issue'" />
-          <ClCheckbox
-            v-model="form.watchPullRequests"
-            :label="'Pull Request'"
-          />
+          <form.Field name="watchReleases">
+            <template #default="{ field }">
+              <ClCheckbox
+                :model-value="field.state.value"
+                :label="'リリース'"
+                @update:model-value="
+                  (value) => field.handleChange(value as boolean)
+                "
+              />
+            </template>
+          </form.Field>
+          <form.Field name="watchIssues">
+            <template #default="{ field }">
+              <ClCheckbox
+                :model-value="field.state.value"
+                :label="'Issue'"
+                @update:model-value="
+                  (value) => field.handleChange(value as boolean)
+                "
+              />
+            </template>
+          </form.Field>
+          <form.Field name="watchPullRequests">
+            <template #default="{ field }">
+              <ClCheckbox
+                :model-value="field.state.value"
+                :label="'Pull Request'"
+                @update:model-value="
+                  (value) => field.handleChange(value as boolean)
+                "
+              />
+            </template>
+          </form.Field>
         </div>
       </fieldset>
 
@@ -111,24 +140,35 @@ defineExpose({
     </form>
 
     <template #footer>
-      <div class="flex justify-end gap-3">
-        <button
-          type="button"
-          class="rounded-md border border-content-default/20 px-4 py-2 text-sm font-medium text-content-default transition hover:bg-surface-secondary-hovered focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-status-focus-default"
-          @click="handleCancel"
-        >
-          キャンセル
-        </button>
-        <button
-          type="submit"
-          class="rounded-md bg-interactive-default px-4 py-2 text-sm font-medium text-white shadow transition hover:bg-interactive-hovered focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-status-focus-default disabled:cursor-not-allowed disabled:opacity-60"
-          :disabled="isSubmitDisabled"
-          form="add-data-source-form"
-          data-testid="add-data-source-submit"
-        >
-          {{ isSubmitting ? '登録中...' : '登録する' }}
-        </button>
-      </div>
+      <form.Subscribe
+        :selector="
+          (state) => ({
+            canSubmit: state.canSubmit,
+            isSubmitting: state.isSubmitting,
+          })
+        "
+      >
+        <template #default="{ canSubmit, isSubmitting }">
+          <div class="flex justify-end gap-3">
+            <button
+              type="button"
+              class="rounded-md border border-content-default/20 px-4 py-2 text-sm font-medium text-content-default transition hover:bg-surface-secondary-hovered focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-status-focus-default"
+              @click="handleCancel"
+            >
+              キャンセル
+            </button>
+            <button
+              type="submit"
+              class="rounded-md bg-interactive-default px-4 py-2 text-sm font-medium text-white shadow transition hover:bg-interactive-hovered focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-status-focus-default disabled:cursor-not-allowed disabled:opacity-60"
+              :disabled="!canSubmit"
+              form="add-data-source-form"
+              data-testid="add-data-source-submit"
+            >
+              {{ isSubmitting ? '登録中...' : '登録する' }}
+            </button>
+          </div>
+        </template>
+      </form.Subscribe>
     </template>
   </ClModalDialog>
 </template>
