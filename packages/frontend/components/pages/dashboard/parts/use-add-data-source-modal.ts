@@ -133,7 +133,7 @@ export function useAddDataSourceModal(props: Props, emit: Emits) {
         method: 'POST',
         body: {
           repositoryUrl: trimmedRepositoryUrl.value,
-          notificationEnabled: form.notificationEnabled,
+          notificationEnabled: true,
           watchReleases: form.watchReleases,
           watchIssues: form.watchIssues,
           watchPullRequests: form.watchPullRequests,

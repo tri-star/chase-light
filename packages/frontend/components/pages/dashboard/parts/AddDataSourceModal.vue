@@ -52,19 +52,12 @@ defineExpose({
         >
           データソースを追加
         </h2>
-        <p
-          id="add-data-source-modal-description"
-          class="text-sm text-content-default/80"
-        >
-          GitHub
-          リポジトリを監視対象に登録し、アクティビティの通知を受け取ります。
-        </p>
       </div>
     </template>
 
     <form
       id="add-data-source-form"
-      class="flex flex-col gap-6"
+      class="flex flex-col gap-6 w-xl"
       @submit.prevent="handleSubmit"
     >
       <div class="flex flex-col gap-2">
