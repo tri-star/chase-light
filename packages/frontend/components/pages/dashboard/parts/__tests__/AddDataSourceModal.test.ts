@@ -71,7 +71,7 @@ describe('AddDataSourceModal', () => {
     const inputElement = wrapper.find('input#repository-url')
       .element as HTMLInputElement
     expect(inputElement.value).toBe('')
-    expect(wrapper.findAllComponents({ name: 'ClCheckbox' }).length).toBe(4)
+    expect(wrapper.findAllComponents({ name: 'ClCheckbox' }).length).toBe(3)
   })
 
   it('無効なURLの場合、バリデーションエラーを表示しAPIを呼び出さない', async () => {
