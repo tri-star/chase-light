@@ -88,10 +88,10 @@
   --background-color-sidebar-menu-disabled: oklch(94% 0.01 247 / 0.5);
   --text-color-sidebar-menu-disabled: oklch(56.511% 0.01888 250.97);
   --border-color-sidebar-menu-disabled: oklch(90% 0.01 247 / 0.4);
-  --background-color-dialog-default: oklch(100% 0 none / 0.2);
+  --background-color-dialog-default: oklch(100% 0 none / 0.6);
   --text-color-dialog-default: oklch(27.85% 0.0132 253.04);
-  --border-color-dialog-default: oklch(87.585% 0.0123 247.97 / 0.7);
-  --background-color-dialog-backdrop: oklch(100% 0 0 / 0.3);
+  --border-color-dialog-default: oklch(87.585% 0.0123 247.97 / 0.9);
+  --background-color-dialog-backdrop: oklch(0% 0 0 / 0.2);
   --background-color-status-info-default: oklch(89.336% 0.06061 235.67);
   --text-color-status-info-default: oklch(32.103% 0.10845 259.11);
   --border-color-status-info-default: oklch(73.111% 0.14618 248.34);

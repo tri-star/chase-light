@@ -496,18 +496,18 @@
           "$description": "Dialog and modal backgrounds with glass effect",
           "default": {
             "bg": {
-              "value": "oklch(100% 0 none / 0.2)"
+              "value": "oklch(100% 0 none / 0.6)"
             },
             "text": {
               "value": "{color.primitive.gray.900}"
             },
             "border": {
-              "value": "oklch(87.585% 0.0123 247.97 / 0.7)"
+              "value": "oklch(87.585% 0.0123 247.97 / 0.9)"
             }
           },
           "backdrop": {
             "bg": {
-              "value": "oklch(100% 0 0 / 0.3)"
+              "value": "oklch(0% 0 0 / 0.2)"
             }
           }
         },
