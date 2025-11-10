@@ -16,7 +16,8 @@ const handleDismiss = (id: string) => {
   <Teleport to="body">
     <div
       v-if="hasToasts"
-      class="pointer-events-none fixed inset-x-0 top-0 z-[1100] flex flex-col items-end gap-3 px-4 py-6 sm:px-6 sm:py-8"
+      class="pointer-events-none fixed inset-x-0 top-0 z-[1100] flex flex-col
+        items-end gap-3 px-4 py-6 sm:px-6 sm:py-8"
       aria-live="assertive"
       aria-atomic="true"
       role="region"

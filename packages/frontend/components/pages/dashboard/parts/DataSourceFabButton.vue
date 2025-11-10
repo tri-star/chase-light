@@ -16,11 +16,12 @@ const handleClick = (event: MouseEvent) => {
     - z-indexは新しくデザイントークンを設け、fab用のz-index(=1050)を定義する
   -->
   <div
-    class="pointer-events-none fixed bottom-5 right-5 z-[1050] sm:bottom-10 sm:right-10"
+    class="pointer-events-none fixed right-5 bottom-5 z-[1050] sm:right-10
+      sm:bottom-10"
   >
     <ClFabButton
       data-testid="fab-button"
-      class="pointer-events-auto shadow-lg shadow-black/20"
+      class="shadow-black/20 pointer-events-auto shadow-lg"
       icon="mdi:plus"
       @click="handleClick"
     />

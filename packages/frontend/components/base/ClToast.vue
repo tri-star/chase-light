@@ -63,7 +63,10 @@ const handleDismiss = () => {
 
 <template>
   <div
-    class="pointer-events-auto w-full max-w-sm rounded-lg border bg-surface-primary-default shadow-lg shadow-black/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-status-focus-default"
+    class="focus-visible:ring-status-focus-default shadow-black/10
+      pointer-events-auto w-full max-w-sm rounded-lg border
+      bg-surface-primary-default shadow-lg focus-visible:ring-2
+      focus-visible:outline-none"
     role="status"
     :aria-live="intentAriaLive"
   >
@@ -89,7 +92,9 @@ const handleDismiss = () => {
       <button
         v-if="props.dismissible"
         type="button"
-        class="rounded-md p-1 text-content-default/70 transition hover:text-content-default focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-status-focus-default"
+        class="focus-visible:ring-status-focus-default rounded-md p-1
+          text-content-default/70 transition hover:text-content-default
+          focus-visible:ring-2 focus-visible:outline-none"
         aria-label="通知を閉じる"
         data-testid="toast-dismiss-button"
         @click="handleDismiss"

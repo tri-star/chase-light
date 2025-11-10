@@ -46,17 +46,18 @@ const themeLabel = computed(() => {
   <button
     type="button"
     :class="[
-      'flex items-center justify-center rounded-full border transition-all duration-300',
+      `flex items-center justify-center rounded-full border transition-all
+      duration-300`,
 
       'focus:outline-none',
-      'focus:ring-2 focus:ring-status-focus-default',
-      'active:scale-95 transform',
+      'focus:ring-status-focus-default focus:ring-2',
+      'transform active:scale-95',
       buttonSizeClasses.button,
       {
-        'bg-primitive-yellow-50 border-primitive-yellow-200 hover:bg-primitive-yellow-100':
-          currentTheme === 'light',
-        'bg-primitive-yellow-900 border-primitive-yellow-600 hover:bg-primitive-yellow-700':
-          currentTheme === 'dark',
+        [`border-primitive-yellow-200 bg-primitive-yellow-50
+        hover:bg-primitive-yellow-100`]: currentTheme === 'light',
+        [`border-primitive-yellow-600 bg-primitive-yellow-900
+        hover:bg-primitive-yellow-700`]: currentTheme === 'dark',
       },
     ]"
     :aria-label="themeLabel"

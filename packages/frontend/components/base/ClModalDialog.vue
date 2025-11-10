@@ -117,7 +117,10 @@ defineExpose({
 <template>
   <dialog
     ref="dialogRef"
-    class="rounded-2xl border border-dialog-default bg-dialog-default left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 backdrop-blur-lg backdrop:bg-dialog-backdrop text-dialog-default shadow-2xl shadow-primitive-black focus-visible:outline-none"
+    class="shadow-2xl top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2
+      rounded-2xl border border-dialog-default bg-dialog-default
+      text-dialog-default shadow-primitive-black backdrop-blur-lg
+      backdrop:bg-dialog-backdrop focus-visible:outline-none"
     role="dialog"
     aria-modal="true"
     :aria-labelledby="props.labelledby"
@@ -143,7 +146,10 @@ defineExpose({
       <button
         v-if="props.dismissible"
         type="button"
-        class="absolute right-4 top-4 rounded-md p-2 text-content-default/70 transition hover:text-content-default focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-status-focus-default"
+        class="focus-visible:ring-status-focus-default absolute top-4 right-4
+          rounded-md p-2 text-content-default/70 transition
+          hover:text-content-default focus-visible:ring-2
+          focus-visible:outline-none"
         :aria-label="props.closeButtonLabel"
         data-testid="modal-close-button"
         @click="onDismissClick"

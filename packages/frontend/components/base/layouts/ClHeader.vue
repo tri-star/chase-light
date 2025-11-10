@@ -26,10 +26,11 @@ const showHamburger = computed(() => isLoggedIn.value)
 
 <template>
   <header
-    class="fixed inset-x-0 top-0 z-50 bg-header-default shadow-sm border-b border-header-default backdrop-blur-md"
+    class="fixed inset-x-0 top-0 z-50 border-b border-header-default
+      bg-header-default shadow-sm backdrop-blur-md"
   >
     <div class="w-full px-2">
-      <div class="flex justify-between items-center h-16">
+      <div class="flex h-16 items-center justify-between">
         <!-- Left side: Brand and hamburger -->
         <div class="flex items-center space-x-4">
           <ClHamburgerButton

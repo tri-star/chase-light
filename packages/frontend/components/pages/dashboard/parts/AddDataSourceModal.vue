@@ -55,7 +55,7 @@ defineExpose({
 
     <form
       id="add-data-source-form"
-      class="flex flex-col gap-6 w-xl"
+      class="flex w-xl flex-col gap-6"
       @submit.prevent="handleSubmit"
     >
       <div class="flex flex-col gap-2">
@@ -75,7 +75,10 @@ defineExpose({
               :name="field.name"
               :value="field.state.value"
               placeholder="https://github.com/owner/repo"
-              class="w-full rounded-md border border-interactive-default/20 bg-interactive-default px-3 py-2 text-sm text-interactive-default shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-status-focus-default"
+              class="focus-visible:ring-status-focus-default text-sm w-full
+                rounded-md border border-interactive-default/20
+                bg-interactive-default px-3 py-2 text-interactive-default
+                shadow-sm focus-visible:ring-2 focus-visible:outline-none"
               :aria-invalid="field.state.meta.errors?.length ? 'true' : 'false'"
               autocomplete="off"
               @input="
@@ -97,7 +100,7 @@ defineExpose({
         <legend class="text-sm font-medium text-content-default">
           監視するアクティビティ
         </legend>
-        <div class="flex gap-3 my-3">
+        <div class="my-3 flex gap-3">
           <form.Field name="watchReleases">
             <template #default="{ field }">
               <ClCheckbox
@@ -152,14 +155,22 @@ defineExpose({
           <div class="flex justify-end gap-3">
             <button
               type="button"
-              class="rounded-md border border-content-default/20 px-4 py-2 text-sm font-medium text-content-default transition hover:bg-surface-secondary-hovered focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-status-focus-default"
+              class="border-content-default/20
+                focus-visible:ring-status-focus-default text-sm rounded-md
+                border px-4 py-2 font-medium text-content-default transition
+                hover:bg-surface-secondary-hovered focus-visible:ring-2
+                focus-visible:outline-none"
               @click="handleCancel"
             >
               キャンセル
             </button>
             <button
               type="submit"
-              class="rounded-md bg-interactive-default px-4 py-2 text-sm font-medium text-white shadow transition hover:bg-interactive-hovered focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-status-focus-default disabled:cursor-not-allowed disabled:opacity-60"
+              class="focus-visible:ring-status-focus-default text-sm text-white
+                shadow rounded-md bg-interactive-default px-4 py-2 font-medium
+                transition hover:bg-interactive-hovered focus-visible:ring-2
+                focus-visible:outline-none disabled:cursor-not-allowed
+                disabled:opacity-60"
               :disabled="!canSubmit"
               form="add-data-source-form"
               data-testid="add-data-source-submit"

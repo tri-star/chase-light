@@ -41,13 +41,13 @@ const hasIcon = computed(() => Boolean(props.icon) || Boolean(slots.icon))
 
     <div class="min-w-0">
       <dt
-        class="text-sm text-card-label line-clamp-2"
+        class="text-sm line-clamp-2 text-card-label"
         :title="props.label"
         :data-testid="`stat-label-${props.name}`"
       >
         {{ props.label }}
       </dt>
-      <dd class="mt-2 flex justify-center items-baseline gap-2">
+      <dd class="mt-2 flex items-baseline justify-center gap-2">
         <p class="text-2xl font-semibold text-card-value">
           {{ props.value }}
         </p>

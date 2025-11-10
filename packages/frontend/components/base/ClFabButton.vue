@@ -44,8 +44,8 @@ const handleClick = (event: MouseEvent) => {
     @click="handleClick"
   >
     <Icon v-if="icon" :name="icon" size="20" />
-    <span v-if="label" class="hidden font-semibold sm:inline">{{
-      props.label
-    }}</span>
+    <span v-if="label" class="hidden font-semibold sm:inline">
+      {{ props.label }}
+    </span>
   </button>
 </template>

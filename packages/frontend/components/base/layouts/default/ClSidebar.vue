@@ -76,7 +76,8 @@ watch(
   >
     <div
       v-if="isOpen"
-      class="fixed inset-x-0 top-16 bottom-0 z-40 bg-dialog-backdrop bg-opacity-50"
+      class="bg-opacity-50 fixed inset-x-0 top-16 bottom-0 z-40
+        bg-dialog-backdrop"
       @click="handleBackdropClick"
     />
   </Transition>
@@ -94,7 +95,8 @@ watch(
       v-if="!isMobile || isOpen"
       ref="sidebarRef"
       :class="[
-        'bg-sidebar-default border-r border-sidebar-default transition-all duration-300 overflow-y-auto overflow-x-hidden',
+        `overflow-x-hidden overflow-y-auto border-r border-sidebar-default
+        bg-sidebar-default transition-all duration-300`,
         isMobile
           ? 'fixed top-16 bottom-0 left-0 z-50 w-64'
           : isCollapsed
@@ -108,17 +110,20 @@ watch(
       <!-- Mobile close button -->
       <div
         v-if="isMobile"
-        class="flex items-center justify-between p-4 border-b border-sidebar-default"
+        class="flex items-center justify-between border-b border-sidebar-default
+          p-4"
       >
         <h2 class="text-lg font-semibold text-sidebar-default">Menu</h2>
         <button
           type="button"
-          class="p-2 rounded-md text-interactive-default hover:bg-interactive-hovered focus:outline-none focus:ring-2 focus:ring-status-focus-default"
+          class="focus:ring-status-focus-default rounded-md p-2
+            text-interactive-default hover:bg-interactive-hovered focus:ring-2
+            focus:outline-none"
           aria-label="サイドメニューを閉じる"
           @click="emit('close')"
         >
           <svg
-            class="w-5 h-5"
+            class="h-5 w-5"
             fill="none"
             stroke="currentColor"
             viewBox="0 0 24 24"
@@ -136,29 +141,31 @@ watch(
       </div>
 
       <!-- Navigation items -->
-      <nav class="mt-5 px-2 space-y-1">
+      <nav class="mt-5 space-y-1 px-2">
         <NuxtLink
           v-for="item in navigation"
           :key="item.name"
           :to="item.href"
           :class="[
-            'group flex items-center h-10 px-2 py-2 text-sm font-medium rounded-md transition-colors',
+            `group text-sm flex h-10 items-center rounded-md px-2 py-2
+            font-medium transition-colors`,
             $route.path === item.href
               ? 'bg-sidebar-menu-active text-sidebar-menu-active'
-              : 'bg-sidebar-menu-default text-sidebar-menu-default hover:bg-sidebar-menu-hovered ',
+              : `bg-sidebar-menu-default text-sidebar-menu-default
+                hover:bg-sidebar-menu-hovered`,
           ]"
           :title="isCollapsed ? item.name : undefined"
           @click="isMobile && emit('close')"
         >
           <!-- Icon container - アイコンコンテナ（位置固定用） -->
-          <div class="flex-shrink-0 w-5 flex justify-center">
-            <Icon :name="item.icon" class="w-5 h-5" aria-hidden="true" />
+          <div class="flex w-5 flex-shrink-0 justify-center">
+            <Icon :name="item.icon" class="h-5 w-5" aria-hidden="true" />
           </div>
 
           <!-- テキストは折りたたみ時は非表示、展開中の折り返し防止 -->
           <span
             v-if="!isCollapsed"
-            class="ml-3 whitespace-nowrap overflow-hidden"
+            class="ml-3 overflow-hidden whitespace-nowrap"
           >
             {{ item.name }}
           </span>

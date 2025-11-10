@@ -182,7 +182,8 @@ const handleAddDataSourceSuccess = async () => {
       <!-- 統計情報 -->
       <dl
         v-if="dataSources?.success"
-        class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4 justify-center"
+        class="grid grid-cols-1 justify-center gap-4 sm:grid-cols-2
+          xl:grid-cols-3"
       >
         <DashboardStatCard
           v-for="card in statCards"
@@ -206,7 +207,7 @@ const handleAddDataSourceSuccess = async () => {
       <!-- 無限スクロールローディング -->
       <div
         v-if="isLoading && hasNext"
-        class="p-6 text-center text-sm text-content-default opacity-60"
+        class="text-sm p-6 text-center text-content-default opacity-60"
       >
         読み込み中...
       </div>
