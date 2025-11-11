@@ -40,6 +40,7 @@ defineExpose({
     :open="props.open"
     labelledby="add-data-source-modal-title"
     describedby="add-data-source-modal-description"
+    class="w-sm md:w-xl"
     @update:open="emit('update:open', $event)"
   >
     <template #header>
@@ -55,7 +56,7 @@ defineExpose({
 
     <form
       id="add-data-source-form"
-      class="flex w-xl flex-col gap-6"
+      class="flex flex-col gap-6"
       @submit.prevent="handleSubmit"
     >
       <div class="flex flex-col gap-2">
@@ -100,7 +101,7 @@ defineExpose({
         <legend class="text-sm font-medium text-content-default">
           監視するアクティビティ
         </legend>
-        <div class="my-3 flex gap-3">
+        <div class="my-3 flex flex-col gap-3 md:flex-row">
           <form.Field name="watchReleases">
             <template #default="{ field }">
               <ClCheckbox
