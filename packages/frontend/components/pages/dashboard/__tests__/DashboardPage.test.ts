@@ -128,8 +128,11 @@ describe('DashboardPage', () => {
       },
     })
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const vm = wrapper.vm as any
+    type DashboardPageVm = {
+      handleAddDataSourceSuccess: () => Promise<void>
+    }
+
+    const vm = wrapper.vm as unknown as DashboardPageVm
 
     // handleAddDataSourceSuccessメソッドが存在し、呼び出し可能であることを確認
     expect(typeof vm.handleAddDataSourceSuccess).toBe('function')

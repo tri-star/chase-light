@@ -24,7 +24,7 @@ const emit = defineEmits<{
 
 const classes = computed(() => {
   return [
-    'inline-flex justify-center items-center gap-2 rounded-full bg-surface-primary-default text-surface-primary-default border-surface-primary-default shadow-lg shadow-black/20 transition',
+    'inline-flex justify-center items-center gap-2 rounded-full bg-surface-primary-default text-surface-primary-default border border-surface-primary-default shadow-lg shadow-black/20 transition',
     'hover:bg-surface-primary-hovered hover:text-surface-primary-hovered focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-status-focus-default',
     sizeClasses[props.size],
   ]

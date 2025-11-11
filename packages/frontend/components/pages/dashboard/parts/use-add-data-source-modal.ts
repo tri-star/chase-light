@@ -137,7 +137,12 @@ export function useAddDataSourceModal(props: Props, emit: Emits) {
     return 'データソースの登録に失敗しました。時間をおいて再度お試しください。'
   }
 
-  const handleSubmit = () => form.handleSubmit().catch(() => undefined)
+  // フォームのバリデーションエラーは onSubmit 内で処理されるためここでは特別な処理を行わないが、
+  // 想定外の例外はデバッグ容易化のためログに出力する。
+  const handleSubmit = () =>
+    form.handleSubmit().catch((error) => {
+      console.error('handleSubmit unexpected error:', error)
+    })
 
   const handleCancel = () => {
     emit('update:open', false)
