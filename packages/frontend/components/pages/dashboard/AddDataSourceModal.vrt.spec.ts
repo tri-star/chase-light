@@ -15,7 +15,7 @@ test.describe('AddDataSourceModal stories VRT', () => {
       storyUrl('components-pages-dashboard-adddatasourcemodal--default')
     )
     await disableAnimations(page)
-    await page.getByText('データソースを追加').first().waitFor()
+    await page.getByTestId('fab-button').click()
     const root = page.locator('#storybook-root')
     await expect(root).toHaveScreenshot('add-data-source-modal-default.png')
   })
