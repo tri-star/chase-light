@@ -26,7 +26,7 @@ test.describe('DashboardPage stories VRT', () => {
     await page.goto(storyUrl('components-pages-dashboardpage--default'))
     await disableAnimations(page)
     await page.waitForLoadState('domcontentloaded')
-    await page.getByRole('button', { name: 'データソースを追加' }).click()
+    await page.getByTestId('fab-button').click()
     await page.getByText('リポジトリ URL').waitFor()
     const root = page.locator('#storybook-root')
     await expect(root).toHaveScreenshot('dashboard-default-modal.png')

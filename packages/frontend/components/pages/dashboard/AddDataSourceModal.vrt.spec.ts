@@ -15,9 +15,8 @@ test.describe('AddDataSourceModal stories VRT', () => {
       storyUrl('components-pages-dashboard-adddatasourcemodal--default')
     )
     await disableAnimations(page)
-    await page.getByTestId('fab-button').click()
-    const root = page.locator('#storybook-root')
-    await expect(root).toHaveScreenshot('add-data-source-modal-default.png')
+    // const root = page.locator('#storybook-root')
+    await expect(page).toHaveScreenshot('add-data-source-modal-default.png')
   })
 
   test('WithError', async ({ page }) => {
@@ -28,7 +27,7 @@ test.describe('AddDataSourceModal stories VRT', () => {
     await page
       .getByText('https://github.com/{owner}/{repo} の形式で入力してください。')
       .waitFor()
-    const root = page.locator('#storybook-root')
-    await expect(root).toHaveScreenshot('add-data-source-modal-error.png')
+    // const root = page.locator('#storybook-root')
+    await expect(page).toHaveScreenshot('add-data-source-modal-error.png')
   })
 })

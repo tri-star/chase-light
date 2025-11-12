@@ -295,9 +295,7 @@ export const WithModalInteraction: Story = {
     const canvas = within(canvasElement)
 
     await step('FAB をクリックしてモーダルを開く', async () => {
-      const button = await canvas.findByRole('button', {
-        name: 'データソースを追加',
-      })
+      const button = await canvas.getByTestId('fab-button')
       await button.click()
       await expect(await canvas.findByText('リポジトリ URL')).toBeVisible()
     })
