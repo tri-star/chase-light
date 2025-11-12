@@ -9,5 +9,6 @@ export default defineVitestConfig({
     ],
     globals: true,
     environment: 'nuxt', // デフォルトをNuxt環境に設定
+    setupFiles: ['./tests/setup/msw-server.ts'], // MSWサーバーセットアップ
   },
 })

@@ -1,7 +1,7 @@
 <script setup lang="ts"></script>
 
 <template>
-  <div class="rounded-md drop-shadow-sm p-4 bg-card-default">
+  <div class="rounded-md bg-card-default p-4 drop-shadow-sm">
     <slot />
   </div>
 </template>

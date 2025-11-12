@@ -1,23 +1,25 @@
 <template>
-  <div class="min-h-screen bg-gray-50">
+  <div class="bg-gray-50 min-h-screen">
     <!-- ナビゲーション -->
     <nav class="bg-white shadow">
-      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="flex justify-between h-16">
+      <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <div class="flex h-16 justify-between">
           <div class="flex items-center">
-            <NuxtLink to="/dashboard" class="text-xl font-bold text-gray-900">
+            <NuxtLink to="/dashboard" class="text-xl text-gray-900 font-bold">
               Chase Light
             </NuxtLink>
             <div class="ml-10 flex items-baseline space-x-4">
               <NuxtLink
                 to="/dashboard"
-                class="text-gray-500 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium"
+                class="text-sm text-gray-500 hover:text-gray-900 rounded-md px-3
+                  py-2 font-medium"
               >
                 Dashboard
               </NuxtLink>
               <NuxtLink
                 to="/profile"
-                class="bg-gray-900 text-white px-3 py-2 rounded-md text-sm font-medium"
+                class="bg-gray-900 text-sm text-white rounded-md px-3 py-2
+                  font-medium"
               >
                 Profile
               </NuxtLink>
@@ -25,7 +27,8 @@
           </div>
           <div class="flex items-center">
             <button
-              class="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded"
+              class="rounded bg-red-600 text-white hover:bg-red-700 px-4 py-2
+                font-bold"
               @click="logout"
             >
               Logout
@@ -36,51 +39,51 @@
     </nav>
 
     <!-- メインコンテンツ -->
-    <main class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
+    <main class="mx-auto max-w-7xl py-6 sm:px-6 lg:px-8">
       <div class="px-4 py-6 sm:px-0">
         <div class="space-y-6">
           <!-- プロファイル情報 -->
           <div class="bg-white shadow rounded-lg">
             <div class="px-4 py-5 sm:p-6">
-              <h3 class="text-lg leading-6 font-medium text-gray-900 mb-4">
+              <h3 class="text-lg text-gray-900 mb-4 leading-6 font-medium">
                 Profile Information
               </h3>
 
               <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
                 <div>
-                  <label class="block text-sm font-medium text-gray-700">
+                  <label class="text-sm text-gray-700 block font-medium">
                     Name
                   </label>
-                  <div class="mt-1 text-sm text-gray-900">
+                  <div class="text-sm text-gray-900 mt-1">
                     {{ user?.name || 'N/A' }}
                   </div>
                 </div>
 
                 <div>
-                  <label class="block text-sm font-medium text-gray-700">
+                  <label class="text-sm text-gray-700 block font-medium">
                     Email
                   </label>
-                  <div class="mt-1 text-sm text-gray-900">
+                  <div class="text-sm text-gray-900 mt-1">
                     {{ user?.email || 'N/A' }}
                   </div>
                 </div>
 
                 <div>
-                  <label class="block text-sm font-medium text-gray-700">
+                  <label class="text-sm text-gray-700 block font-medium">
                     User ID
                   </label>
-                  <div class="mt-1 text-sm text-gray-900">
+                  <div class="text-sm text-gray-900 mt-1">
                     {{ user?.id || 'N/A' }}
                   </div>
                 </div>
 
                 <div>
-                  <label class="block text-sm font-medium text-gray-700">
+                  <label class="text-sm text-gray-700 block font-medium">
                     Authentication Provider
                   </label>
                   <div
                     data-testid="auth-provider"
-                    class="mt-1 text-sm text-gray-900"
+                    class="text-sm text-gray-900 mt-1"
                   >
                     {{ user?.provider || 'N/A' }}
                   </div>
@@ -88,7 +91,7 @@
               </div>
 
               <div v-if="user?.avatar" class="mt-6">
-                <label class="block text-sm font-medium text-gray-700 mb-2">
+                <label class="text-sm text-gray-700 mb-2 block font-medium">
                   Avatar
                 </label>
                 <img
@@ -103,14 +106,15 @@
           <!-- GitHub API テスト -->
           <div class="bg-white shadow rounded-lg">
             <div class="px-4 py-5 sm:p-6">
-              <h3 class="text-lg leading-6 font-medium text-gray-900 mb-4">
+              <h3 class="text-lg text-gray-900 mb-4 leading-6 font-medium">
                 GitHub Integration Test
               </h3>
 
               <div class="space-y-4">
                 <div>
                   <button
-                    class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mr-4"
+                    class="rounded bg-blue-600 text-white hover:bg-blue-700 mr-4
+                      px-4 py-2 font-bold"
                     :disabled="loading"
                     @click="testGitHubUser"
                   >
@@ -118,7 +122,8 @@
                   </button>
 
                   <button
-                    class="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded"
+                    class="rounded bg-green-600 text-white hover:bg-green-700
+                      px-4 py-2 font-bold"
                     :disabled="loading"
                     @click="testGitHubRepos"
                   >
@@ -128,14 +133,15 @@
 
                 <div
                   v-if="apiResult"
-                  class="bg-gray-100 p-4 rounded overflow-auto max-h-96"
+                  class="rounded bg-gray-100 max-h-96 overflow-auto p-4"
                 >
                   <pre class="text-sm">{{ apiResult }}</pre>
                 </div>
 
                 <div
                   v-if="apiError"
-                  class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded"
+                  class="rounded border-red-400 bg-red-100 text-red-700 border
+                    px-4 py-3"
                 >
                   <strong class="font-bold">Error:</strong>
                   <span class="block sm:inline">{{ apiError }}</span>

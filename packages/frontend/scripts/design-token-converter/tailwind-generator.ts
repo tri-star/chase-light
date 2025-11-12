@@ -37,7 +37,17 @@ ${lightTokenVars}
 
 :root[data-theme="dark"] {
 ${darkTokenVars}
-}`
+}
+
+a {
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+button {
+  cursor: pointer;
+}
+`
   }
 
   /**

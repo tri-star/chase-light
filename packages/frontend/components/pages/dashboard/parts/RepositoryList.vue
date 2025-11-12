@@ -28,11 +28,11 @@ const formatNumber = (num: number): string => {
       <div class="animate-pulse space-y-4">
         <div v-for="i in 3" :key="i" class="flex space-x-4">
           <div
-            class="rounded-full bg-surface-secondary-default h-12 w-12"
+            class="h-12 w-12 rounded-full bg-surface-secondary-default"
           ></div>
           <div class="flex-1 space-y-2 py-1">
-            <div class="h-4 bg-surface-secondary-default rounded w-3/4"></div>
-            <div class="h-3 bg-surface-secondary-default rounded w-1/2"></div>
+            <div class="rounded h-4 w-3/4 bg-surface-secondary-default"></div>
+            <div class="rounded h-3 w-1/2 bg-surface-secondary-default"></div>
           </div>
         </div>
       </div>
@@ -57,10 +57,10 @@ const formatNumber = (num: number): string => {
             d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z"
           />
         </svg>
-        <h3 class="mt-2 text-sm font-medium text-content-default">
+        <h3 class="text-sm mt-2 font-medium text-content-default">
           データの読み込みに失敗しました
         </h3>
-        <p class="mt-1 text-sm text-content-default opacity-75">
+        <p class="text-sm mt-1 text-content-default opacity-75">
           {{ props.error }}
         </p>
       </div>
@@ -85,10 +85,10 @@ const formatNumber = (num: number): string => {
             d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"
           />
         </svg>
-        <h3 class="mt-2 text-sm font-medium text-content-default">
+        <h3 class="text-sm mt-2 font-medium text-content-default">
           ウォッチ中のリポジトリがありません
         </h3>
-        <p class="mt-1 text-sm text-content-default opacity-75">
+        <p class="text-sm mt-1 text-content-default opacity-75">
           GitHubリポジトリをウォッチして、最新情報を受け取りましょう。
         </p>
       </div>
@@ -99,17 +99,18 @@ const formatNumber = (num: number): string => {
       <div
         v-for="item in props.repositories"
         :key="item.dataSource.id"
-        class="p-6 hover:bg-surface-secondary-hovered transition-colors"
+        class="p-6 transition-colors hover:bg-surface-secondary-hovered"
       >
         <div class="flex items-start space-x-4">
           <!-- リポジトリアイコン -->
           <div class="flex-shrink-0">
             <div
-              class="w-10 h-10 rounded-full bg-surface-primary-default flex items-center justify-center"
+              class="flex h-10 w-10 items-center justify-center rounded-full
+                bg-surface-primary-default"
             >
               <!-- GitHubアイコン: リポジトリを表すオクトキャットのロゴ -->
               <svg
-                class="w-6 h-6 text-surface-primary-default"
+                class="h-6 w-6 text-surface-primary-default"
                 fill="currentColor"
                 viewBox="0 0 20 20"
                 xmlns="http://www.w3.org/2000/svg"
@@ -125,13 +126,14 @@ const formatNumber = (num: number): string => {
           </div>
 
           <!-- リポジトリ情報 -->
-          <div class="flex-1 min-w-0">
+          <div class="min-w-0 flex-1">
             <div class="flex items-center space-x-2">
-              <h3 class="text-sm font-medium text-content-default truncate">
+              <h3 class="text-sm truncate font-medium text-content-default">
                 {{ item.dataSource.repository.fullName }}
               </h3>
               <span
-                class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium"
+                class="px-2.5 text-xs inline-flex items-center rounded-full
+                  py-0.5 font-medium"
                 :class="[
                   item.dataSource.isPrivate
                     ? 'bg-status-warn-subtle text-status-warn-default'
@@ -143,21 +145,22 @@ const formatNumber = (num: number): string => {
             </div>
 
             <p
-              class="mt-1 text-sm text-content-default opacity-75 line-clamp-2"
+              class="text-sm mt-1 line-clamp-2 text-content-default opacity-75"
             >
               {{ item.dataSource.description || 'No description available' }}
             </p>
 
             <!-- 統計情報 -->
             <div
-              class="mt-2 flex items-center space-x-4 text-xs text-content-default opacity-60"
+              class="text-xs mt-2 flex items-center space-x-4
+                text-content-default opacity-60"
             >
               <div
                 v-if="item.dataSource.repository.language"
                 class="flex items-center space-x-1"
               >
                 <div
-                  class="w-3 h-3 rounded-full bg-surface-primary-default"
+                  class="h-3 w-3 rounded-full bg-surface-primary-default"
                 ></div>
                 <span>{{ item.dataSource.repository.language }}</span>
               </div>
@@ -165,7 +168,7 @@ const formatNumber = (num: number): string => {
               <div class="flex items-center space-x-1">
                 <!-- スターアイコン: リポジトリのスター数を表示 -->
                 <svg
-                  class="w-3 h-3"
+                  class="h-3 w-3"
                   fill="currentColor"
                   viewBox="0 0 20 20"
                   xmlns="http://www.w3.org/2000/svg"
@@ -175,15 +178,15 @@ const formatNumber = (num: number): string => {
                     d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"
                   />
                 </svg>
-                <span>{{
-                  formatNumber(item.dataSource.repository.starsCount)
-                }}</span>
+                <span>
+                  {{ formatNumber(item.dataSource.repository.starsCount) }}
+                </span>
               </div>
 
               <div class="flex items-center space-x-1">
                 <!-- フォークアイコン: リポジトリのフォーク数を表示 -->
                 <svg
-                  class="w-3 h-3"
+                  class="h-3 w-3"
                   fill="currentColor"
                   viewBox="0 0 20 20"
                   xmlns="http://www.w3.org/2000/svg"
@@ -195,15 +198,15 @@ const formatNumber = (num: number): string => {
                     clip-rule="evenodd"
                   />
                 </svg>
-                <span>{{
-                  formatNumber(item.dataSource.repository.forksCount)
-                }}</span>
+                <span>
+                  {{ formatNumber(item.dataSource.repository.forksCount) }}
+                </span>
               </div>
 
               <div class="flex items-center space-x-1">
                 <!-- イシューアイコン: リポジトリのオープンイシュー数を表示 -->
                 <svg
-                  class="w-3 h-3"
+                  class="h-3 w-3"
                   fill="currentColor"
                   viewBox="0 0 20 20"
                   xmlns="http://www.w3.org/2000/svg"
@@ -215,33 +218,39 @@ const formatNumber = (num: number): string => {
                     clip-rule="evenodd"
                   />
                 </svg>
-                <span>{{
-                  formatNumber(item.dataSource.repository.openIssuesCount)
-                }}</span>
+                <span>
+                  {{ formatNumber(item.dataSource.repository.openIssuesCount) }}
+                </span>
               </div>
             </div>
 
             <!-- 監視設定 -->
             <div class="mt-3 flex items-center space-x-2">
-              <span class="text-xs text-content-default opacity-60"
-                >監視中:</span
-              >
+              <span class="text-xs text-content-default opacity-60">
+                監視中:
+              </span>
               <div class="flex space-x-2">
                 <span
                   v-if="item.userWatch.watchReleases"
-                  class="inline-flex items-center px-2 py-1 rounded text-xs font-medium bg-status-info-subtle text-status-info-default"
+                  class="rounded text-xs inline-flex items-center
+                    bg-status-info-subtle px-2 py-1 font-medium
+                    text-status-info-default"
                 >
                   リリース
                 </span>
                 <span
                   v-if="item.userWatch.watchIssues"
-                  class="inline-flex items-center px-2 py-1 rounded text-xs font-medium bg-status-warn-subtle text-status-warn-default"
+                  class="rounded text-xs inline-flex items-center
+                    bg-status-warn-subtle px-2 py-1 font-medium
+                    text-status-warn-default"
                 >
                   Issue
                 </span>
                 <span
                   v-if="item.userWatch.watchPullRequests"
-                  class="inline-flex items-center px-2 py-1 rounded text-xs font-medium bg-status-success-subtle text-status-success-default"
+                  class="rounded text-xs inline-flex items-center
+                    bg-status-success-subtle px-2 py-1 font-medium
+                    text-status-success-default"
                 >
                   PR
                 </span>

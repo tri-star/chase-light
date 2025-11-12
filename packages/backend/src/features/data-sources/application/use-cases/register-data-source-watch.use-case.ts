@@ -16,6 +16,7 @@ import type {
   GitHubRepositoryDto,
   GitHubRepositoryPort,
 } from "../ports/github-repository.port"
+import { parseGitHubRepositoryUrl } from "shared"
 
 export type RegisterDataSourceWatchInput = {
   repositoryUrl: string
@@ -45,7 +46,13 @@ export class RegisterDataSourceWatchUseCase {
     input: RegisterDataSourceWatchInput,
   ): Promise<RegisterDataSourceWatchOutput> {
     return await TransactionManager.transaction(async () => {
-      const { owner, repo } = this.parseGitHubUrl(input.repositoryUrl)
+      const parsedUrl = parseGitHubRepositoryUrl(input.repositoryUrl)
+
+      if (!parsedUrl) {
+        throw new InvalidRepositoryUrlError(input.repositoryUrl)
+      }
+
+      const { owner, repo } = parsedUrl
 
       const githubRepository = await this.githubRepositoryPort.getRepository(
         owner,
@@ -116,21 +123,6 @@ export class RegisterDataSourceWatchUseCase {
         userWatch,
       }
     })
-  }
-
-  private parseGitHubUrl(url: string): { owner: string; repo: string } {
-    const githubUrlPattern =
-      /^https:\/\/github\.com\/([^/]+)\/([^/]+)(?:\.git)?\/?$/
-    const match = url.match(githubUrlPattern)
-
-    if (!match) {
-      throw new InvalidRepositoryUrlError(url)
-    }
-
-    const owner = match[1]
-    const repo = match[2].replace(/\.git$/, "")
-
-    return { owner, repo }
   }
 
   private buildCreationInput(

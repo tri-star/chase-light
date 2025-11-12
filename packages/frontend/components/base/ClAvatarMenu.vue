@@ -45,7 +45,9 @@ onUnmounted(() => {
     <!-- Avatar button -->
     <button
       type="button"
-      class="flex items-center space-x-2 p-2 rounded-full text-interactive-default hover:bg-interactive-hovered focus:outline-none focus:ring-2 focus:ring-status-focus-default transition-colors"
+      class="focus:ring-status-focus-default flex items-center space-x-2
+        rounded-full p-2 text-interactive-default transition-colors
+        hover:bg-interactive-hovered focus:ring-2 focus:outline-none"
       :aria-expanded="isOpen"
       aria-haspopup="true"
       @click="toggleMenu"
@@ -54,14 +56,15 @@ onUnmounted(() => {
         v-if="user?.avatar"
         :src="user.avatar"
         :alt="user.name || 'ユーザーアバター'"
-        class="w-8 h-8 rounded-full"
+        class="h-8 w-8 rounded-full"
       />
       <div
         v-else
-        class="w-8 h-8 rounded-full bg-surface-secondary-default flex items-center justify-center"
+        class="flex h-8 w-8 items-center justify-center rounded-full
+          bg-surface-secondary-default"
       >
         <svg
-          class="w-5 h-5 text-content-default"
+          class="h-5 w-5 text-content-default"
           fill="currentColor"
           viewBox="0 0 20 20"
           xmlns="http://www.w3.org/2000/svg"
@@ -76,7 +79,7 @@ onUnmounted(() => {
       </div>
       <span
         v-if="user?.name"
-        class="text-sm text-content-default hidden sm:block"
+        class="text-sm hidden text-content-default sm:block"
       >
         {{ user.name }}
       </span>
@@ -93,11 +96,13 @@ onUnmounted(() => {
     >
       <div
         v-if="isOpen"
-        class="absolute right-0 mt-2 w-48 origin-top-right rounded-md bg-dialog-default shadow-lg border border-dialog-default z-50"
+        class="absolute right-0 z-50 mt-2 w-48 origin-top-right rounded-md
+          border border-dialog-default bg-dialog-default shadow-lg"
       >
         <div class="py-1" role="menu" aria-orientation="vertical">
           <div
-            class="px-4 py-2 text-sm text-dialog-default border-b border-dialog-default"
+            class="text-sm border-b border-dialog-default px-4 py-2
+              text-dialog-default"
           >
             <div class="font-medium">{{ user?.name || 'ゲスト' }}</div>
             <div class="text-xs text-content-default opacity-75">
@@ -107,7 +112,8 @@ onUnmounted(() => {
 
           <NuxtLink
             to="/profile"
-            class="block px-4 py-2 text-sm text-dialog-default hover:bg-surface-secondary-hovered transition-colors"
+            class="text-sm block px-4 py-2 text-dialog-default transition-colors
+              hover:bg-surface-secondary-hovered"
             role="menuitem"
             @click="closeMenu"
           >
@@ -116,7 +122,9 @@ onUnmounted(() => {
 
           <button
             type="button"
-            class="block w-full text-left px-4 py-2 text-sm text-status-alert-default hover:bg-surface-secondary-hovered transition-colors"
+            class="text-sm block w-full px-4 py-2 text-left
+              text-status-alert-default transition-colors
+              hover:bg-surface-secondary-hovered"
             role="menuitem"
             @click="handleLogout"
           >

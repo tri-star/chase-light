@@ -1,16 +1,18 @@
 <template>
-  <div class="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
+  <div class="from-blue-50 to-indigo-100 min-h-screen bg-gradient-to-br">
     <div class="container mx-auto px-4 py-16">
       <!-- ヘッダー -->
-      <header class="text-center mb-16">
-        <h1 class="text-5xl font-bold text-gray-900 mb-4">Chase Light</h1>
+      <header class="mb-16 text-center">
+        <h1 class="text-5xl text-gray-900 mb-4 font-bold">Chase Light</h1>
         <p class="text-xl text-gray-600 mb-8">
           GitHub Repository Activity Tracker
         </p>
         <div class="flex justify-center space-x-4">
           <button
             v-if="!isLoggedIn"
-            class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-lg transition duration-300 ease-in-out transform hover:scale-105"
+            class="bg-blue-600 text-white hover:bg-blue-700 transform rounded-lg
+              px-6 py-3 font-bold transition duration-300 ease-in-out
+              hover:scale-105"
             @click="login"
           >
             Login with GitHub
@@ -18,7 +20,9 @@
           <NuxtLink
             v-else
             to="/dashboard"
-            class="bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-6 rounded-lg transition duration-300 ease-in-out transform hover:scale-105"
+            class="bg-green-600 text-white hover:bg-green-700 transform
+              rounded-lg px-6 py-3 font-bold transition duration-300 ease-in-out
+              hover:scale-105"
           >
             Go to Dashboard
           </NuxtLink>
@@ -26,28 +30,28 @@
       </header>
 
       <!-- 機能説明 -->
-      <section class="grid md:grid-cols-3 gap-8 mb-16">
-        <div class="bg-white rounded-lg shadow-lg p-6 text-center">
+      <section class="mb-16 grid gap-8 md:grid-cols-3">
+        <div class="bg-white rounded-lg p-6 text-center shadow-lg">
           <div class="text-4xl mb-4">👀</div>
-          <h3 class="text-xl font-semibold mb-2">Repository Monitoring</h3>
+          <h3 class="text-xl mb-2 font-semibold">Repository Monitoring</h3>
           <p class="text-gray-600">
             Track activity across your favorite GitHub repositories in
             real-time.
           </p>
         </div>
 
-        <div class="bg-white rounded-lg shadow-lg p-6 text-center">
+        <div class="bg-white rounded-lg p-6 text-center shadow-lg">
           <div class="text-4xl mb-4">🔔</div>
-          <h3 class="text-xl font-semibold mb-2">Smart Notifications</h3>
+          <h3 class="text-xl mb-2 font-semibold">Smart Notifications</h3>
           <p class="text-gray-600">
             Get notified about important events like releases, issues, and pull
             requests.
           </p>
         </div>
 
-        <div class="bg-white rounded-lg shadow-lg p-6 text-center">
+        <div class="bg-white rounded-lg p-6 text-center shadow-lg">
           <div class="text-4xl mb-4">📊</div>
-          <h3 class="text-xl font-semibold mb-2">Analytics Dashboard</h3>
+          <h3 class="text-xl mb-2 font-semibold">Analytics Dashboard</h3>
           <p class="text-gray-600">
             Visualize repository trends and activity patterns with detailed
             insights.
@@ -58,9 +62,9 @@
       <!-- 認証状態表示 -->
       <section
         v-if="isLoggedIn"
-        class="bg-white rounded-lg shadow-lg p-6 text-center"
+        class="bg-white rounded-lg p-6 text-center shadow-lg"
       >
-        <h3 class="text-xl font-semibold mb-4">
+        <h3 class="text-xl mb-4 font-semibold">
           Welcome back, {{ user?.name }}!
         </h3>
         <p class="text-gray-600 mb-4">
@@ -69,12 +73,14 @@
         <div class="flex justify-center space-x-4">
           <NuxtLink
             to="/dashboard"
-            class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+            class="rounded bg-blue-600 text-white hover:bg-blue-700 px-4 py-2
+              font-bold"
           >
             Dashboard
           </NuxtLink>
           <button
-            class="bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded"
+            class="rounded bg-gray-600 text-white hover:bg-gray-700 px-4 py-2
+              font-bold"
             @click="logout"
           >
             Logout

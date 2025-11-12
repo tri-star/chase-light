@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import ClHeader from '../ClHeader.vue'
 import ClSidebar from './ClSidebar.vue'
+import ToastContainer from '~/components/common/ToastContainer.vue'
 
 interface Props {
   brandText?: string
@@ -80,5 +81,6 @@ watch(isMobile, (newIsMobile) => {
         </div>
       </main>
     </div>
+    <ToastContainer />
   </div>
 </template>

@@ -18,7 +18,7 @@ const activityTypeLabels: Record<string, string> = {
 <template>
   <div>
     <!-- 通知ヘッダー -->
-    <div class="flex items-center justify-between mb-4">
+    <div class="mb-4 flex items-center justify-between">
       <div class="flex items-center space-x-2">
         <ClHeading :level="2" class="text-card-value">
           {{
@@ -44,15 +44,15 @@ const activityTypeLabels: Record<string, string> = {
             target="_blank"
             rel="noopener noreferrer"
             data-id="data-source-link"
-            class="text-sm font-medium text-card-value hover:text-card-value transition-colors inline-flex items-center space-x-1"
+            class="text-sm inline-flex items-center space-x-1 font-medium
+              text-card-value transition-colors hover:text-card-value"
           >
-            <ClHeading :level="3" class="flex gap-2 items-center"
-              ><Icon name="grommet-icons:github" size="40" />{{
-                dataSource.name
-              }}</ClHeading
-            >
+            <ClHeading :level="3" class="flex items-center gap-2">
+              <Icon name="grommet-icons:github" size="40" />
+              {{ dataSource.name }}
+            </ClHeading>
             <svg
-              class="w-3 h-3"
+              class="h-3 w-3"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -86,10 +86,12 @@ const activityTypeLabels: Record<string, string> = {
               <div class="space-y-1">
                 <!-- タイトル -->
                 <h4
-                  class="flex gap-x-4 items-center text-sm font-medium text-card-value"
+                  class="text-sm flex items-center gap-x-4 font-medium
+                    text-card-value"
                 >
                   <span
-                    class="inline-flex items-center justify-center px-2 py-1 rounded w-16 font-medium"
+                    class="rounded inline-flex w-16 items-center justify-center
+                      px-2 py-1 font-medium"
                     data-id="activity-group-label"
                     :class="{
                       'bg-status-info-subtle text-status-info-default':
@@ -112,7 +114,7 @@ const activityTypeLabels: Record<string, string> = {
                     target="_blank"
                     rel="noopener noreferrer"
                     data-id="activity-title"
-                    class="hover:text-surface-primary-default transition-colors"
+                    class="transition-colors hover:text-surface-primary-default"
                   >
                     {{ entry.title }}
                   </a>
@@ -120,13 +122,13 @@ const activityTypeLabels: Record<string, string> = {
                 </h4>
 
                 <!-- 要約 -->
-                <p class="md:ml-8 text-card-value opacity-75 line-clamp-2">
+                <p class="line-clamp-2 text-card-value opacity-75 md:ml-8">
                   {{ entry.summary }}
                 </p>
 
                 <!-- 発生日時 -->
                 <div
-                  class="md:ml-8 text-card-value opacity-60"
+                  class="text-card-value opacity-60 md:ml-8"
                   :title="formatDate(entry.occurredAt, 'full')"
                 >
                   {{ formatRelativeDate(entry.occurredAt) }}
@@ -137,7 +139,7 @@ const activityTypeLabels: Record<string, string> = {
             <!-- 省略表示 -->
             <div
               v-if="group.entries.length > 5"
-              class="pl-4 text-xs text-card-value opacity-60"
+              class="text-xs pl-4 text-card-value opacity-60"
             >
               他 {{ group.entries.length - 5 }} 件
             </div>
@@ -146,7 +148,7 @@ const activityTypeLabels: Record<string, string> = {
       </div>
       <hr
         v-if="index < props.item.dataSources.length - 1"
-        class="my-8 px-4 border-surface-secondary-default border-dashed"
+        class="my-8 border-dashed border-surface-secondary-default px-4"
       />
     </template>
   </div>

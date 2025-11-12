@@ -2,6 +2,8 @@
 import { computed, ref } from 'vue'
 import NotificationList from './parts/NotificationList.vue'
 import DashboardStatCard from './parts/DashboardStatCard.vue'
+import AddDataSourceModal from './parts/AddDataSourceModal.vue'
+import DataSourceFabButton from './parts/DataSourceFabButton.vue'
 import type {
   DataSourceListResponse,
   NotificationListResponse,
@@ -150,6 +152,22 @@ const statCards = computed(() => [
     iconClass: 'text-status-success-default',
   },
 ])
+
+const isAddDataSourceModalOpen = ref(false)
+
+const openAddDataSourceModal = () => {
+  isAddDataSourceModalOpen.value = true
+}
+
+const handleAddDataSourceSuccess = async () => {
+  isAddDataSourceModalOpen.value = false
+  if (typeof refreshNuxtData === 'function') {
+    await Promise.allSettled([
+      refreshNuxtData('dashboard-data-sources'),
+      refreshNuxtData('dashboard-notifications'),
+    ])
+  }
+}
 </script>
 
 <template>
@@ -164,7 +182,8 @@ const statCards = computed(() => [
       <!-- 統計情報 -->
       <dl
         v-if="dataSources?.success"
-        class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4 justify-center"
+        class="grid grid-cols-1 justify-center gap-4 sm:grid-cols-2
+          xl:grid-cols-3"
       >
         <DashboardStatCard
           v-for="card in statCards"
@@ -188,10 +207,15 @@ const statCards = computed(() => [
       <!-- 無限スクロールローディング -->
       <div
         v-if="isLoading && hasNext"
-        class="p-6 text-center text-sm text-content-default opacity-60"
+        class="text-sm p-6 text-center text-content-default opacity-60"
       >
         読み込み中...
       </div>
     </div>
   </div>
+  <DataSourceFabButton @click="openAddDataSourceModal" />
+  <AddDataSourceModal
+    v-model:open="isAddDataSourceModalOpen"
+    @success="handleAddDataSourceSuccess"
+  />
 </template>

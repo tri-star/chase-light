@@ -14,7 +14,7 @@
     <!-- 現在のテーマを視覚的に表示するインジケーター -->
     <div class="theme-indicator" :data-theme="currentTheme">
       <div class="theme-icon">
-        <Icon :name="themeIconName" class="w-4 h-4" />
+        <Icon :name="themeIconName" class="h-4 w-4" />
       </div>
     </div>
   </div>

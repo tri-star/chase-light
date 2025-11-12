@@ -17,14 +17,17 @@ const emit = defineEmits<{
 <template>
   <button
     type="button"
-    class="inline-flex items-center justify-center p-2 rounded-md text-interactive-default hover:bg-interactive-hovered hover:text-interactive-hovered focus:outline-none focus:ring-2 focus:ring-status-focus-default transition-colors"
+    class="focus:ring-status-focus-default inline-flex items-center
+      justify-center rounded-md p-2 text-interactive-default transition-colors
+      hover:bg-interactive-hovered hover:text-interactive-hovered focus:ring-2
+      focus:outline-none"
     :aria-label="props.ariaLabel"
     :aria-expanded="props.isOpen"
     @click="emit('click')"
   >
     <!-- Hamburger icon -->
     <svg
-      class="w-6 h-6"
+      class="h-6 w-6"
       fill="none"
       stroke="currentColor"
       viewBox="0 0 24 24"

@@ -193,13 +193,13 @@
           "primary": {
             "default": {
               "bg": {
-                "value": "{color.primitive.blue.500}"
+                "value": "{color.primitive.blue.400}"
               },
               "text": {
                 "value": "{color.primitive.white}"
               },
               "border": {
-                "value": "{color.primitive.blue.500}"
+                "value": "{color.primitive.blue.600}"
               }
             },
             "disabled": {
@@ -215,13 +215,13 @@
             },
             "hovered": {
               "bg": {
-                "value": "{color.primitive.blue.600}"
+                "value": "{color.primitive.blue.300}"
               },
               "text": {
                 "value": "{color.primitive.white}"
               },
               "border": {
-                "value": "{color.primitive.blue.600}"
+                "value": "{color.primitive.blue.500}"
               }
             },
             "pressed": {
@@ -496,18 +496,18 @@
           "$description": "Dialog and modal backgrounds with glass effect",
           "default": {
             "bg": {
-              "value": "oklch(100% 0 none / 0.9)"
+              "value": "oklch(100% 0 none / 0.6)"
             },
             "text": {
               "value": "{color.primitive.gray.900}"
             },
             "border": {
-              "value": "oklch(87.585% 0.0123 247.97 / 0.3)"
+              "value": "oklch(87.585% 0.0123 247.97 / 0.9)"
             }
           },
           "backdrop": {
             "bg": {
-              "value": "oklch(23.735% 0.01132 254.06 / 0.5)"
+              "value": "oklch(0% 0 0 / 0.2)"
             }
           }
         },
@@ -992,18 +992,18 @@
           "$description": "Dialog and modal backgrounds with glass effect",
           "default": {
             "bg": {
-              "value": "oklch(27.85% 0.0132 253.04 / 0.9)"
+              "value": "oklch(27.85% 0.0132 253.04 / 0.3)"
             },
             "text": {
               "value": "{color.primitive.gray.100}"
             },
             "border": {
-              "value": "oklch(48.485% 0.01961 251.02 / 0.3)"
+              "value": "oklch(48.485% 0.01961 251.02 / 0.6)"
             }
           },
           "backdrop": {
             "bg": {
-              "value": "oklch(23.735% 0.01132 254.06 / 0.7)"
+              "value": "oklch(23.735% 0.01132 254.06 / 0.4)"
             }
           }
         },

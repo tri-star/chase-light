@@ -18,5 +18,6 @@
   "[jsonc]": {
     "editor.defaultFormatter": "biomejs.biome"
   },
-  "prettier.enable": true
+  "prettier.enable": true,
+  "prettier.prettierPath": "node_modules/prettier"
 }
