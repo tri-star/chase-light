@@ -46,6 +46,10 @@ export interface TailwindUtilitiesDoc {
     description: string
     values: string[]
   }
+  zIndex: {
+    description: string
+    values: string[]
+  }
 }
 
 // eslint-disable-next-line @typescript-eslint/no-extraneous-class
@@ -59,6 +63,7 @@ export class LLMDocGenerator {
     const borders = this.generateBorders(tokens)
     const radius = this.generateRadius(tokens)
     const shadows = this.generateShadows(tokens)
+    const zIndex = this.generateZIndex(tokens)
 
     return {
       color: { primitive, semantic },
@@ -68,6 +73,7 @@ export class LLMDocGenerator {
       borders,
       radius,
       shadows,
+      zIndex,
     }
   }
 
@@ -269,6 +275,18 @@ export class LLMDocGenerator {
     return {
       description:
         'TailwindCSSで利用可能なshadow-*などを利用可能。値は以下に挙げる値から選択',
+      values,
+    }
+  }
+
+  private static generateZIndex(
+    tokens: DesignTokens
+  ): TailwindUtilitiesDoc['zIndex'] {
+    const group = tokens.zIndex as TokenGroup | undefined
+    const values = this.listKeys(group)
+    return {
+      description:
+        'TailwindCSSで利用可能なz-*などを利用可能。値は以下に挙げる値から選択',
       values,
     }
   }

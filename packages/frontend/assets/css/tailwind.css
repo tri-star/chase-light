@@ -350,6 +350,7 @@
   --transition-property-opacity: opacity;
   --transition-property-shadow: box-shadow;
   --transition-property-transform: transform;
+  --zIndex-fab: 1050;
 }
 
 :root[data-theme='dark'] {

@@ -20,6 +20,7 @@ export interface DesignTokens {
   shadow?: TokenGroup
   effect?: TokenGroup
   transition?: TokenGroup
+  zIndex?: TokenGroup
 }
 
 export interface FlatToken {

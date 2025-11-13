@@ -737,5 +737,9 @@
   "shadows": {
     "description": "TailwindCSSで利用可能なshadow-*などを利用可能。値は以下に挙げる値から選択",
     "values": ["sm", "default", "md", "lg", "xl"]
+  },
+  "zIndex": {
+    "description": "TailwindCSSで利用可能なz-*などを利用可能。値は以下に挙げる値から選択",
+    "values": ["fab"]
   }
 }
