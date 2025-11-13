@@ -34,11 +34,38 @@ const emit = defineEmits<{
   (e: 'click', event: MouseEvent): void
 }>()
 
-// offsetをTailwindクラスにマッピング
-const offsetMap: Record<Offset, number> = {
-  sm: 4,
-  md: 6,
-  lg: 10,
+// 横方向のoffsetクラスマッピング（静的なクラス名を返す）
+const getHorizontalOffsetClass = (alignX: AlignX, offset: Offset): string => {
+  const classMap: Record<AlignX, Record<Offset, string>> = {
+    left: {
+      sm: 'left-4',
+      md: 'left-6',
+      lg: 'left-10',
+    },
+    right: {
+      sm: 'right-4',
+      md: 'right-6',
+      lg: 'right-10',
+    },
+  }
+  return classMap[alignX][offset]
+}
+
+// 縦方向のoffsetクラスマッピング（静的なクラス名を返す）
+const getVerticalOffsetClass = (alignY: AlignY, offset: Offset): string => {
+  const classMap: Record<AlignY, Record<Offset, string>> = {
+    top: {
+      sm: 'top-4',
+      md: 'top-6',
+      lg: 'top-10',
+    },
+    bottom: {
+      sm: 'bottom-4',
+      md: 'bottom-6',
+      lg: 'bottom-10',
+    },
+  }
+  return classMap[alignY][offset]
 }
 
 // 配置位置に応じたクラス
@@ -47,18 +74,14 @@ const positionClasses = computed(() => {
 
   // 横方向の配置
   const horizontalClass = props.offsetX
-    ? props.alignX === 'left'
-      ? `left-${offsetMap[props.offsetX]}`
-      : `right-${offsetMap[props.offsetX]}`
+    ? getHorizontalOffsetClass(props.alignX, props.offsetX)
     : props.alignX === 'left'
       ? 'left-5 sm:left-10'
       : 'right-5 sm:right-10'
 
   // 縦方向の配置
   const verticalClass = props.offsetY
-    ? props.alignY === 'top'
-      ? `top-${offsetMap[props.offsetY]}`
-      : `bottom-${offsetMap[props.offsetY]}`
+    ? getVerticalOffsetClass(props.alignY, props.offsetY)
     : props.alignY === 'top'
       ? 'top-5 sm:top-10'
       : 'bottom-5 sm:bottom-10'
