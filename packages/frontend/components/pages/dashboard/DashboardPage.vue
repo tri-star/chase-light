@@ -3,7 +3,7 @@ import { computed, ref } from 'vue'
 import NotificationList from './parts/NotificationList.vue'
 import DashboardStatCard from './parts/DashboardStatCard.vue'
 import AddDataSourceModal from './parts/AddDataSourceModal.vue'
-import DataSourceFabButton from './parts/DataSourceFabButton.vue'
+import ClFabButton from '~/components/base/ClFabButton.vue'
 import type {
   DataSourceListResponse,
   NotificationListResponse,
@@ -213,7 +213,11 @@ const handleAddDataSourceSuccess = async () => {
       </div>
     </div>
   </div>
-  <DataSourceFabButton @click="openAddDataSourceModal" />
+  <ClFabButton
+    data-testid="fab-button"
+    icon="mdi:plus"
+    @click="openAddDataSourceModal"
+  />
   <AddDataSourceModal
     v-model:open="isAddDataSourceModalOpen"
     @success="handleAddDataSourceSuccess"
