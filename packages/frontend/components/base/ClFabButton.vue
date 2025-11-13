@@ -72,19 +72,17 @@ const getVerticalOffsetClass = (alignY: AlignY, offset: Offset): string => {
 const positionClasses = computed(() => {
   const base = 'fixed z-fab'
 
-  // 横方向の配置
-  const horizontalClass = props.offsetX
-    ? getHorizontalOffsetClass(props.alignX, props.offsetX)
-    : props.alignX === 'left'
-      ? 'left-5 sm:left-10'
-      : 'right-5 sm:right-10'
+  // 横方向の配置（デフォルトは'md'）
+  const horizontalClass = getHorizontalOffsetClass(
+    props.alignX,
+    props.offsetX || 'md'
+  )
 
-  // 縦方向の配置
-  const verticalClass = props.offsetY
-    ? getVerticalOffsetClass(props.alignY, props.offsetY)
-    : props.alignY === 'top'
-      ? 'top-5 sm:top-10'
-      : 'bottom-5 sm:bottom-10'
+  // 縦方向の配置（デフォルトは'md'）
+  const verticalClass = getVerticalOffsetClass(
+    props.alignY,
+    props.offsetY || 'md'
+  )
 
   return `${base} ${horizontalClass} ${verticalClass}`
 })

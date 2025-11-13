@@ -41,8 +41,8 @@ describe('ClFabButton', () => {
     const wrapper = mount(ClFabButton)
 
     expect(wrapper.classes()).toContain('fixed')
-    expect(wrapper.classes()).toContain('bottom-5')
-    expect(wrapper.classes()).toContain('right-5')
+    expect(wrapper.classes()).toContain('bottom-6')
+    expect(wrapper.classes()).toContain('right-6')
   })
 
   test('z-fabクラスが適用される', () => {
@@ -52,10 +52,10 @@ describe('ClFabButton', () => {
   })
 
   test.each([
-    ['right', 'bottom', ['bottom-5', 'right-5']],
-    ['left', 'bottom', ['bottom-5', 'left-5']],
-    ['right', 'top', ['top-5', 'right-5']],
-    ['left', 'top', ['top-5', 'left-5']],
+    ['right', 'bottom', ['bottom-6', 'right-6']],
+    ['left', 'bottom', ['bottom-6', 'left-6']],
+    ['right', 'top', ['top-6', 'right-6']],
+    ['left', 'top', ['top-6', 'left-6']],
   ] as const)(
     'alignX/alignY propsによって適切なクラスが適用される: alignX=%s, alignY=%s',
     (alignX, alignY, expectedClasses) => {
