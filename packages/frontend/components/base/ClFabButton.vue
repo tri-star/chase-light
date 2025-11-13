@@ -6,22 +6,26 @@ const sizeClasses = {
 
 type Size = keyof typeof sizeClasses
 
-type Position = 'bottom-right' | 'bottom-left' | 'top-right' | 'top-left'
+type AlignX = 'left' | 'right'
+type AlignY = 'top' | 'bottom'
+type Offset = 'sm' | 'md' | 'lg'
 
 interface Props {
   label?: string
   icon?: string
   size?: Size
-  position?: Position
-  offsetX?: number
-  offsetY?: number
+  alignX?: AlignX
+  alignY?: AlignY
+  offsetX?: Offset
+  offsetY?: Offset
 }
 
 const props = withDefaults(defineProps<Props>(), {
   label: undefined,
   icon: 'i-heroicons-plus-20-solid',
   size: 'md',
-  position: 'bottom-right',
+  alignX: 'right',
+  alignY: 'bottom',
   offsetX: undefined,
   offsetY: undefined,
 })
@@ -30,35 +34,36 @@ const emit = defineEmits<{
   (e: 'click', event: MouseEvent): void
 }>()
 
+// offsetをTailwindクラスにマッピング
+const offsetMap: Record<Offset, number> = {
+  sm: 4,
+  md: 6,
+  lg: 10,
+}
+
 // 配置位置に応じたクラス
-// offsetX/offsetYはpropsで指定可能だが、デフォルトはレスポンシブ（モバイル: 5, sm+: 10）
 const positionClasses = computed(() => {
   const base = 'fixed z-fab'
-  const offsetXClass = props.offsetX
-    ? `right-[${props.offsetX}rem]`
-    : 'right-5 sm:right-10'
-  const offsetYClass = props.offsetY
-    ? `bottom-[${props.offsetY}rem]`
-    : 'bottom-5 sm:bottom-10'
-  const leftXClass = props.offsetX
-    ? `left-[${props.offsetX}rem]`
-    : 'left-5 sm:left-10'
-  const topYClass = props.offsetY
-    ? `top-[${props.offsetY}rem]`
-    : 'top-5 sm:top-10'
 
-  switch (props.position) {
-    case 'bottom-right':
-      return `${base} ${offsetXClass} ${offsetYClass}`
-    case 'bottom-left':
-      return `${base} ${leftXClass} ${offsetYClass}`
-    case 'top-right':
-      return `${base} ${offsetXClass} ${topYClass}`
-    case 'top-left':
-      return `${base} ${leftXClass} ${topYClass}`
-    default:
-      return `${base} ${offsetXClass} ${offsetYClass}`
-  }
+  // 横方向の配置
+  const horizontalClass = props.offsetX
+    ? props.alignX === 'left'
+      ? `left-${offsetMap[props.offsetX]}`
+      : `right-${offsetMap[props.offsetX]}`
+    : props.alignX === 'left'
+      ? 'left-5 sm:left-10'
+      : 'right-5 sm:right-10'
+
+  // 縦方向の配置
+  const verticalClass = props.offsetY
+    ? props.alignY === 'top'
+      ? `top-${offsetMap[props.offsetY]}`
+      : `bottom-${offsetMap[props.offsetY]}`
+    : props.alignY === 'top'
+      ? 'top-5 sm:top-10'
+      : 'bottom-5 sm:bottom-10'
+
+  return `${base} ${horizontalClass} ${verticalClass}`
 })
 
 const classes = computed(() => {

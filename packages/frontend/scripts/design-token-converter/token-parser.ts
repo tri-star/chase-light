@@ -104,6 +104,11 @@ export class TokenParser {
       }
     }
 
+    // zIndex トークンは --z- プレフィックスを使用（Tailwind v4対応）
+    if (path[0] === 'zIndex') {
+      return `--z-${path.slice(1).join('-')}`
+    }
+
     // その他のトークンはそのまま
     return `--${path.join('-')}`
   }
