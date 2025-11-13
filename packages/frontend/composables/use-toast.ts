@@ -1,107 +1,55 @@
-import { computed } from 'vue'
-import { useState } from '#app'
-
-type ToastIntent = 'success' | 'info' | 'warn' | 'alert'
-
-type ToastId = string
-
-export interface ToastOptions {
-  id?: ToastId
-  title?: string
+export type ToastMessage = {
+  type: 'success' | 'alert'
   message: string
-  intent: ToastIntent
-  dismissible?: boolean
-  duration?: number | null
+  durationMs?: number
 }
 
-export interface ToastItem {
-  id: ToastId
-  title?: string
-  message: string
-  intent: ToastIntent
-  dismissible: boolean
-  duration: number | null
-  createdAt: number
+type ToastListItem = ToastMessage & {
+  id: string
+  bottomY: number
 }
 
-const TOAST_STATE_KEY = 'cl:toast-items'
-const DEFAULT_DURATION = 5000
+export const useToastStore = defineStore('toastStore', () => {
+  const toasts = ref<ToastListItem[]>([])
 
-const timers = new Map<ToastId, ReturnType<typeof setTimeout>>()
+  function createToast(message: ToastMessage) {
+    const id = useId()
+    const defaultMargin = 16
+    const defaultBottomY = defaultMargin
+    const maxBottomY = toasts.value.reduce<number>((min, toast) => {
+      const toastElement = document.querySelector(`#${toast.id}`)
+      const y = toastElement?.clientHeight ?? 0
+      return Math.max(min, toast.bottomY + y)
+    }, defaultBottomY)
 
-const generateToastId = (): ToastId => {
-  return `toast-${Date.now()}-${Math.random().toString(16).slice(2, 10)}`
-}
-
-const isClient = () => typeof window !== 'undefined'
-
-export function useToast() {
-  const toastsState = useState<ToastItem[]>(TOAST_STATE_KEY, () => [])
-
-  const removeTimer = (id: ToastId) => {
-    if (!isClient()) {
-      return
-    }
-
-    const timer = timers.get(id)
-    if (timer) {
-      clearTimeout(timer)
-      timers.delete(id)
-    }
-  }
-
-  const dismissToast = (id: ToastId) => {
-    removeTimer(id)
-    toastsState.value = toastsState.value.filter((toast) => toast.id !== id)
-  }
-
-  const clearToasts = () => {
-    toastsState.value.forEach((toast) => {
-      removeTimer(toast.id)
-    })
-    toastsState.value = []
-  }
-
-  const showToast = (options: ToastOptions): ToastId => {
-    const id = options.id ?? generateToastId()
-    const duration =
-      options.duration === null
-        ? null
-        : options.duration !== undefined
-          ? options.duration
-          : DEFAULT_DURATION
-
-    const toast: ToastItem = {
+    const newToastItem = {
+      ...message,
       id,
-      title: options.title,
-      message: options.message,
-      intent: options.intent,
-      dismissible: options.dismissible ?? true,
-      duration,
-      createdAt: Date.now(),
+      bottomY: maxBottomY + defaultMargin,
     }
+    toasts.value.push(newToastItem)
 
-    // 既存IDがあれば置き換え
-    toastsState.value = [
-      ...toastsState.value.filter((item) => item.id !== id),
-      toast,
-    ]
+    return newToastItem
+  }
 
-    if (duration !== null && duration > 0 && isClient()) {
-      removeTimer(id)
-      const timer = setTimeout(() => {
-        dismissToast(id)
-      }, duration)
-      timers.set(id, timer)
-    }
+  function handleDestroyToast(id: string) {
+    toasts.value = toasts.value.filter((toast) => toast.id !== id)
 
-    return id
+    const defaultMargin = 16
+    let newBottomY = defaultMargin
+    toasts.value = toasts.value.map((toast) => {
+      toast.bottomY = newBottomY
+      const toastElement = document.querySelector(`#${toast.id}`)
+      const y = toastElement?.clientHeight ?? 0
+      newBottomY += y + defaultMargin
+      return toast
+    })
   }
 
   return {
-    toasts: computed(() => toastsState.value),
-    showToast,
-    dismissToast,
-    clearToasts,
+    toasts,
+
+    createToast,
+    handleDestroyToast,
   }
-}
+})
