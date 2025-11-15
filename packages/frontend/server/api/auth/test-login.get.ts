@@ -9,14 +9,14 @@ export default defineEventHandler(async (event) => {
     })
   }
 
-  const body = await readBody(event)
+  // const body = await readBody(event)
   const {
     userId = 'test-user-123',
     email = 'test@example.com',
     name = 'Test User',
     avatar = 'https://github.com/test.png',
     provider = 'github',
-  } = body || {}
+  } = {}
 
   try {
     // テスト用のセッションを作成
