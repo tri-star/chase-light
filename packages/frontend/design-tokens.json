@@ -1650,5 +1650,13 @@
         "value": "transform"
       }
     }
+  },
+  "zIndex": {
+    "$type": "other",
+    "$description": "z-index層定義",
+    "fab": {
+      "value": "1050",
+      "$description": "Floating Action Button用のz-index"
+    }
   }
 }

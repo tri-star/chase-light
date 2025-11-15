@@ -1,9 +1,9 @@
-import { describe, expect, it } from 'vitest'
+import { describe, expect, test } from 'vitest'
 import { mount } from '@vue/test-utils'
 import ClFabButton from '../ClFabButton.vue'
 
 describe('ClFabButton', () => {
-  it('renders label and icon', () => {
+  test('renders label and icon', () => {
     const wrapper = mount(ClFabButton, {
       props: {
         label: 'データソースを追加',
@@ -14,7 +14,7 @@ describe('ClFabButton', () => {
     expect(wrapper.find('span.hidden').text()).toBe('データソースを追加')
   })
 
-  it('emits click event', async () => {
+  test('emits click event', async () => {
     const wrapper = mount(ClFabButton, {
       props: {
         label: '追加',
@@ -26,7 +26,7 @@ describe('ClFabButton', () => {
     expect(wrapper.emitted('click')).toHaveLength(1)
   })
 
-  it('applies large size classes', () => {
+  test('applies large size classes', () => {
     const wrapper = mount(ClFabButton, {
       props: {
         label: '追加',
@@ -36,4 +36,59 @@ describe('ClFabButton', () => {
 
     expect(wrapper.classes()).toContain('h-14')
   })
+
+  test('デフォルトでbottom-right配置となる', () => {
+    const wrapper = mount(ClFabButton)
+
+    expect(wrapper.classes()).toContain('fixed')
+    expect(wrapper.classes()).toContain('bottom-6')
+    expect(wrapper.classes()).toContain('right-6')
+  })
+
+  test('z-fabクラスが適用される', () => {
+    const wrapper = mount(ClFabButton)
+
+    expect(wrapper.classes()).toContain('z-fab')
+  })
+
+  test.each([
+    ['right', 'bottom', ['bottom-6', 'right-6']],
+    ['left', 'bottom', ['bottom-6', 'left-6']],
+    ['right', 'top', ['top-6', 'right-6']],
+    ['left', 'top', ['top-6', 'left-6']],
+  ] as const)(
+    'alignX/alignY propsによって適切なクラスが適用される: alignX=%s, alignY=%s',
+    (alignX, alignY, expectedClasses) => {
+      const wrapper = mount(ClFabButton, {
+        props: { alignX, alignY },
+      })
+
+      const classes = wrapper.classes()
+      expect(classes).toContain('fixed')
+      expect(classes).toContain('z-fab')
+      expectedClasses.forEach((cls) => {
+        expect(classes).toContain(cls)
+      })
+    }
+  )
+
+  test.each([
+    ['sm', ['right-4', 'bottom-4']],
+    ['md', ['right-6', 'bottom-6']],
+    ['lg', ['right-10', 'bottom-10']],
+  ] as const)(
+    'offsetX/offsetY propsによって適切なクラスが適用される: %s',
+    (offset, expectedClasses) => {
+      const wrapper = mount(ClFabButton, {
+        props: { offsetX: offset, offsetY: offset },
+      })
+
+      const classes = wrapper.classes()
+      expect(classes).toContain('fixed')
+      expect(classes).toContain('z-fab')
+      expectedClasses.forEach((cls) => {
+        expect(classes).toContain(cls)
+      })
+    }
+  )
 })
