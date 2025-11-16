@@ -103,7 +103,7 @@ onBeforeUnmount(() => {
     :id="id"
     ref="toastRef"
     role="status"
-    aria-live="polite"
+    :aria-live="type === 'alert' ? 'assertive' : 'polite'"
     :class="variant({ type, state })"
     :style="positionStyles"
   >
