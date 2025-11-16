@@ -69,6 +69,7 @@ test.describe('Authenticated Dashboard', () => {
     await page.getByTestId('fab-button').click()
 
     const dialog = page.getByRole('dialog', { name: 'データソースを追加' })
+    await dialog.waitFor({ state: 'visible', timeout: 10000 })
     await expect(dialog).toBeVisible()
 
     await dialog
