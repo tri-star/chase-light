@@ -14,11 +14,15 @@
   },
   "devDependencies": {
     "@eslint/js": "^9.15.0",
+    "@types/jsonwebtoken": "^9.0.10",
     "@types/node": "^24.5.2",
     "@typescript-eslint/eslint-plugin": "^8.15.0",
     "@typescript-eslint/parser": "^8.15.0",
     "eslint": "^9.15.0",
     "typescript": "^5.7.2",
     "vitest": "^3.2.2"
+  },
+  "dependencies": {
+    "jsonwebtoken": "^9.0.2"
   }
 }
