@@ -6,39 +6,7 @@ import { eq } from "drizzle-orm"
 import { uuidv7 } from "uuidv7"
 import { connectDb, disconnectDb, db } from "../src/db/connection"
 import { users } from "../src/db/schema"
-import { TEST_USER_AUTH0_USER_ID_PREFIX } from "../../shared/src/constants/auth"
-
-type SeedUserDefinition = {
-  suffix: string
-  name: string
-  email: string
-  githubUsername: string
-  avatarUrl: string
-}
-
-const TEST_USERS: SeedUserDefinition[] = [
-  {
-    suffix: "01",
-    name: "テストユーザー01",
-    email: "test-user-01@example.com",
-    githubUsername: "testuser01",
-    avatarUrl: "https://api.dicebear.com/9.x/pixel-art/svg?seed=1",
-  },
-  {
-    suffix: "02",
-    name: "テストユーザー02",
-    email: "test-user-02@example.com",
-    githubUsername: "testuser02",
-    avatarUrl: "https://api.dicebear.com/9.x/pixel-art/svg?seed=2",
-  },
-  {
-    suffix: "03",
-    name: "テストユーザー03",
-    email: "test-user-03@example.com",
-    githubUsername: "testuser03",
-    avatarUrl: "https://api.dicebear.com/9.x/pixel-art/svg?seed=3",
-  },
-]
+import { TEST_USERS } from "shared"
 
 const DISALLOWED_ENV_VALUES = new Set(["production"])
 
@@ -59,9 +27,9 @@ function ensureNotProduction(): void {
 }
 
 async function ensureTestUserExists(
-  user: SeedUserDefinition,
+  user: (typeof TEST_USERS)[number],
 ): Promise<"created" | "skipped"> {
-  const auth0UserId = `${TEST_USER_AUTH0_USER_ID_PREFIX}${user.suffix}`
+  const auth0UserId = user.id
   const existing = await db
     .select({ id: users.id })
     .from(users)
@@ -76,7 +44,7 @@ async function ensureTestUserExists(
   const now = new Date()
   await db.insert(users).values({
     id: uuidv7(),
-    auth0UserId,
+    auth0UserId: user.id,
     email: user.email,
     name: user.name,
     githubUsername: user.githubUsername,
