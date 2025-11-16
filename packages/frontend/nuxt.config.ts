@@ -13,6 +13,7 @@ export default defineNuxtConfig({
     '@nuxt/test-utils/module',
     '@nuxtjs/tailwindcss',
     '@nuxtjs/storybook',
+    '@pinia/nuxt',
   ],
   runtimeConfig: {
     // Private keys (only available on the server-side)

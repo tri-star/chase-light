@@ -1,6 +1,6 @@
 import { computed, onMounted, ref, watch } from 'vue'
 import { useForm } from '@tanstack/vue-form'
-import { useToast } from '~/composables/use-toast'
+import { useToastStore } from '~/composables/use-toast'
 import { isGitHubRepositoryUrl } from 'shared'
 
 export interface FormState {
@@ -22,7 +22,7 @@ export interface Emits {
 }
 
 export function useAddDataSourceModal(props: Props, emit: Emits) {
-  const toast = useToast()
+  const toastStore = useToastStore()
 
   const defaultValues: FormState = {
     repositoryUrl: '',
@@ -50,10 +50,9 @@ export function useAddDataSourceModal(props: Props, emit: Emits) {
           },
         })
 
-        toast.showToast({
-          intent: 'success',
-          title: 'データソースを追加しました',
-          message: `${trimmedRepositoryUrl} を監視対象に登録しました。`,
+        toastStore.createToast({
+          type: 'success',
+          message: `データソースを追加しました: ${trimmedRepositoryUrl}`,
         })
 
         emit('success')
@@ -63,11 +62,9 @@ export function useAddDataSourceModal(props: Props, emit: Emits) {
         const message = extractErrorMessage(error)
         submitError.value = message
 
-        toast.showToast({
-          intent: 'alert',
-          title: 'データソースの追加に失敗しました',
+        toastStore.createToast({
+          type: 'alert',
           message,
-          duration: null,
         })
 
         emit('error', message)

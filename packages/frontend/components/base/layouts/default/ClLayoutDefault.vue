@@ -1,7 +1,9 @@
 <script setup lang="ts">
+import ClToast from '../../ClToast.vue'
 import ClHeader from '../ClHeader.vue'
 import ClSidebar from './ClSidebar.vue'
-import ToastContainer from '~/components/common/ToastContainer.vue'
+const toastStore = useToastStore()
+const { toasts } = storeToRefs(toastStore)
 
 interface Props {
   brandText?: string
@@ -67,6 +69,7 @@ watch(isMobile, (newIsMobile) => {
       :sidebar-open="sidebarOpen"
       @toggle-sidebar="toggleSidebar"
     />
+    <NuxtLoadingIndicator />
 
     <div class="pt-16">
       <ClSidebar
@@ -79,8 +82,19 @@ watch(isMobile, (newIsMobile) => {
         <div class="p-4 sm:p-6 lg:p-8">
           <slot />
         </div>
+        <div>
+          <ClToast
+            v-for="toast in toasts"
+            :id="toast.id"
+            :key="toast.id"
+            :type="toast.type"
+            :duration="toast.durationMs"
+            :message="toast.message"
+            :bottom-y="toast.bottomY"
+            @destroy="toastStore.handleDestroyToast"
+          />
+        </div>
       </main>
     </div>
-    <ToastContainer />
   </div>
 </template>

@@ -6,6 +6,7 @@ const TOKEN_REFRESH_THRESHOLD_MS = 60 * 1000 // 1 minute
 
 const EXCLUDED_PATH_PATTERNS: Array<string | RegExp> = [
   '/api/auth/login',
+  '/api/auth/test-login',
   '/api/auth/callback',
 ]
 
