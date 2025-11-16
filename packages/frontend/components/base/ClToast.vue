@@ -27,7 +27,7 @@ const left = ref(0)
 const variant = tv({
   base: [
     'block',
-    'w-6/12',
+    'max-w-lg',
     'justify-center',
     'items-center',
     'rounded-md',
@@ -104,6 +104,8 @@ onBeforeUnmount(() => {
   <div
     :id="id"
     ref="toastRef"
+    role="status"
+    aria-live="polite"
     :class="variant({ type, state })"
     :style="positionStyles"
   >

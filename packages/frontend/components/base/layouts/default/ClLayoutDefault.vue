@@ -82,6 +82,9 @@ watch(isMobile, (newIsMobile) => {
         <div class="p-4 sm:p-6 lg:p-8">
           <slot />
         </div>
+      </main>
+
+      <Teleport to="body">
         <div>
           <ClToast
             v-for="toast in toasts"
@@ -94,7 +97,7 @@ watch(isMobile, (newIsMobile) => {
             @destroy="toastStore.handleDestroyToast"
           />
         </div>
-      </main>
+      </Teleport>
     </div>
   </div>
 </template>
