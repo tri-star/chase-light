@@ -13,7 +13,7 @@ export const useToastStore = defineStore('toastStore', () => {
   const toasts = ref<ToastListItem[]>([])
 
   function createToast(message: ToastMessage) {
-    const id = useId()
+    const id = 'toast-' + crypto.randomUUID()
     const defaultMargin = 16
     const defaultBottomY = defaultMargin
     const maxBottomY = toasts.value.reduce<number>((min, toast) => {

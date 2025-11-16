@@ -11,7 +11,7 @@ const props = withDefaults(
   }>(),
   {
     type: 'success',
-    duration: 3000,
+    duration: 5000,
     bottomY: 16,
   }
 )
@@ -27,15 +27,13 @@ const left = ref(0)
 const variant = tv({
   base: [
     'block',
+    'fixed',
     'max-w-lg',
-    'justify-center',
-    'items-center',
     'rounded-md',
     'drop-shadow-md',
     'min-h-12',
     'p-6',
     'whitespace-pre',
-    'absolute',
     'duration-300',
     'transform',
     'ease-in-out',

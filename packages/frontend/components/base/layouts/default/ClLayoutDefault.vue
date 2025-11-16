@@ -1,9 +1,6 @@
 <script setup lang="ts">
-import ClToast from '../../ClToast.vue'
 import ClHeader from '../ClHeader.vue'
 import ClSidebar from './ClSidebar.vue'
-const toastStore = useToastStore()
-const { toasts } = storeToRefs(toastStore)
 
 interface Props {
   brandText?: string
@@ -83,21 +80,6 @@ watch(isMobile, (newIsMobile) => {
           <slot />
         </div>
       </main>
-
-      <Teleport to="body">
-        <div>
-          <ClToast
-            v-for="toast in toasts"
-            :id="toast.id"
-            :key="toast.id"
-            :type="toast.type"
-            :duration="toast.durationMs"
-            :message="toast.message"
-            :bottom-y="toast.bottomY"
-            @destroy="toastStore.handleDestroyToast"
-          />
-        </div>
-      </Teleport>
     </div>
   </div>
 </template>
