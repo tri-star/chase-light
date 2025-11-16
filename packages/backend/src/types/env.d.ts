@@ -16,11 +16,20 @@ declare global {
        */
       AUTH0_DOMAIN?: string
       AUTH0_AUDIENCE?: string
+      AUTH0_APP_AUDIENCE?: string
 
       /**
        * 認証制御関連の環境変数
        */
       AUTH_EXCLUDE_PATHS?: string
+
+      /**
+       * テスト用Auth設定
+       */
+      TEST_AUTH_ENABLED?: "true" | "false"
+      TEST_AUTH_SECRET?: string
+      TEST_AUTH_AUDIENCE?: string
+      TEST_AUTH_ISSUER?: string
 
       /**
        * 外部AI API呼び出しをスタブに切り替えるかどうか
