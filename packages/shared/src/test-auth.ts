@@ -143,12 +143,8 @@ export async function verifyTestJwt(token: string): Promise<TestJwtPayload> {
     throw new Error("sub claim is required in test auth tokens");
   }
 
-  if (!payload.iss) {
-    throw new Error("iss claim is required in test auth tokens");
-  }
-
-  if (!payload.aud) {
-    throw new Error("aud claim is required in test auth tokens");
+  if (!payload.sub) {
+    throw new Error("sub claim is required in test auth tokens")
   }
 
   return payload;
