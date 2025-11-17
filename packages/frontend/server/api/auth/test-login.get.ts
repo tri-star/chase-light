@@ -69,7 +69,7 @@ export default defineEventHandler(async (event) => {
       statusMessage:
         error instanceof Error
           ? `Failed to create test session: ${error.message}`
-          : `Failed to create test session: ${error}`,
+          : 'Failed to create test session: Unknown error',
     })
   }
 })
