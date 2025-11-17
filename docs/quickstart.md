@@ -67,6 +67,29 @@ pnpm dev:frontend
 - **フロントエンド**: http://localhost:3000
 - **API ドキュメント**: http://localhost:3001/scalar
 
+## 🧪 テスト用ログイン (Auth0バイパス)
+
+ローカルやCIでAuth0を経由せずにテストユーザーで動作確認したい場合は、以下の手順で「テスト用Auth」を有効化します。
+
+1. `.env`（ルート・frontend・backend）に以下の値を設定
+   ```env
+   TEST_AUTH_ENABLED=true
+   TEST_AUTH_SECRET=任意の十分に長い文字列
+   TEST_AUTH_AUDIENCE=http://localhost:3001
+   TEST_AUTH_ISSUER=http://localhost/test-auth
+   ```
+2. `packages/backend/scripts/seed.ts` を実行してテストユーザーをDBに投入
+   ```bash
+   pnpm --filter backend tsx scripts/seed.ts
+   ```
+3. フロントエンドから `http://localhost:3000/api/auth/test-login` を開くとテストユーザー01でログインします。  
+   任意のテストユーザーに切り替えたい場合は `id` クエリを付与します:
+   ```
+   http://localhost:3000/api/auth/test-login?id=test|test-user-02
+   ```
+
+発行されるアクセストークンは `shared` パッケージでHS256署名されており、バックエンドJWTバリデータがAuth0検証失敗時に自動フォールバックします。本番 (`APP_STAGE=prod`) では自動的に無効化されます。
+
 ## 🔧 トラブルシューティング
 
 ### よくある問題と解決方法

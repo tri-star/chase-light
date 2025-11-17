@@ -22,12 +22,11 @@ test.describe('Authenticated Profile Page', () => {
 
     // プロファイル情報の表示を確認（ページ内のメインコンテンツから探す）
     const mainContent = page.locator('main')
-    await expect(mainContent.locator('text=Test User')).toBeVisible()
-    await expect(mainContent.locator('text=test@example.com')).toBeVisible()
-    await expect(mainContent.locator('text=test-user-123')).toBeVisible()
-    await expect(page.locator('[data-testid="auth-provider"]')).toContainText(
-      'github'
-    )
+    await expect(mainContent.locator('text=テストユーザー01')).toBeVisible()
+    await expect(
+      mainContent.locator('text=test-user-01@example.com')
+    ).toBeVisible()
+    await expect(mainContent.locator('text=test|test-user-01')).toBeVisible()
   })
 
   test('should navigate to dashboard from profile', async ({ page }) => {
