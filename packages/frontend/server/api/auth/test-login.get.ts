@@ -27,7 +27,7 @@ export default defineEventHandler(async (event) => {
 
   let token: string
   try {
-    ;({ token } = issueTestJwt({ userId: user.id }))
+    ;({ token } = await issueTestJwt({ userId: user.id }))
   } catch (error) {
     throw createError({
       statusCode: 500,

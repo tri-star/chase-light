@@ -79,7 +79,7 @@ export class JwtValidatorAdapter implements JwtValidatorPort {
     } catch (error) {
       if (cleanToken && isTestAuthEnabled()) {
         try {
-          const payload = verifyTestJwt(cleanToken) as JWTPayload
+          const payload = (await verifyTestJwt(cleanToken)) as JWTPayload
           return {
             valid: true,
             payload,
