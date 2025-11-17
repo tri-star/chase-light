@@ -80,7 +80,7 @@ pnpm dev:frontend
    ```
 2. `packages/backend/scripts/seed.ts` を実行してテストユーザーをDBに投入
    ```bash
-    pnpm --filter backend tsx scripts/seed.ts
+   pnpm --filter backend tsx scripts/seed.ts
    ```
 3. フロントエンドから `http://localhost:3000/api/auth/test-login` を開くとテストユーザー01でログインします。  
    任意のテストユーザーに切り替えたい場合は `id` クエリを付与します:
