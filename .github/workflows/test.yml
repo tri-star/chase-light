@@ -193,6 +193,7 @@ jobs:
       - name: Start backend
         run: pnpm --filter backend dev > api-server.log 2>&1 &
         env:
+          NODE_ENV: test
           AUTH0_DOMAIN: test-domain.auth0.com
           AUTH0_CLIENT_ID: test-client-id
           AUTH0_CLIENT_SECRET: test-client-secret
