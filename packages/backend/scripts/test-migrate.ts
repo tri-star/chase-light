@@ -8,6 +8,7 @@
 
 import { spawn } from "node:child_process"
 import { config } from "dotenv"
+import { main as seedMain } from "./seed"
 // 環境に応じて適切な.envファイルを選択
 config({ path: ".env.testing" })
 
@@ -27,6 +28,15 @@ const migrate = spawn("npx", ["drizzle-kit", "migrate"], {
 migrate.on("close", (code) => {
   if (code === 0) {
     console.log("✅ Test database migration completed successfully")
+    seedMain()
+      .then(() => {
+        process.exit(0)
+      })
+      .catch((error) => {
+        console.error("❌ Failed to seed default data.")
+        console.error(error)
+        process.exit(1)
+      })
   } else {
     console.error("❌ Test database migration failed")
     process.exit(code)
