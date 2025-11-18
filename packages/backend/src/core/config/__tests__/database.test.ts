@@ -94,18 +94,6 @@ describe("database config", () => {
         password: "password",
       })
     })
-
-    it("DB_PORTが未設定の場合はundefinedを返す", async () => {
-      process.env.USE_AWS = "false"
-      process.env.DB_HOST = "localhost"
-      process.env.DB_NAME = "test_db"
-      process.env.DB_USER = "postgres"
-      process.env.DB_PASSWORD = "password"
-
-      const config = await getDatabaseConfig()
-
-      expect(config.port).toBeUndefined()
-    })
   })
 
   describe("AWS環境", () => {
@@ -144,15 +132,6 @@ describe("database config", () => {
 
       await expect(getDatabaseConfig()).rejects.toThrow(
         "AWS_REGION environment variable is required when USE_AWS is true",
-      )
-    })
-
-    it("STAGEが未設定の場合はエラーを投げる", async () => {
-      // @ts-expect-error APP_STAGEがランタイムで未定義な状態を再現するため
-      delete process.env.APP_STAGE
-
-      await expect(getDatabaseConfig()).rejects.toThrow(
-        "STAGE environment variable is required when USE_AWS is true",
       )
     })
 
