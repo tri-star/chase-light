@@ -185,6 +185,23 @@ jobs:
           DATABASE_URL: postgresql://postgres:password@localhost:5432/chase_light_test?sslmode=disable
           NUXT_PUBLIC_BASE_URL: http://localhost:3000
           APP_STAGE: dev
+          TEST_AUTH_ENABLED: "true"
+          TEST_AUTH_SECRET: replace-with-a-random-secret
+          TEST_AUTH_AUDIENCE: http://localhost:3001
+          TEST_AUTH_ISSUER: http://localhost/test-auth
+
+      - name: Start backend
+        run: pnpm --filter backend dev > api-server.log 2>&1 &
+        env:
+          AUTH0_DOMAIN: test-domain.auth0.com
+          AUTH0_CLIENT_ID: test-client-id
+          AUTH0_CLIENT_SECRET: test-client-secret
+          AUTH0_AUDIENCE: test-audience
+          NUXT_PUBLIC_BASE_URL: http://localhost:3000
+          TEST_AUTH_ENABLED: "true"
+          TEST_AUTH_SECRET: replace-with-a-random-secret
+          TEST_AUTH_AUDIENCE: http://localhost:3001
+          TEST_AUTH_ISSUER: http://localhost/test-auth
 
       - name: Wait for frontend to be ready
         run: |
@@ -224,6 +241,10 @@ jobs:
           DATABASE_URL: postgresql://postgres:password@localhost:5432/chase_light_test?sslmode=disable
           NUXT_PUBLIC_BASE_URL: http://localhost:3000
           APP_STAGE: dev
+          TEST_AUTH_ENABLED: "true"
+          TEST_AUTH_SECRET: replace-with-a-random-secret
+          TEST_AUTH_AUDIENCE: http://localhost:3001
+          TEST_AUTH_ISSUER: http://localhost/test-auth
 
       - name: Upload Playwright report
         uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5.0.0
@@ -239,4 +260,12 @@ jobs:
         with:
           name: nuxt-preview-log
           path: nuxt_preview.log
+          retention-days: 30
+
+      - name: Upload api-server log
+        uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5.0.0
+        if: always()
+        with:
+          name: api-server-log
+          path: api-server.log
           retention-days: 30
