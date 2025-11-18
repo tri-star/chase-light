@@ -12,7 +12,7 @@
     "test:run": "vitest run",
     "test:watch": "vitest",
     "test:coverage": "run-s test:migrate && vitest run --coverage",
-    "test:migrate": "node scripts/test-migrate.js",
+    "test:migrate": "tsx scripts/test-migrate.ts",
     "lint": "eslint src/ && tsc --noEmit",
     "lint:type": "tsc --noEmit",
     "format": "eslint src/ --fix && biome format --write",

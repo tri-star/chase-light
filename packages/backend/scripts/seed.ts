@@ -75,7 +75,7 @@ async function seedTestUsers(): Promise<void> {
   )
 }
 
-async function main() {
+export async function main() {
   try {
     ensureNotProduction()
     await connectDb()
