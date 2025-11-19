@@ -28,6 +28,7 @@ const variant = tv({
   base: [
     'block',
     'fixed',
+    'sm:max-w-md',
     'max-w-lg',
     'rounded-md',
     'drop-shadow-md',
