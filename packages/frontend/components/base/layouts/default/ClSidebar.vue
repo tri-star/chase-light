@@ -24,6 +24,11 @@ const navigation = [
     href: '/dashboard',
     icon: 'i-heroicons-home-20-solid',
   },
+  {
+    name: 'アクティビティ一覧',
+    href: '/activities',
+    icon: 'i-heroicons-queue-list-20-solid',
+  },
   { name: 'プロフィール', href: '/profile', icon: 'i-heroicons-user-20-solid' },
 ]
 
