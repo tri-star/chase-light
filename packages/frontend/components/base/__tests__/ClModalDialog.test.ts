@@ -7,7 +7,7 @@ import {
   it,
   vi,
 } from 'vitest'
-import { mount } from '@vue/test-utils'
+import { flushPromises, mount } from '@vue/test-utils'
 import { defineComponent, nextTick, ref } from 'vue'
 import ClModalDialog from '../ClModalDialog.vue'
 
@@ -45,6 +45,7 @@ describe('ClModalDialog', () => {
     const wrapper = mount(Wrapper)
     wrapper.vm.isOpen = true
     await nextTick()
+    await flushPromises()
 
     const dialog = wrapper.findComponent(ClModalDialog).find('dialog')
     expect(dialog.element.hasAttribute('open')).toBe(true)

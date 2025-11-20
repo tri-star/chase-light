@@ -13,6 +13,7 @@ import type {
 } from "../../../types/auth.types"
 import type { JwtValidatorPort } from "../../../application/ports/jwt-validator.port"
 import { AuthError } from "../../../errors/auth.error"
+import { isTestAuthEnabled, verifyTestJwt } from "shared"
 
 /**
  * JWT検証アダプタ
@@ -37,6 +38,7 @@ export class JwtValidatorAdapter implements JwtValidatorPort {
    * アクセストークンを検証する
    */
   async validateAccessToken(token: string): Promise<TokenValidationResult> {
+    let cleanToken: string | null = null
     try {
       // トークンの基本的な形式チェック
       if (!token || typeof token !== "string") {
@@ -44,7 +46,7 @@ export class JwtValidatorAdapter implements JwtValidatorPort {
       }
 
       // Bearerプレフィックスを除去
-      const cleanToken = token.replace(/^Bearer\s+/i, "").trim()
+      cleanToken = token.replace(/^Bearer\s+/i, "").trim()
 
       if (!cleanToken) {
         throw AuthError.tokenMissing()
@@ -75,6 +77,25 @@ export class JwtValidatorAdapter implements JwtValidatorPort {
         payload,
       }
     } catch (error) {
+      if (cleanToken && isTestAuthEnabled()) {
+        try {
+          const payload = (await verifyTestJwt(cleanToken)) as JWTPayload
+          return {
+            valid: true,
+            payload,
+          }
+        } catch (fallbackError) {
+          return {
+            valid: false,
+            error: `Auth0 validation failed: ${
+              error instanceof Error ? error.message : "Unknown error"
+            }. Test auth token validation also failed: ${
+              fallbackError instanceof Error ? fallbackError.message : "Unknown error"
+            }`,
+          }
+        }
+      }
+
       if (error instanceof AuthError) {
         return {
           valid: false,

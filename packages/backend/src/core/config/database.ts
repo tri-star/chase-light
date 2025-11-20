@@ -1,5 +1,6 @@
 import { SSMClient, GetParameterCommand } from "@aws-sdk/client-ssm"
 import { URL } from "url"
+import { config } from "dotenv"
 
 const getParameter = async (
   client: SSMClient,
@@ -31,6 +32,13 @@ const parsePostgresqlUrl = (url: string) => {
 }
 
 export const getDatabaseConfig = async () => {
+  // Load environment variables
+  if (process.env.NODE_ENV === "test") {
+    config({ path: ".env.testing" })
+  } else {
+    config()
+  }
+
   const isAWSEnvironment = process.env.USE_AWS === "true"
 
   if (isAWSEnvironment) {

@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import ClHeader from '../ClHeader.vue'
 import ClSidebar from './ClSidebar.vue'
-import ToastContainer from '~/components/common/ToastContainer.vue'
 
 interface Props {
   brandText?: string
@@ -67,6 +66,7 @@ watch(isMobile, (newIsMobile) => {
       :sidebar-open="sidebarOpen"
       @toggle-sidebar="toggleSidebar"
     />
+    <NuxtLoadingIndicator />
 
     <div class="pt-16">
       <ClSidebar
@@ -81,6 +81,5 @@ watch(isMobile, (newIsMobile) => {
         </div>
       </main>
     </div>
-    <ToastContainer />
   </div>
 </template>

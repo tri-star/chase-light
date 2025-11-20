@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
+import { nextTick, onBeforeUnmount, onMounted, ref, watchEffect } from 'vue'
 
 type UpdateEvent = {
   (event: 'update:open', value: boolean): void
@@ -48,6 +48,7 @@ const closeDialog = () => {
 }
 
 const openDialog = async () => {
+  await nextTick()
   const dialog = dialogRef.value
   if (!dialog || !isClient()) {
     return
@@ -84,19 +85,22 @@ const onDismissClick = () => {
   emit('update:open', false)
 }
 
-watch(
-  () => props.open,
-  async (isOpen) => {
+watchEffect(
+  () => {
     if (!isClient()) {
       return
     }
 
-    if (isOpen) {
-      await openDialog()
-    } else {
-      closeDialog()
-    }
-  }
+    // 非同期処理を適切に処理するため即座実行async関数を使用
+    ;(async () => {
+      if (props.open && dialogRef.value) {
+        await openDialog()
+      } else if (!props.open && dialogRef.value) {
+        closeDialog()
+      }
+    })()
+  },
+  { flush: 'post' }
 )
 
 onMounted(async () => {

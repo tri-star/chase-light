@@ -11,8 +11,8 @@ test.describe('Protected API Endpoints', () => {
 
     const data = await response.json()
     expect(data.message).toBe('Protected API endpoint accessed successfully')
-    expect(data.user.id).toBe('test-user-123')
-    expect(data.user.email).toBe('test@example.com')
+    expect(data.user.id).toBe('test|test-user-01')
+    expect(data.user.email).toBe('test-user-01@example.com')
     expect(data.sessionInfo).toBeDefined()
   })
 
@@ -22,19 +22,16 @@ test.describe('Protected API Endpoints', () => {
     expect(response.ok()).toBeTruthy()
 
     const data = await response.json()
-    expect(data.data.user.id).toBe('test-user-123')
-    expect(data.data.user.email).toBe('test@example.com')
-    expect(data.data.user.name).toBe('Test User')
+    expect(data.data.user.id).toBe('test|test-user-01')
+    expect(data.data.user.email).toBe('test-user-01@example.com')
+    expect(data.data.user.name).toBe('テストユーザー01')
   })
 
-  test('should access Data source API (expect error with test token)', async ({
-    request,
-  }) => {
-    // テスト環境ではトークンがないため、エラーレスポンスを期待
+  test('should access Data source API', async ({ request }) => {
+    // テスト環境ではテスト用トークンでAPI呼び出し出来ることを確認
     const response = await request.get('/api/data-sources')
 
-    // 401 (トークンエラー) または 500 (API呼び出しエラー) を期待
-    expect([401, 500]).toContain(response.status())
+    expect(response.ok()).toBeTruthy()
   })
 
   // test('should reject access to protected API without authentication', async ({ browser }) => {
@@ -61,7 +58,7 @@ test.describe('Protected API Endpoints', () => {
   //   await page.waitForURL('/dashboard')
   //   await expect(page.locator('h1')).toContainText('Dashboard')
   // })
-  //   expect(data.user.email).toBe('api-test@example.com')
+  //   expect(data.user.email).toBe('api-test-user-01@example.com')
   // })
 
   // test('should handle test logout endpoint', async ({ request }) => {
