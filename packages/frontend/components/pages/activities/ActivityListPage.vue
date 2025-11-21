@@ -10,6 +10,7 @@ import type {
   ActivityListResponseDataItemsItem,
   ActivityListResponseDataPagination,
 } from '~/generated/api/schemas'
+import ActivityItemSkeleton from './parts/ActivityItemSkeleton.vue'
 
 const DEFAULT_PAGINATION: ActivityListResponseDataPagination = {
   page: 1,
@@ -18,14 +19,6 @@ const DEFAULT_PAGINATION: ActivityListResponseDataPagination = {
   totalPages: 0,
   hasNext: false,
   hasPrev: false,
-}
-
-const DEFAULT_RESPONSE: ActivityListResponse = {
-  success: true,
-  data: {
-    items: [],
-    pagination: { ...DEFAULT_PAGINATION },
-  },
 }
 
 const enabled = ref(true)
@@ -44,18 +37,23 @@ const loadMoreActivities = async () => {
   }
 
   try {
-    const response = await $fetch<ActivityListResponse>('/api/activities', {
-      params: {
-        page: pagination.value.page + 1,
-        perPage: pagination.value.perPage,
-      },
-    })
+    const { data: loadedData, status } = useFetch<ActivityListResponse>(
+      '/api/activities',
+      {
+        params: {
+          page: pagination.value.page + 1,
+          perPage: pagination.value.perPage,
+        },
+      }
+    )
 
-    if (response.success) {
-      activities.value = [...activities.value, ...response.data.items]
-      pagination.value = response.data.pagination
+    if (status.value === 'success' && loadedData.value) {
+      const activityListInfo = loadedData.value.data
+
+      activities.value = [...activities.value, ...activityListInfo.items]
+      pagination.value = activityListInfo.pagination
       fetchError.value = null
-      enabled.value = response.data.pagination.hasNext
+      enabled.value = activityListInfo.pagination.hasNext
     } else {
       throw new Error('アクティビティの取得に失敗しました')
     }
@@ -71,32 +69,27 @@ defineExpose({ loadMoreActivities })
 
 const {
   data: activitiesResponse,
+  status,
   pending,
   error,
-} = await useAsyncData<ActivityListResponse>(
-  'activities:list',
-  () =>
-    $fetch<ActivityListResponse>('/api/activities', {
-      params: {
-        page: DEFAULT_PAGINATION.page,
-        perPage: DEFAULT_PAGINATION.perPage,
-      },
-    }),
-  {
-    default: () => DEFAULT_RESPONSE,
-    server: true,
-    lazy: false,
-  }
-)
+} = useFetch<ActivityListResponse>('/api/activities', {
+  params: {
+    page: DEFAULT_PAGINATION.page,
+    perPage: DEFAULT_PAGINATION.perPage,
+  },
+  server: false,
+})
 
-if (activitiesResponse.value.success) {
-  activities.value = activitiesResponse.value.data.items
-  pagination.value = activitiesResponse.value.data.pagination
-  enabled.value = activitiesResponse.value.data.pagination.hasNext
+if (status.value === 'success' && activitiesResponse.value) {
+  const activityListInfo = activitiesResponse.value.data
+
+  activities.value = activityListInfo.items
+  pagination.value = activityListInfo.pagination
+  enabled.value = activityListInfo.pagination.hasNext
 }
 
 watch(activitiesResponse, (response) => {
-  if (response.success) {
+  if (response) {
     activities.value = response.data.items
     pagination.value = response.data.pagination
     fetchError.value = null
@@ -121,7 +114,7 @@ const isEmpty = computed(
     !isLoading.value
 )
 
-const skeletonPlaceholders = computed(() => Array.from({ length: 4 }))
+const skeletonPlaceholders = computed(() => Array.from({ length: 10 }))
 
 const errorMessage = computed(() => fetchError.value || error.value?.message)
 </script>
@@ -132,77 +125,50 @@ const errorMessage = computed(() => fetchError.value || error.value?.message)
       <ClHeading :level="1">アクティビティ一覧</ClHeading>
     </div>
 
-    <ClSection>
-      <div v-if="pending && activities.length === 0" class="space-y-6">
-        <div
-          v-for="(_, index) in skeletonPlaceholders"
-          :key="`skeleton-${index}`"
-          class="space-y-4"
-        >
+    <div class="flex justify-center">
+      <ClSection class="w-full justify-start md:max-w-4/6">
+        <div v-if="pending && activities.length === 0" class="space-y-6">
+          <ActivityItemSkeleton
+            v-for="(_, index) in skeletonPlaceholders"
+            :key="`skeleton-${index}`"
+          />
+        </div>
+
+        <div v-else-if="errorMessage" class="py-10 text-center">
+          <p class="text-sm text-card-value">
+            アクティビティの取得に失敗しました。
+          </p>
+          <p class="text-xs mt-2 text-card-value opacity-70">
+            {{ errorMessage }}
+          </p>
+        </div>
+
+        <div v-else-if="isEmpty" class="py-10 text-center">
+          <p class="text-sm font-medium text-card-value">
+            まだアクティビティがありません
+          </p>
+          <p class="text-xs mt-2 text-card-value opacity-70">
+            ウォッチ中のリポジトリで更新があるとここに表示されます。
+          </p>
+        </div>
+
+        <div v-else class="space-y-6">
           <div
-            class="flex flex-col gap-2 sm:flex-row sm:items-center
-              sm:justify-between"
+            v-for="(activityItem, index) in activities"
+            :key="activityItem.activity.id"
           >
-            <div
-              class="rounded h-4 w-24 animate-pulse
-                bg-surface-secondary-default"
-            ></div>
-            <div
-              class="rounded h-6 w-20 animate-pulse
-                bg-surface-secondary-default"
-            ></div>
-          </div>
-          <div class="space-y-3">
-            <div
-              class="rounded h-4 w-2/3 animate-pulse
-                bg-surface-secondary-default"
-            ></div>
-            <div
-              class="rounded h-4 w-full animate-pulse
-                bg-surface-secondary-default"
-            ></div>
-            <div
-              class="rounded h-3 w-3/4 animate-pulse
-                bg-surface-secondary-default"
-            ></div>
+            <ActivityListItem :activity="activityItem" />
+            <ClDivider v-if="index < activities.length - 1" spacing="sm" />
           </div>
         </div>
-      </div>
+      </ClSection>
 
-      <div v-else-if="errorMessage" class="py-10 text-center">
-        <p class="text-sm text-card-value">
-          アクティビティの取得に失敗しました。
-        </p>
-        <p class="text-xs mt-2 text-card-value opacity-70">
-          {{ errorMessage }}
-        </p>
+      <div
+        v-if="isLoading && hasNextPage"
+        class="text-sm text-center text-content-default opacity-60"
+      >
+        読み込み中...
       </div>
-
-      <div v-else-if="isEmpty" class="py-10 text-center">
-        <p class="text-sm font-medium text-card-value">
-          まだアクティビティがありません
-        </p>
-        <p class="text-xs mt-2 text-card-value opacity-70">
-          ウォッチ中のリポジトリで更新があるとここに表示されます。
-        </p>
-      </div>
-
-      <div v-else class="space-y-6">
-        <div
-          v-for="(activityItem, index) in activities"
-          :key="activityItem.activity.id"
-        >
-          <ActivityListItem :activity="activityItem" />
-          <ClDivider v-if="index < activities.length - 1" spacing="sm" />
-        </div>
-      </div>
-    </ClSection>
-
-    <div
-      v-if="isLoading && hasNextPage"
-      class="text-sm text-center text-content-default opacity-60"
-    >
-      読み込み中...
     </div>
   </div>
 </template>

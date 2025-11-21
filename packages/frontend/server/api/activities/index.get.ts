@@ -16,8 +16,6 @@ export default defineEventHandler(
     success: boolean
     data: ActivityListResponseData
   }> => {
-    await requireUserSession(event)
-
     const query = getQuery(event)
 
     const normalizedParams: GetApiActivitiesParams = {
