@@ -4,6 +4,7 @@ import {
   getApiNotificationsResponse,
   getApiNotificationsQueryParams,
 } from '~/generated/api/zod/chaseLightAPI.zod'
+import { handleBackendApiError } from '~/server/utils/api'
 import { validateWithZod } from '~/utils/validation'
 
 export default defineEventHandler(
@@ -51,24 +52,7 @@ export default defineEventHandler(
         data: response.data,
       })
     } catch (error) {
-      console.error('Backend API error:', error)
-
-      // Zodバリデーションエラーの場合
-      if (error instanceof Error && error.name === 'ValidationError') {
-        console.error('Response validation failed:', error.message)
-        throw createError({
-          statusCode: 502,
-          statusMessage: 'Invalid response format from backend API',
-          data: { validationError: error.message },
-        })
-      }
-
-      const errorMessage =
-        error instanceof Error ? error.message : 'Unknown error'
-      throw createError({
-        statusCode: 500,
-        statusMessage: `Failed to fetch notifications: ${errorMessage}`,
-      })
+      handleBackendApiError(error)
     }
   }
 )

@@ -7,6 +7,7 @@ import {
   getApiActivitiesQueryParams,
   getApiActivitiesResponse,
 } from '~/generated/api/zod/chaseLightAPI.zod'
+import { handleBackendApiError } from '~/server/utils/api'
 import { validateWithZod } from '~/utils/validation'
 
 export default defineEventHandler(
@@ -53,23 +54,7 @@ export default defineEventHandler(
         data: response.data,
       })
     } catch (error) {
-      console.error('Activities BFF error:', error)
-
-      if (error instanceof Error && error.name === 'ValidationError') {
-        throw createError({
-          statusCode: 502,
-          statusMessage: 'Invalid response format from backend API',
-          data: { validationError: error.message },
-        })
-      }
-
-      const errorMessage =
-        error instanceof Error ? error.message : 'Unknown error'
-
-      throw createError({
-        statusCode: 500,
-        statusMessage: `Failed to fetch activities: ${errorMessage}`,
-      })
+      handleBackendApiError(error)
     }
   }
 )
