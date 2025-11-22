@@ -11,17 +11,28 @@ export function useInfiniteScroll(
   callback: () => Promise<void> | void,
   options: {
     threshold?: number // スクロール位置の閾値（px）
+    initialLoadingState?: boolean // 初期ローディング状態
     enabled?: Ref<boolean> // 無限スクロールの有効/無効を制御
   } = {}
 ) {
   const {
     threshold = 200, // デフォルト: 下端から200px
     enabled = ref(true),
+    initialLoadingState = false,
   } = options
 
-  const isLoading = ref(false)
+  const isLoading = ref(initialLoadingState)
   const targetRef = ref<HTMLElement | null>(null)
   let scrollHandler: (() => void) | null = null
+
+  const handleLoad = async () => {
+    isLoading.value = true
+    try {
+      await callback()
+    } finally {
+      isLoading.value = false
+    }
+  }
 
   /**
    * スクロールイベントハンドラ
@@ -57,12 +68,7 @@ export function useInfiniteScroll(
 
     // 閾値に達したらコールバックを実行
     if (distanceFromBottom < threshold) {
-      isLoading.value = true
-      try {
-        await callback()
-      } finally {
-        isLoading.value = false
-      }
+      handleLoad()
     }
   }
 
@@ -127,5 +133,6 @@ export function useInfiniteScroll(
     disable,
     startListening,
     stopListening,
+    handleLoad,
   }
 }

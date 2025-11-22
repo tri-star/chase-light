@@ -178,7 +178,7 @@
       "light": {
         "$description": "Light theme colors",
         "content": {
-          "$description": "Page content and background colors",
+          "$description": "ClSectionのようなセクションやカードの外側の背景で使う色(ページのコンテンツエリアの背景色)",
           "default": {
             "bg": {
               "value": "{color.primitive.gray.50}"

@@ -1,6 +1,7 @@
 import { postApiDataSources } from '~/generated/api/backend'
 import type { CreateDataSourceRequest } from '~/generated/api/schemas'
 import { postApiDataSourcesBody } from '~/generated/api/zod/chaseLightAPI.zod'
+import { handleBackendApiError } from '~/server/utils/api'
 import { validateWithZod } from '~/utils/validation'
 
 export default defineEventHandler(async (event) => {
@@ -30,23 +31,6 @@ export default defineEventHandler(async (event) => {
       data: response.data,
     })
   } catch (error) {
-    console.error('Backend API error:', error)
-
-    // Zodバリデーションエラーの場合（リクエストのバリデーション）
-    if (error instanceof Error && error.name === 'ValidationError') {
-      console.error('Request validation failed:', error.message)
-      throw createError({
-        statusCode: 400,
-        statusMessage: 'Invalid request data',
-        data: { validationError: error.message },
-      })
-    }
-
-    const errorMessage =
-      error instanceof Error ? error.message : 'Unknown error'
-    throw createError({
-      statusCode: 500,
-      statusMessage: `Failed to create data source: ${errorMessage}`,
-    })
+    handleBackendApiError(error)
   }
 })
