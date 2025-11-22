@@ -12,9 +12,9 @@ export function handleBackendApiError(error: unknown): never {
     })
   }
 
-  if(isApiError(error)) {
+  if (isApiError(error)) {
     console.error('Backend API Error', {
-      detail: error
+      detail: error,
     })
     throw createError({
       statusCode: error.statusCode,
@@ -25,7 +25,6 @@ export function handleBackendApiError(error: unknown): never {
     statusCode: 500,
   })
 }
-
 
 function isApiError(error: unknown): error is ApiError {
   return (
