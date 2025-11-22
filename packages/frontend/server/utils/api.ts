@@ -1,6 +1,5 @@
-interface ApiError {
-  statusCode: number
-  data?: unknown
+interface FetchError {
+  status: number
 }
 
 export function handleBackendApiError(error: unknown): never {
@@ -12,25 +11,28 @@ export function handleBackendApiError(error: unknown): never {
     })
   }
 
-  if (isApiError(error)) {
+  if (isFetchError(error)) {
     console.error('Backend API Error', {
       detail: error,
     })
     throw createError({
-      statusCode: error.statusCode,
+      statusCode: error.status,
     })
   }
 
+  console.error('Unknown Error', {
+    detail: error,
+  })
   throw createError({
     statusCode: 500,
   })
 }
 
-function isApiError(error: unknown): error is ApiError {
+function isFetchError(error: unknown): error is FetchError {
   return (
     typeof error === 'object' &&
     error !== null &&
-    'statusCode' in error &&
-    typeof error.statusCode === 'number'
+    'status' in error &&
+    typeof error.status === 'number'
   )
 }
