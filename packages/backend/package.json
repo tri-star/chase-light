@@ -61,7 +61,7 @@
     "jsonwebtoken": "^9.0.2",
     "jwks-rsa": "^3.2.0",
     "luxon": "^3.7.2",
-    "openai": "^6.3.0",
+    "openai": "^6.9.1",
     "pg": "^8.16.0",
     "shared": "workspace:*",
     "uuidv7": "^1.0.2",
