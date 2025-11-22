@@ -26,29 +26,32 @@ const pagination = ref<ActivityListResponseDataPagination>({
 })
 
 const hasNextPage = computed(() => pagination.value.hasNext)
-const canLoadMore = computed(() => enabled.value && hasNextPage.value)
 
 const loadMoreActivities = async () => {
-  if (!hasNextPage.value) {
+  if (pagination.value.page > 1 && !hasNextPage.value) {
+    enabled.value = false
     return
   }
 
   try {
-    const { data: loadedData, status } = useFetch<ActivityListResponse>(
+    const { data, success } = await $fetch<ActivityListResponse>(
       '/api/activities',
       {
         params: {
-          page: pagination.value.page + 1,
+          page: pagination.value.page,
           perPage: pagination.value.perPage,
         },
       }
     )
 
-    if (status.value === 'success' && loadedData.value) {
-      const activityListInfo = loadedData.value.data
+    if (success) {
+      const activityListInfo = data
 
       activities.value = [...activities.value, ...activityListInfo.items]
-      pagination.value = activityListInfo.pagination
+      pagination.value = {
+        ...activityListInfo.pagination,
+        page: pagination.value.page + 1,
+      }
       fetchError.value = null
       enabled.value = activityListInfo.pagination.hasNext
     } else {
@@ -64,55 +67,33 @@ const loadMoreActivities = async () => {
 
 defineExpose({ loadMoreActivities })
 
-const {
-  data: activitiesResponse,
-  status,
-  pending,
-  error,
-} = useFetch<ActivityListResponse>('/api/activities', {
-  params: {
-    page: DEFAULT_PAGINATION.page,
-    perPage: DEFAULT_PAGINATION.perPage,
-  },
-  server: false,
-})
-
-if (status.value === 'success' && activitiesResponse.value) {
-  const activityListInfo = activitiesResponse.value.data
-
-  activities.value = activityListInfo.items
-  pagination.value = activityListInfo.pagination
-  enabled.value = activityListInfo.pagination.hasNext
-}
-
-const { isLoading } = useInfiniteScroll(loadMoreActivities, {
+const { isLoading, handleLoad } = useInfiniteScroll(loadMoreActivities, {
+  initialLoadingState: true,
   threshold: 200,
-  enabled: canLoadMore,
+  enabled: enabled,
 })
 
 const isEmpty = computed(
-  () =>
-    !pending.value &&
-    activities.value.length === 0 &&
-    !fetchError.value &&
-    !isLoading.value
+  () => activities.value.length === 0 && !fetchError.value && !isLoading.value
 )
 
 const skeletonPlaceholders = computed(() => Array.from({ length: 10 }))
 
-const errorMessage = computed(() => fetchError.value || error.value?.message)
+onMounted(() => {
+  handleLoad()
+})
 </script>
 
 <template>
   <ClSection class="w-full justify-start md:max-w-4/6">
-    <div v-if="pending && activities.length === 0" class="space-y-6">
+    <div v-if="isLoading && pagination.page === 1" class="space-y-6">
       <ActivityItemSkeleton
         v-for="(_, index) in skeletonPlaceholders"
         :key="`skeleton-${index}`"
       />
     </div>
 
-    <div v-else-if="errorMessage" class="py-10 text-center">
+    <div v-else-if="fetchError" class="py-10 text-center">
       <p class="text-sm text-card-value">
         アクティビティの取得に失敗しました。
       </p>
