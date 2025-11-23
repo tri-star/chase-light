@@ -480,6 +480,60 @@
         "dialog.backdrop.bg": {
           "tailwindClass": "bg-dialog-backdrop"
         },
+        "menu.default.bg": {
+          "tailwindClass": "bg-menu-default"
+        },
+        "menu.default.text": {
+          "tailwindClass": "text-menu-default"
+        },
+        "menu.default.border": {
+          "tailwindClass": "border-menu-default"
+        },
+        "menu.item.default.bg": {
+          "tailwindClass": "bg-menu-item-default"
+        },
+        "menu.item.default.text": {
+          "tailwindClass": "text-menu-item-default"
+        },
+        "menu.item.default.border": {
+          "tailwindClass": "border-menu-item-default"
+        },
+        "menu.item.disabled.bg": {
+          "tailwindClass": "bg-menu-item-disabled"
+        },
+        "menu.item.disabled.text": {
+          "tailwindClass": "text-menu-item-disabled"
+        },
+        "menu.item.disabled.border": {
+          "tailwindClass": "border-menu-item-disabled"
+        },
+        "menu.item.active.bg": {
+          "tailwindClass": "bg-menu-item-active"
+        },
+        "menu.item.active.text": {
+          "tailwindClass": "text-menu-item-active"
+        },
+        "menu.item.active.border": {
+          "tailwindClass": "border-menu-item-active"
+        },
+        "menu.item.selected.bg": {
+          "tailwindClass": "bg-menu-item-selected"
+        },
+        "menu.item.selected.text": {
+          "tailwindClass": "text-menu-item-selected"
+        },
+        "menu.item.selected.border": {
+          "tailwindClass": "border-menu-item-selected"
+        },
+        "menu.item.hovered.bg": {
+          "tailwindClass": "bg-menu-item-hovered"
+        },
+        "menu.item.hovered.text": {
+          "tailwindClass": "text-menu-item-hovered"
+        },
+        "menu.item.hovered.border": {
+          "tailwindClass": "border-menu-item-hovered"
+        },
         "common.info.default.bg": {
           "tailwindClass": "bg-status-info-default"
         },
