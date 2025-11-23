@@ -90,7 +90,9 @@ export class JwtValidatorAdapter implements JwtValidatorPort {
             error: `Auth0 validation failed: ${
               error instanceof Error ? error.message : "Unknown error"
             }. Test auth token validation also failed: ${
-              fallbackError instanceof Error ? fallbackError.message : "Unknown error"
+              fallbackError instanceof Error
+                ? fallbackError.message
+                : "Unknown error"
             }`,
           }
         }
