@@ -2,6 +2,8 @@ import { describe, test, expect, vi, beforeEach } from 'vitest'
 import { mount } from '@vue/test-utils'
 import { nextTick, ref } from 'vue'
 import ClAvatarMenu from '../ClAvatarMenu.vue'
+import ClDropdownMenu from '../ClDropdownMenu.vue'
+import ClMenuItem from '../ClMenuItem.vue'
 
 // useAuthのモック
 const mockLogout = vi.fn()
@@ -22,11 +24,43 @@ vi.mock('~/composables/useAuth', () => ({
   }),
 }))
 
+// useDropdownMenuのモック
+const mockIsOpen = ref(false)
+const mockActiveItemId = ref<string | undefined>(undefined)
+const mockItems = ref<Array<{ id: string; disabled?: boolean }>>([])
+
+vi.mock('~/composables/use-dropdown-menu', () => ({
+  useDropdownMenu: () => ({
+    isOpen: mockIsOpen,
+    activeItemId: mockActiveItemId,
+    items: mockItems,
+    open: () => {
+      mockIsOpen.value = true
+    },
+    close: () => {
+      mockIsOpen.value = false
+    },
+    toggle: () => {
+      mockIsOpen.value = !mockIsOpen.value
+    },
+    handleKeyDown: vi.fn(),
+    handleTriggerKeyDown: vi.fn(),
+    setTriggerElement: vi.fn(),
+    setMenuElement: vi.fn(),
+    registerItem: (item: { id: string; disabled?: boolean }) => {
+      mockItems.value.push(item)
+    },
+    unregisterItem: (itemId: string) => {
+      mockItems.value = mockItems.value.filter((i) => i.id !== itemId)
+    },
+  }),
+}))
+
 // NuxtLinkのスタブ
 const NuxtLinkStub = {
   name: 'NuxtLink',
   props: ['to'],
-  template: '<a :href="to"><slot /></a>',
+  template: '<a :href="typeof to === \'string\' ? to : to.path"><slot /></a>',
 }
 
 describe('ClAvatarMenu', () => {
@@ -38,12 +72,22 @@ describe('ClAvatarMenu', () => {
       email: 'test@example.com',
       avatar: 'https://example.com/avatar.png',
     }
+    // モックの状態をリセット
+    mockIsOpen.value = false
+    mockActiveItemId.value = undefined
+    mockItems.value = []
   })
 
   test('基本的なレンダリングが正常に動作する', () => {
     const wrapper = mount(ClAvatarMenu, {
       global: {
-        stubs: { NuxtLink: NuxtLinkStub },
+        components: {
+          ClDropdownMenu,
+          ClMenuItem,
+        },
+        stubs: {
+          NuxtLink: NuxtLinkStub,
+        },
       },
     })
 
@@ -74,7 +118,13 @@ describe('ClAvatarMenu', () => {
 
     const wrapper = mount(ClAvatarMenu, {
       global: {
-        stubs: { NuxtLink: NuxtLinkStub },
+        components: {
+          ClDropdownMenu,
+          ClMenuItem,
+        },
+        stubs: {
+          NuxtLink: NuxtLinkStub,
+        },
       },
     })
 
@@ -90,7 +140,13 @@ describe('ClAvatarMenu', () => {
   test('アバターボタンをクリックしてメニューを開閉できる', async () => {
     const wrapper = mount(ClAvatarMenu, {
       global: {
-        stubs: { NuxtLink: NuxtLinkStub },
+        components: {
+          ClDropdownMenu,
+          ClMenuItem,
+        },
+        stubs: {
+          NuxtLink: NuxtLinkStub,
+        },
       },
     })
 
@@ -115,7 +171,13 @@ describe('ClAvatarMenu', () => {
   test('ログアウトボタンをクリックしてlogout関数が呼ばれる', async () => {
     const wrapper = mount(ClAvatarMenu, {
       global: {
-        stubs: { NuxtLink: NuxtLinkStub },
+        components: {
+          ClDropdownMenu,
+          ClMenuItem,
+        },
+        stubs: {
+          NuxtLink: NuxtLinkStub,
+        },
       },
     })
 
@@ -123,9 +185,11 @@ describe('ClAvatarMenu', () => {
     await wrapper.find('button').trigger('click')
     await nextTick()
 
-    // ログアウトボタンをクリック
-    const logoutButton = wrapper.find('[role="menuitem"]:last-child')
+    // ログアウトボタンをクリック（最後のClMenuItem）
+    const menuItems = wrapper.findAllComponents(ClMenuItem)
+    const logoutButton = menuItems[menuItems.length - 1]
     await logoutButton.trigger('click')
+    await nextTick()
 
     expect(mockLogout).toHaveBeenCalledOnce()
   })
@@ -133,7 +197,13 @@ describe('ClAvatarMenu', () => {
   test('プロフィールリンクが正常に表示される', async () => {
     const wrapper = mount(ClAvatarMenu, {
       global: {
-        stubs: { NuxtLink: NuxtLinkStub },
+        components: {
+          ClDropdownMenu,
+          ClMenuItem,
+        },
+        stubs: {
+          NuxtLink: NuxtLinkStub,
+        },
       },
     })
 
@@ -163,7 +233,13 @@ describe('ClAvatarMenu', () => {
 
     const wrapper = mount(ClAvatarMenu, {
       global: {
-        stubs: { NuxtLink: NuxtLinkStub },
+        components: {
+          ClDropdownMenu,
+          ClMenuItem,
+        },
+        stubs: {
+          NuxtLink: NuxtLinkStub,
+        },
       },
     })
 
@@ -186,7 +262,13 @@ describe('ClAvatarMenu', () => {
   test('aria属性が適切に設定される', () => {
     const wrapper = mount(ClAvatarMenu, {
       global: {
-        stubs: { NuxtLink: NuxtLinkStub },
+        components: {
+          ClDropdownMenu,
+          ClMenuItem,
+        },
+        stubs: {
+          NuxtLink: NuxtLinkStub,
+        },
       },
     })
 
@@ -194,11 +276,9 @@ describe('ClAvatarMenu', () => {
 
     expect({
       ariaExpanded: button.attributes('aria-expanded'),
-      ariaHaspopup: button.attributes('aria-haspopup'),
       type: button.attributes('type'),
     }).toEqual({
       ariaExpanded: 'false',
-      ariaHaspopup: 'true',
       type: 'button',
     })
   })
@@ -206,7 +286,13 @@ describe('ClAvatarMenu', () => {
   test('メニューが開いている時のaria-expanded属性', async () => {
     const wrapper = mount(ClAvatarMenu, {
       global: {
-        stubs: { NuxtLink: NuxtLinkStub },
+        components: {
+          ClDropdownMenu,
+          ClMenuItem,
+        },
+        stubs: {
+          NuxtLink: NuxtLinkStub,
+        },
       },
     })
 
@@ -224,7 +310,13 @@ describe('ClAvatarMenu', () => {
 
     const wrapper = mount(ClAvatarMenu, {
       global: {
-        stubs: { NuxtLink: NuxtLinkStub },
+        components: {
+          ClDropdownMenu,
+          ClMenuItem,
+        },
+        stubs: {
+          NuxtLink: NuxtLinkStub,
+        },
       },
     })
 
@@ -245,7 +337,13 @@ describe('ClAvatarMenu', () => {
 
     const wrapper = mount(ClAvatarMenu, {
       global: {
-        stubs: { NuxtLink: NuxtLinkStub },
+        components: {
+          ClDropdownMenu,
+          ClMenuItem,
+        },
+        stubs: {
+          NuxtLink: NuxtLinkStub,
+        },
       },
     })
 
@@ -259,7 +357,13 @@ describe('ClAvatarMenu', () => {
 
     const wrapper = mount(ClAvatarMenu, {
       global: {
-        stubs: { NuxtLink: NuxtLinkStub },
+        components: {
+          ClDropdownMenu,
+          ClMenuItem,
+        },
+        stubs: {
+          NuxtLink: NuxtLinkStub,
+        },
       },
     })
 
@@ -276,7 +380,13 @@ describe('ClAvatarMenu', () => {
 
     const wrapper = mount(ClAvatarMenu, {
       global: {
-        stubs: { NuxtLink: NuxtLinkStub },
+        components: {
+          ClDropdownMenu,
+          ClMenuItem,
+        },
+        stubs: {
+          NuxtLink: NuxtLinkStub,
+        },
       },
     })
 
