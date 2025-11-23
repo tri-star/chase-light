@@ -7,8 +7,6 @@ const meta: Meta<typeof ClSpinner> = {
   args: {
     size: 'md',
     variant: 'primary',
-    ariaLabel: '読み込み中',
-    srText: '読み込み中',
   },
   argTypes: {
     size: {
@@ -18,6 +16,9 @@ const meta: Meta<typeof ClSpinner> = {
     variant: {
       control: { type: 'select' },
       options: ['primary', 'secondary', 'muted'],
+    },
+    ariaLabel: {
+      control: { type: 'text' },
     },
   },
 }

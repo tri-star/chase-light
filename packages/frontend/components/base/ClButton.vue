@@ -59,17 +59,19 @@ const buttonStyles = tv({
         'disabled:border-surface-secondary-disabled',
       ],
       outline: [
-        'bg-transparent',
-        'text-interactive-default',
+        'bg-surface-outlined-default',
+        'text-surface-outlined-default',
         'border',
-        'border-interactive-default',
-        'hover:bg-interactive-hovered',
-        'hover:text-interactive-hovered',
-        'active:bg-interactive-pressed',
-        'active:text-interactive-pressed',
-        'disabled:text-interactive-disabled',
-        'disabled:border-interactive-disabled',
-        'disabled:bg-transparent',
+        'border-surface-outlined-default',
+        'hover:bg-surface-outlined-hovered',
+        'hover:text-surface-outlined-hovered',
+        'hover:border-surface-outlined-hovered',
+        'active:bg-surface-outlined-pressed',
+        'active:text-surface-outlined-pressed',
+        'active:border-surface-outlined-pressed',
+        'disabled:bg-surface-outlined-disabled',
+        'disabled:text-surface-outlined-disabled',
+        'disabled:border-surface-outlined-disabled',
       ],
     },
     size: {
@@ -136,6 +138,18 @@ const handleClick = (event: MouseEvent) => {
 
   emit('click', event)
 }
+
+const spinnerVariant = computed(() => {
+  switch (props.intent) {
+    case 'primary':
+      return 'secondary'
+    case 'secondary':
+    case 'default':
+    case 'outline':
+    default:
+      return 'primary'
+  }
+})
 </script>
 
 <template>
@@ -152,9 +166,8 @@ const handleClick = (event: MouseEvent) => {
     <ClSpinner
       v-if="props.loading"
       size="sm"
-      variant="muted"
-      aria-label="読み込み中"
-      sr-text=""
+      :variant="spinnerVariant"
+      aria-hidden="true"
     />
     <slot />
     <slot name="suffix" />

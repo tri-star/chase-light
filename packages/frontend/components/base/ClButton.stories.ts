@@ -12,7 +12,6 @@ const meta: Meta<typeof ClButton> = {
     loading: false,
     disabled: false,
     type: 'button',
-    ariaLabel: 'ボタン',
   },
   argTypes: {
     intent: {

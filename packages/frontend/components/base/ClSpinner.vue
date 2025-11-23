@@ -13,27 +13,22 @@ interface Props {
   size?: SpinnerSize
   variant?: SpinnerVariant
   ariaLabel?: string
-  srText?: string
 }
 
 const props = withDefaults(defineProps<Props>(), {
   size: 'md',
   variant: 'primary',
   ariaLabel: '読み込み中',
-  srText: '読み込み中',
 })
 
 const variantClasses: Record<SpinnerVariant, string> = {
-  primary:
-    'border-surface-primary-default border-t-transparent text-surface-primary-default',
-  secondary:
-    'border-surface-secondary-default border-t-transparent text-surface-secondary-default',
-  muted:
-    'border-interactive-default border-t-transparent text-interactive-default',
+  primary: 'border-surface-primary-default border-t-transparent',
+  secondary: 'border-surface-secondary-default border-t-transparent',
+  muted: 'border-interactive-default border-t-transparent',
 }
 
 const classes = computed(() => [
-  'inline-flex',
+  'inline-block',
   'animate-spin',
   'rounded-full',
   'border-solid',
@@ -43,16 +38,10 @@ const classes = computed(() => [
 </script>
 
 <template>
-  <span class="inline-flex items-center gap-2">
-    <span
-      data-testid="cl-spinner"
-      role="status"
-      aria-live="polite"
-      :aria-label="props.ariaLabel"
-      :class="classes"
-    />
-    <span v-if="props.srText" class="sr-only">
-      {{ props.srText }}
-    </span>
-  </span>
+  <span
+    data-testid="cl-spinner"
+    role="status"
+    :aria-label="props.ariaLabel"
+    :class="classes"
+  />
 </template>
