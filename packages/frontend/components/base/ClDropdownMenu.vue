@@ -49,6 +49,8 @@ const {
   handleTriggerKeyDown,
   setTriggerElement,
   setMenuElement,
+  registerItem,
+  unregisterItem,
 } = useDropdownMenu(options)
 
 const triggerRef = ref<HTMLElement | null>(null)
@@ -92,6 +94,8 @@ provide('dropdownMenu', {
     emit('select', itemId)
     close()
   },
+  registerItem,
+  unregisterItem,
 })
 </script>
 
@@ -130,6 +134,7 @@ provide('dropdownMenu', {
         :id="menuId"
         ref="menuRef"
         role="menu"
+        tabindex="-1"
         :aria-labelledby="ariaLabel ? undefined : triggerId"
         :aria-label="ariaLabel"
         :aria-activedescendant="activeItemId"

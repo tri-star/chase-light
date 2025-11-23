@@ -1,5 +1,7 @@
 <script setup lang="ts">
+import type { Ref } from 'vue'
 import type { RouteLocationRaw } from 'vue-router'
+import type { DropdownMenuItem } from '~/composables/use-dropdown-menu'
 
 interface Props {
   /**
@@ -55,19 +57,20 @@ const dropdownMenu = inject<{
   isOpen: Ref<boolean>
   activeItemId: Ref<string | undefined>
   selectItem: (itemId: string) => void
+  registerItem: (item: DropdownMenuItem) => void
+  unregisterItem: (itemId: string) => void
 }>('dropdownMenu', {
   isOpen: ref(false),
   activeItemId: ref(undefined),
   selectItem: () => {},
+  registerItem: () => {},
+  unregisterItem: () => {},
 })
 
 const elementRef = ref<HTMLElement | null>(null)
 
-// Register item with dropdown menu
-const { registerItem, unregisterItem } = useDropdownMenu()
-
 onMounted(() => {
-  registerItem({
+  dropdownMenu.registerItem({
     id: itemId,
     disabled: props.disabled,
     element: elementRef.value || undefined,
@@ -75,14 +78,14 @@ onMounted(() => {
 })
 
 onUnmounted(() => {
-  unregisterItem(itemId)
+  dropdownMenu.unregisterItem(itemId)
 })
 
 watch(
   () => props.disabled,
   (disabled) => {
-    unregisterItem(itemId)
-    registerItem({
+    dropdownMenu.unregisterItem(itemId)
+    dropdownMenu.registerItem({
       id: itemId,
       disabled,
       element: elementRef.value || undefined,

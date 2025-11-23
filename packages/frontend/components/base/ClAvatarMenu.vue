@@ -1,4 +1,7 @@
 <script setup lang="ts">
+import ClDropdownMenu from './ClDropdownMenu.vue'
+import ClMenuItem from './ClMenuItem.vue'
+
 const { user, logout } = useAuth()
 
 const handleLogout = async () => {

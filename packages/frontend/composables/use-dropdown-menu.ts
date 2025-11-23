@@ -28,6 +28,7 @@ export const useDropdownMenu = (options: UseDropdownMenuOptions = {}) => {
   const items = ref<DropdownMenuItem[]>([])
   const triggerElement = ref<HTMLElement | null>(null)
   const menuElement = ref<HTMLElement | null>(null)
+  const previouslyFocusedElement = ref<HTMLElement | null>(null)
 
   // アクティブなアイテムID（aria-activedescendant用）
   const activeItemId = computed(() => {
@@ -43,6 +44,14 @@ export const useDropdownMenu = (options: UseDropdownMenuOptions = {}) => {
   const open = () => {
     if (isOpen.value) return
 
+    if (import.meta.client) {
+      const activeElement = document.activeElement
+      previouslyFocusedElement.value =
+        activeElement instanceof HTMLElement
+          ? activeElement
+          : triggerElement.value
+    }
+
     isOpen.value = true
     activeIndex.value = -1
     options.onOpen?.()
@@ -53,6 +62,9 @@ export const useDropdownMenu = (options: UseDropdownMenuOptions = {}) => {
         document.addEventListener('click', handleClickOutside)
         document.addEventListener('scroll', handleScroll, true)
       }
+
+      // メニューを開いた直後にフォーカスを移動し、キーボードイベントを受け付ける
+      menuElement.value?.focus()
     })
   }
 
@@ -74,7 +86,9 @@ export const useDropdownMenu = (options: UseDropdownMenuOptions = {}) => {
 
     // トリガーにフォーカスを戻す
     nextTick(() => {
-      triggerElement.value?.focus()
+      const target = previouslyFocusedElement.value || triggerElement.value
+      target?.focus()
+      previouslyFocusedElement.value = null
     })
   }
 
@@ -266,6 +280,11 @@ export const useDropdownMenu = (options: UseDropdownMenuOptions = {}) => {
    */
   const setMenuElement = (element: HTMLElement | null) => {
     menuElement.value = element
+
+    if (element && isOpen.value) {
+      // 要素が差し替わった際もフォーカスを維持する
+      nextTick(() => element.focus())
+    }
   }
 
   // クリーンアップ
