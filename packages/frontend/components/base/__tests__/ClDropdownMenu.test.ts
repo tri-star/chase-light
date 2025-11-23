@@ -1,46 +1,49 @@
-import { describe, test, expect, vi } from 'vitest'
+import { describe, test, expect, vi, beforeEach } from 'vitest'
 import { mount } from '@vue/test-utils'
 import { nextTick } from 'vue'
 import ClDropdownMenu from '../ClDropdownMenu.vue'
 
 // useDropdownMenuのモック
+const mockIsOpen = ref(false)
+const mockActiveItemId = ref<string | undefined>(undefined)
+const mockItems = ref<Array<{ id: string; disabled?: boolean }>>([])
+
 vi.mock('~/composables/use-dropdown-menu', () => {
   return {
-    useDropdownMenu: () => {
-      const { ref } = require('vue')
-      const isOpen = ref(false)
-      const activeItemId = ref<string | undefined>(undefined)
-      const items = ref<Array<{ id: string; disabled?: boolean }>>([])
-
-      return {
-        isOpen,
-        activeItemId,
-        items,
-        open: () => {
-          isOpen.value = true
-        },
-        close: () => {
-          isOpen.value = false
-        },
-        toggle: () => {
-          isOpen.value = !isOpen.value
-        },
-        handleKeyDown: vi.fn(),
-        handleTriggerKeyDown: vi.fn(),
-        setTriggerElement: vi.fn(),
-        setMenuElement: vi.fn(),
-        registerItem: (item: { id: string; disabled?: boolean }) => {
-          items.value.push(item)
-        },
-        unregisterItem: (itemId: string) => {
-          items.value = items.value.filter((item) => item.id !== itemId)
-        },
-      }
-    },
+    useDropdownMenu: () => ({
+      isOpen: mockIsOpen,
+      activeItemId: mockActiveItemId,
+      items: mockItems,
+      open: () => {
+        mockIsOpen.value = true
+      },
+      close: () => {
+        mockIsOpen.value = false
+      },
+      toggle: () => {
+        mockIsOpen.value = !mockIsOpen.value
+      },
+      handleKeyDown: vi.fn(),
+      handleTriggerKeyDown: vi.fn(),
+      setTriggerElement: vi.fn(),
+      setMenuElement: vi.fn(),
+      registerItem: (item: { id: string; disabled?: boolean }) => {
+        mockItems.value.push(item)
+      },
+      unregisterItem: (itemId: string) => {
+        mockItems.value = mockItems.value.filter((i) => i.id !== itemId)
+      },
+    }),
   }
 })
 
 describe('ClDropdownMenu', () => {
+  beforeEach(() => {
+    // モックの状態をリセット
+    mockIsOpen.value = false
+    mockActiveItemId.value = undefined
+    mockItems.value = []
+  })
   test('基本的なレンダリングが正常に動作する', () => {
     const wrapper = mount(ClDropdownMenu, {
       slots: {
@@ -134,6 +137,9 @@ describe('ClDropdownMenu', () => {
     ] as const
 
     for (const { prop, expectedClass } of placements) {
+      // モックの状態をリセット
+      mockIsOpen.value = false
+
       const wrapper = mount(ClDropdownMenu, {
         props: {
           placement: prop,
@@ -157,6 +163,9 @@ describe('ClDropdownMenu', () => {
         .split(' ')
         .some((cls) => menu.classes().includes(cls))
       expect(hasExpectedClass).toBe(true)
+
+      // クリーンアップ
+      wrapper.unmount()
     }
   })
 
