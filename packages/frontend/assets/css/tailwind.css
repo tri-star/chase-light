@@ -101,15 +101,23 @@
   --background-color-menu-item-disabled: transparent;
   --text-color-menu-item-disabled: oklch(66.576% 0.01812 250.92);
   --border-color-menu-item-disabled: transparent;
-  --background-color-menu-item-active: oklch(87.585% 0.0123 247.97);
+  --background-color-menu-item-active: color-mix(
+    in oklch,
+    oklch(81.491% 0.10452 239.21) 50%,
+    transparent
+  );
   --text-color-menu-item-active: oklch(27.85% 0.0132 253.04);
-  --border-color-menu-item-active: oklch(77.83% 0.01628 248.04);
+  --border-color-menu-item-active: transparent;
   --background-color-menu-item-selected: oklch(95.363% 0.02839 228.04);
   --text-color-menu-item-selected: oklch(32.103% 0.10845 259.11);
-  --border-color-menu-item-selected: oklch(81.491% 0.10452 239.21);
-  --background-color-menu-item-hovered: oklch(94.722% 0.00689 247.9);
+  --border-color-menu-item-selected: transparent;
+  --background-color-menu-item-hovered: color-mix(
+    in oklch,
+    oklch(89.336% 0.06061 235.67) 50%,
+    transparent
+  );
   --text-color-menu-item-hovered: oklch(27.85% 0.0132 253.04);
-  --border-color-menu-item-hovered: oklch(87.585% 0.0123 247.97);
+  --border-color-menu-item-hovered: transparent;
   --background-color-status-info-default: oklch(89.336% 0.06061 235.67);
   --text-color-status-info-default: oklch(32.103% 0.10845 259.11);
   --border-color-status-info-default: oklch(73.111% 0.14618 248.34);
