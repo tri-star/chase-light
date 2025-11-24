@@ -49,9 +49,8 @@ const emit = defineEmits<{
   click: []
 }>()
 
-// Generate unique ID if not provided
-const itemId =
-  props.id || `menu-item-${Math.random().toString(36).slice(2, 11)}`
+// IDが指定されていない場合は一意なIDを生成
+const itemId = props.id || useId()
 
 const dropdownMenu = inject<{
   isOpen: Ref<boolean>

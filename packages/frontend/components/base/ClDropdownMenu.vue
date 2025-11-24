@@ -30,8 +30,8 @@ const emit = defineEmits<{
   select: [itemId: string]
 }>()
 
-const menuId = `dropdown-menu-${Math.random().toString(36).slice(2, 11)}`
-const triggerId = `dropdown-trigger-${Math.random().toString(36).slice(2, 11)}`
+const menuId = useId()
+const triggerId = useId()
 
 const options: UseDropdownMenuOptions = {
   onOpen: () => emit('open'),
