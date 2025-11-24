@@ -1,6 +1,6 @@
 import { describe, test, expect, vi, beforeEach } from 'vitest'
 import { mount } from '@vue/test-utils'
-import { nextTick } from 'vue'
+import { nextTick, h } from 'vue'
 import ClDropdownMenu from '../ClDropdownMenu.vue'
 
 // useDropdownMenuのモック
@@ -44,10 +44,33 @@ describe('ClDropdownMenu', () => {
     mockActiveItemId.value = undefined
     mockItems.value = []
   })
+
+  const createTriggerSlot = (text = 'トリガー') => ({
+    trigger: ({
+      triggerProps,
+      triggerEvents,
+      triggerRef,
+    }: {
+      triggerProps: Record<string, unknown>
+      triggerEvents: Record<string, unknown>
+      triggerRef: unknown
+    }) => {
+      return h(
+        'button',
+        {
+          ...triggerProps,
+          ...triggerEvents,
+          ref: triggerRef as (el: unknown) => void,
+        },
+        text
+      )
+    },
+  })
+
   test('基本的なレンダリングが正常に動作する', () => {
     const wrapper = mount(ClDropdownMenu, {
       slots: {
-        trigger: '<button>トリガー</button>',
+        ...createTriggerSlot(),
         default: '<div>メニュー内容</div>',
       },
     })
@@ -59,7 +82,7 @@ describe('ClDropdownMenu', () => {
   test('トリガークリックでメニューが開く', async () => {
     const wrapper = mount(ClDropdownMenu, {
       slots: {
-        trigger: '<button>トリガー</button>',
+        ...createTriggerSlot(),
         default: '<div>メニュー内容</div>',
       },
     })
@@ -79,7 +102,7 @@ describe('ClDropdownMenu', () => {
   test('ARIA属性が正しく設定される', async () => {
     const wrapper = mount(ClDropdownMenu, {
       slots: {
-        trigger: '<button>トリガー</button>',
+        ...createTriggerSlot(),
         default: '<div>メニュー内容</div>',
       },
     })
@@ -108,7 +131,7 @@ describe('ClDropdownMenu', () => {
         ariaLabel: 'カスタムメニュー',
       },
       slots: {
-        trigger: '<button>トリガー</button>',
+        ...createTriggerSlot(),
         default: '<div>メニュー内容</div>',
       },
     })
@@ -145,7 +168,7 @@ describe('ClDropdownMenu', () => {
           placement: prop,
         },
         slots: {
-          trigger: '<button>トリガー</button>',
+          ...createTriggerSlot(),
           default: '<div>メニュー内容</div>',
         },
       })
@@ -175,7 +198,7 @@ describe('ClDropdownMenu', () => {
         position: { x: 100, y: 200 },
       },
       slots: {
-        trigger: '<button>トリガー</button>',
+        ...createTriggerSlot(),
         default: '<div>メニュー内容</div>',
       },
     })
@@ -194,7 +217,7 @@ describe('ClDropdownMenu', () => {
   test.skip('open/close/selectイベントが発火する', async () => {
     const wrapper = mount(ClDropdownMenu, {
       slots: {
-        trigger: '<button>トリガー</button>',
+        ...createTriggerSlot(),
         default: '<div>メニュー内容</div>',
       },
     })
@@ -215,7 +238,7 @@ describe('ClDropdownMenu', () => {
   test('デザイントークンのクラスが適用される', async () => {
     const wrapper = mount(ClDropdownMenu, {
       slots: {
-        trigger: '<button>トリガー</button>',
+        ...createTriggerSlot(),
         default: '<div>メニュー内容</div>',
       },
     })

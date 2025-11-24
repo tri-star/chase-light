@@ -53,16 +53,25 @@ const {
   unregisterItem,
 } = useDropdownMenu(options)
 
-const triggerRef = ref<HTMLElement | null>(null)
 const menuRef = ref<HTMLElement | null>(null)
-
-watch(triggerRef, (el) => {
-  if (el) setTriggerElement(el)
-})
 
 watch(menuRef, (el) => {
   if (el) setMenuElement(el)
 })
+
+// トリガー要素に適用するprops
+const triggerProps = computed(() => ({
+  id: triggerId,
+  'aria-haspopup': true,
+  'aria-expanded': isOpen.value,
+  'aria-controls': menuId,
+}))
+
+// トリガー要素に適用するイベント
+const triggerEvents = {
+  onClick: toggle,
+  onKeydown: handleTriggerKeyDown,
+}
 
 const menuStyle = computed(() => {
   if (props.position) {
@@ -86,7 +95,7 @@ const placementClasses = computed(() => {
   return `${baseClasses} ${alignments[props.placement] || alignments['bottom-right']}`
 })
 
-// Provide context for ClMenuItem
+// ClMenuItem用のコンテキストを提供
 provide('dropdownMenu', {
   isOpen,
   activeItemId,
@@ -101,26 +110,19 @@ provide('dropdownMenu', {
 
 <template>
   <div class="relative">
-    <!-- Trigger slot -->
-    <div
-      :id="triggerId"
-      ref="triggerRef"
-      :aria-haspopup="true"
-      :aria-expanded="isOpen"
-      :aria-controls="menuId"
-      @click="toggle"
-      @keydown="handleTriggerKeyDown"
-    >
-      <slot
-        name="trigger"
-        :is-open="isOpen"
-        :toggle="toggle"
-        :open="open"
-        :close="close"
-      />
-    </div>
+    <!-- トリガースロット -->
+    <slot
+      name="trigger"
+      :is-open="isOpen"
+      :trigger-props="triggerProps"
+      :trigger-events="triggerEvents"
+      :trigger-ref="setTriggerElement"
+      :toggle="toggle"
+      :open="open"
+      :close="close"
+    />
 
-    <!-- Dropdown menu -->
+    <!-- ドロップダウンメニュー -->
     <Transition
       enter-active-class="transition ease-out duration-100"
       enter-from-class="transform opacity-0 scale-95"

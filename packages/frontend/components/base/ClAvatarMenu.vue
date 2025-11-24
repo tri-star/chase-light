@@ -11,13 +11,14 @@ const handleLogout = async () => {
 
 <template>
   <ClDropdownMenu aria-label="ユーザーメニュー">
-    <template #trigger="{ isOpen }">
+    <template #trigger="{ triggerProps, triggerEvents, triggerRef }">
       <button
+        :ref="(el) => triggerRef(el as HTMLElement | null)"
         type="button"
+        v-bind="{ ...triggerProps, ...triggerEvents }"
         class="focus:ring-status-focus-default flex items-center space-x-2
           rounded-full p-2 text-interactive-default transition-colors
           hover:bg-interactive-hovered focus:ring-2 focus:outline-none"
-        :aria-expanded="isOpen"
       >
         <img
           v-if="user?.avatar"
@@ -53,7 +54,7 @@ const handleLogout = async () => {
       </button>
     </template>
 
-    <!-- User info header -->
+    <!-- ユーザー情報ヘッダー -->
     <div
       class="text-sm border-b border-menu-default px-4 py-2 text-menu-default"
     >
@@ -63,7 +64,7 @@ const handleLogout = async () => {
       </div>
     </div>
 
-    <!-- Menu items -->
+    <!-- メニューアイテム -->
     <ClMenuItem type="link" to="/profile">
       <template #icon>
         <svg
