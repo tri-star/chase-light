@@ -511,6 +511,80 @@
             }
           }
         },
+        "menu": {
+          "$description": "Dropdown menu surfaces with glass effect",
+          "default": {
+            "bg": {
+              "value": "oklch(100% 0 none / 0.8)"
+            },
+            "text": {
+              "value": "{color.primitive.gray.900}"
+            },
+            "border": {
+              "value": "oklch(87.585% 0.0123 247.97 / 0.2)"
+            }
+          },
+          "children": {
+            "item": {
+              "$description": "Menu item states",
+              "default": {
+                "bg": {
+                  "value": "transparent"
+                },
+                "text": {
+                  "value": "{color.primitive.gray.900}"
+                },
+                "border": {
+                  "value": "transparent"
+                }
+              },
+              "disabled": {
+                "bg": {
+                  "value": "transparent"
+                },
+                "text": {
+                  "value": "{color.primitive.gray.400}"
+                },
+                "border": {
+                  "value": "transparent"
+                }
+              },
+              "active": {
+                "bg": {
+                  "value": "color-mix(in oklch, {color.primitive.blue.200} 50%, transparent)"
+                },
+                "text": {
+                  "value": "{color.primitive.gray.900}"
+                },
+                "border": {
+                  "value": "transparent"
+                }
+              },
+              "selected": {
+                "bg": {
+                  "value": "{color.primitive.blue.50}"
+                },
+                "text": {
+                  "value": "{color.primitive.blue.800}"
+                },
+                "border": {
+                  "value": "transparent"
+                }
+              },
+              "hovered": {
+                "bg": {
+                  "value": "color-mix(in oklch, {color.primitive.blue.100} 50%, transparent)"
+                },
+                "text": {
+                  "value": "{color.primitive.gray.900}"
+                },
+                "border": {
+                  "value": "transparent"
+                }
+              }
+            }
+          }
+        },
         "common": {
           "$description": "Common semantic colors for alerts and status",
           "info": {
@@ -1004,6 +1078,80 @@
           "backdrop": {
             "bg": {
               "value": "oklch(23.735% 0.01132 254.06 / 0.4)"
+            }
+          }
+        },
+        "menu": {
+          "$description": "Dropdown menu surfaces with glass effect",
+          "default": {
+            "bg": {
+              "value": "oklch(27.85% 0.0132 253.04 / 0.8)"
+            },
+            "text": {
+              "value": "{color.primitive.gray.100}"
+            },
+            "border": {
+              "value": "oklch(48.485% 0.01961 251.02 / 0.2)"
+            }
+          },
+          "children": {
+            "item": {
+              "$description": "Menu item states",
+              "default": {
+                "bg": {
+                  "value": "transparent"
+                },
+                "text": {
+                  "value": "{color.primitive.gray.100}"
+                },
+                "border": {
+                  "value": "transparent"
+                }
+              },
+              "disabled": {
+                "bg": {
+                  "value": "transparent"
+                },
+                "text": {
+                  "value": "{color.primitive.gray.600}"
+                },
+                "border": {
+                  "value": "transparent"
+                }
+              },
+              "active": {
+                "bg": {
+                  "value": "{color.primitive.gray.600}"
+                },
+                "text": {
+                  "value": "{color.primitive.gray.100}"
+                },
+                "border": {
+                  "value": "{color.primitive.gray.500}"
+                }
+              },
+              "selected": {
+                "bg": {
+                  "value": "{color.primitive.blue.900}"
+                },
+                "text": {
+                  "value": "{color.primitive.blue.200}"
+                },
+                "border": {
+                  "value": "{color.primitive.blue.700}"
+                }
+              },
+              "hovered": {
+                "bg": {
+                  "value": "{color.primitive.gray.700}"
+                },
+                "text": {
+                  "value": "{color.primitive.gray.100}"
+                },
+                "border": {
+                  "value": "{color.primitive.gray.600}"
+                }
+              }
             }
           }
         },
