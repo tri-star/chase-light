@@ -68,7 +68,7 @@
     "memfs": "^4.37.1",
     "msw": "^2.10.4",
     "msw-storybook-addon": "^2.0.4",
-    "nitropack": "2.12.7",
+    "nitropack": "2.12.9",
     "orval": "^7.13.0",
     "playwright-core": "^1.52.0",
     "prettier": "^3.6.2",
