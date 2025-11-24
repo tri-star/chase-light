@@ -26,6 +26,8 @@ const mockDropdownMenuContext = {
   isOpen: ref(true),
   activeItemId: ref<string | undefined>(undefined),
   selectItem: vi.fn(),
+  registerItem: mockRegisterItem,
+  unregisterItem: mockUnregisterItem,
 }
 
 describe('ClMenuItem', () => {

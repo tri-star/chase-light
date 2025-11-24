@@ -1,4 +1,4 @@
-import type { Ref } from 'vue'
+import { ref, computed, nextTick, readonly, onUnmounted, type Ref } from 'vue'
 
 export interface DropdownMenuItem {
   id: string
@@ -44,7 +44,9 @@ export const useDropdownMenu = (options: UseDropdownMenuOptions = {}) => {
   const open = () => {
     if (isOpen.value) return
 
-    if (import.meta.client) {
+    const isClient = import.meta.client || typeof window !== 'undefined'
+
+    if (isClient) {
       const activeElement = document.activeElement
       previouslyFocusedElement.value =
         activeElement instanceof HTMLElement
@@ -58,7 +60,7 @@ export const useDropdownMenu = (options: UseDropdownMenuOptions = {}) => {
 
     // 次のティックでイベントリスナーを設定（メニューのDOMが確実に存在するように）
     nextTick(() => {
-      if (import.meta.client) {
+      if (isClient) {
         document.addEventListener('click', handleClickOutside)
         document.addEventListener('scroll', handleScroll, true)
       }
@@ -78,18 +80,26 @@ export const useDropdownMenu = (options: UseDropdownMenuOptions = {}) => {
     activeIndex.value = -1
     options.onClose?.()
 
-    // イベントリスナーを解除
-    if (import.meta.client) {
+    const isClient = import.meta.client || typeof window !== 'undefined'
+
+    if (isClient) {
+      // イベントリスナーを解除
       document.removeEventListener('click', handleClickOutside)
       document.removeEventListener('scroll', handleScroll, true)
-    }
 
-    // トリガーにフォーカスを戻す
-    nextTick(() => {
-      const target = previouslyFocusedElement.value || triggerElement.value
-      target?.focus()
-      previouslyFocusedElement.value = null
-    })
+      // トリガーにフォーカスを戻す
+      nextTick(() => {
+        // previouslyFocusedElementがdocument.bodyの場合はtriggerElementを優先
+        const isBodyElement =
+          previouslyFocusedElement.value === document.body ||
+          previouslyFocusedElement.value === document.documentElement
+        const target = isBodyElement
+          ? triggerElement.value
+          : previouslyFocusedElement.value || triggerElement.value
+        target?.focus()
+        previouslyFocusedElement.value = null
+      })
+    }
   }
 
   /**
@@ -289,7 +299,8 @@ export const useDropdownMenu = (options: UseDropdownMenuOptions = {}) => {
 
   // クリーンアップ
   onUnmounted(() => {
-    if (import.meta.client) {
+    const isClient = import.meta.client || typeof window !== 'undefined'
+    if (isClient) {
       document.removeEventListener('click', handleClickOutside)
       document.removeEventListener('scroll', handleScroll, true)
     }

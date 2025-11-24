@@ -1,6 +1,24 @@
+/**
+ * @vitest-environment happy-dom
+ */
 import { describe, test, expect, beforeEach, afterEach, vi } from 'vitest'
+import { createApp } from 'vue'
 import { useDropdownMenu } from '../use-dropdown-menu'
 import type { DropdownMenuItem } from '../use-dropdown-menu'
+
+// Vueコンポーネントのセットアップコンテキスト内でcomposableをテストするヘルパー
+function withSetup<T>(composable: () => T): [T, () => void] {
+  let result: T
+  const app = createApp({
+    setup() {
+      result = composable()
+      return () => {}
+    },
+  })
+  const el = document.createElement('div')
+  app.mount(el)
+  return [result!, () => app.unmount()]
+}
 
 describe('useDropdownMenu', () => {
   let mockTriggerElement: HTMLElement
@@ -45,12 +63,20 @@ describe('useDropdownMenu', () => {
     const mockFocus = vi.fn()
     mockTriggerElement.focus = mockFocus
 
-    const { isOpen, open, close, setTriggerElement } = useDropdownMenu({
-      onClose,
-    })
+    const [composable, unmount] = withSetup(() =>
+      useDropdownMenu({
+        onClose,
+      })
+    )
+
+    const { isOpen, open, close, setTriggerElement } = composable
 
     setTriggerElement(mockTriggerElement)
     open()
+
+    // open()のnextTickを待つ
+    await new Promise((resolve) => setTimeout(resolve, 10))
+
     expect(isOpen.value).toBe(true)
 
     close()
@@ -58,10 +84,12 @@ describe('useDropdownMenu', () => {
     expect(isOpen.value).toBe(false)
     expect(onClose).toHaveBeenCalledTimes(1)
 
-    // nextTickの後にfocusが呼ばれる
-    await vi.waitFor(() => {
-      expect(mockFocus).toHaveBeenCalledTimes(1)
-    })
+    // close()のnextTickを待つ
+    await new Promise((resolve) => setTimeout(resolve, 10))
+
+    expect(mockFocus).toHaveBeenCalledTimes(1)
+
+    unmount()
   })
 
   test('toggleメソッドでメニューの開閉が切り替わる', () => {
