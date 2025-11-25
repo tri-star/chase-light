@@ -41,8 +41,8 @@ export class DataSourceRepository {
   async save(data: DataSourceCreationInput): Promise<DataSource> {
     return await TransactionManager.transaction(async () => {
       const now = new Date()
-      const dataSourceId = randomUUID()
-      const repositoryId = randomUUID()
+      const dataSourceId = data.id ?? randomUUID()
+      const repositoryId = data.repository.id ?? randomUUID()
       const connection = await TransactionManager.getConnection()
 
       if (data.sourceType === "github") {

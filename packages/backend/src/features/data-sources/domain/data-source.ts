@@ -21,6 +21,7 @@ export type Repository = {
  * dataSourceIdフィールドを削除
  */
 export type RepositoryCreationInput = {
+  id?: string
   githubId: number
   fullName: string
   language: string | null
@@ -28,6 +29,8 @@ export type RepositoryCreationInput = {
   forksCount: number
   openIssuesCount: number
   isFork: boolean
+  createdAt?: Date
+  updatedAt?: Date
 }
 
 /**
@@ -57,6 +60,7 @@ export type DataSource = GitHubDataSource
  * GitHubデータソース作成時の入力型
  */
 export type GitHubDataSourceCreationInput = {
+  id?: string
   sourceType: "github"
   sourceId: string
   name: string

@@ -26,6 +26,9 @@ export class DrizzleActivityRepository implements ActivityRepository {
     activityType: ActivityType
     title: string
     body: string
+    translatedTitle?: string | null
+    summary?: string | null
+    translatedBody?: string | null
     version?: string | null
     status?: ActivityStatus
     statusDetail?: string | null
@@ -43,9 +46,9 @@ export class DrizzleActivityRepository implements ActivityRepository {
       activityType: data.activityType,
       title: data.title,
       body: data.body,
-      translatedTitle: null,
-      summary: null,
-      translatedBody: null,
+      translatedTitle: data.translatedTitle ?? null,
+      summary: data.summary ?? null,
+      translatedBody: data.translatedBody ?? null,
       version: data.version ?? null,
       status: data.status || ACTIVITY_STATUS.PENDING,
       statusDetail: data.statusDetail ?? null,
@@ -67,6 +70,9 @@ export class DrizzleActivityRepository implements ActivityRepository {
         set: {
           title: insertData.title,
           body: insertData.body,
+          translatedTitle: insertData.translatedTitle,
+          summary: insertData.summary,
+          translatedBody: insertData.translatedBody,
           version: insertData.version,
           status: insertData.status,
           statusDetail: insertData.statusDetail,
@@ -92,6 +98,9 @@ export class DrizzleActivityRepository implements ActivityRepository {
       activityType: ActivityType
       title: string
       body: string
+      translatedTitle?: string | null
+      summary?: string | null
+      translatedBody?: string | null
       version?: string | null
       status?: ActivityStatus
       statusDetail?: string | null
@@ -112,9 +121,9 @@ export class DrizzleActivityRepository implements ActivityRepository {
       activityType: data.activityType,
       title: data.title,
       body: data.body,
-      translatedTitle: null,
-      summary: null,
-      translatedBody: null,
+      translatedTitle: data.translatedTitle ?? null,
+      summary: data.summary ?? null,
+      translatedBody: data.translatedBody ?? null,
       version: data.version ?? null,
       status: data.status || ACTIVITY_STATUS.PENDING,
       statusDetail: data.statusDetail ?? null,
@@ -136,6 +145,9 @@ export class DrizzleActivityRepository implements ActivityRepository {
         set: {
           title: sql`excluded.title`,
           body: sql`excluded.body`,
+          translatedTitle: sql`excluded.translated_title`,
+          summary: sql`excluded.summary`,
+          translatedBody: sql`excluded.translated_body`,
           version: sql`excluded.version`,
           status: sql`excluded.status`,
           statusDetail: sql`excluded.status_detail`,

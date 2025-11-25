@@ -13,6 +13,9 @@ export interface ActivityRepository {
     activityType: ActivityType
     title: string
     body: string
+    translatedTitle?: string | null
+    summary?: string | null
+    translatedBody?: string | null
     version?: string | null
     status?: ActivityStatus
     statusDetail?: string | null
@@ -31,6 +34,9 @@ export interface ActivityRepository {
       activityType: ActivityType
       title: string
       body: string
+      translatedTitle?: string | null
+      summary?: string | null
+      translatedBody?: string | null
       version?: string | null
       status?: ActivityStatus
       statusDetail?: string | null

@@ -17,12 +17,14 @@ export type UserWatch = {
  * ユーザーウォッチ作成時の入力型
  */
 export type UserWatchCreationInput = {
+  id?: string
   userId: string
   dataSourceId: string
   notificationEnabled: boolean
   watchReleases: boolean
   watchIssues: boolean
   watchPullRequests: boolean
+  addedAt?: Date
 }
 
 /**
