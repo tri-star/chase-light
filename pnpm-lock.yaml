@@ -44,6 +44,9 @@ importers:
       '@aws-sdk/client-ssm':
         specifier: ^3.848.0
         version: 3.895.0
+      '@faker-js/faker':
+        specifier: ^10.0.0
+        version: 10.0.0
       '@hono/node-server':
         specifier: ^1.14.3
         version: 1.19.4(hono@4.10.2)
@@ -9396,8 +9399,8 @@ packages:
   vue-component-type-helpers@2.2.10:
     resolution: {integrity: sha512-iDUO7uQK+Sab2tYuiP9D1oLujCWlhHELHMgV/cB13cuGbG4qwkLHvtfWb6FzvxrIOPDnU0oHsz2MlQjhYDeaHA==}
 
-  vue-component-type-helpers@3.1.4:
-    resolution: {integrity: sha512-Uws7Ew1OzTTqHW8ZVl/qLl/HB+jf08M0NdFONbVWAx0N4gMLK8yfZDgeB77hDnBmaigWWEn5qP8T9BG59jIeyQ==}
+  vue-component-type-helpers@3.1.5:
+    resolution: {integrity: sha512-7V3yJuNWW7/1jxCcI1CswnpDsvs02Qcx/N43LkV+ZqhLj2PKj50slUflHAroNkN4UWiYfzMUUUXiNuv9khmSpQ==}
 
   vue-demi@0.14.10:
     resolution: {integrity: sha512-nMZBOwuzabUO0nLgIcc6rycZEebF6eeUfaiQx9+WSk8e29IbLvPU9feI6tqW4kTo3hvoYAJkMh8n8D0fuISphg==}
@@ -14431,7 +14434,7 @@ snapshots:
       storybook: 9.0.5(@testing-library/dom@10.4.0)(prettier@3.6.2)
       type-fest: 2.19.0
       vue: 3.5.24(typescript@5.9.3)
-      vue-component-type-helpers: 3.1.4
+      vue-component-type-helpers: 3.1.5
 
   '@stylistic/eslint-plugin@5.2.3(eslint@9.36.0(jiti@2.6.1))':
     dependencies:
@@ -21202,7 +21205,7 @@ snapshots:
 
   vue-component-type-helpers@2.2.10: {}
 
-  vue-component-type-helpers@3.1.4: {}
+  vue-component-type-helpers@3.1.5: {}
 
   vue-demi@0.14.10(vue@3.5.24(typescript@5.9.3)):
     dependencies:
