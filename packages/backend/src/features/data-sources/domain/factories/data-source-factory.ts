@@ -213,7 +213,7 @@ function createRepository(
   now: Date,
 ): RepositoryCreationInput & { id: string } {
   return {
-    id: definition.repositoryId, // ここがnumberになっている？
+    id: definition.repositoryId,
     githubId: definition.githubId,
     fullName: definition.fullName,
     language: "TypeScript",
