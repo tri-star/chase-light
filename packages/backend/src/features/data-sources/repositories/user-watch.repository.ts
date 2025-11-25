@@ -18,7 +18,8 @@ export class UserWatchRepository {
    */
   async save(data: UserWatchCreationInput): Promise<UserWatch> {
     const now = new Date()
-    const id = randomUUID()
+    const id = data.id ?? randomUUID()
+    const addedAt = data.addedAt ?? now
 
     const [result] = await (await TransactionManager.getConnection())
       .insert(userWatches)
@@ -30,7 +31,7 @@ export class UserWatchRepository {
         watchReleases: data.watchReleases,
         watchIssues: data.watchIssues,
         watchPullRequests: data.watchPullRequests,
-        addedAt: now,
+        addedAt,
       })
       .onConflictDoUpdate({
         target: [userWatches.userId, userWatches.dataSourceId],

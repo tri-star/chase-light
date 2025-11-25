@@ -61,3 +61,8 @@ export { createDataSourcePresentationRoutes } from "./presentation"
 export * from "./domain"
 export * from "./application/use-cases"
 export * from "./presentation/shared/error-handling"
+export {
+  TEST_DATA_SOURCES,
+  createDataSource,
+  createUserWatch,
+} from "./domain/factories/data-source-factory"

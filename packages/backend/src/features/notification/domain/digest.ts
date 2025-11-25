@@ -3,6 +3,7 @@ import { DIGEST_PLACEHOLDER_MESSAGE } from "shared"
 export const DIGEST_GENERATOR_TYPE = {
   AI: "ai",
   FALLBACK: "fallback",
+  FACTORY: "factory",
 } as const
 
 export type DigestGeneratorType =
