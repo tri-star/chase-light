@@ -528,3 +528,11 @@ a {
 button {
   cursor: pointer;
 }
+
+@utility font-scale-* {
+  font: --value(--typography-scale-*);
+}
+
+@utility font-semantic-* {
+  font: --value(--typography-semantic-*);
+}

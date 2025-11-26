@@ -27,6 +27,9 @@ export class TailwindGenerator {
       .map((token) => `  ${token.cssVarName}: ${token.value};`)
       .join('\n')
 
+    // Typography関連のユーティリティディレクティブ
+    const typographyUtilities = this.generateTypographyUtilities()
+
     return `@import "tailwindcss";
 
 @theme static {
@@ -47,7 +50,7 @@ a {
 button {
   cursor: pointer;
 }
-`
+${typographyUtilities}`
   }
 
   /**
@@ -241,5 +244,20 @@ ${sections.join('\n\n')}
     })
 
     return groups
+  }
+
+  /**
+   * Typography関連の@utilityディレクティブを生成
+   */
+  private static generateTypographyUtilities(): string {
+    return `
+@utility font-scale-* {
+  font: --value(--typography-scale-*);
+}
+
+@utility font-semantic-* {
+  font: --value(--typography-semantic-*);
+}
+`
   }
 }
