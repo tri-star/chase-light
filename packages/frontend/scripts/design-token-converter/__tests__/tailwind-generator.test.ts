@@ -85,9 +85,9 @@ describe('TailwindGenerator', () => {
         TailwindGenerator.generateThemedTailwindCSS(mockThemedTokens)
 
       expect(result).toContain('@utility font-scale-* {')
-      expect(result).toContain('font: var(--typography-scale-*);')
+      expect(result).toContain('font: --value(--typography-scale-*);')
       expect(result).toContain('@utility font-semantic-* {')
-      expect(result).toContain('font: var(--typography-semantic-*);')
+      expect(result).toContain('font: --value(--typography-semantic-*);')
     })
 
     test('リセット変数が含まれる', () => {
