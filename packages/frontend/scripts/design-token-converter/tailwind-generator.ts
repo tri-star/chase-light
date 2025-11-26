@@ -252,11 +252,11 @@ ${sections.join('\n\n')}
   private static generateTypographyUtilities(): string {
     return `
 @utility font-scale-* {
-  font: var(--typography-scale-*);
+  font: --value(--typography-scale-*);
 }
 
 @utility font-semantic-* {
-  font: var(--typography-semantic-*);
+  font: --value(--typography-semantic-*);
 }
 `
   }
