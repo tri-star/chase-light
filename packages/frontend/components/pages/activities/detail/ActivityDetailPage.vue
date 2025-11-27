@@ -1,20 +1,39 @@
 <script setup lang="ts">
 import { computed, ref, watchEffect } from 'vue'
 import ClSection from '~/components/base/ClSection.vue'
-import type { ActivityDetailResponseData } from '~/generated/api/schemas'
 import ActivityDetailHeader from './parts/ActivityDetailHeader.vue'
 import ActivityDetailContent from './parts/ActivityDetailContent.vue'
+import type { ActivityDetailResponse } from '~/generated/api/schemas'
 
 const props = defineProps<{
-  activity: ActivityDetailResponseData['activity']
+  activityId: string
 }>()
 
 type DisplayMode = 'translated' | 'original'
 
 const mode = ref<DisplayMode>('translated')
 
+const { data, error } = await useFetch<ActivityDetailResponse>(
+  `/api/activities/${props.activityId}`
+)
+
+if (error.value) {
+  throw error.value
+}
+
+const activity = data.value?.data.activity
+
+const pageTitle = computed(
+  () => activity?.translatedTitle || activity?.title || 'アクティビティ詳細'
+)
+
+useSeoMeta({
+  title: pageTitle,
+  ogTitle: pageTitle,
+})
+
 const hasTranslatedContent = computed(
-  () => !!(props.activity.translatedTitle || props.activity.translatedBody)
+  () => !!(activity?.translatedTitle || activity?.translatedBody)
 )
 
 watchEffect(() => {
@@ -25,16 +44,16 @@ watchEffect(() => {
 
 const displayTitle = computed(() => {
   if (mode.value === 'translated' && hasTranslatedContent.value) {
-    return props.activity.translatedTitle || props.activity.title
+    return (activity?.translatedTitle || activity?.title) ?? ''
   }
-  return props.activity.title
+  return activity?.title ?? ''
 })
 
 const displayBody = computed(() => {
   if (mode.value === 'translated' && hasTranslatedContent.value) {
-    return props.activity.translatedBody || props.activity.detail
+    return (activity?.translatedBody || activity?.detail) ?? ''
   }
-  return props.activity.detail
+  return activity?.detail ?? ''
 })
 
 const handleToggleMode = () => {
@@ -45,17 +64,19 @@ const handleToggleMode = () => {
 
 <template>
   <ClSection class="space-y-6" data-testid="activity-detail-page">
-    <ActivityDetailHeader
-      :activity="props.activity"
-      :mode="mode"
-      :has-translated-content="hasTranslatedContent"
-      @toggle-mode="handleToggleMode"
-    />
-    <ActivityDetailContent
-      :title="displayTitle"
-      :body="displayBody"
-      :mode="mode"
-      :has-translated-content="hasTranslatedContent"
-    />
+    <template v-if="activity">
+      <ActivityDetailHeader
+        :activity="activity"
+        :mode="mode"
+        :has-translated-content="hasTranslatedContent"
+        @toggle-mode="handleToggleMode"
+      />
+      <ActivityDetailContent
+        :title="displayTitle"
+        :body="displayBody"
+        :mode="mode"
+        :has-translated-content="hasTranslatedContent"
+      />
+    </template>
   </ClSection>
 </template>
