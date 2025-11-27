@@ -420,7 +420,7 @@ export const getApiActivitiesResponse = zod.object({
  * @summary アクティビティ詳細取得
  */
 export const getApiActivitiesActivityIdParams = zod.object({
-  "activityId": zod.uuid().describe('アクティビティID')
+  "activityId": zod.string().describe('アクティビティID')
 })
 
 export const getApiActivitiesActivityIdResponse = zod.object({

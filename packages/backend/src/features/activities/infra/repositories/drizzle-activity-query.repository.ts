@@ -23,6 +23,7 @@ import type {
 } from "../../domain"
 import { ACTIVITY_SORT_FIELDS, ACTIVITY_SORT_ORDER } from "../../domain"
 import type { ActivityQueryRepository } from "../../domain/repositories/activity-query.repository"
+import z from "zod"
 
 const SUMMARY_MAX_LENGTH = 280
 
@@ -157,6 +158,11 @@ export class DrizzleActivityQueryRepository implements ActivityQueryRepository {
     query: ActivityDetailQuery,
   ): Promise<ActivityDetail | null> {
     const connection = await TransactionManager.getConnection()
+
+    // ユーザー入力が不正なUUIDの場合PostgreSQL側でエラーになるため、事前に弾く
+    if (!z.uuidv7().safeParse(query.activityId).success) {
+      return null
+    }
 
     const row = await connection
       .select(this.selectBaseFields())

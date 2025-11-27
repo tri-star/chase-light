@@ -86,9 +86,11 @@ const occurredAtRelative = computed(() =>
         }}</span>
       </a>
 
-      <ClHeading :level="2" class="text-xl text-card-value">{{
-        activityTitle
-      }}</ClHeading>
+      <ClHeading :level="2" class="text-xl text-card-value"
+        ><NuxtLink :to="{ path: `/activities/${activityData.id}` }">{{
+          activityTitle
+        }}</NuxtLink></ClHeading
+      >
       <p class="text-sm text-card-value opacity-80">
         {{ activitySummary }}
       </p>

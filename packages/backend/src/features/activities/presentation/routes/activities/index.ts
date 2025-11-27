@@ -72,7 +72,7 @@ export function createActivitiesRoutes(
 
   const activityIdParamSchema = z
     .object({
-      activityId: z.string().uuid().openapi({
+      activityId: z.string().openapi({
         description: "アクティビティID",
         example: "1f2e3d4c-5b6a-7980-1121-314151617181",
       }),
