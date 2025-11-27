@@ -2963,7 +2963,6 @@
           {
             "schema": {
               "type": "string",
-              "format": "uuid",
               "description": "アクティビティID",
               "example": "1f2e3d4c-5b6a-7980-1121-314151617181"
             },
