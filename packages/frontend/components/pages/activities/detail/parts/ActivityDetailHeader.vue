@@ -2,7 +2,7 @@
 import { computed } from 'vue'
 import ClButton from '~/components/base/ClButton.vue'
 import ClHeading from '~/components/base/ClHeading.vue'
-import type { ActivityDetailResponseData } from '~/generated/api/schemas'
+import type { ActivityDetail } from '~/features/activities/domain/activity'
 import { formatDate, formatRelativeDate } from '~/utils/date'
 
 const activityTypeLabels: Record<string, string> = {
@@ -18,7 +18,7 @@ const activityTypeClasses: Record<string, string> = {
 }
 
 const props = defineProps<{
-  activity: ActivityDetailResponseData['activity']
+  activity: ActivityDetail
   mode: 'translated' | 'original'
   hasTranslatedContent: boolean
 }>()

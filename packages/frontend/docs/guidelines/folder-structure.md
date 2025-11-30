@@ -24,8 +24,9 @@ packages/frontend
 │   └── guidelines/
 ├── features/              # 機能（ドメイン）単位の整理
 │   └── <feature>/
-│       ├── models/
-│       └── composables/
+│       ├── domain/        # フロントエンド用の型／マッピング
+│       ├── repositories/  # Nuxt API ルートを呼び出す Repository 層
+│       └── composables/   # 機能固有の composable
 ├── generated/             # Orval 自動生成コード（手動編集不可）
 │   └── api/
 ├── layouts/               # Nuxt レイアウト（例: default, guest）
@@ -53,7 +54,8 @@ packages/frontend
 - `components/common/`: 複数機能で再利用される中粒度UI（例: AppHeader.vue）。
 - `components/pages/<page>/`: ページ本体（`<PageName>Page.vue`）と `parts/`、ページ専用 composable（`use-<page>-page.ts`）を併置。
 - `composables/`: 横断的に再利用する composable を配置。
-- `features/<feature>/models`: 型、Zod スキーマ、型に特化した純関数（例: `user.ts`, `data-source.ts`）。
+- `features/<feature>/domain`: フロントエンド用の型やマッピング、必要に応じた純関数。
+- `features/<feature>/repositories`: Nuxt API ルート（`/api/*`）を呼び出す Repository。戻り値は `domain` の型。
 - `features/<feature>/composables`: 機能に特化した composable（例: `use-add-data-source.ts`）。
 - `pages/`: Nuxt のルート定義（薄いエントリ）。UI 本体は `components/pages/<page>/` 側に置く運用。
 - `layouts/`: Nuxt レイアウト（例: `default.vue`, `guest.vue`）。
@@ -80,4 +82,3 @@ packages/frontend
 - ページ実装ガイド: `packages/frontend/docs/guidelines/page-implementation-guide.md`
 - API 実装ガイド: `packages/frontend/docs/guidelines/api-implementation-guide.md`
 - テスト戦略（MSW 含む）: `packages/frontend/docs/testing-strategy.md`
-

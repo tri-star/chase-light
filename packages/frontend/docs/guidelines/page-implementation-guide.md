@@ -9,7 +9,7 @@
 
 - SSRファースト: ページはまずSSRで描画され、その後CSRでハイドレートされる前提で設計する。
 - 非ブラウザAPIの利用: 直接 `window`/`document` に触らない。必要なら `import.meta.client` ガードや `onMounted` を使う。
-- データ取得は `useFetch` / `useAsyncData`: SSRで取得したデータはNuxtのペイロードに載り、クライアントで再利用される。重複呼び出し防止のため、これらのAPIを利用する（直接 `fetch` を使わない）。
+- データ取得は `useAsyncData + Repository`（`features/<feature>/repositories/*`）を基本とし、直接 `fetch` / `useFetch` は使わない。
 - BFF経由: 直接Backendを叩かず、必ずフロント側のBFF（`/api/*`）を経由する（詳細は API 実装ガイド参照）。
 
 ### 代表的なアンチパターン
@@ -33,7 +33,29 @@
   - 初期データ取得（必要最小限）
   - 本体コンポーネントのマウント
 
-## データ取得の実装パターン
+## データ取得の実装パターン（Repository 経由が基本）
+
+### Repository 経由（推奨）
+
+```vue
+<script setup lang="ts">
+import { activityDetailRepository } from '~/features/activities/repositories/activity-detail-repository'
+
+const route = useRoute()
+const activityId = computed(() => route.params.id as string)
+
+const { data, pending, error } = await useAsyncData(
+  () => `activity-detail:${activityId.value}`,
+  () => activityDetailRepository.fetch(activityId.value),
+  { server: true, lazy: false }
+)
+</script>
+```
+
+- ポイント
+  - ページ/コンポーネントから直接 `useFetch` を呼ばず、Repository に集約する。
+  - Repository は Nuxt API ルート（`/api/*`）を呼び出し、戻り値の型は `features/<feature>/domain/*` に集約する。
+  - テストは Repository をモックし、ネットワーク依存を避ける。
 
 ### 基本形（SSRで1回、CSRで再利用）
 
