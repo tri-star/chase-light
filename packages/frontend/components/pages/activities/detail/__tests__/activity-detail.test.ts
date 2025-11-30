@@ -1,14 +1,18 @@
-import { describe, expect, it, vi } from 'vitest'
+import { afterEach, describe, expect, it, vi } from 'vitest'
 import { mountSuspended } from '@nuxt/test-utils/runtime'
-import { server } from '~/tests/setup/msw-server'
-import { getGetApiActivitiesActivityIdMockHandler } from '~/generated/api/backend.msw'
-import type { ActivityDetailResponseData } from '~/generated/api/schemas'
-
+import type { ActivityDetail } from '~/features/activities/domain/activity'
 const activityId = 'activity-1'
+const fetchMock = vi.fn()
 
-const buildActivity = (
-  override?: Partial<ActivityDetailResponseData['activity']>
-): ActivityDetailResponseData['activity'] => ({
+vi.mock('~/features/activities/repositories/activity-detail-repository', () => {
+  return {
+    ActivityDetailRepository: vi.fn().mockImplementation(() => ({
+      fetch: fetchMock,
+    })),
+  }
+})
+
+const buildActivity = (override?: Partial<ActivityDetail>): ActivityDetail => ({
   id: 'activity-1',
   activityType: 'release',
   title: 'Release v1.0',
@@ -37,24 +41,23 @@ const buildActivity = (
   ...override,
 })
 
-const mountPage = async (
-  override?: Partial<ActivityDetailResponseData['activity']>
-) => {
-  server.use(
-    getGetApiActivitiesActivityIdMockHandler({
-      success: true,
-      data: { activity: buildActivity(override) },
-    })
-  )
+const mountPage = async (override?: Partial<ActivityDetail>) => {
+  fetchMock.mockResolvedValue(buildActivity(override))
 
-  const Page = (await import('~/pages/activities/[id].vue')).default
+  const Page = (
+    await import('~/components/pages/activities/detail/ActivityDetailPage.vue')
+  ).default
   return mountSuspended(Page, {
-    route: {
-      params: { id: activityId },
-      name: 'activities-id',
+    props: {
+      activityId,
     },
   })
 }
+
+afterEach(() => {
+  vi.clearAllMocks()
+  fetchMock.mockReset()
+})
 
 describe('ActivityDetailPage', () => {
   it('詳細情報を表示する', async () => {

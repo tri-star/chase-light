@@ -6,7 +6,9 @@
 
 - **全てのAPIは `/api` エンドポイント配下のAPIを呼び出す方針とすること**
 - **APIルート(`packages/frontend/server/api`)配下にBFF（Backend For Frontend）としてのAPIを定義し、この中からBackend API(`packages/backend`)のAPIを呼び出す**
-- **CSR時は`useFetch`や`useAsyncData`を利用しDedupを行う**
+- **ページ/コンポーネントからは直接 `useFetch` を呼ばず、`features/<feature>/repositories/*` に置いた Repository を `useAsyncData` 経由で利用する**
+- **Repository は Nuxt の API ルート（`/api/*`）を呼び出し、フロントエンド用の型（`features/<feature>/domain/*`）で返す**
+- **CSR時は`useAsyncData`を利用しDedupを行う（Repository 内部での fetch も含む）**
 - **Backend APIから取得したデータは境界を跨いでいるため、zodなどによりスキーマ検証を行う**
 - **APIルートはBackendAPIとの橋渡しや整形といった側面が強く、NGは型チェックにより検知し易いと考え、テストは記述しない（代わりに各ページのテストを記述する）**
 
@@ -16,13 +18,22 @@
 
 ```
 [Frontend Pages/Components]
-         ↓ $fetch / useFetch
+         ↓ useAsyncData + Repository
+[Frontend Repository (features/<feature>/repositories)]
+         ↓ useRequestFetch（Nuxt API ルート呼び出し）
 [Frontend API Routes (/api)]  ← BFF層
          ↓ fetch
 [Backend API]
          ↓
 [Database]
 ```
+
+### Repository レイヤー（フロントエンド）
+
+- 配置: `packages/frontend/features/<feature>/repositories`
+- 戻り値の型: `packages/frontend/features/<feature>/domain` に定義したフロントエンド用型（必要に応じて Orval 生成型のエイリアス）。
+- 呼び出し: ページ/コンポーネントからは `useAsyncData(() => repository.fetch(...))` で利用する。
+- テスト: ページテストでは Repository をモックし、MSW などのネットワーク依存を避ける。
 
 ### フロントエンドAPIの責務
 
