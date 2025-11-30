@@ -3,7 +3,8 @@ import { computed, ref, watchEffect } from 'vue'
 import ClSection from '~/components/base/ClSection.vue'
 import ActivityDetailHeader from './parts/ActivityDetailHeader.vue'
 import ActivityDetailContent from './parts/ActivityDetailContent.vue'
-import type { ActivityDetailResponse } from '~/generated/api/schemas'
+import { ActivityDetailRepository } from '~/features/activities/repositories/activity-detail-repository'
+import type { ActivityDetail } from '~/features/activities/domain/activity'
 
 const props = defineProps<{
   activityId: string
@@ -12,19 +13,28 @@ const props = defineProps<{
 type DisplayMode = 'translated' | 'original'
 
 const mode = ref<DisplayMode>('translated')
+const activityDetailRepository = new ActivityDetailRepository()
 
-const { data, error } = await useFetch<ActivityDetailResponse>(
-  `/api/activities/${props.activityId}`
+const { data, error } = await useAsyncData<ActivityDetail>(
+  () => `activity-detail:${props.activityId}`,
+  () => activityDetailRepository.fetch(props.activityId),
+  {
+    server: true,
+    lazy: false,
+  }
 )
 
 if (error.value) {
   throw error.value
 }
 
-const activity = data.value?.data.activity
+const activity = computed(() => data.value)
 
 const pageTitle = computed(
-  () => activity?.translatedTitle || activity?.title || 'アクティビティ詳細'
+  () =>
+    activity.value?.translatedTitle ||
+    activity.value?.title ||
+    'アクティビティ詳細'
 )
 
 useSeoMeta({
@@ -33,7 +43,7 @@ useSeoMeta({
 })
 
 const hasTranslatedContent = computed(
-  () => !!(activity?.translatedTitle || activity?.translatedBody)
+  () => !!(activity.value?.translatedTitle || activity.value?.translatedBody)
 )
 
 watchEffect(() => {
@@ -44,16 +54,16 @@ watchEffect(() => {
 
 const displayTitle = computed(() => {
   if (mode.value === 'translated' && hasTranslatedContent.value) {
-    return (activity?.translatedTitle || activity?.title) ?? ''
+    return activity.value?.translatedTitle || activity.value?.title || ''
   }
-  return activity?.title ?? ''
+  return activity.value?.title ?? ''
 })
 
 const displayBody = computed(() => {
   if (mode.value === 'translated' && hasTranslatedContent.value) {
-    return (activity?.translatedBody || activity?.detail) ?? ''
+    return activity.value?.translatedBody || activity.value?.detail || ''
   }
-  return activity?.detail ?? ''
+  return activity.value?.detail ?? ''
 })
 
 const handleToggleMode = () => {
