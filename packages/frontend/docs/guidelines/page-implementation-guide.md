@@ -39,7 +39,9 @@
 
 ```vue
 <script setup lang="ts">
-import { activityDetailRepository } from '~/features/activities/repositories/activity-detail-repository'
+import { ActivityDetailRepository } from '~/features/activities/repositories/activity-detail-repository'
+
+const activityDetailRepository = new ActivityDetailRepository()
 
 const route = useRoute()
 const activityId = computed(() => route.params.id as string)
@@ -57,16 +59,40 @@ const { data, pending, error } = await useAsyncData(
   - Repository は Nuxt API ルート（`/api/*`）を呼び出し、戻り値の型は `features/<feature>/domain/*` に集約する。
   - テストは Repository をモックし、ネットワーク依存を避ける。
 
+### Repository 実装時のHTTPエラーハンドリング
+
+Repository 内では下記を共通方針とする：
+
+```ts
+import { toHttpError } from '~/errors/http-error'
+
+const fetcher = useRequestFetch()
+
+try {
+  const res = await fetcher<{ data: { activity: ActivityDetail } }>(
+    `/api/activities/${activityId}`
+  )
+  return res.data.activity
+} catch (error) {
+  throw toHttpError(error)
+}
+```
+
+- `useRequestFetch` を直接利用する（クライアントでは `$fetch` が返るため分岐不要）。
+- 4xx/5xx は `toHttpError` で正規化し、`HttpError`（`status`/`data`/`message`/`headers`、`isClientError`/`isServerError`）として投げ直す。
+- 共通化関数（requestFetch）で型補完を維持しづらいため、各Repositoryで上記パターンを踏襲する。
+
 ### 基本形（SSRで1回、CSRで再利用）
 
 ```vue
 <script setup lang="ts">
 const route = useRoute()
+const dashboardRepository = new DashboardRepository()
 
 const { data, pending, error } = await useAsyncData(
   // 重複排除のキー（ルート依存なら識別子に含める）
   () => `dashboard:${route.params.id ?? 'index'}`,
-  () => $fetch('/api/dashboard', { params: { id: route.params.id } }),
+  () => dashboardRepository.findById(route.params.id),
   {
     default: () => ({ items: [] }),
     server: true,   // SSRで取得
@@ -143,7 +169,7 @@ useSeoMeta({ title: 'Dashboard', ogTitle: 'Dashboard', description: '...', ogDes
 ## チェックリスト
 
 - [ ] `window`/`document` を直接参照していない（`import.meta.client` ガード済み）
-- [ ] データ取得は `useFetch`/`useAsyncData` で重複排除される設計
+- [ ] データ取得は `useAsyncData` で重複排除される設計
 - [ ] ルート定義は kebab-case、ページ本体は `<PageName>Page.vue`
 - [ ] BFF（`/api/*`）を経由している
 - [ ] エラー/ローディング状態を考慮している
