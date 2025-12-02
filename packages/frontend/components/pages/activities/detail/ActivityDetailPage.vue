@@ -16,7 +16,7 @@ const mode = ref<DisplayMode>('translated')
 const activityDetailRepository = new ActivityDetailRepository()
 
 const fetchKey = computed(() => `activity-detail:${props.activityId}`)
-const { data, error, refresh } = await useAsyncData<ActivityDetail>(
+const { data, error } = await useAsyncData<ActivityDetail>(
   fetchKey,
   () => activityDetailRepository.fetch(props.activityId),
   {
