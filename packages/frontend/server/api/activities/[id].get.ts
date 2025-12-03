@@ -36,11 +36,13 @@ export default defineEventHandler(
         )
       }
 
-      throw createError({
-        statusCode: response.status,
-        statusMessage: 'Failed to fetch activity detail',
-        data: response.data,
-      })
+      throw Object.assign(
+        new Error(`Backend API returned status ${response.status}`),
+        {
+          status: response.status,
+          data: response.data,
+        }
+      )
     } catch (error) {
       handleBackendApiError(error)
     }

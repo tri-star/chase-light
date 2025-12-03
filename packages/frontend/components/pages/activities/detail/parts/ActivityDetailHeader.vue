@@ -5,13 +5,15 @@ import ClHeading from '~/components/base/ClHeading.vue'
 import type { ActivityDetail } from '~/features/activities/domain/activity'
 import { formatDate, formatRelativeDate } from '~/utils/date'
 
-const activityTypeLabels: Record<string, string> = {
+type ActivityType = NonNullable<ActivityDetail['activityType']>
+
+const activityTypeLabels: Record<ActivityType, string> = {
   release: 'リリース',
   issue: 'Issue',
   pull_request: 'PR',
 }
 
-const activityTypeClasses: Record<string, string> = {
+const activityTypeClasses: Record<ActivityType, string> = {
   release: 'bg-status-info-subtle text-status-info-default',
   issue: 'bg-status-warn-subtle text-status-warn-default',
   pull_request: 'bg-status-success-subtle text-status-success-default',

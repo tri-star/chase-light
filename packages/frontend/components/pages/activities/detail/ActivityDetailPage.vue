@@ -54,14 +54,14 @@ watchEffect(() => {
 })
 
 const displayTitle = computed(() => {
-  if (mode.value === 'translated' && hasTranslatedContent.value) {
+  if (mode.value === 'translated') {
     return activity.value?.translatedTitle || activity.value?.title || ''
   }
   return activity.value?.title ?? ''
 })
 
 const displayBody = computed(() => {
-  if (mode.value === 'translated' && hasTranslatedContent.value) {
+  if (mode.value === 'translated') {
     return activity.value?.translatedBody || activity.value?.detail || ''
   }
   return activity.value?.detail ?? ''

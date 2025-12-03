@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, useAttrs, watchEffect } from 'vue'
+import { computed } from 'vue'
 import { tv } from 'tailwind-variants'
 
 const iconButtonStyles = tv({
@@ -61,7 +61,7 @@ type IconButtonVariant = 'ghost' | 'solid'
 type IconButtonSize = 'sm' | 'md' | 'lg'
 
 interface Props {
-  ariaLabel?: string
+  ariaLabel: string
   icon?: string
   variant?: IconButtonVariant
   size?: IconButtonSize
@@ -70,7 +70,6 @@ interface Props {
 }
 
 const props = withDefaults(defineProps<Props>(), {
-  ariaLabel: '',
   icon: undefined,
   variant: 'ghost',
   size: 'md',
@@ -78,21 +77,9 @@ const props = withDefaults(defineProps<Props>(), {
   disabled: false,
 })
 
-const attrs = useAttrs()
-
 const emit = defineEmits<{
   (e: 'click', event: MouseEvent): void
 }>()
-
-const normalizedAriaLabel = computed(
-  () => props.ariaLabel || (attrs['aria-label'] as string | undefined) || ''
-)
-
-watchEffect(() => {
-  if (!normalizedAriaLabel.value) {
-    console.warn('ClIconButton requires aria-label for accessibility.')
-  }
-})
 
 const classes = computed(() =>
   iconButtonStyles({
@@ -117,7 +104,7 @@ const handleClick = (event: MouseEvent) => {
     :type="props.type"
     data-testid="cl-icon-button"
     :class="classes"
-    :aria-label="normalizedAriaLabel || undefined"
+    :aria-label="props.ariaLabel"
     :disabled="props.disabled"
     @click="handleClick"
   >
