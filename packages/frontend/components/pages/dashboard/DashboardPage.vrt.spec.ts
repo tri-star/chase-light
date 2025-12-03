@@ -19,7 +19,11 @@ test.describe('DashboardPage stories VRT', () => {
     // await page.getByText('facebook/react').waitFor()
 
     const root = page.locator('#storybook-root')
-    await expect(root).toHaveScreenshot('dashboard-default.png')
+    // 相対日時は実行時刻により変動するためマスク
+    const occurredAtElements = page.locator('[data-id="activity-occurred-at"]')
+    await expect(root).toHaveScreenshot('dashboard-default.png', {
+      mask: [occurredAtElements],
+    })
   })
 
   test('Default story with modal open', async ({ page }) => {
@@ -29,7 +33,11 @@ test.describe('DashboardPage stories VRT', () => {
     await page.getByTestId('fab-button').click()
     await page.getByText('リポジトリ URL').waitFor()
     const root = page.locator('#storybook-root')
-    await expect(root).toHaveScreenshot('dashboard-default-modal.png')
+    // 相対日時は実行時刻により変動するためマスク
+    const occurredAtElements = page.locator('[data-id="activity-occurred-at"]')
+    await expect(root).toHaveScreenshot('dashboard-default-modal.png', {
+      mask: [occurredAtElements],
+    })
   })
 
   test('Empty story', async ({ page }) => {
@@ -55,6 +63,10 @@ test.describe('DashboardPage stories VRT', () => {
     await disableAnimations(page)
     await page.getByText('25').first().waitFor()
     const root = page.locator('#storybook-root')
-    await expect(root).toHaveScreenshot('dashboard-many.png')
+    // 相対日時は実行時刻により変動するためマスク
+    const occurredAtElements = page.locator('[data-id="activity-occurred-at"]')
+    await expect(root).toHaveScreenshot('dashboard-many.png', {
+      mask: [occurredAtElements],
+    })
   })
 })
