@@ -29,6 +29,11 @@ const navigation = [
     href: '/activities',
     icon: 'i-heroicons-queue-list-20-solid',
   },
+  {
+    name: 'データソース一覧',
+    href: '/data-sources',
+    icon: 'i-heroicons-circle-stack-20-solid',
+  },
   { name: 'プロフィール', href: '/profile', icon: 'i-heroicons-user-20-solid' },
 ]
 
