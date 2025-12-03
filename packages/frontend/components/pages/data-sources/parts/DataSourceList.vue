@@ -1,8 +1,7 @@
 <script setup lang="ts">
 import ClSection from '~/components/base/ClSection.vue'
 import ClDivider from '~/components/base/ClDivider.vue'
-import ClDropdownMenu from '~/components/base/ClDropdownMenu.vue'
-import ClMenuItem from '~/components/base/ClMenuItem.vue'
+import ClSelect from '~/components/base/ClSelect.vue'
 import type {
   DataSourceListItem,
   DataSourceSortBy,
@@ -62,11 +61,6 @@ const sortOptions: { value: DataSourceSortBy; label: string }[] = [
   { value: 'createdAt', label: '作成日時' },
 ]
 
-const currentSortLabel = computed(() => {
-  const option = sortOptions.find((o) => o.value === sortBy.value)
-  return option?.label ?? '更新日時'
-})
-
 const sortOrderLabel = computed(() =>
   sortOrder.value === 'desc' ? '降順' : '昇順'
 )
@@ -117,11 +111,6 @@ const debouncedSearch = useDebounce(() => {
 const onSearchInput = (event: Event) => {
   searchQuery.value = (event.target as HTMLInputElement).value
   debouncedSearch()
-}
-
-const onSortBySelect = (value: string) => {
-  sortBy.value = value as DataSourceSortBy
-  loadDataSources(true)
 }
 
 const toggleSortOrder = () => {
@@ -177,48 +166,13 @@ onMounted(() => {
 
       <!-- ソートコントロール -->
       <div class="flex items-center gap-2">
-        <ClDropdownMenu placement="bottom-right" aria-label="ソート順を選択">
-          <template
-            #trigger="{ triggerProps, triggerEvents, triggerRef, isOpen }"
-          >
-            <button
-              v-bind="triggerProps"
-              :ref="(el) => triggerRef(el as HTMLElement)"
-              type="button"
-              class="text-sm inline-flex items-center gap-2 rounded-md border
-                border-surface-secondary-default bg-card-default px-4 py-2
-                text-card-value hover:bg-card-hovered"
-              @click="triggerEvents.onClick"
-              @keydown="triggerEvents.onKeydown"
-            >
-              {{ currentSortLabel }}
-              <Icon
-                :name="
-                  isOpen
-                    ? 'heroicons:chevron-up-20-solid'
-                    : 'heroicons:chevron-down-20-solid'
-                "
-                class="h-4 w-4"
-                aria-hidden="true"
-              />
-            </button>
-          </template>
-          <template #default="{ close }">
-            <ClMenuItem
-              v-for="option in sortOptions"
-              :id="option.value"
-              :key="option.value"
-              @click="
-                () => {
-                  onSortBySelect(option.value)
-                  close()
-                }
-              "
-            >
-              {{ option.label }}
-            </ClMenuItem>
-          </template>
-        </ClDropdownMenu>
+        <ClSelect
+          v-model="sortBy"
+          :options="sortOptions"
+          placement="bottom-right"
+          aria-label="ソート順を選択"
+          @change="() => loadDataSources(true)"
+        />
 
         <button
           type="button"
