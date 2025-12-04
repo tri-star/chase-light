@@ -75,6 +75,35 @@ export function isHttpError(error: unknown): error is HttpError {
   return error instanceof HttpError
 }
 
+/**
+ * エラーオブジェクトからHTTPステータスコードを取得する
+ * HttpError, H3Error, FetchError などに対応
+ */
+export function getErrorStatusCode(error: unknown): number | null {
+  if (error instanceof HttpError) {
+    return error.status
+  }
+
+  // H3Error や FetchError など、status/statusCode プロパティを持つエラー
+  if (typeof error === 'object' && error !== null) {
+    if ('status' in error && typeof error.status === 'number') {
+      return error.status
+    }
+    if ('statusCode' in error && typeof error.statusCode === 'number') {
+      return error.statusCode
+    }
+  }
+
+  return null
+}
+
+/**
+ * 404 Not Found エラーかどうかを判定する
+ */
+export function isNotFoundError(error: unknown): boolean {
+  return getErrorStatusCode(error) === 404
+}
+
 function extractStatusFromMessage(message: string): number | null {
   const match = message.match(/HTTP\\s+(\\d{3})/)
   if (!match) return null
