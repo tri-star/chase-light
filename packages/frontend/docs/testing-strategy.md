@@ -52,6 +52,7 @@
 
    - 依存 API が多いほどテストが速く安定。
    - ハンドラは `tests/mocks/handlers.ts` に集約し、開発中 `nuxt dev` でも共有。
+   - ページ／DOMテストで API 呼び出しを伴う場合は、まず `features/<feature>/repositories/*` をモックする（ネットワーク依存を避ける）。MSW は Repository 直下の通信が必要なケースのみ使用。
 
 2. **Browser Feature も基本 MSW**
 

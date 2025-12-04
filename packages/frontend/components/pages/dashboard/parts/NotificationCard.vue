@@ -129,6 +129,7 @@ const activityTypeLabels: Record<string, string> = {
                 <!-- 発生日時 -->
                 <div
                   class="text-card-value opacity-60 md:ml-8"
+                  data-id="activity-occurred-at"
                   :title="formatDate(entry.occurredAt, 'full')"
                 >
                   {{ formatRelativeDate(entry.occurredAt) }}
