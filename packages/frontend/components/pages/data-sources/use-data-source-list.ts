@@ -15,22 +15,6 @@ const DEFAULT_PAGINATION: Pagination = {
   hasPrev: false,
 }
 
-// シンプルなデバウンス関数
-function useDebounce<T extends (...args: Parameters<T>) => void>(
-  fn: T,
-  delay: number
-): T {
-  let timeoutId: ReturnType<typeof setTimeout> | null = null
-  return ((...args: Parameters<T>) => {
-    if (timeoutId) {
-      clearTimeout(timeoutId)
-    }
-    timeoutId = setTimeout(() => {
-      fn(...args)
-    }, delay)
-  }) as T
-}
-
 export interface DataSourceListState {
   // データ
   dataSources: Ref<DataSourceListItem[]>
