@@ -76,7 +76,7 @@ export function isHttpError(error: unknown): error is HttpError {
 }
 
 function extractStatusFromMessage(message: string): number | null {
-  const match = message.match(/HTTP\\s+(\\d{3})/)
+  const match = message.match(/HTTP\s+(\d{3})/)
   if (!match) return null
   const parsed = Number.parseInt(match[1], 10)
   return Number.isFinite(parsed) ? parsed : null
