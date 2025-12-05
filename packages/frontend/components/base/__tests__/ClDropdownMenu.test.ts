@@ -1,4 +1,4 @@
-import { describe, test, expect, vi, beforeEach } from 'vitest'
+import { describe, test, expect, vi, beforeEach, afterEach } from 'vitest'
 import { mount } from '@vue/test-utils'
 import { nextTick, h } from 'vue'
 import ClDropdownMenu from '../ClDropdownMenu.vue'
@@ -37,12 +37,38 @@ vi.mock('~/composables/use-dropdown-menu', () => {
   }
 })
 
+// getBoundingClientRectのモック（画面外はみ出し防止ロジック用）
+const mockGetBoundingClientRect = vi.fn(() => ({
+  left: 100,
+  right: 300,
+  top: 100,
+  bottom: 200,
+  width: 200,
+  height: 100,
+  x: 100,
+  y: 100,
+  toJSON: () => {},
+}))
+
 describe('ClDropdownMenu', () => {
   beforeEach(() => {
     // モックの状態をリセット
     mockIsOpen.value = false
     mockActiveItemId.value = undefined
     mockItems.value = []
+
+    // getBoundingClientRectをモック（位置調整ロジックが適切に動作するように）
+    Element.prototype.getBoundingClientRect = mockGetBoundingClientRect
+
+    // window.innerWidthをモック
+    Object.defineProperty(window, 'innerWidth', {
+      value: 1024,
+      writable: true,
+    })
+  })
+
+  afterEach(() => {
+    vi.restoreAllMocks()
   })
 
   const createTriggerSlot = (text = 'トリガー') => ({
