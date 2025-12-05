@@ -36,21 +36,23 @@ const modeLabel = computed(() =>
           bg-surface-secondary-default/60 p-2"
         data-testid="activity-actions"
       >
+        <!-- eslint-disable vue/attribute-hyphenation -->
         <ClIconButton
-          aria-label="共有する"
+          ariaLabel="共有する"
           icon="i-heroicons-share-20-solid"
           size="sm"
         />
         <ClIconButton
-          aria-label="保存する"
+          ariaLabel="保存する"
           icon="i-heroicons-bookmark-20-solid"
           size="sm"
         />
         <ClIconButton
-          aria-label="いいねする"
+          ariaLabel="いいねする"
           icon="i-heroicons-hand-thumb-up-20-solid"
           size="sm"
         />
+        <!-- eslint-enable vue/attribute-hyphenation -->
       </div>
     </div>
 
