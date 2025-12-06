@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, test } from "vitest"
+import { beforeEach, describe, expect, test, vi } from "vitest"
 import { OpenAPIHono } from "@hono/zod-openapi"
 import { setupComponentTest, TestDataFactory } from "../../../../../../test"
 import { createActivityPresentationRoutes } from "../../../routes"
@@ -7,6 +7,10 @@ import {
   GetActivityDetailUseCase,
   ListDataSourceActivitiesUseCase,
 } from "../../../../application/use-cases"
+import type {
+  RequestActivityBodyTranslationUseCase,
+  GetActivityBodyTranslationStatusUseCase,
+} from "../../../../application"
 import { DrizzleActivityQueryRepository } from "../../../../infra"
 import { globalJWTAuth } from "../../../../../identity"
 import { AuthTestHelper } from "../../../../../identity/test-helpers/auth-test-helper"
@@ -107,6 +111,16 @@ describe("Activities API", () => {
     const listDataSourceActivitiesUseCase = new ListDataSourceActivitiesUseCase(
       repository,
     )
+    const requestActivityBodyTranslationUseCase = {
+      execute: vi
+        .fn()
+        .mockResolvedValue({ status: "not_found" as const }),
+    } as unknown as RequestActivityBodyTranslationUseCase
+    const getActivityBodyTranslationStatusUseCase = {
+      execute: vi
+        .fn()
+        .mockResolvedValue({ status: "not_found" as const }),
+    } as unknown as GetActivityBodyTranslationStatusUseCase
 
     app = new OpenAPIHono()
     app.use("*", globalJWTAuth)
@@ -116,6 +130,8 @@ describe("Activities API", () => {
         listUserActivitiesUseCase,
         getActivityDetailUseCase,
         listDataSourceActivitiesUseCase,
+        requestActivityBodyTranslationUseCase,
+        getActivityBodyTranslationStatusUseCase,
       ),
     )
   })

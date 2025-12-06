@@ -30,6 +30,28 @@ export const activityDetailSchema = z
       description: "翻訳済み本文 (現状はnull)",
       example: null,
     }),
+    bodyTranslationStatus: z
+      .enum(["not_requested", "pending", "processing", "completed", "failed"])
+      .openapi({
+        description: "本文翻訳の進行状況",
+        example: "pending",
+      }),
+    bodyTranslationRequestedAt: z.string().datetime().nullable().openapi({
+      description: "本文翻訳がリクエストされた日時",
+      example: "2024-01-02T12:00:00.000Z",
+    }),
+    bodyTranslationStartedAt: z.string().datetime().nullable().openapi({
+      description: "本文翻訳が開始された日時",
+      example: "2024-01-02T12:05:00.000Z",
+    }),
+    bodyTranslationCompletedAt: z.string().datetime().nullable().openapi({
+      description: "本文翻訳が完了した日時",
+      example: "2024-01-02T12:06:00.000Z",
+    }),
+    bodyTranslationError: z.string().nullable().openapi({
+      description: "本文翻訳で発生したエラー内容",
+      example: null,
+    }),
     status: z
       .enum(["pending", "processing", "completed", "failed"])
       .openapi({ description: "処理ステータス", example: "completed" }),

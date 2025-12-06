@@ -38,6 +38,17 @@ const mapActivityItem = (item: ActivityListItem) => ({
     summary: item.activity.summary,
     detail: item.activity.detail ?? null,
     translatedBody: item.activity.translatedBody,
+    bodyTranslationStatus: item.activity.bodyTranslationStatus,
+    bodyTranslationRequestedAt: item.activity.bodyTranslationRequestedAt
+      ? formatDate(item.activity.bodyTranslationRequestedAt)
+      : null,
+    bodyTranslationStartedAt: item.activity.bodyTranslationStartedAt
+      ? formatDate(item.activity.bodyTranslationStartedAt)
+      : null,
+    bodyTranslationCompletedAt: item.activity.bodyTranslationCompletedAt
+      ? formatDate(item.activity.bodyTranslationCompletedAt)
+      : null,
+    bodyTranslationError: item.activity.bodyTranslationError,
     status: item.activity.status,
     statusDetail: item.activity.statusDetail,
     version: item.activity.version,
@@ -73,6 +84,17 @@ export const mapActivityDetailToResponse = (detail: ActivityDetail) => ({
       summary: detail.activity.summary,
       detail: detail.activity.detail,
       translatedBody: detail.activity.translatedBody,
+      bodyTranslationStatus: detail.activity.bodyTranslationStatus,
+      bodyTranslationRequestedAt: detail.activity.bodyTranslationRequestedAt
+        ? formatDate(detail.activity.bodyTranslationRequestedAt)
+        : null,
+      bodyTranslationStartedAt: detail.activity.bodyTranslationStartedAt
+        ? formatDate(detail.activity.bodyTranslationStartedAt)
+        : null,
+      bodyTranslationCompletedAt: detail.activity.bodyTranslationCompletedAt
+        ? formatDate(detail.activity.bodyTranslationCompletedAt)
+        : null,
+      bodyTranslationError: detail.activity.bodyTranslationError,
       status: detail.activity.status,
       statusDetail: detail.activity.statusDetail,
       version: detail.activity.version,
