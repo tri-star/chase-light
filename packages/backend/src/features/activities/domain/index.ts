@@ -1,3 +1,5 @@
 export * from "./activity"
 export * from "./repositories/activity-query.repository"
+export * from "./repositories/activity.repository"
 export * from "./factories/activity-factory"
+export * from "./activity-body-translation"
