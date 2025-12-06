@@ -52,6 +52,8 @@ export function resetActivityBodyTranslationPort(): void {
   cachedPort = null
 }
 
+export { ActivityBodyTranslationAdapterStub }
+
 function isMissingOpenAiKeyError(error: unknown): boolean {
   if (!(error instanceof Error)) {
     return false

@@ -121,10 +121,16 @@ export function createActivityBodyTranslationRoutes(
     }
 
     if (result.status === "already_completed") {
-      return c.json(mapActivityDetailToResponse(toActivityDetail(result.activity)), 200)
+      return c.json(
+        mapActivityDetailToResponse(toActivityDetail(result.activity)),
+        200,
+      )
     }
 
-    return c.json(mapActivityDetailToResponse(toActivityDetail(result.activity)), 202)
+    return c.json(
+      mapActivityDetailToResponse(toActivityDetail(result.activity)),
+      202,
+    )
   })
 
   const statusRoute = createRoute({

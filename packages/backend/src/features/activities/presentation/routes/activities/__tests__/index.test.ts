@@ -112,14 +112,10 @@ describe("Activities API", () => {
       repository,
     )
     const requestActivityBodyTranslationUseCase = {
-      execute: vi
-        .fn()
-        .mockResolvedValue({ status: "not_found" as const }),
+      execute: vi.fn().mockResolvedValue({ status: "not_found" as const }),
     } as unknown as RequestActivityBodyTranslationUseCase
     const getActivityBodyTranslationStatusUseCase = {
-      execute: vi
-        .fn()
-        .mockResolvedValue({ status: "not_found" as const }),
+      execute: vi.fn().mockResolvedValue({ status: "not_found" as const }),
     } as unknown as GetActivityBodyTranslationStatusUseCase
 
     app = new OpenAPIHono()
