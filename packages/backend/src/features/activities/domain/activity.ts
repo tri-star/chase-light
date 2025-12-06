@@ -1,6 +1,13 @@
+import {
+  ACTIVITY_BODY_TRANSLATION_STATUS,
+  type ActivityBodyTranslationStatus,
+} from "shared"
+
 /**
  * アクティビティ機能で共有するドメイン定義とDTO
  */
+
+export { ACTIVITY_BODY_TRANSLATION_STATUS, type ActivityBodyTranslationStatus }
 
 export const ACTIVITY_STATUS = {
   PENDING: "pending",
@@ -46,6 +53,15 @@ export const DEFAULT_ACTIVITY_STATUS_FILTER: ActivityStatus =
 export const isTerminalStatus = (status: ActivityStatus): boolean =>
   status === ACTIVITY_STATUS.COMPLETED || status === ACTIVITY_STATUS.FAILED
 
+export const DEFAULT_ACTIVITY_BODY_TRANSLATION_STATUS: ActivityBodyTranslationStatus =
+  ACTIVITY_BODY_TRANSLATION_STATUS.NOT_REQUESTED
+
+export const isBodyTranslationTerminal = (
+  status: ActivityBodyTranslationStatus,
+): boolean =>
+  status === ACTIVITY_BODY_TRANSLATION_STATUS.COMPLETED ||
+  status === ACTIVITY_BODY_TRANSLATION_STATUS.FAILED
+
 export type ActivityRecord = {
   id: string
   dataSourceId: string
@@ -57,6 +73,11 @@ export type ActivityRecord = {
   summary: string | null
   translatedBody: string | null
   version: string | null
+  bodyTranslationStatus: ActivityBodyTranslationStatus
+  bodyTranslationRequestedAt: Date | null
+  bodyTranslationStartedAt: Date | null
+  bodyTranslationCompletedAt: Date | null
+  bodyTranslationError: string | null
   status: ActivityStatus
   statusDetail: string | null
   githubData: string | null
@@ -90,6 +111,11 @@ export type ActivityListItemSummary = {
   summary: string | null
   detail?: string | null
   translatedBody: string | null
+  bodyTranslationStatus: ActivityBodyTranslationStatus
+  bodyTranslationRequestedAt: Date | null
+  bodyTranslationStartedAt: Date | null
+  bodyTranslationCompletedAt: Date | null
+  bodyTranslationError: string | null
   status: ActivityStatus
   statusDetail: string | null
   version: string | null

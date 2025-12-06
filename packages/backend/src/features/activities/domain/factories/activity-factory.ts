@@ -3,6 +3,7 @@ import { uuidv7 } from "uuidv7"
 import {
   ACTIVITY_STATUS,
   ACTIVITY_TYPE,
+  ACTIVITY_BODY_TRANSLATION_STATUS,
   type Activity,
   type ActivityType,
 } from "../activity"
@@ -28,6 +29,11 @@ export function createActivity(dataSourceId: string): ActivitySeed {
     summary: fakerJA.lorem.sentence({ min: 10, max: 100 }),
     translatedBody: fakerJA.lorem.paragraph({ min: 100, max: 400 }),
     version: createVersion(),
+    bodyTranslationStatus: ACTIVITY_BODY_TRANSLATION_STATUS.NOT_REQUESTED,
+    bodyTranslationRequestedAt: null,
+    bodyTranslationStartedAt: null,
+    bodyTranslationCompletedAt: null,
+    bodyTranslationError: null,
     status: ACTIVITY_STATUS.COMPLETED,
     statusDetail: null,
     githubData: "",

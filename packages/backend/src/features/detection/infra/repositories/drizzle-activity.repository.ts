@@ -6,6 +6,7 @@ import {
   type ActivityStatus,
   type ActivityType,
   type Activity,
+  type ActivityBodyTranslationStatus,
   ACTIVITY_STATUS,
 } from "../../domain/activity"
 import { ActivityRepository } from "../../domain/repositories/activity.repository"
@@ -359,6 +360,12 @@ export class DrizzleActivityRepository implements ActivityRepository {
       summary: row.summary,
       translatedBody: row.translatedBody,
       version: row.version,
+      bodyTranslationStatus:
+        row.bodyTranslationStatus as ActivityBodyTranslationStatus,
+      bodyTranslationRequestedAt: row.bodyTranslationRequestedAt,
+      bodyTranslationStartedAt: row.bodyTranslationStartedAt,
+      bodyTranslationCompletedAt: row.bodyTranslationCompletedAt,
+      bodyTranslationError: row.bodyTranslationError,
       status: row.status as ActivityStatus,
       statusDetail: row.statusDetail,
       githubData: row.githubData,

@@ -7,6 +7,7 @@ import { DrizzleActivityRepository } from "../../../infra/repositories"
 import {
   ACTIVITY_STATUS,
   ACTIVITY_TYPE,
+  ACTIVITY_BODY_TRANSLATION_STATUS,
   type Activity,
 } from "../../../domain/activity"
 import { DATA_SOURCE_TYPES } from "../../../../data-sources/domain/data-source"
@@ -37,6 +38,11 @@ describe("process-updates handler", () => {
       summary: null,
       translatedBody: null,
       version: "v1.0.0",
+      bodyTranslationStatus: ACTIVITY_BODY_TRANSLATION_STATUS.NOT_REQUESTED,
+      bodyTranslationRequestedAt: null,
+      bodyTranslationStartedAt: null,
+      bodyTranslationCompletedAt: null,
+      bodyTranslationError: null,
       status: ACTIVITY_STATUS.PENDING,
       statusDetail: null,
       githubData: null,

@@ -5,8 +5,12 @@ export {
   DEFAULT_ACTIVITIES_PAGE,
   DEFAULT_ACTIVITIES_PER_PAGE,
   MAX_ACTIVITIES_PER_PAGE,
+  ACTIVITY_BODY_TRANSLATION_STATUS,
+  DEFAULT_ACTIVITY_BODY_TRANSLATION_STATUS,
   type ActivityType,
   type ActivityStatus,
+  type ActivityBodyTranslationStatus,
   type Activity,
   isTerminalStatus,
+  isBodyTranslationTerminal,
 } from "../../activities"

@@ -13,6 +13,7 @@ import type {
   ActivityDetailQuery,
   ActivityListItem,
   ActivityListResult,
+  ActivityBodyTranslationStatus,
   ActivitySortField,
   ActivitySortOrder,
   ActivitySourceSummary,
@@ -36,6 +37,11 @@ type BaseActivityRow = {
   body: string
   summary: string | null
   translatedBody: string | null
+  bodyTranslationStatus: ActivityBodyTranslationStatus
+  bodyTranslationRequestedAt: Date | null
+  bodyTranslationStartedAt: Date | null
+  bodyTranslationCompletedAt: Date | null
+  bodyTranslationError: string | null
   status: ActivityStatus
   statusDetail: string | null
   version: string | null
@@ -195,6 +201,11 @@ export class DrizzleActivityQueryRepository implements ActivityQueryRepository {
         summary: this.resolveSummary(row.summary, row.body),
         detail: row.body,
         translatedBody: row.translatedBody,
+        bodyTranslationStatus: row.bodyTranslationStatus,
+        bodyTranslationRequestedAt: row.bodyTranslationRequestedAt,
+        bodyTranslationStartedAt: row.bodyTranslationStartedAt,
+        bodyTranslationCompletedAt: row.bodyTranslationCompletedAt,
+        bodyTranslationError: row.bodyTranslationError,
         status: row.status,
         statusDetail: row.statusDetail,
         version: row.version,
@@ -215,6 +226,11 @@ export class DrizzleActivityQueryRepository implements ActivityQueryRepository {
       body: activities.body,
       summary: activities.summary,
       translatedBody: activities.translatedBody,
+      bodyTranslationStatus: activities.bodyTranslationStatus,
+      bodyTranslationRequestedAt: activities.bodyTranslationRequestedAt,
+      bodyTranslationStartedAt: activities.bodyTranslationStartedAt,
+      bodyTranslationCompletedAt: activities.bodyTranslationCompletedAt,
+      bodyTranslationError: activities.bodyTranslationError,
       status: activities.status,
       statusDetail: activities.statusDetail,
       version: activities.version,
@@ -330,6 +346,11 @@ export class DrizzleActivityQueryRepository implements ActivityQueryRepository {
         summary: this.resolveSummary(row.summary, row.body),
         detail: null,
         translatedBody: row.translatedBody,
+        bodyTranslationStatus: row.bodyTranslationStatus,
+        bodyTranslationRequestedAt: row.bodyTranslationRequestedAt,
+        bodyTranslationStartedAt: row.bodyTranslationStartedAt,
+        bodyTranslationCompletedAt: row.bodyTranslationCompletedAt,
+        bodyTranslationError: row.bodyTranslationError,
         status: row.status,
         statusDetail: row.statusDetail,
         version: row.version,

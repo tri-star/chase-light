@@ -1,5 +1,8 @@
 import { describe, expect, it, vi } from "vitest"
-import type { ActivityDetail } from "../../../domain"
+import {
+  ACTIVITY_BODY_TRANSLATION_STATUS,
+  type ActivityDetail,
+} from "../../../domain"
 import type { ActivityQueryRepository } from "../../../domain/repositories/activity-query.repository"
 import { GetActivityDetailUseCase } from "../get-activity-detail.use-case"
 
@@ -22,6 +25,11 @@ describe("GetActivityDetailUseCase", () => {
         summary: "Summary",
         detail: "Detail",
         translatedBody: null,
+        bodyTranslationStatus: ACTIVITY_BODY_TRANSLATION_STATUS.NOT_REQUESTED,
+        bodyTranslationRequestedAt: null,
+        bodyTranslationStartedAt: null,
+        bodyTranslationCompletedAt: null,
+        bodyTranslationError: null,
         status: "completed",
         statusDetail: null,
         version: "v1.0",
