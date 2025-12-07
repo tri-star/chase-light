@@ -2,6 +2,7 @@ import { writeFile } from "node:fs/promises"
 import { get } from "node:http"
 import { resolve } from "node:path"
 import { fileURLToPath } from "node:url"
+import { config as loadEnv } from "dotenv"
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = resolve(__filename, "..")
@@ -53,6 +54,8 @@ function fetchJson(url: string): Promise<unknown> {
  * 指定されたポートのローカルサーバーからOpenAPI仕様を取得し、JSONファイルに保存する
  */
 async function updateOpenApiJson(): Promise<void> {
+  loadEnv()
+
   const PORT = process.env.PORT || "3001"
   const openApiUrl = `http://localhost:${PORT}/doc`
   const outputPath = resolve(__dirname, "../openapi.json")
