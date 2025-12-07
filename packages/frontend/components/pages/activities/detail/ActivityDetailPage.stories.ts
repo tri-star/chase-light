@@ -87,6 +87,17 @@ const createActivityDetailResponse = (
 - APIエンドポイントが再構成されました
 
 **完全な変更履歴**: https://github.com/example/repo/compare/v0.9.0...v1.0.0`,
+        bodyTranslationStatus: 'completed',
+        bodyTranslationRequestedAt: new Date(
+          now.getTime() - 86400000
+        ).toISOString(),
+        bodyTranslationStartedAt: new Date(
+          now.getTime() - 86300000
+        ).toISOString(),
+        bodyTranslationCompletedAt: new Date(
+          now.getTime() - 86200000
+        ).toISOString(),
+        bodyTranslationError: null,
         status: 'completed',
         statusDetail: null,
         version: 'v1.0.0',

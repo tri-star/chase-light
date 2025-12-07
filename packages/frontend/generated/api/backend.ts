@@ -7,6 +7,10 @@
  */
 import type {
   ActivitiesErrorResponse,
+  ActivityBodyTranslationErrorResponse,
+  ActivityBodyTranslationRequest,
+  ActivityBodyTranslationStatusErrorResponse,
+  ActivityBodyTranslationStatusResponse,
   ActivityDetailResponse,
   ActivityListResponse,
   AuthErrorResponse,
@@ -788,6 +792,106 @@ export const getGetApiActivitiesActivityIdUrl = (activityId: string,) => {
 export const getApiActivitiesActivityId = async (activityId: string, options?: RequestInit): Promise<getApiActivitiesActivityIdResponse> => {
   
   return customFetch<getApiActivitiesActivityIdResponse>(getGetApiActivitiesActivityIdUrl(activityId),
+  {      
+    ...options,
+    method: 'GET'
+    
+    
+  }
+);}
+
+
+
+/**
+ * ウォッチしているアクティビティ本文の翻訳をリクエストします。force=trueで再翻訳を強制できます。
+ * @summary アクティビティ本文翻訳のリクエスト
+ */
+export type postApiActivitiesActivityIdTranslationBodyResponse200 = {
+  data: ActivityBodyTranslationStatusResponse
+  status: 200
+}
+
+export type postApiActivitiesActivityIdTranslationBodyResponse202 = {
+  data: ActivityBodyTranslationStatusResponse
+  status: 202
+}
+
+export type postApiActivitiesActivityIdTranslationBodyResponse404 = {
+  data: ActivityBodyTranslationErrorResponse
+  status: 404
+}
+
+export type postApiActivitiesActivityIdTranslationBodyResponse409 = {
+  data: ActivityBodyTranslationErrorResponse
+  status: 409
+}
+    
+export type postApiActivitiesActivityIdTranslationBodyResponseSuccess = (postApiActivitiesActivityIdTranslationBodyResponse200 | postApiActivitiesActivityIdTranslationBodyResponse202) & {
+  headers: Headers;
+};
+export type postApiActivitiesActivityIdTranslationBodyResponseError = (postApiActivitiesActivityIdTranslationBodyResponse404 | postApiActivitiesActivityIdTranslationBodyResponse409) & {
+  headers: Headers;
+};
+
+export type postApiActivitiesActivityIdTranslationBodyResponse = (postApiActivitiesActivityIdTranslationBodyResponseSuccess | postApiActivitiesActivityIdTranslationBodyResponseError)
+
+export const getPostApiActivitiesActivityIdTranslationBodyUrl = (activityId: string,) => {
+
+
+  
+
+  return `/api/activities/${activityId}/translation/body`
+}
+
+export const postApiActivitiesActivityIdTranslationBody = async (activityId: string,
+    activityBodyTranslationRequest: ActivityBodyTranslationRequest, options?: RequestInit): Promise<postApiActivitiesActivityIdTranslationBodyResponse> => {
+  
+  return customFetch<postApiActivitiesActivityIdTranslationBodyResponse>(getPostApiActivitiesActivityIdTranslationBodyUrl(activityId),
+  {      
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(
+      activityBodyTranslationRequest,)
+  }
+);}
+
+
+
+/**
+ * 本文翻訳の状態とタイムスタンプ、翻訳済み本文を返却します
+ * @summary アクティビティ本文翻訳の進行状況取得
+ */
+export type getApiActivitiesActivityIdTranslationBodyStatusResponse200 = {
+  data: ActivityBodyTranslationStatusResponse
+  status: 200
+}
+
+export type getApiActivitiesActivityIdTranslationBodyStatusResponse404 = {
+  data: ActivityBodyTranslationStatusErrorResponse
+  status: 404
+}
+    
+export type getApiActivitiesActivityIdTranslationBodyStatusResponseSuccess = (getApiActivitiesActivityIdTranslationBodyStatusResponse200) & {
+  headers: Headers;
+};
+export type getApiActivitiesActivityIdTranslationBodyStatusResponseError = (getApiActivitiesActivityIdTranslationBodyStatusResponse404) & {
+  headers: Headers;
+};
+
+export type getApiActivitiesActivityIdTranslationBodyStatusResponse = (getApiActivitiesActivityIdTranslationBodyStatusResponseSuccess | getApiActivitiesActivityIdTranslationBodyStatusResponseError)
+
+export const getGetApiActivitiesActivityIdTranslationBodyStatusUrl = (activityId: string,) => {
+
+
+  
+
+  return `/api/activities/${activityId}/translation/body/status`
+}
+
+export const getApiActivitiesActivityIdTranslationBodyStatus = async (activityId: string, options?: RequestInit): Promise<getApiActivitiesActivityIdTranslationBodyStatusResponse> => {
+  
+  return customFetch<getApiActivitiesActivityIdTranslationBodyStatusResponse>(getGetApiActivitiesActivityIdTranslationBodyStatusUrl(activityId),
   {      
     ...options,
     method: 'GET'

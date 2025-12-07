@@ -6,6 +6,7 @@
  * OpenAPI spec version: 1.0.0
  */
 import type { ActivityDetailActivityType } from './activityDetailActivityType';
+import type { ActivityDetailBodyTranslationStatus } from './activityDetailBodyTranslationStatus';
 import type { ActivityDetailStatus } from './activityDetailStatus';
 import type { ActivityDetailSource } from './activityDetailSource';
 
@@ -33,6 +34,28 @@ export interface ActivityDetail {
    * @nullable
    */
   translatedBody: string | null;
+  /** 本文翻訳の進行状況 */
+  bodyTranslationStatus: ActivityDetailBodyTranslationStatus;
+  /**
+   * 本文翻訳がリクエストされた日時
+   * @nullable
+   */
+  bodyTranslationRequestedAt: string | null;
+  /**
+   * 本文翻訳が開始された日時
+   * @nullable
+   */
+  bodyTranslationStartedAt: string | null;
+  /**
+   * 本文翻訳が完了した日時
+   * @nullable
+   */
+  bodyTranslationCompletedAt: string | null;
+  /**
+   * 本文翻訳で発生したエラー内容
+   * @nullable
+   */
+  bodyTranslationError: string | null;
   /** 処理ステータス */
   status: ActivityDetailStatus;
   /**

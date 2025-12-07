@@ -434,6 +434,109 @@ export const getApiActivitiesActivityIdResponse = zod.object({
   "summary": zod.string().nullable().describe('本文の要約 (翻訳済み)'),
   "detail": zod.string().describe('表示用の詳細本文 (原文)'),
   "translatedBody": zod.string().nullable().describe('翻訳済み本文 (現状はnull)'),
+  "bodyTranslationStatus": zod.enum(['not_requested', 'pending', 'processing', 'completed', 'failed']).describe('本文翻訳の進行状況'),
+  "bodyTranslationRequestedAt": zod.iso.datetime({}).nullable().describe('本文翻訳がリクエストされた日時'),
+  "bodyTranslationStartedAt": zod.iso.datetime({}).nullable().describe('本文翻訳が開始された日時'),
+  "bodyTranslationCompletedAt": zod.iso.datetime({}).nullable().describe('本文翻訳が完了した日時'),
+  "bodyTranslationError": zod.string().nullable().describe('本文翻訳で発生したエラー内容'),
+  "status": zod.enum(['pending', 'processing', 'completed', 'failed']).describe('処理ステータス'),
+  "statusDetail": zod.string().nullable().describe('ステータスに関する補足'),
+  "version": zod.string().nullable().describe('リリースバージョン'),
+  "occurredAt": zod.iso.datetime({}).describe('発生日時'),
+  "lastUpdatedAt": zod.iso.datetime({}).describe('最終更新日時'),
+  "source": zod.object({
+  "id": zod.uuid().describe('データソースID'),
+  "sourceType": zod.string().describe('データソース種別'),
+  "name": zod.string().describe('データソース名'),
+  "url": zod.url().describe('データソースURL'),
+  "metadata": zod.object({
+  "repositoryFullName": zod.string().optional().describe('GitHubリポジトリのフルネーム'),
+  "repositoryLanguage": zod.string().nullish().describe('リポジトリの主要言語'),
+  "starsCount": zod.number().optional().describe('スター数'),
+  "forksCount": zod.number().optional().describe('フォーク数'),
+  "openIssuesCount": zod.number().optional().describe('未解決Issue数')
+}).optional().describe('データソースに紐づく追加メタ情報')
+})
+})
+})
+})
+
+
+/**
+ * ウォッチしているアクティビティ本文の翻訳をリクエストします。force=trueで再翻訳を強制できます。
+ * @summary アクティビティ本文翻訳のリクエスト
+ */
+export const postApiActivitiesActivityIdTranslationBodyParams = zod.object({
+  "activityId": zod.string().describe('アクティビティID')
+})
+
+export const postApiActivitiesActivityIdTranslationBodyBody = zod.object({
+  "force": zod.boolean().optional().describe('trueの場合、completedやprocessingでも再翻訳を強制します。デフォルトはfalse。')
+})
+
+export const postApiActivitiesActivityIdTranslationBodyResponse = zod.object({
+  "success": zod.literal(true),
+  "data": zod.object({
+  "activity": zod.object({
+  "id": zod.uuid().describe('アクティビティID'),
+  "activityType": zod.enum(['release', 'issue', 'pull_request']).describe('アクティビティ種別'),
+  "title": zod.string().describe('アクティビティのタイトル'),
+  "translatedTitle": zod.string().nullable().describe('翻訳済みタイトル (日本語)'),
+  "summary": zod.string().nullable().describe('本文の要約 (翻訳済み)'),
+  "detail": zod.string().describe('表示用の詳細本文 (原文)'),
+  "translatedBody": zod.string().nullable().describe('翻訳済み本文 (現状はnull)'),
+  "bodyTranslationStatus": zod.enum(['not_requested', 'pending', 'processing', 'completed', 'failed']).describe('本文翻訳の進行状況'),
+  "bodyTranslationRequestedAt": zod.iso.datetime({}).nullable().describe('本文翻訳がリクエストされた日時'),
+  "bodyTranslationStartedAt": zod.iso.datetime({}).nullable().describe('本文翻訳が開始された日時'),
+  "bodyTranslationCompletedAt": zod.iso.datetime({}).nullable().describe('本文翻訳が完了した日時'),
+  "bodyTranslationError": zod.string().nullable().describe('本文翻訳で発生したエラー内容'),
+  "status": zod.enum(['pending', 'processing', 'completed', 'failed']).describe('処理ステータス'),
+  "statusDetail": zod.string().nullable().describe('ステータスに関する補足'),
+  "version": zod.string().nullable().describe('リリースバージョン'),
+  "occurredAt": zod.iso.datetime({}).describe('発生日時'),
+  "lastUpdatedAt": zod.iso.datetime({}).describe('最終更新日時'),
+  "source": zod.object({
+  "id": zod.uuid().describe('データソースID'),
+  "sourceType": zod.string().describe('データソース種別'),
+  "name": zod.string().describe('データソース名'),
+  "url": zod.url().describe('データソースURL'),
+  "metadata": zod.object({
+  "repositoryFullName": zod.string().optional().describe('GitHubリポジトリのフルネーム'),
+  "repositoryLanguage": zod.string().nullish().describe('リポジトリの主要言語'),
+  "starsCount": zod.number().optional().describe('スター数'),
+  "forksCount": zod.number().optional().describe('フォーク数'),
+  "openIssuesCount": zod.number().optional().describe('未解決Issue数')
+}).optional().describe('データソースに紐づく追加メタ情報')
+})
+})
+})
+})
+
+
+/**
+ * 本文翻訳の状態とタイムスタンプ、翻訳済み本文を返却します
+ * @summary アクティビティ本文翻訳の進行状況取得
+ */
+export const getApiActivitiesActivityIdTranslationBodyStatusParams = zod.object({
+  "activityId": zod.string().describe('アクティビティID')
+})
+
+export const getApiActivitiesActivityIdTranslationBodyStatusResponse = zod.object({
+  "success": zod.literal(true),
+  "data": zod.object({
+  "activity": zod.object({
+  "id": zod.uuid().describe('アクティビティID'),
+  "activityType": zod.enum(['release', 'issue', 'pull_request']).describe('アクティビティ種別'),
+  "title": zod.string().describe('アクティビティのタイトル'),
+  "translatedTitle": zod.string().nullable().describe('翻訳済みタイトル (日本語)'),
+  "summary": zod.string().nullable().describe('本文の要約 (翻訳済み)'),
+  "detail": zod.string().describe('表示用の詳細本文 (原文)'),
+  "translatedBody": zod.string().nullable().describe('翻訳済み本文 (現状はnull)'),
+  "bodyTranslationStatus": zod.enum(['not_requested', 'pending', 'processing', 'completed', 'failed']).describe('本文翻訳の進行状況'),
+  "bodyTranslationRequestedAt": zod.iso.datetime({}).nullable().describe('本文翻訳がリクエストされた日時'),
+  "bodyTranslationStartedAt": zod.iso.datetime({}).nullable().describe('本文翻訳が開始された日時'),
+  "bodyTranslationCompletedAt": zod.iso.datetime({}).nullable().describe('本文翻訳が完了した日時'),
+  "bodyTranslationError": zod.string().nullable().describe('本文翻訳で発生したエラー内容'),
   "status": zod.enum(['pending', 'processing', 'completed', 'failed']).describe('処理ステータス'),
   "statusDetail": zod.string().nullable().describe('ステータスに関する補足'),
   "version": zod.string().nullable().describe('リリースバージョン'),
