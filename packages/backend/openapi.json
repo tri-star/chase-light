@@ -1078,6 +1078,45 @@
             "description": "翻訳済み本文 (現状はnull)",
             "example": null
           },
+          "bodyTranslationStatus": {
+            "type": "string",
+            "enum": [
+              "not_requested",
+              "pending",
+              "processing",
+              "completed",
+              "failed"
+            ],
+            "description": "本文翻訳の進行状況",
+            "example": "pending"
+          },
+          "bodyTranslationRequestedAt": {
+            "type": "string",
+            "nullable": true,
+            "format": "date-time",
+            "description": "本文翻訳がリクエストされた日時",
+            "example": "2024-01-02T12:00:00.000Z"
+          },
+          "bodyTranslationStartedAt": {
+            "type": "string",
+            "nullable": true,
+            "format": "date-time",
+            "description": "本文翻訳が開始された日時",
+            "example": "2024-01-02T12:05:00.000Z"
+          },
+          "bodyTranslationCompletedAt": {
+            "type": "string",
+            "nullable": true,
+            "format": "date-time",
+            "description": "本文翻訳が完了した日時",
+            "example": "2024-01-02T12:06:00.000Z"
+          },
+          "bodyTranslationError": {
+            "type": "string",
+            "nullable": true,
+            "description": "本文翻訳で発生したエラー内容",
+            "example": null
+          },
           "status": {
             "type": "string",
             "enum": ["pending", "processing", "completed", "failed"],
@@ -1177,6 +1216,11 @@
           "summary",
           "detail",
           "translatedBody",
+          "bodyTranslationStatus",
+          "bodyTranslationRequestedAt",
+          "bodyTranslationStartedAt",
+          "bodyTranslationCompletedAt",
+          "bodyTranslationError",
           "status",
           "statusDetail",
           "version",
@@ -1203,6 +1247,79 @@
           }
         },
         "required": ["success", "data"]
+      },
+      "ActivityBodyTranslationStatusResponse": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "enum": [true]
+          },
+          "data": {
+            "type": "object",
+            "properties": {
+              "activity": {
+                "$ref": "#/components/schemas/ActivityDetail"
+              }
+            },
+            "required": ["activity"]
+          }
+        },
+        "required": ["success", "data"]
+      },
+      "ActivityBodyTranslationErrorResponse": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "enum": [false]
+          },
+          "error": {
+            "type": "object",
+            "properties": {
+              "code": {
+                "type": "string"
+              },
+              "message": {
+                "type": "string"
+              }
+            },
+            "required": ["code", "message"]
+          }
+        },
+        "required": ["success", "error"]
+      },
+      "ActivityBodyTranslationRequest": {
+        "type": "object",
+        "properties": {
+          "force": {
+            "type": "boolean",
+            "description": "trueの場合、completedやprocessingでも再翻訳を強制します。デフォルトはfalse。",
+            "example": false
+          }
+        }
+      },
+      "ActivityBodyTranslationStatusErrorResponse": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "enum": [false]
+          },
+          "error": {
+            "type": "object",
+            "properties": {
+              "code": {
+                "type": "string"
+              },
+              "message": {
+                "type": "string"
+              }
+            },
+            "required": ["code", "message"]
+          }
+        },
+        "required": ["success", "error"]
       },
       "DataSourceActivityListResponse": {
         "type": "object",
@@ -3009,6 +3126,129 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/ActivitiesErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/activities/{activityId}/translation/body": {
+      "post": {
+        "summary": "アクティビティ本文翻訳のリクエスト",
+        "description": "ウォッチしているアクティビティ本文の翻訳をリクエストします。force=trueで再翻訳を強制できます。",
+        "tags": ["Activities"],
+        "security": [
+          {
+            "Bearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "description": "アクティビティID",
+              "example": "1f2e3d4c-5b6a-7980-1121-314151617181"
+            },
+            "required": true,
+            "description": "アクティビティID",
+            "name": "activityId",
+            "in": "path"
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ActivityBodyTranslationRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "既に翻訳済みの結果を返却",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ActivityBodyTranslationStatusResponse"
+                }
+              }
+            }
+          },
+          "202": {
+            "description": "翻訳リクエストを受理しました",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ActivityBodyTranslationStatusResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "対象が見つからない、またはウォッチしていない",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ActivityBodyTranslationErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "翻訳処理中のため衝突",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ActivityBodyTranslationErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/activities/{activityId}/translation/body/status": {
+      "get": {
+        "summary": "アクティビティ本文翻訳の進行状況取得",
+        "description": "本文翻訳の状態とタイムスタンプ、翻訳済み本文を返却します",
+        "tags": ["Activities"],
+        "security": [
+          {
+            "Bearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "description": "アクティビティID",
+              "example": "1f2e3d4c-5b6a-7980-1121-314151617181"
+            },
+            "required": true,
+            "description": "アクティビティID",
+            "name": "activityId",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "状態取得に成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ActivityBodyTranslationStatusResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "対象が見つからない、またはウォッチしていない",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ActivityBodyTranslationStatusErrorResponse"
                 }
               }
             }
