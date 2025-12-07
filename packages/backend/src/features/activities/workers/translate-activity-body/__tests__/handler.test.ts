@@ -32,10 +32,9 @@ describe("translate-activity-body handler", () => {
       body: "Release body content",
       status: "completed",
     })
-    await activityRepository.updateBodyTranslationState(
-      activity.id,
-      { status: ACTIVITY_BODY_TRANSLATION_STATUS.PENDING },
-    )
+    await activityRepository.updateBodyTranslationState(activity.id, {
+      status: ACTIVITY_BODY_TRANSLATION_STATUS.PENDING,
+    })
     testActivityId = activity.id
 
     mockContext = {
@@ -80,10 +79,9 @@ describe("translate-activity-body handler", () => {
   })
 
   test("pending以外はスキップされる", async () => {
-    await activityRepository.updateBodyTranslationState(
-      testActivityId,
-      { status: ACTIVITY_BODY_TRANSLATION_STATUS.COMPLETED },
-    )
+    await activityRepository.updateBodyTranslationState(testActivityId, {
+      status: ACTIVITY_BODY_TRANSLATION_STATUS.COMPLETED,
+    })
 
     const result = await handler({ activityId: testActivityId }, mockContext)
     expect(result.status).toBe("skipped")

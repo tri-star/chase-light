@@ -29,6 +29,7 @@ export function createActivityPresentationRoutes(
     createActivityBodyTranslationRoutes(
       requestActivityBodyTranslationUseCase,
       getActivityBodyTranslationStatusUseCase,
+      getActivityDetailUseCase,
     ),
   )
 

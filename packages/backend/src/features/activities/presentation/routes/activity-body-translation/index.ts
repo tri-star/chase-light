@@ -4,6 +4,7 @@ import type {
   GetActivityBodyTranslationStatusUseCase,
   RequestActivityBodyTranslationUseCase,
 } from "../../../application"
+import type { GetActivityDetailUseCase } from "../../../application"
 import {
   activityBodyTranslationRequestSchema,
   activityBodyTranslationRequestErrorResponseSchema,
@@ -13,7 +14,6 @@ import {
   activityBodyTranslationStatusErrorResponseSchema,
 } from "../../schemas/activity-body-translation-status-response.schema"
 import { mapActivityDetailToResponse } from "../../utils/response-mapper"
-import type { Activity, ActivityDetail } from "../../../domain"
 
 const createApiErrorResponse = (code: string, message: string) => ({
   success: false as const,
@@ -23,6 +23,7 @@ const createApiErrorResponse = (code: string, message: string) => ({
 export function createActivityBodyTranslationRoutes(
   requestUseCase: RequestActivityBodyTranslationUseCase,
   statusUseCase: GetActivityBodyTranslationStatusUseCase,
+  getActivityDetailUseCase: GetActivityDetailUseCase,
 ) {
   const app = new OpenAPIHono()
 
@@ -121,16 +122,40 @@ export function createActivityBodyTranslationRoutes(
     }
 
     if (result.status === "already_completed") {
-      return c.json(
-        mapActivityDetailToResponse(toActivityDetail(result.activity)),
-        200,
-      )
+      const detail = await getActivityDetailUseCase.execute({
+        userId: auth.userId,
+        activityId,
+      })
+
+      if (!detail) {
+        return c.json(
+          createApiErrorResponse(
+            "ACTIVITY_NOT_FOUND",
+            "アクティビティが見つからないかアクセス権がありません",
+          ),
+          404,
+        ) as never
+      }
+
+      return c.json(mapActivityDetailToResponse(detail), 200)
     }
 
-    return c.json(
-      mapActivityDetailToResponse(toActivityDetail(result.activity)),
-      202,
-    )
+    const detail = await getActivityDetailUseCase.execute({
+      userId: auth.userId,
+      activityId,
+    })
+
+    if (!detail) {
+      return c.json(
+        createApiErrorResponse(
+          "ACTIVITY_NOT_FOUND",
+          "アクティビティが見つからないかアクセス権がありません",
+        ),
+        404,
+      ) as never
+    }
+
+    return c.json(mapActivityDetailToResponse(detail), 202)
   })
 
   const statusRoute = createRoute({
@@ -182,41 +207,23 @@ export function createActivityBodyTranslationRoutes(
       ) as never
     }
 
-    return c.json(
-      mapActivityDetailToResponse(toActivityDetail(result.activity)),
-      200,
-    )
+    const detail = await getActivityDetailUseCase.execute({
+      userId: auth.userId,
+      activityId,
+    })
+
+    if (!detail) {
+      return c.json(
+        createApiErrorResponse(
+          "ACTIVITY_NOT_FOUND",
+          "アクティビティが見つからないかアクセス権がありません",
+        ),
+        404,
+      ) as never
+    }
+
+    return c.json(mapActivityDetailToResponse(detail), 200)
   })
 
   return app
-}
-
-function toActivityDetail(activity: Activity): ActivityDetail {
-  return {
-    activity: {
-      id: activity.id,
-      activityType: activity.activityType,
-      title: activity.title,
-      translatedTitle: activity.translatedTitle,
-      summary: activity.summary,
-      detail: activity.body,
-      translatedBody: activity.translatedBody,
-      bodyTranslationStatus: activity.bodyTranslationStatus,
-      bodyTranslationRequestedAt: activity.bodyTranslationRequestedAt,
-      bodyTranslationStartedAt: activity.bodyTranslationStartedAt,
-      bodyTranslationCompletedAt: activity.bodyTranslationCompletedAt,
-      bodyTranslationError: activity.bodyTranslationError,
-      status: activity.status,
-      statusDetail: activity.statusDetail,
-      version: activity.version,
-      occurredAt: activity.createdAt,
-      lastUpdatedAt: activity.updatedAt,
-      source: {
-        id: activity.dataSourceId,
-        sourceType: "github_repository",
-        name: "",
-        url: "",
-      },
-    },
-  }
 }
