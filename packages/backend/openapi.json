@@ -1204,6 +1204,135 @@
         },
         "required": ["success", "data"]
       },
+      "TranslationStatus": {
+        "type": "string",
+        "enum": ["queued", "processing", "completed", "failed"]
+      },
+      "TranslationState": {
+        "type": "object",
+        "properties": {
+          "jobId": {
+            "type": "string",
+            "nullable": true,
+            "description": "SQS MessageId等のジョブ識別子"
+          },
+          "translationStatus": {
+            "$ref": "#/components/schemas/TranslationStatus"
+          },
+          "statusDetail": {
+            "type": "string",
+            "nullable": true
+          },
+          "requestedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "startedAt": {
+            "type": "string",
+            "nullable": true,
+            "format": "date-time"
+          },
+          "completedAt": {
+            "type": "string",
+            "nullable": true,
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "jobId",
+          "translationStatus",
+          "statusDetail",
+          "requestedAt",
+          "startedAt",
+          "completedAt"
+        ]
+      },
+      "TranslationResponse": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "enum": [true]
+          },
+          "data": {
+            "$ref": "#/components/schemas/TranslationState"
+          }
+        },
+        "required": ["success", "data"]
+      },
+      "TranslationNotFoundResponse": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "enum": [false]
+          },
+          "error": {
+            "type": "object",
+            "properties": {
+              "code": {
+                "type": "string",
+                "enum": ["ACTIVITY_NOT_FOUND"]
+              },
+              "message": {
+                "type": "string"
+              }
+            },
+            "required": ["code", "message"]
+          }
+        },
+        "required": ["success", "error"]
+      },
+      "TranslationRequest": {
+        "type": "object",
+        "properties": {
+          "force": {
+            "type": "boolean",
+            "description": "true の場合、終端ステータスでも再翻訳を許可。省略時は完了済みなら再キューしない。"
+          },
+          "targetLanguage": {
+            "type": "string",
+            "enum": ["ja"],
+            "description": "翻訳対象言語。省略時は ja 固定。"
+          }
+        }
+      },
+      "TranslationStatusResponse": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "enum": [true]
+          },
+          "data": {
+            "$ref": "#/components/schemas/TranslationState"
+          }
+        },
+        "required": ["success", "data"]
+      },
+      "TranslationStatusNotFoundResponse": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "enum": [false]
+          },
+          "error": {
+            "type": "object",
+            "properties": {
+              "code": {
+                "type": "string",
+                "enum": ["ACTIVITY_NOT_FOUND"]
+              },
+              "message": {
+                "type": "string"
+              }
+            },
+            "required": ["code", "message"]
+          }
+        },
+        "required": ["success", "error"]
+      },
       "DataSourceActivityListResponse": {
         "type": "object",
         "properties": {
@@ -3009,6 +3138,117 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/ActivitiesErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/activities/{activityId}/translations/body": {
+      "post": {
+        "summary": "アクティビティ本文の翻訳を非同期リクエスト",
+        "description": "ウォッチ済みアクティビティの本文翻訳をSQS経由で非同期実行します。force=falseの場合、進行中ジョブや完了済み翻訳は再投入しません。",
+        "tags": ["Activities"],
+        "security": [
+          {
+            "Bearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "description": "アクティビティID",
+              "example": "1f2e3d4c-5b6a-7980-1121-314151617181"
+            },
+            "required": true,
+            "description": "アクティビティID",
+            "name": "activityId",
+            "in": "path"
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TranslationRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "完了済み翻訳があり、force=falseのため再投入しない場合などに返却",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TranslationResponse"
+                }
+              }
+            }
+          },
+          "202": {
+            "description": "翻訳ジョブをキューに投入、または進行中ジョブが存在",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TranslationResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "アクティビティが存在しない、またはウォッチ外",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TranslationNotFoundResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "summary": "アクティビティ本文翻訳ステータス取得",
+        "description": "最新の本文翻訳ステータスを取得します。本文自体は返却しません。",
+        "tags": ["Activities"],
+        "security": [
+          {
+            "Bearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "description": "アクティビティID",
+              "example": "1f2e3d4c-5b6a-7980-1121-314151617181"
+            },
+            "required": true,
+            "description": "アクティビティID",
+            "name": "activityId",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "翻訳ステータス取得成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TranslationStatusResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "アクティビティが存在しない、またはウォッチ外",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TranslationStatusNotFoundResponse"
                 }
               }
             }
