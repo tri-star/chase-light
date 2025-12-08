@@ -42,6 +42,10 @@ export interface ActivityTranslationStateRepository {
   findByActivityId(
     activityId: string,
   ): Promise<ActivityBodyTranslationState | null>
+  findByUserAndActivityId(
+    userId: string,
+    activityId: string,
+  ): Promise<ActivityBodyTranslationState | null>
   updateTranslationState(
     activityId: string,
     state: Partial<ActivityBodyTranslationStateUpdate>,

@@ -10,6 +10,7 @@ import type {
 
 export type ActivityBodyTranslationState = {
   activityId: string
+  body: string
   translationStatus: ActivityBodyTranslationStatus
   translationStatusDetail: string | null
   translationRequestedAt: Date
