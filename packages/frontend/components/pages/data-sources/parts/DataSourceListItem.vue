@@ -42,14 +42,12 @@ const watchBadges = computed(() => {
           class="h-5 w-5 text-card-value"
           aria-hidden="true"
         />
-        <a
-          :href="dataSource.url"
+        <NuxtLink
+          :to="`/data-sources/${dataSource.id}`"
           class="text-lg font-semibold text-card-value hover:underline"
-          target="_blank"
-          rel="noreferrer noopener"
         >
           {{ repository.fullName }}
-        </a>
+        </NuxtLink>
         <span
           v-if="dataSource.isPrivate"
           class="text-xs rounded bg-surface-secondary-default px-2 py-0.5

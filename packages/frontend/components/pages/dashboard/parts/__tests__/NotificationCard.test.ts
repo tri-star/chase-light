@@ -1,5 +1,5 @@
 import { describe, test, expect } from 'vitest'
-import { mount } from '@vue/test-utils'
+import { mount, RouterLinkStub } from '@vue/test-utils'
 import NotificationCard from '../NotificationCard.vue'
 import type { NotificationListItem } from '~/generated/api/schemas'
 
@@ -63,12 +63,17 @@ describe('NotificationCard', () => {
     const item = createMockNotification()
     const wrapper = mount(NotificationCard, {
       props: { item },
+      global: {
+        stubs: {
+          NuxtLink: RouterLinkStub,
+        },
+      },
     })
 
-    const link = wrapper.find('[data-id="data-source-link"]')
+    const link = wrapper.findComponent(RouterLinkStub)
     expect(link.exists()).toBe(true)
     expect(link.text()).toContain('facebook/react')
-    expect(link.attributes('href')).toBe('https://github.com/facebook/react')
+    expect(link.props('to')).toBe('/data-sources/ds-1')
   })
 
   test('アクティビティグループ別にラベルが表示される', () => {
@@ -300,6 +305,11 @@ describe('NotificationCard', () => {
     })
     const wrapper = mount(NotificationCard, {
       props: { item },
+      global: {
+        stubs: {
+          NuxtLink: RouterLinkStub,
+        },
+      },
     })
 
     const srcLinks = wrapper.findAll('[data-id="data-source-link"]')

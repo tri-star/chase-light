@@ -39,10 +39,8 @@ const activityTypeLabels: Record<string, string> = {
       <div class="mb-6 last:mb-0">
         <!-- データソース名 -->
         <div class="mb-3">
-          <a
-            :href="dataSource.url"
-            target="_blank"
-            rel="noopener noreferrer"
+          <NuxtLink
+            :to="`/data-sources/${dataSource.id}`"
             data-id="data-source-link"
             class="text-sm inline-flex items-center space-x-1 font-medium
               text-card-value transition-colors hover:text-card-value"
@@ -51,22 +49,7 @@ const activityTypeLabels: Record<string, string> = {
               <Icon name="grommet-icons:github" size="40" />
               {{ dataSource.name }}
             </ClHeading>
-            <svg
-              class="h-3 w-3"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-              xmlns="http://www.w3.org/2000/svg"
-              aria-hidden="true"
-            >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"
-              />
-            </svg>
-          </a>
+          </NuxtLink>
         </div>
 
         <!-- アクティビティグループ -->

@@ -1,5 +1,5 @@
 import { describe, test, expect } from 'vitest'
-import { mount } from '@vue/test-utils'
+import { mount, RouterLinkStub } from '@vue/test-utils'
 import NotificationList from '../NotificationList.vue'
 import type { NotificationListItem } from '~/generated/api/schemas'
 import NotificationCard from '~/components/pages/dashboard/parts/NotificationCard.vue'
@@ -152,6 +152,11 @@ describe('NotificationList', () => {
     const notifications = createMockNotifications()
     const wrapper = mount(NotificationList, {
       props: { notifications },
+      global: {
+        stubs: {
+          NuxtLink: RouterLinkStub,
+        },
+      },
     })
 
     const text = wrapper.text()
