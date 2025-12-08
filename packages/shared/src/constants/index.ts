@@ -1,4 +1,5 @@
 export * from "./auth"
+export * from "./activity-translation"
 export * from "./notifications"
 export * from "./test-auth"
 export * from "./test-users"
