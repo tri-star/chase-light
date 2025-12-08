@@ -8,6 +8,7 @@ import {
   type ActivityStatus,
   type ActivityType,
 } from "../features/activities"
+import { ACTIVITY_BODY_TRANSLATION_STATUS } from "shared"
 
 import type {
   GitHubDataSource,
@@ -283,6 +284,12 @@ export class TestDataFactory {
       githubData?: string | null
       createdAt?: Date
       updatedAt?: Date
+      bodyTranslationStatus?: (typeof ACTIVITY_BODY_TRANSLATION_STATUS)[keyof typeof ACTIVITY_BODY_TRANSLATION_STATUS]
+      bodyTranslationStatusDetail?: string | null
+      bodyTranslationRequestedAt?: Date
+      bodyTranslationStartedAt?: Date | null
+      bodyTranslationCompletedAt?: Date | null
+      bodyTranslationMessageId?: string | null
     },
   ): Promise<{
     id: string
@@ -300,6 +307,12 @@ export class TestDataFactory {
     githubData: string | null
     createdAt: Date
     updatedAt: Date
+    bodyTranslationStatus: string
+    bodyTranslationStatusDetail: string | null
+    bodyTranslationRequestedAt: Date
+    bodyTranslationStartedAt: Date | null
+    bodyTranslationCompletedAt: Date | null
+    bodyTranslationMessageId: string | null
   }> {
     const now = new Date()
     const createdAt = customData?.createdAt ?? now
@@ -325,6 +338,17 @@ export class TestDataFactory {
       githubData: customData?.githubData ?? null,
       createdAt,
       updatedAt,
+      bodyTranslationStatus:
+        customData?.bodyTranslationStatus ??
+        ACTIVITY_BODY_TRANSLATION_STATUS.COMPLETED,
+      bodyTranslationStatusDetail:
+        customData?.bodyTranslationStatusDetail ?? null,
+      bodyTranslationRequestedAt:
+        customData?.bodyTranslationRequestedAt ?? createdAt,
+      bodyTranslationStartedAt: customData?.bodyTranslationStartedAt ?? null,
+      bodyTranslationCompletedAt:
+        customData?.bodyTranslationCompletedAt ?? null,
+      bodyTranslationMessageId: customData?.bodyTranslationMessageId ?? null,
     }
 
     await db.insert(schema.activities).values(activity)

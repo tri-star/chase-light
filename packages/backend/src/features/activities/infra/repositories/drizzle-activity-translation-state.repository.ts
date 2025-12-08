@@ -196,7 +196,9 @@ export class DrizzleActivityTranslationStateRepository
     }
   }
 
-  private mapToDomain(row: ActivityTranslationRow): ActivityBodyTranslationState {
+  private mapToDomain(
+    row: ActivityTranslationRow,
+  ): ActivityBodyTranslationState {
     return {
       activityId: row.activityId,
       body: row.body,

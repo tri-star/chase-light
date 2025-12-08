@@ -6,8 +6,14 @@ import {
   ListUserActivitiesUseCase,
   GetActivityDetailUseCase,
   ListDataSourceActivitiesUseCase,
+  RequestActivityTranslationUseCase,
+  GetActivityTranslationStatusUseCase,
 } from "../../../../application/use-cases"
 import { DrizzleActivityQueryRepository } from "../../../../infra"
+import {
+  DrizzleActivityTranslationStateRepository,
+  TranslationJobQueueStub,
+} from "../../../../infra"
 import { globalJWTAuth } from "../../../../../identity"
 import { AuthTestHelper } from "../../../../../identity/test-helpers/auth-test-helper"
 import type { User } from "../../../../../identity/domain/user"
@@ -106,6 +112,16 @@ describe("Data Source Activities API", () => {
     const listDataSourceActivitiesUseCase = new ListDataSourceActivitiesUseCase(
       repository,
     )
+    const translationStateRepository =
+      new DrizzleActivityTranslationStateRepository()
+    const queueStub = new TranslationJobQueueStub()
+    const requestActivityTranslationUseCase =
+      new RequestActivityTranslationUseCase(
+        translationStateRepository,
+        queueStub,
+      )
+    const getActivityTranslationStatusUseCase =
+      new GetActivityTranslationStatusUseCase(translationStateRepository)
 
     app = new OpenAPIHono()
     app.use("*", globalJWTAuth)
@@ -115,6 +131,8 @@ describe("Data Source Activities API", () => {
         listUserActivitiesUseCase,
         getActivityDetailUseCase,
         listDataSourceActivitiesUseCase,
+        requestActivityTranslationUseCase,
+        getActivityTranslationStatusUseCase,
       ),
     )
   })

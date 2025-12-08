@@ -1,5 +1,6 @@
 export { DrizzleActivityQueryRepository } from "./repositories/drizzle-activity-query.repository"
 export { DrizzleActivityTranslationStateRepository } from "./repositories/drizzle-activity-translation-state.repository"
 export { SqsTranslationJobAdapter } from "./adapters/translation-job/sqs-translation-job.adapter"
+export { TranslationJobQueueStub } from "./adapters/translation-job/translation-job-queue.stub"
 export { BodyTranslationAdapter } from "./adapters/translation/body-translation.adapter"
 export { BodyTranslationStubAdapter } from "./adapters/translation/body-translation-stub.adapter"
