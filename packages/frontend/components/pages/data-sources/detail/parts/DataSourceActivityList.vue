@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed } from 'vue'
+import ClDivider from '~/components/base/ClDivider.vue'
 import ClHeading from '~/components/base/ClHeading.vue'
 import type {
   DataSourceActivityItem,
@@ -73,17 +74,10 @@ const formatActivityDate = (date: string) => {
     </div>
 
     <!-- アクティビティ一覧 -->
-    <ul v-else class="space-y-3">
-      <li
-        v-for="item in activities"
-        :key="item.activity.id"
-        class="border-border-default bg-surface-default rounded-lg border p-4
-          transition hover:bg-surface-secondary-default"
-      >
-        <NuxtLink
-          :to="`/activities/${item.activity.id}`"
-          class="block space-y-2"
-        >
+    <ul v-else class="space-y-0">
+      <li v-for="(item, index) in activities" :key="item.activity.id">
+        <ClDivider v-if="index > 0" spacing="sm" />
+        <div class="space-y-2 py-2">
           <div class="flex items-start justify-between gap-3">
             <div class="flex items-center gap-2">
               <span
@@ -104,11 +98,16 @@ const formatActivityDate = (date: string) => {
             </span>
           </div>
           <h3 class="text-card-title font-medium">
-            {{
-              item.activity.translatedTitle ||
-              item.activity.title ||
-              '(タイトルなし)'
-            }}
+            <NuxtLink
+              :to="`/activities/${item.activity.id}`"
+              class="hover:text-link-default transition-colors hover:underline"
+            >
+              {{
+                item.activity.translatedTitle ||
+                item.activity.title ||
+                '(タイトルなし)'
+              }}
+            </NuxtLink>
           </h3>
           <p
             v-if="item.activity.summary"
@@ -116,7 +115,7 @@ const formatActivityDate = (date: string) => {
           >
             {{ item.activity.summary }}
           </p>
-        </NuxtLink>
+        </div>
       </li>
     </ul>
 
