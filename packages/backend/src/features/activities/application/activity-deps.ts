@@ -33,14 +33,15 @@ export function buildActivityDeps(
   const activityQueryRepository = new DrizzleActivityQueryRepository()
 
   return {
-    listUserActivitiesUseCase:
-      options?.useCaseOverrides?.listUserActivitiesUseCase ??
-      new ListUserActivitiesUseCase(activityQueryRepository),
-    getActivityDetailUseCase:
-      options?.useCaseOverrides?.getActivityDetailUseCase ??
-      new GetActivityDetailUseCase(activityQueryRepository),
-    listDataSourceActivitiesUseCase:
-      options?.useCaseOverrides?.listDataSourceActivitiesUseCase ??
-      new ListDataSourceActivitiesUseCase(activityQueryRepository),
+    listUserActivitiesUseCase: new ListUserActivitiesUseCase(
+      activityQueryRepository,
+    ),
+    getActivityDetailUseCase: new GetActivityDetailUseCase(
+      activityQueryRepository,
+    ),
+    listDataSourceActivitiesUseCase: new ListDataSourceActivitiesUseCase(
+      activityQueryRepository,
+    ),
+    ...options?.useCaseOverrides,
   }
 }
