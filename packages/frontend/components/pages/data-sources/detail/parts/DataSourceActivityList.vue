@@ -58,14 +58,11 @@ const formatActivityDate = (date: string) => {
     </div>
 
     <!-- アクティビティがない場合 -->
-    <div
-      v-else-if="!hasActivities"
-      class="border-border-default rounded-lg border
-        bg-surface-secondary-default p-6 text-center"
-    >
+    <div v-else-if="!hasActivities" class="p-6 text-center">
       <Icon
         name="heroicons:inbox"
-        class="mx-auto h-12 w-12 text-card-value opacity-50"
+        class="mx-auto text-card-value opacity-50"
+        size="48"
         aria-hidden="true"
       />
       <p class="text-sm mt-2 text-card-value">
