@@ -1,28 +1,14 @@
 import { OpenAPIHono } from "@hono/zod-openapi"
-import type {
-  GetActivityDetailUseCase,
-  ListDataSourceActivitiesUseCase,
-  ListUserActivitiesUseCase,
-} from "../application/use-cases"
+import type { ActivityDeps } from "../application/activity-deps"
 import { createActivitiesRoutes } from "./routes/activities"
 import { createDataSourceActivitiesRoutes } from "./routes/data-source-activities"
 
-export function createActivityPresentationRoutes(
-  listUserActivitiesUseCase: ListUserActivitiesUseCase,
-  getActivityDetailUseCase: GetActivityDetailUseCase,
-  listDataSourceActivitiesUseCase: ListDataSourceActivitiesUseCase,
-) {
+export function createActivityPresentationRoutes(deps: ActivityDeps) {
   const app = new OpenAPIHono()
 
-  app.route(
-    "/activities",
-    createActivitiesRoutes(listUserActivitiesUseCase, getActivityDetailUseCase),
-  )
+  app.route("/activities", createActivitiesRoutes(deps))
 
-  app.route(
-    "/data-sources",
-    createDataSourceActivitiesRoutes(listDataSourceActivitiesUseCase),
-  )
+  app.route("/data-sources", createDataSourceActivitiesRoutes(deps))
 
   return app
 }

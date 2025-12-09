@@ -1,10 +1,7 @@
 import { OpenAPIHono, createRoute } from "@hono/zod-openapi"
 import { z } from "@hono/zod-openapi"
 import { requireAuth } from "../../../../identity/middleware/jwt-auth.middleware"
-import type {
-  GetActivityDetailUseCase,
-  ListUserActivitiesUseCase,
-} from "../../../application/use-cases"
+import type { ActivityDeps } from "../../../application/activity-deps"
 import {
   activityDetailResponseSchema,
   activityListRequestSchema,
@@ -22,9 +19,12 @@ const createApiErrorResponse = (code: string, message: string) => ({
 })
 
 export function createActivitiesRoutes(
-  listUserActivitiesUseCase: ListUserActivitiesUseCase,
-  getActivityDetailUseCase: GetActivityDetailUseCase,
+  deps: Pick<
+    ActivityDeps,
+    "listUserActivitiesUseCase" | "getActivityDetailUseCase"
+  >,
 ) {
+  const { listUserActivitiesUseCase, getActivityDetailUseCase } = deps
   const app = new OpenAPIHono()
 
   const listActivitiesRoute = createRoute({

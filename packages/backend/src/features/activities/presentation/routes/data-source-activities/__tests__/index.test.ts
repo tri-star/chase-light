@@ -1,14 +1,7 @@
 import { beforeEach, describe, expect, test } from "vitest"
-import { OpenAPIHono } from "@hono/zod-openapi"
+import type { OpenAPIHono } from "@hono/zod-openapi"
 import { setupComponentTest, TestDataFactory } from "../../../../../../test"
-import { createActivityPresentationRoutes } from "../../../routes"
-import {
-  ListUserActivitiesUseCase,
-  GetActivityDetailUseCase,
-  ListDataSourceActivitiesUseCase,
-} from "../../../../application/use-cases"
-import { DrizzleActivityQueryRepository } from "../../../../infra"
-import { globalJWTAuth } from "../../../../../identity"
+import { createActivityTestApp } from "../../../test-helpers/create-activity-test-app"
 import { AuthTestHelper } from "../../../../../identity/test-helpers/auth-test-helper"
 import type { User } from "../../../../../identity/domain/user"
 import { ACTIVITY_STATUS, ACTIVITY_TYPE } from "../../../../domain"
@@ -100,23 +93,7 @@ describe("Data Source Activities API", () => {
     })
     await TestDataFactory.createTestUserWatch(otherUser.id, otherDataSource.id)
 
-    const repository = new DrizzleActivityQueryRepository()
-    const listUserActivitiesUseCase = new ListUserActivitiesUseCase(repository)
-    const getActivityDetailUseCase = new GetActivityDetailUseCase(repository)
-    const listDataSourceActivitiesUseCase = new ListDataSourceActivitiesUseCase(
-      repository,
-    )
-
-    app = new OpenAPIHono()
-    app.use("*", globalJWTAuth)
-    app.route(
-      "/",
-      createActivityPresentationRoutes(
-        listUserActivitiesUseCase,
-        getActivityDetailUseCase,
-        listDataSourceActivitiesUseCase,
-      ),
-    )
+    app = createActivityTestApp()
   })
 
   test("GET /data-sources/{id}/activities で対象データソースのアクティビティを取得できる", async () => {

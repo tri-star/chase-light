@@ -1,7 +1,7 @@
 import { OpenAPIHono, createRoute } from "@hono/zod-openapi"
 import { z } from "@hono/zod-openapi"
 import { requireAuth } from "../../../../identity/middleware/jwt-auth.middleware"
-import type { ListDataSourceActivitiesUseCase } from "../../../application/use-cases"
+import type { ActivityDeps } from "../../../application/activity-deps"
 import {
   activityListRequestSchema,
   dataSourceActivityListResponseSchema,
@@ -10,8 +10,9 @@ import {
 import { mapDataSourceActivitiesResultToResponse } from "../../utils/response-mapper"
 
 export function createDataSourceActivitiesRoutes(
-  listDataSourceActivitiesUseCase: ListDataSourceActivitiesUseCase,
+  deps: Pick<ActivityDeps, "listDataSourceActivitiesUseCase">,
 ) {
+  const { listDataSourceActivitiesUseCase } = deps
   const app = new OpenAPIHono()
 
   const dataSourceParamSchema = z

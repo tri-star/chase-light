@@ -1,37 +1,24 @@
-import { DrizzleActivityQueryRepository } from "./infra"
-import {
-  GetActivityDetailUseCase,
-  ListDataSourceActivitiesUseCase,
-  ListUserActivitiesUseCase,
-} from "./application/use-cases"
+import { buildActivityDeps } from "./application/activity-deps"
 import { createActivityPresentationRoutes } from "./presentation"
 
-const activityQueryRepository = new DrizzleActivityQueryRepository()
-
-const listUserActivitiesUseCase = new ListUserActivitiesUseCase(
-  activityQueryRepository,
-)
-const listDataSourceActivitiesUseCase = new ListDataSourceActivitiesUseCase(
-  activityQueryRepository,
-)
-const getActivityDetailUseCase = new GetActivityDetailUseCase(
-  activityQueryRepository,
-)
-
-const activityRoutes = createActivityPresentationRoutes(
-  listUserActivitiesUseCase,
-  getActivityDetailUseCase,
-  listDataSourceActivitiesUseCase,
-)
+const activityRoutes = createActivityPresentationRoutes(buildActivityDeps())
 
 export default activityRoutes
 
+export { buildActivityDeps } from "./application/activity-deps"
+export type {
+  ActivityDeps,
+  BuildActivityDepsOptions,
+} from "./application/activity-deps"
+
+export { createActivityPresentationRoutes } from "./presentation"
+
 export {
-  createActivityPresentationRoutes,
   ListUserActivitiesUseCase,
   ListDataSourceActivitiesUseCase,
   GetActivityDetailUseCase,
-  DrizzleActivityQueryRepository,
-}
+} from "./application/use-cases"
+
+export { DrizzleActivityQueryRepository } from "./infra"
 
 export * from "./domain"
