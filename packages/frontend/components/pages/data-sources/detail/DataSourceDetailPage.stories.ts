@@ -263,7 +263,7 @@ export const NoActivities: Story = {
                 hasPrev: false,
               },
             },
-          })
+          } satisfies DataSourceActivityListResponse)
         }),
       ],
     },
