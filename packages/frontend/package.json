@@ -13,7 +13,7 @@
     "lint:type": "nuxt typecheck",
     "format": "eslint . --fix && prettier --write -c .prettierrc .",
     "build-storybook": "storybook build",
-    "storybook": "storybook dev -p 6006",
+    "storybook": "storybook dev -p 6006 --no-version-updates",
     "test": "vitest run --reporter=verbose --watch=false",
     "test:stories": "test-storybook -c .storybook",
     "test:vrt": "playwright test -c playwright.storybook.config.ts",
