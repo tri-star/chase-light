@@ -43,7 +43,6 @@ const activityBadgeClass = computed(() => {
 })
 
 const dataSourceName = computed(() => activityData.value.source.name)
-const dataSourceUrl = computed(() => activityData.value.source.url)
 const occurredAtMinutes = computed(() =>
   formatDate(activityData.value.occurredAt, 'minutes')
 )
@@ -70,12 +69,10 @@ const occurredAtRelative = computed(() =>
     </header>
 
     <div class="space-y-2">
-      <a
-        :href="dataSourceUrl"
+      <NuxtLink
+        :to="`/data-sources/${activityData.source.id}`"
         class="text-sm inline-flex items-center gap-2 font-medium
           text-card-value"
-        target="_blank"
-        rel="noreferrer noopener"
       >
         <Icon name="grommet-icons:github" class="h-5 w-5" aria-hidden="true" />
         <ClHeading :level="3" class="text-base">
@@ -84,7 +81,7 @@ const occurredAtRelative = computed(() =>
         <span class="text-xs text-card-value opacity-60">{{
           occurredAtRelative
         }}</span>
-      </a>
+      </NuxtLink>
 
       <ClHeading :level="2" class="text-xl text-card-value"
         ><NuxtLink :to="{ path: `/activities/${activityData.id}` }">{{
