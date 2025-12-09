@@ -108,6 +108,7 @@ export const button = tv({
 Nuxt.jsのIconモジュールを利用します。アイコンのサイズは `size` プロパティで指定し、`w-*`/`h-*` クラスは使用しません。
 
 ```vue
+<!-- sizeはpx単位 -->
 <Icon
   name="heroicons:arrow-top-right-on-square"
   size="24"
