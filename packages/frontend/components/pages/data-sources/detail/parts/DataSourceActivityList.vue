@@ -11,7 +11,7 @@ import { formatDate } from '~/utils/date'
 type ActivityType = 'release' | 'issue' | 'pull_request'
 
 const activityTypeLabels: Record<ActivityType, string> = {
-  release: 'リリース',
+  release: 'Release',
   issue: 'Issue',
   pull_request: 'PR',
 }

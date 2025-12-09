@@ -12,7 +12,8 @@ defineProps<{
     <div class="flex items-center gap-3">
       <Icon
         name="grommet-icons:github"
-        class="text-card-title h-6 w-6"
+        class="text-card-title"
+        size="40"
         aria-hidden="true"
       />
       <ClHeading :level="1" class="text-2xl text-card-title font-bold">
@@ -29,7 +30,7 @@ defineProps<{
       <span>{{ dataSource.url }}</span>
       <Icon
         name="heroicons:arrow-top-right-on-square"
-        class="h-4 w-4"
+        size="16"
         aria-hidden="true"
       />
     </a>
