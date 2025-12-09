@@ -104,6 +104,17 @@ export const button = tv({
 - Common（複数機能で再利用される中粒度UI）: `components/common/` に配置（例: `AppHeader.vue`, `AppSidebar.vue`）。
 - Page 本体: `components/pages/<page>/<PageName>Page.vue`（ページガイド参照）。
 
+## アイコンの使い方
+Nuxt.jsのIconモジュールを利用します。アイコンのサイズは `size` プロパティで指定し、`w-*`/`h-*` クラスは使用しません。
+
+```vue
+<Icon
+  name="heroicons:arrow-top-right-on-square"
+  size="24"
+  aria-hidden="true"
+/>
+```
+
 ## Storybook とテスト
 
 - Storybook: 代表的なバリアント/状態を `*.stories.ts` に用意。操作可能な `args` を定義し、`docs` で用例を記載。
