@@ -29,8 +29,8 @@ export const handler = async (
   event: TranslateActivityBodyInput,
   context: Context,
 ): Promise<TranslateActivityBodyOutput> => {
-  console.log("translate-activity-body event:", JSON.stringify(event))
-  console.log("context awsRequestId:", context.awsRequestId)
+  console.info("translate-activity-body event:", JSON.stringify(event))
+  console.info("context awsRequestId:", context.awsRequestId)
 
   if (!event.activityId) {
     throw new Error("activityId is required")
