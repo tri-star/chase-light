@@ -1,5 +1,5 @@
 import { describe, test, beforeEach, afterEach, expect, vi } from "vitest"
-import type { Context } from "aws-lambda"
+import type { SQSEvent, Context } from "aws-lambda"
 import { randomUUID } from "crypto"
 import { handler } from "../handler"
 import { setupComponentTest, TestDataFactory } from "../../../../../test"
@@ -24,6 +24,27 @@ describe("process-updates handler", () => {
   let mockContext: Context
   let testDataSourceId: string
   const originalStubEnv = process.env.USE_EXTERNAL_AI_API_STUB
+
+  const createSQSEvent = (payload: { activityId: string }): SQSEvent => ({
+    Records: [
+      {
+        messageId: "test-message-id",
+        receiptHandle: "test-receipt-handle",
+        body: JSON.stringify(payload),
+        attributes: {
+          ApproximateReceiveCount: "1",
+          SentTimestamp: Date.now().toString(),
+          SenderId: "local",
+          ApproximateFirstReceiveTimestamp: Date.now().toString(),
+        },
+        messageAttributes: {},
+        md5OfBody: "",
+        eventSource: "aws:sqs",
+        eventSourceARN: "arn:aws:sqs:local:000000000000:test-queue",
+        awsRegion: "us-east-1",
+      },
+    ],
+  })
 
   const createTestEvent = (overrides: Partial<Activity> = {}): Activity => {
     const defaultEvent: Activity = {
@@ -113,13 +134,10 @@ describe("process-updates handler", () => {
       translatedBody: null,
     }))
 
-    const result = await handler({ activityId: event1.id }, mockContext)
+    const sqsEvent = createSQSEvent({ activityId: event1.id })
+    const result = await handler(sqsEvent, mockContext)
 
-    expect(result.processedActivityIds).toHaveLength(1)
-    expect(result.failedActivityIds).toHaveLength(0)
-    expect(result.processedActivityIds).toEqual(
-      expect.arrayContaining([event1.id]),
-    )
+    expect(result.batchItemFailures).toHaveLength(0)
 
     const updatedEvent = await activityRepository.findById(event1.id)
     expect(updatedEvent).not.toBeNull()
@@ -159,10 +177,10 @@ describe("process-updates handler", () => {
       }
     })
 
-    const result = await handler({ activityId: completedEvent.id }, mockContext)
+    const sqsEvent = createSQSEvent({ activityId: completedEvent.id })
+    const result = await handler(sqsEvent, mockContext)
 
-    expect(result.processedActivityIds).toHaveLength(0)
-    expect(result.failedActivityIds).toHaveLength(0)
+    expect(result.batchItemFailures).toHaveLength(0)
     expect(callCount).toBe(0)
   })
 
@@ -182,27 +200,29 @@ describe("process-updates handler", () => {
       throw new Error("translation failed")
     })
 
-    const result = await handler({ activityId: event.id }, mockContext)
+    const sqsEvent = createSQSEvent({ activityId: event.id })
+    const result = await handler(sqsEvent, mockContext)
 
-    expect(result.processedActivityIds).toHaveLength(0)
-    expect(result.failedActivityIds).toEqual(expect.arrayContaining([event.id]))
+    expect(result.batchItemFailures).toHaveLength(1)
+    expect(result.batchItemFailures[0].itemIdentifier).toBe("test-message-id")
 
     const updatedEvent = await activityRepository.findById(event.id)
     expect(updatedEvent!.status).toBe(ACTIVITY_STATUS.FAILED)
     expect(updatedEvent!.statusDetail).toContain("translation failed")
   })
 
-  test("無効な入力パラメータの場合、エラーをスローする", async () => {
-    await expect(
-      handler(
-        { activityId: null } as unknown as { activityId: string },
-        mockContext,
-      ),
-    ).rejects.toThrow("Invalid input: activityId must be a string")
+  test("無効な入力パラメータの場合、正常終了してスキップする", async () => {
+    const invalidSQSEvent1 = createSQSEvent({ activityId: null } as unknown as {
+      activityId: string
+    })
+    const result1 = await handler(invalidSQSEvent1, mockContext)
+    expect(result1.batchItemFailures).toHaveLength(0)
 
-    await expect(
-      handler({} as unknown as { activityId: string }, mockContext),
-    ).rejects.toThrow("Invalid input: activityId must be a string")
+    const invalidSQSEvent2 = createSQSEvent(
+      {} as unknown as { activityId: string },
+    )
+    const result2 = await handler(invalidSQSEvent2, mockContext)
+    expect(result2.batchItemFailures).toHaveLength(0)
   })
 
   test("OpenAI APIキーが設定されていない場合でもフォールバックで処理される", async () => {
@@ -217,10 +237,10 @@ describe("process-updates handler", () => {
       detectTargetId: toDetectTargetId(event.dataSourceId),
     })
 
-    const result = await handler({ activityId: event.id }, mockContext)
+    const sqsEvent = createSQSEvent({ activityId: event.id })
+    const result = await handler(sqsEvent, mockContext)
 
-    expect(result.processedActivityIds).toEqual([event.id])
-    expect(result.failedActivityIds).toHaveLength(0)
+    expect(result.batchItemFailures).toHaveLength(0)
 
     const updatedEvent = await activityRepository.findById(event.id)
     expect(updatedEvent!.status).toBe(ACTIVITY_STATUS.COMPLETED)

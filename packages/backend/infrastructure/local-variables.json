@@ -2,9 +2,11 @@
   "Description": "StepFunctions Local環境用の変数マッピング設定",
   "Variables": {
     "ProcessUpdatesQueueUrl": "http://elasticmq:9324/000000000000/process-updates-queue",
+    "TranslationJobsQueueUrl": "http://elasticmq:9324/000000000000/translation-jobs-queue",
     "ListDetectTargetsFunction.Arn": "ListDetectTargetsFunction",
     "DetectDataSourceUpdatesFunctionArn": "DetectDataSourceUpdatesFunction",
-    "ProcessUpdatesFunctionArn": "ProcessUpdatesFunction"
+    "ProcessUpdatesFunctionArn": "ProcessUpdatesFunction",
+    "TranslateActivityBodyFunctionArn": "TranslateActivityBodyFunction"
   },
   "ElasticMQ": {
     "ExternalEndpoint": "http://localhost:9324",
@@ -19,6 +21,11 @@
   "QueueConfig": {
     "process-updates-queue": {
       "lambdaFunctionName": "ProcessUpdatesFunction",
+      "pollInterval": 5000,
+      "enabled": true
+    },
+    "translation-jobs-queue": {
+      "lambdaFunctionName": "TranslateActivityBodyFunction",
       "pollInterval": 5000,
       "enabled": true
     }

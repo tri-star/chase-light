@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, test } from "vitest"
-import type { Context } from "aws-lambda"
+import type { SQSEvent, Context } from "aws-lambda"
 import { handler } from "../handler"
 import { setupComponentTest, TestDataFactory } from "../../../../../test"
 import { ACTIVITY_BODY_TRANSLATION_STATUS } from "shared"
@@ -12,6 +12,27 @@ describe("translate-activity-body handler", () => {
 
   let mockContext: Context
   let activityId: string
+
+  const createSQSEvent = (payload: { activityId: string }): SQSEvent => ({
+    Records: [
+      {
+        messageId: "test-message-id",
+        receiptHandle: "test-receipt-handle",
+        body: JSON.stringify(payload),
+        attributes: {
+          ApproximateReceiveCount: "1",
+          SentTimestamp: Date.now().toString(),
+          SenderId: "local",
+          ApproximateFirstReceiveTimestamp: Date.now().toString(),
+        },
+        messageAttributes: {},
+        md5OfBody: "",
+        eventSource: "aws:sqs",
+        eventSourceARN: "arn:aws:sqs:local:000000000000:test-queue",
+        awsRegion: "us-east-1",
+      },
+    ],
+  })
 
   beforeEach(async () => {
     mockContext = {
@@ -47,9 +68,10 @@ describe("translate-activity-body handler", () => {
   })
 
   test("本文翻訳ジョブを処理し、完了ステータスになる", async () => {
-    const result = await handler({ activityId }, mockContext)
+    const sqsEvent = createSQSEvent({ activityId })
+    const result = await handler(sqsEvent, mockContext)
 
-    expect(result.translationStatus).toBe("completed")
+    expect(result.batchItemFailures).toHaveLength(0)
 
     const connection = await TransactionManager.getConnection()
     const updated = await connection.query.activities.findFirst({
@@ -64,12 +86,12 @@ describe("translate-activity-body handler", () => {
     expect(updated?.translatedBody).toContain("[translated]")
   })
 
-  test("存在しないアクティビティの場合はtranslationStatusがnull", async () => {
-    const result = await handler(
-      { activityId: "00000000-0000-0000-0000-000000000000" },
-      mockContext,
-    )
+  test("存在しないアクティビティの場合は失敗せず正常終了する", async () => {
+    const sqsEvent = createSQSEvent({
+      activityId: "00000000-0000-0000-0000-000000000000",
+    })
+    const result = await handler(sqsEvent, mockContext)
 
-    expect(result.translationStatus).toBeNull()
+    expect(result.batchItemFailures).toHaveLength(0)
   })
 })

@@ -1,4 +1,4 @@
-import type { Context } from "aws-lambda"
+import type { SQSEvent, SQSBatchResponse, Context } from "aws-lambda"
 import { connectDb } from "../../../../db/connection"
 import { TransactionManager } from "../../../../core/db"
 import { DrizzleActivityRepository } from "../../infra/repositories"
@@ -9,67 +9,50 @@ interface ProcessUpdatesInput {
   activityId: string
 }
 
-interface ProcessUpdatesOutput {
-  processedActivityIds: string[]
-  failedActivityIds: string[]
-}
-
 /**
  * process-updates Lambda関数のハンドラー
  * 検知されたイベントのAI翻訳・状態更新を行う
  */
 export const handler = async (
-  event: ProcessUpdatesInput,
+  event: SQSEvent,
   context: Context,
-): Promise<ProcessUpdatesOutput> => {
+): Promise<SQSBatchResponse> => {
   console.log("Event:", JSON.stringify(event, null, 2))
   console.log("Context:", context.awsRequestId)
 
-  // 入力検証
-  if (!event.activityId) {
-    console.error("Missing or invalid activityId parameter")
-    throw new Error("Invalid input: activityId must be a string")
-  }
+  await connectDb()
 
-  try {
-    // データベース接続を確立
-    await connectDb()
+  const batchItemFailures: { itemIdentifier: string }[] = []
 
-    // トランザクション内で処理を実行
-    return await TransactionManager.transaction(async () => {
-      // リポジトリとサービスのインスタンス化
-      const activityRepository = new DrizzleActivityRepository()
-      const translationAdapter = await createTranslationPort()
+  for (const record of event.Records) {
+    try {
+      const payload = JSON.parse(record.body) as ProcessUpdatesInput
 
-      const processUpdatesService = new ProcessUpdatesUseCase(
-        activityRepository,
-        translationAdapter,
-      )
+      if (!payload.activityId) {
+        console.error("Missing activityId, skipping record:", record.messageId)
+        continue
+      }
 
-      // イベント処理実行
-      console.log(`Processing 1 activity`)
-      const result = await processUpdatesService.execute({
-        activityIds: [event.activityId],
+      await TransactionManager.transaction(async () => {
+        const activityRepository = new DrizzleActivityRepository()
+        const translationAdapter = await createTranslationPort()
+
+        const processUpdatesService = new ProcessUpdatesUseCase(
+          activityRepository,
+          translationAdapter,
+        )
+
+        await processUpdatesService.execute({
+          activityIds: [payload.activityId],
+        })
       })
 
-      console.log(
-        `Processing completed. ` +
-          `Processed: ${result.processedActivityIds.length}, ` +
-          `Failed: ${result.failedActivityIds.length}`,
-      )
-
-      return result
-    })
-  } catch (error) {
-    console.error("Error in process-updates handler:", error)
-
-    // エラーの詳細をログに記録
-    if (error instanceof Error) {
-      console.error("Error message:", error.message)
-      console.error("Error stack:", error.stack)
+      console.log(`Successfully processed activity: ${payload.activityId}`)
+    } catch (error) {
+      console.error(`Failed to process record ${record.messageId}:`, error)
+      batchItemFailures.push({ itemIdentifier: record.messageId })
     }
-
-    // エラーを再スロー（StepFunctionsでエラーハンドリング）
-    throw error
   }
+
+  return { batchItemFailures }
 }

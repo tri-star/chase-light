@@ -1,4 +1,4 @@
-import type { Context } from "aws-lambda"
+import type { SQSEvent, SQSBatchResponse, Context } from "aws-lambda"
 import { connectDb } from "../../../../db/connection"
 import { TransactionManager } from "../../../../core/db"
 import { DrizzleActivityTranslationStateRepository } from "../../infra"
@@ -8,10 +8,6 @@ import { ProcessActivityTranslationJobUseCase } from "../../application/use-case
 type TranslateActivityBodyInput = {
   activityId: string
   targetLanguage?: string
-}
-
-type TranslateActivityBodyOutput = {
-  translationStatus: string | null
 }
 
 const createBodyTranslationPort = () => {
@@ -26,34 +22,49 @@ const createBodyTranslationPort = () => {
 }
 
 export const handler = async (
-  event: TranslateActivityBodyInput,
+  event: SQSEvent,
   context: Context,
-): Promise<TranslateActivityBodyOutput> => {
-  console.info("translate-activity-body event:", JSON.stringify(event))
+): Promise<SQSBatchResponse> => {
+  console.info("translate-activity-body SQS event:", JSON.stringify(event))
   console.info("context awsRequestId:", context.awsRequestId)
-
-  if (!event.activityId) {
-    throw new Error("activityId is required")
-  }
 
   await connectDb()
 
-  return TransactionManager.transaction(async () => {
-    const translationStateRepository =
-      new DrizzleActivityTranslationStateRepository()
-    const bodyTranslationPort = createBodyTranslationPort()
-    const useCase = new ProcessActivityTranslationJobUseCase(
-      translationStateRepository,
-      bodyTranslationPort,
-    )
+  const batchItemFailures: { itemIdentifier: string }[] = []
 
-    const result = await useCase.execute({
-      activityId: event.activityId,
-      targetLanguage: event.targetLanguage,
-    })
+  for (const record of event.Records) {
+    try {
+      const payload = JSON.parse(record.body) as TranslateActivityBodyInput
 
-    return {
-      translationStatus: result?.translationStatus ?? null,
+      if (!payload.activityId) {
+        console.error(
+          "activityId is required, skipping record:",
+          record.messageId,
+        )
+        continue
+      }
+
+      await TransactionManager.transaction(async () => {
+        const translationStateRepository =
+          new DrizzleActivityTranslationStateRepository()
+        const bodyTranslationPort = createBodyTranslationPort()
+        const useCase = new ProcessActivityTranslationJobUseCase(
+          translationStateRepository,
+          bodyTranslationPort,
+        )
+
+        await useCase.execute({
+          activityId: payload.activityId,
+          targetLanguage: payload.targetLanguage,
+        })
+      })
+
+      console.info(`Successfully processed activity: ${payload.activityId}`)
+    } catch (error) {
+      console.error(`Failed to process record ${record.messageId}:`, error)
+      batchItemFailures.push({ itemIdentifier: record.messageId })
     }
-  })
+  }
+
+  return { batchItemFailures }
 }

@@ -94,6 +94,27 @@ export const lambdaConfigs = {
       "jwks-rsa": "^3.0.1",
     },
   },
+  "translate-activity-body": {
+    name: "translate-activity-body-lambda",
+    description: "Translate activity body content via SQS trigger",
+    entryPoint:
+      "./src/features/activities/workers/translate-activity-body/index.ts",
+    externalPackages: [
+      "@aws-sdk/*",
+      "aws-sdk",
+      "pg",
+      "drizzle-orm",
+      "dotenv",
+      "openai",
+    ],
+    dependencies: {
+      "@aws-sdk/client-ssm": "^3.848.0",
+      openai: "^6.3.0",
+      pg: "^8.16.0",
+      "drizzle-orm": "^0.44.2",
+      dotenv: "^16.5.0",
+    },
+  },
 }
 
 // デフォルトのesbuild設定

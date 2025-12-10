@@ -47,6 +47,23 @@ Resources:
       QueueName: !Sub "${AWS::StackName}-process-updates-dlq"
       MessageRetentionPeriod: 1209600  # 14 days
 
+  # Translation Jobs Queue
+  TranslationJobsQueue:
+    Type: AWS::SQS::Queue
+    Properties:
+      QueueName: !Sub "${AWS::StackName}-translation-jobs-queue"
+      VisibilityTimeout: 360
+      MessageRetentionPeriod: 1209600  # 14 days
+      RedrivePolicy:
+        deadLetterTargetArn: !GetAtt TranslationJobsDeadLetterQueue.Arn
+        maxReceiveCount: 3
+
+  TranslationJobsDeadLetterQueue:
+    Type: AWS::SQS::Queue
+    Properties:
+      QueueName: !Sub "${AWS::StackName}-translation-jobs-dlq"
+      MessageRetentionPeriod: 1209600  # 14 days
+
   # Lambda Functions
   ListDetectTargetsFunction:
     Type: AWS::Serverless::Function
@@ -112,7 +129,7 @@ Resources:
           - Effect: Allow
             Action:
               - ssm:GetParameter
-            Resource: 
+            Resource:
               - !Sub "arn:${AWS::Partition}:ssm:${AWS::Region}:${AWS::AccountId}:parameter/${Stage}/supabase/db_url"
               - !Sub "arn:${AWS::Partition}:ssm:${AWS::Region}:${AWS::AccountId}:parameter/${Stage}/openai/api_key"
         - Statement:
@@ -122,6 +139,39 @@ Resources:
               - sqs:DeleteMessage
               - sqs:GetQueueAttributes
             Resource: !GetAtt ProcessUpdatesQueue.Arn
+
+  TranslateActivityBodyFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub "${AWS::StackName}-translate-activity-body"
+      CodeUri: ../dist/lambda/translate-activity-body/
+      Handler: index.handler
+      Runtime: nodejs22.x
+      Timeout: 300
+      MemorySize: 512
+      ReservedConcurrentExecutions: 5
+      Events:
+        SQSEvent:
+          Type: SQS
+          Properties:
+            Queue: !GetAtt TranslationJobsQueue.Arn
+            BatchSize: 1
+            MaximumBatchingWindowInSeconds: 0
+      Policies:
+        - Statement:
+          - Effect: Allow
+            Action:
+              - ssm:GetParameter
+            Resource:
+              - !Sub "arn:${AWS::Partition}:ssm:${AWS::Region}:${AWS::AccountId}:parameter/${Stage}/supabase/db_url"
+              - !Sub "arn:${AWS::Partition}:ssm:${AWS::Region}:${AWS::AccountId}:parameter/${Stage}/openai/api_key"
+        - Statement:
+          - Effect: Allow
+            Action:
+              - sqs:ReceiveMessage
+              - sqs:DeleteMessage
+              - sqs:GetQueueAttributes
+            Resource: !GetAtt TranslationJobsQueue.Arn
 
   GenerateDigestNotificationsFunction:
     Type: AWS::Serverless::Function
@@ -317,6 +367,25 @@ Resources:
         - !Ref AlertsTopic
       TreatMissingData: notBreaching
 
+  TranslationJobsDeadLetterQueueAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmName: !Sub "${AWS::StackName}-translation-dlq-messages"
+      AlarmDescription: "Alert when messages appear in Translation Jobs DLQ"
+      MetricName: ApproximateNumberOfVisibleMessages
+      Namespace: AWS/SQS
+      Statistic: Maximum
+      Period: 300
+      EvaluationPeriods: 1
+      Threshold: 1
+      ComparisonOperator: GreaterThanOrEqualToThreshold
+      Dimensions:
+        - Name: QueueName
+          Value: !GetAtt TranslationJobsDeadLetterQueue.QueueName
+      AlarmActions:
+        - !Ref AlertsTopic
+      TreatMissingData: notBreaching
+
 Outputs:
   DataSourceUpdateDetectionStateMachineArn:
     Description: 'ARN of the data source update detection state machine'
@@ -365,3 +434,21 @@ Outputs:
     Value: !Ref AlertsTopic
     Export:
       Name: !Sub "${AWS::StackName}-AlertsTopicArn"
+
+  TranslateActivityBodyFunctionArn:
+    Description: 'ARN of the translate activity body function'
+    Value: !GetAtt TranslateActivityBodyFunction.Arn
+    Export:
+      Name: !Sub "${AWS::StackName}-TranslateActivityBodyFunctionArn"
+
+  TranslationJobsQueueUrl:
+    Description: 'URL of the translation jobs SQS queue'
+    Value: !Ref TranslationJobsQueue
+    Export:
+      Name: !Sub "${AWS::StackName}-TranslationJobsQueueUrl"
+
+  TranslationJobsQueueArn:
+    Description: 'ARN of the translation jobs SQS queue'
+    Value: !GetAtt TranslationJobsQueue.Arn
+    Export:
+      Name: !Sub "${AWS::StackName}-TranslationJobsQueueArn"

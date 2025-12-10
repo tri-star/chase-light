@@ -107,27 +107,36 @@ export class MessageProcessor {
 
   /**
    * SQSメッセージからLambda実行用のペイロードを抽出
+   * AWS本番環境と同じSQSEvent形式にラップする
    */
   private extractPayload(message: Message): unknown {
     if (!message.Body) {
       throw new Error("メッセージにBodyが含まれていません")
     }
 
-    try {
-      // SQSメッセージのBodyをJSONとしてパース
-      const messageBody = JSON.parse(message.Body)
-
-      // StepFunctionsから送信されたメッセージの場合、特定の形式になっている可能性がある
-      // 基本的にはそのままLambdaに渡す
-      return messageBody
-    } catch (error) {
-      // JSONパースに失敗した場合は、文字列のまま渡す
-      logger.warn(
-        "メッセージBodyのJSONパースに失敗しました。文字列として処理します。",
-        error,
-      )
-      return { rawMessage: message.Body }
+    // SQSEvent形式にラップ
+    const sqsEvent = {
+      Records: [
+        {
+          messageId: message.MessageId || crypto.randomUUID(),
+          receiptHandle: message.ReceiptHandle || "",
+          body: message.Body, // 元のメッセージBody（JSONパースせずそのまま）
+          attributes: {
+            ApproximateReceiveCount: "1",
+            SentTimestamp: Date.now().toString(),
+            SenderId: "local",
+            ApproximateFirstReceiveTimestamp: Date.now().toString(),
+          },
+          messageAttributes: {},
+          md5OfBody: "",
+          eventSource: "aws:sqs",
+          eventSourceARN: "arn:aws:sqs:local:000000000000:local-queue",
+          awsRegion: "us-east-1",
+        },
+      ],
     }
+
+    return sqsEvent
   }
 }
 
