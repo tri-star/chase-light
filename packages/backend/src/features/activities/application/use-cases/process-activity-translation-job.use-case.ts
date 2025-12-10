@@ -1,14 +1,14 @@
 import {
   ACTIVITY_BODY_TRANSLATION_STATUS,
-  DEFAULT_ACTIVITY_BODY_TRANSLATION_LANGUAGE,
   isActivityBodyTranslationTerminalStatus,
-} from "../../domain"
-import type {
-  ActivityBodyTranslationState,
-  ActivityBodyTranslationTargetLanguage,
-} from "../../domain"
+} from "shared/constants"
+import type { ActivityBodyTranslationTargetLanguage } from "shared/constants"
 import type { ActivityTranslationStateRepository } from "../../domain/repositories/activity-translation-state.repository"
 import type { BodyTranslationPort } from "../ports/body-translation.port"
+import {
+  ActivityBodyTranslationState,
+  DEFAULT_ACTIVITY_BODY_TRANSLATION_LANGUAGE,
+} from "../../domain"
 
 export type ProcessActivityTranslationJobInput = {
   activityId: string

@@ -1,12 +1,8 @@
-import {
-  ACTIVITY_BODY_TRANSLATION_STATUS,
-  DEFAULT_ACTIVITY_BODY_TRANSLATION_TARGET_LANGUAGE,
-  isActivityBodyTranslationTerminalStatus,
-} from "shared"
+import { DEFAULT_ACTIVITY_BODY_TRANSLATION_TARGET_LANGUAGE } from "shared/constants"
 import type {
   ActivityBodyTranslationStatus,
   ActivityBodyTranslationTargetLanguage,
-} from "shared"
+} from "shared/constants"
 
 export type ActivityBodyTranslationState = {
   activityId: string
@@ -28,13 +24,3 @@ export type ActivityBodyTranslationRequest = {
 
 export const DEFAULT_ACTIVITY_BODY_TRANSLATION_LANGUAGE: ActivityBodyTranslationTargetLanguage =
   DEFAULT_ACTIVITY_BODY_TRANSLATION_TARGET_LANGUAGE
-
-export {
-  ACTIVITY_BODY_TRANSLATION_STATUS,
-  isActivityBodyTranslationTerminalStatus,
-}
-
-export type {
-  ActivityBodyTranslationStatus,
-  ActivityBodyTranslationTargetLanguage,
-}

@@ -3,7 +3,7 @@ import type {
   BodyTranslationPort,
   BodyTranslationOptions,
 } from "../../../application/ports/body-translation.port"
-import type { ActivityBodyTranslationTargetLanguage } from "../../../domain"
+import type { ActivityBodyTranslationTargetLanguage } from "shared/constants"
 
 export class BodyTranslationAdapter implements BodyTranslationPort {
   private readonly openai: OpenAI

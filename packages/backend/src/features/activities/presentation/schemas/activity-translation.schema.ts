@@ -1,5 +1,5 @@
 import { z } from "@hono/zod-openapi"
-import { ACTIVITY_BODY_TRANSLATION_STATUS } from "../../domain"
+import { ACTIVITY_BODY_TRANSLATION_STATUS } from "shared/constants"
 
 export const translationRequestSchema = z
   .object({

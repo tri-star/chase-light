@@ -1,5 +1,5 @@
 import type { BodyTranslationPort } from "../../../application/ports/body-translation.port"
-import type { ActivityBodyTranslationTargetLanguage } from "../../../domain"
+import type { ActivityBodyTranslationTargetLanguage } from "shared/constants"
 
 export class BodyTranslationStubAdapter implements BodyTranslationPort {
   constructor(private readonly suffix = "[translated]") {}

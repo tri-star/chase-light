@@ -4,8 +4,7 @@ import { activities, userWatches } from "../../../../db/schema"
 import {
   ACTIVITY_BODY_TRANSLATION_STATUS,
   type ActivityBodyTranslationStatus,
-  type ActivityBodyTranslationState,
-} from "../../domain"
+} from "shared/constants"
 import type {
   ActivityTranslationStateRepository,
   ActivityBodyTranslationStateUpdate,
@@ -14,6 +13,7 @@ import type {
   MarkActivityBodyTranslationProcessingInput,
   MarkActivityBodyTranslationQueuedInput,
 } from "../../domain/repositories/activity-translation-state.repository"
+import { ActivityBodyTranslationState } from "../../domain"
 
 type ActivityTranslationRow = {
   activityId: string

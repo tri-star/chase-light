@@ -1,4 +1,4 @@
-import type { ActivityBodyTranslationTargetLanguage } from "../../domain"
+import type { ActivityBodyTranslationTargetLanguage } from "shared/constants"
 
 export type TranslationJobPayload = {
   activityId: string

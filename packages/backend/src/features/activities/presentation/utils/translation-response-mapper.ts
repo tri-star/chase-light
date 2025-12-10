@@ -1,4 +1,4 @@
-import { ACTIVITY_BODY_TRANSLATION_STATUS } from "../../domain"
+import { ACTIVITY_BODY_TRANSLATION_STATUS } from "shared/constants"
 import type { ActivityBodyTranslationState } from "../../domain"
 
 const toISOString = (value: Date): string => value.toISOString()

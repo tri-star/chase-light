@@ -1,9 +1,11 @@
 import {
   ACTIVITY_BODY_TRANSLATION_STATUS,
-  DEFAULT_ACTIVITY_BODY_TRANSLATION_LANGUAGE,
   isActivityBodyTranslationTerminalStatus,
+} from "shared/constants"
+import {
+  DEFAULT_ACTIVITY_BODY_TRANSLATION_LANGUAGE,
+  type ActivityBodyTranslationState,
 } from "../../domain"
-import type { ActivityBodyTranslationState } from "../../domain"
 import type {
   ActivityTranslationStateRepository,
   MarkActivityBodyTranslationQueuedInput,
