@@ -9,7 +9,7 @@ export class BodyTranslationAdapter implements BodyTranslationPort {
   private readonly openai: OpenAI
   private readonly defaultOptions: BodyTranslationOptions = {
     model: "gpt-4o-mini",
-    maxTokens: 4000,
+    maxTokens: 8000,
   }
 
   constructor(apiKey: string, options: BodyTranslationOptions = {}) {
