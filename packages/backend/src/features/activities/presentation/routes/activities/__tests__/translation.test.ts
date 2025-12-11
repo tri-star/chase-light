@@ -1,20 +1,8 @@
 import { beforeEach, describe, expect, test } from "vitest"
 import { OpenAPIHono } from "@hono/zod-openapi"
 import { setupComponentTest, TestDataFactory } from "../../../../../../test"
-import { createActivityPresentationRoutes } from "../../../routes"
-import {
-  ListUserActivitiesUseCase,
-  GetActivityDetailUseCase,
-  ListDataSourceActivitiesUseCase,
-  RequestActivityTranslationUseCase,
-  GetActivityTranslationStatusUseCase,
-} from "../../../../application/use-cases"
-import {
-  DrizzleActivityQueryRepository,
-  DrizzleActivityTranslationStateRepository,
-  TranslationJobQueueStub,
-} from "../../../../infra"
-import { globalJWTAuth } from "../../../../../identity"
+import { createActivityTestApp } from "../../test-helpers/create-activity-test-app"
+import { TranslationJobQueueStub } from "../../../../infra"
 import { AuthTestHelper } from "../../../../../identity/test-helpers/auth-test-helper"
 import type { User } from "../../../../../identity/domain/user"
 import { ACTIVITY_STATUS, ACTIVITY_TYPE } from "../../../../domain"
@@ -96,39 +84,11 @@ describe("Activity Translation API", () => {
     completedActivityId = completedActivity.id
 
     queueStub = new TranslationJobQueueStub()
-    const activityQueryRepository = new DrizzleActivityQueryRepository()
-    const translationStateRepository =
-      new DrizzleActivityTranslationStateRepository()
-
-    const listUserActivitiesUseCase = new ListUserActivitiesUseCase(
-      activityQueryRepository,
-    )
-    const getActivityDetailUseCase = new GetActivityDetailUseCase(
-      activityQueryRepository,
-    )
-    const listDataSourceActivitiesUseCase = new ListDataSourceActivitiesUseCase(
-      activityQueryRepository,
-    )
-    const requestActivityTranslationUseCase =
-      new RequestActivityTranslationUseCase(
-        translationStateRepository,
-        queueStub,
-      )
-    const getActivityTranslationStatusUseCase =
-      new GetActivityTranslationStatusUseCase(translationStateRepository)
-
-    app = new OpenAPIHono()
-    app.use("*", globalJWTAuth)
-    app.route(
-      "/",
-      createActivityPresentationRoutes(
-        listUserActivitiesUseCase,
-        getActivityDetailUseCase,
-        listDataSourceActivitiesUseCase,
-        requestActivityTranslationUseCase,
-        getActivityTranslationStatusUseCase,
-      ),
-    )
+    app = createActivityTestApp({
+      adapterOverrides: {
+        translationJobQueue: queueStub,
+      },
+    })
   })
 
   test("POST /activities/{id}/translations/body で翻訳ジョブをキュー投入できる", async () => {
