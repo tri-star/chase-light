@@ -1,7 +1,4 @@
-import {
-  ACTIVITY_BODY_TRANSLATION_STATUS,
-  isActivityBodyTranslationTerminalStatus,
-} from "shared/constants"
+import { isActivityBodyTranslationTerminalStatus } from "shared/constants"
 import type { ActivityBodyTranslationTargetLanguage } from "shared/constants"
 import type { ActivityTranslationStateRepository } from "../../domain/repositories/activity-translation-state.repository"
 import type { BodyTranslationPort } from "../ports/body-translation.port"
@@ -76,17 +73,11 @@ export class ProcessActivityTranslationJobUseCase {
       const statusDetail =
         error instanceof Error ? error.message : "Unknown error"
 
-      await this.translationStateRepository.markFailed({
+      return this.translationStateRepository.markFailed({
         activityId: input.activityId,
         completedAt: new Date(),
         statusDetail,
       })
-
-      return {
-        ...processingState,
-        translationStatus: ACTIVITY_BODY_TRANSLATION_STATUS.FAILED,
-        translationStatusDetail: statusDetail,
-      }
     }
   }
 }
