@@ -1,3 +1,6 @@
 export { ListUserActivitiesUseCase } from "./list-user-activities.use-case"
 export { ListDataSourceActivitiesUseCase } from "./list-data-source-activities.use-case"
 export { GetActivityDetailUseCase } from "./get-activity-detail.use-case"
+export { RequestActivityTranslationUseCase } from "./request-activity-translation.use-case"
+export { GetActivityTranslationStatusUseCase } from "./get-activity-translation-status.use-case"
+export { ProcessActivityTranslationJobUseCase } from "./process-activity-translation-job.use-case"

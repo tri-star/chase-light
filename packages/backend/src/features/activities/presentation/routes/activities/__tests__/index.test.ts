@@ -6,8 +6,14 @@ import {
   ListUserActivitiesUseCase,
   GetActivityDetailUseCase,
   ListDataSourceActivitiesUseCase,
+  RequestActivityTranslationUseCase,
+  GetActivityTranslationStatusUseCase,
 } from "../../../../application/use-cases"
-import { DrizzleActivityQueryRepository } from "../../../../infra"
+import {
+  DrizzleActivityQueryRepository,
+  DrizzleActivityTranslationStateRepository,
+  TranslationJobQueueStub,
+} from "../../../../infra"
 import { globalJWTAuth } from "../../../../../identity"
 import { AuthTestHelper } from "../../../../../identity/test-helpers/auth-test-helper"
 import type { User } from "../../../../../identity/domain/user"
@@ -25,6 +31,7 @@ describe("Activities API", () => {
   let otherToken: string
   let completedActivityId: string
   let pendingActivityId: string
+  let queueStub: TranslationJobQueueStub
 
   beforeEach(async () => {
     AuthTestHelper.clearTestUsers()
@@ -107,6 +114,16 @@ describe("Activities API", () => {
     const listDataSourceActivitiesUseCase = new ListDataSourceActivitiesUseCase(
       repository,
     )
+    const translationStateRepository =
+      new DrizzleActivityTranslationStateRepository()
+    queueStub = new TranslationJobQueueStub()
+    const requestActivityTranslationUseCase =
+      new RequestActivityTranslationUseCase(
+        translationStateRepository,
+        queueStub,
+      )
+    const getActivityTranslationStatusUseCase =
+      new GetActivityTranslationStatusUseCase(translationStateRepository)
 
     app = new OpenAPIHono()
     app.use("*", globalJWTAuth)
@@ -116,6 +133,8 @@ describe("Activities API", () => {
         listUserActivitiesUseCase,
         getActivityDetailUseCase,
         listDataSourceActivitiesUseCase,
+        requestActivityTranslationUseCase,
+        getActivityTranslationStatusUseCase,
       ),
     )
   })

@@ -154,6 +154,22 @@ export const activities = pgTable(
     translatedTitle: text("translated_title"),
     summary: text("summary"),
     translatedBody: text("translated_body"),
+    bodyTranslationStatus: text("body_translation_status")
+      .notNull()
+      .default("completed"),
+    bodyTranslationStatusDetail: text("body_translation_status_detail"),
+    bodyTranslationRequestedAt: timestamp("body_translation_requested_at", {
+      withTimezone: true,
+    })
+      .defaultNow()
+      .notNull(),
+    bodyTranslationStartedAt: timestamp("body_translation_started_at", {
+      withTimezone: true,
+    }),
+    bodyTranslationCompletedAt: timestamp("body_translation_completed_at", {
+      withTimezone: true,
+    }),
+    bodyTranslationMessageId: text("body_translation_message_id"),
     version: text("version"),
     status: text("status").notNull().default("pending"),
     statusDetail: text("status_detail"),
@@ -185,6 +201,12 @@ export const activities = pgTable(
       table.createdAt,
     ),
     statusIdx: index("idx_activities_status").on(table.status),
+    bodyTranslationStatusIdx: index(
+      "idx_activities_body_translation_status",
+    ).on(table.bodyTranslationStatus),
+    bodyTranslationRequestedAtIdx: index(
+      "idx_activities_body_translation_requested_at",
+    ).on(sql`${table.bodyTranslationRequestedAt} DESC`),
     createdAtIdx: index("idx_activities_created_at").on(table.createdAt),
     updatedAtIdx: index("idx_activities_updated_at").on(table.updatedAt),
   }),
