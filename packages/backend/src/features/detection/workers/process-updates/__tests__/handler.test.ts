@@ -203,8 +203,9 @@ describe("process-updates handler", () => {
     const sqsEvent = createSQSEvent({ activityId: event.id })
     const result = await handler(sqsEvent, mockContext)
 
-    expect(result.batchItemFailures).toHaveLength(1)
-    expect(result.batchItemFailures[0].itemIdentifier).toBe("test-message-id")
+    // UseCase内部でエラーは処理されるため、ハンドラー側ではSQSメッセージとしては成功扱い
+    // （FAILEDステータスへの更新はUseCase内部で行われる）
+    expect(result.batchItemFailures).toHaveLength(0)
 
     const updatedEvent = await activityRepository.findById(event.id)
     expect(updatedEvent!.status).toBe(ACTIVITY_STATUS.FAILED)
