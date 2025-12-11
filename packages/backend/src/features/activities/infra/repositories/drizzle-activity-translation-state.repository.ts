@@ -1,10 +1,8 @@
 import { and, eq } from "drizzle-orm"
+import { z } from "zod"
 import { TransactionManager } from "../../../../core/db"
 import { activities, userWatches } from "../../../../db/schema"
-import {
-  ACTIVITY_BODY_TRANSLATION_STATUS,
-  type ActivityBodyTranslationStatus,
-} from "shared/constants"
+import { ACTIVITY_BODY_TRANSLATION_STATUS } from "shared/constants"
 import type {
   ActivityTranslationStateRepository,
   ActivityBodyTranslationStateUpdate,
@@ -15,17 +13,26 @@ import type {
 } from "../../domain/repositories/activity-translation-state.repository"
 import { ActivityBodyTranslationState } from "../../domain"
 
-type ActivityTranslationRow = {
-  activityId: string
-  body: string
-  translationStatus: ActivityBodyTranslationStatus
-  translationStatusDetail: string | null
-  translationRequestedAt: Date
-  translationStartedAt: Date | null
-  translationCompletedAt: Date | null
-  translationMessageId: string | null
-  translatedBody: string | null
-}
+/**
+ * DBから返却される翻訳状態の行をバリデーションするためのZodスキーマ
+ * ランタイムでDBレスポンスの型を検証し、型の不整合を検知する
+ */
+const activityTranslationRowSchema = z.object({
+  activityId: z.string(),
+  body: z.string(),
+  translationStatus: z.enum([
+    ACTIVITY_BODY_TRANSLATION_STATUS.QUEUED,
+    ACTIVITY_BODY_TRANSLATION_STATUS.PROCESSING,
+    ACTIVITY_BODY_TRANSLATION_STATUS.COMPLETED,
+    ACTIVITY_BODY_TRANSLATION_STATUS.FAILED,
+  ]),
+  translationStatusDetail: z.string().nullable(),
+  translationRequestedAt: z.date(),
+  translationStartedAt: z.date().nullable(),
+  translationCompletedAt: z.date().nullable(),
+  translationMessageId: z.string().nullable(),
+  translatedBody: z.string().nullable(),
+})
 
 export class DrizzleActivityTranslationStateRepository
   implements ActivityTranslationStateRepository
@@ -40,7 +47,7 @@ export class DrizzleActivityTranslationStateRepository
       .from(activities)
       .where(eq(activities.id, activityId))
       .limit(1)
-      .then((rows) => rows[0] as ActivityTranslationRow | undefined)
+      .then((rows) => rows[0])
 
     return row ? this.mapToDomain(row) : null
   }
@@ -60,7 +67,7 @@ export class DrizzleActivityTranslationStateRepository
       )
       .where(and(eq(userWatches.userId, userId), eq(activities.id, activityId)))
       .limit(1)
-      .then((rows) => rows[0] as ActivityTranslationRow | undefined)
+      .then((rows) => rows[0])
 
     return row ? this.mapToDomain(row) : null
   }
@@ -85,7 +92,7 @@ export class DrizzleActivityTranslationStateRepository
       .where(eq(activities.id, activityId))
       .returning(this.baseSelect())
 
-    return row ? this.mapToDomain(row as ActivityTranslationRow) : null
+    return row ? this.mapToDomain(row) : null
   }
 
   async markQueued(
@@ -106,7 +113,7 @@ export class DrizzleActivityTranslationStateRepository
       .where(eq(activities.id, input.activityId))
       .returning(this.baseSelect())
 
-    return row ? this.mapToDomain(row as ActivityTranslationRow) : null
+    return row ? this.mapToDomain(row) : null
   }
 
   async markProcessing(
@@ -125,7 +132,7 @@ export class DrizzleActivityTranslationStateRepository
       .where(eq(activities.id, input.activityId))
       .returning(this.baseSelect())
 
-    return row ? this.mapToDomain(row as ActivityTranslationRow) : null
+    return row ? this.mapToDomain(row) : null
   }
 
   async markCompleted(
@@ -144,7 +151,7 @@ export class DrizzleActivityTranslationStateRepository
       .where(eq(activities.id, input.activityId))
       .returning(this.baseSelect())
 
-    return row ? this.mapToDomain(row as ActivityTranslationRow) : null
+    return row ? this.mapToDomain(row) : null
   }
 
   async markFailed(
@@ -162,7 +169,7 @@ export class DrizzleActivityTranslationStateRepository
       .where(eq(activities.id, input.activityId))
       .returning(this.baseSelect())
 
-    return row ? this.mapToDomain(row as ActivityTranslationRow) : null
+    return row ? this.mapToDomain(row) : null
   }
 
   async updateStatusDetail(
@@ -179,7 +186,7 @@ export class DrizzleActivityTranslationStateRepository
       .where(eq(activities.id, activityId))
       .returning(this.baseSelect())
 
-    return row ? this.mapToDomain(row as ActivityTranslationRow) : null
+    return row ? this.mapToDomain(row) : null
   }
 
   private baseSelect() {
@@ -196,19 +203,26 @@ export class DrizzleActivityTranslationStateRepository
     }
   }
 
-  private mapToDomain(
-    row: ActivityTranslationRow,
-  ): ActivityBodyTranslationState {
+  /**
+   * DBから取得した行をドメインオブジェクトに変換する
+   * zodスキーマでバリデーションを行い、型の不整合を検知する
+   *
+   * @param row - DBから取得した行（unknown型で受け取り、zodでバリデーション）
+   * @returns バリデーション済みのドメインオブジェクト
+   * @throws ZodError - DBレスポンスがスキーマに一致しない場合
+   */
+  private mapToDomain(row: unknown): ActivityBodyTranslationState {
+    const validated = activityTranslationRowSchema.parse(row)
     return {
-      activityId: row.activityId,
-      body: row.body,
-      translationStatus: row.translationStatus as ActivityBodyTranslationStatus,
-      translationStatusDetail: row.translationStatusDetail,
-      translationRequestedAt: row.translationRequestedAt,
-      translationStartedAt: row.translationStartedAt,
-      translationCompletedAt: row.translationCompletedAt,
-      translationMessageId: row.translationMessageId,
-      translatedBody: row.translatedBody,
+      activityId: validated.activityId,
+      body: validated.body,
+      translationStatus: validated.translationStatus,
+      translationStatusDetail: validated.translationStatusDetail,
+      translationRequestedAt: validated.translationRequestedAt,
+      translationStartedAt: validated.translationStartedAt,
+      translationCompletedAt: validated.translationCompletedAt,
+      translationMessageId: validated.translationMessageId,
+      translatedBody: validated.translatedBody,
     }
   }
 }
