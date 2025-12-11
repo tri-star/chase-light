@@ -206,7 +206,7 @@ export const activities = pgTable(
     ).on(table.bodyTranslationStatus),
     bodyTranslationRequestedAtIdx: index(
       "idx_activities_body_translation_requested_at",
-    ).on(table.bodyTranslationRequestedAt),
+    ).on(sql`${table.bodyTranslationRequestedAt} DESC`),
     createdAtIdx: index("idx_activities_created_at").on(table.createdAt),
     updatedAtIdx: index("idx_activities_updated_at").on(table.updatedAt),
   }),
