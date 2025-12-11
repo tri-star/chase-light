@@ -7,6 +7,7 @@ import type {
   GetActivityTranslationStatusUseCase,
 } from "../application/use-cases"
 import { createActivitiesRoutes } from "./routes/activities"
+import { createActivityTranslationsBodyRoutes } from "./routes/activities/translations-body"
 import { createDataSourceActivitiesRoutes } from "./routes/data-source-activities"
 
 export function createActivityPresentationRoutes(
@@ -20,9 +21,12 @@ export function createActivityPresentationRoutes(
 
   app.route(
     "/activities",
-    createActivitiesRoutes(
-      listUserActivitiesUseCase,
-      getActivityDetailUseCase,
+    createActivitiesRoutes(listUserActivitiesUseCase, getActivityDetailUseCase),
+  )
+
+  app.route(
+    "/activities",
+    createActivityTranslationsBodyRoutes(
       requestActivityTranslationUseCase,
       getActivityTranslationStatusUseCase,
     ),
