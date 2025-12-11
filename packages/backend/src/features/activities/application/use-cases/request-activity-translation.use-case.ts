@@ -48,23 +48,21 @@ export class RequestActivityTranslationUseCase {
       return null
     }
 
-    const isInProgress =
-      existingState.translationStatus ===
-        ACTIVITY_BODY_TRANSLATION_STATUS.QUEUED ||
-      existingState.translationStatus ===
-        ACTIVITY_BODY_TRANSLATION_STATUS.PROCESSING
+    if (!input.force) {
+      const isTerminal = isActivityBodyTranslationTerminalStatus(
+        existingState.translationStatus,
+      )
+      const hasBody = !!existingState.translatedBody
+      const isInProgress =
+        existingState.translationStatus ===
+          ACTIVITY_BODY_TRANSLATION_STATUS.QUEUED ||
+        existingState.translationStatus ===
+          ACTIVITY_BODY_TRANSLATION_STATUS.PROCESSING
 
-    if (
-      !input.force &&
-      isActivityBodyTranslationTerminalStatus(existingState.translationStatus)
-    ) {
-      if (existingState.translatedBody) {
+      // 完了済みで本文がある場合、または処理中の場合は再投入しない
+      if ((isTerminal && hasBody) || isInProgress) {
         return existingState
       }
-    }
-
-    if (!input.force && isInProgress) {
-      return existingState
     }
 
     const queued = await this.enqueueJob(existingState.activityId, {
