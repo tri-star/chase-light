@@ -61,8 +61,14 @@ export class BodyTranslationAdapter implements BodyTranslationPort {
       throw new Error("OpenAI returned empty response")
     }
 
-    const parsed = JSON.parse(content) as { translatedBody: string }
-    return { translatedBody: this.normalize(parsed.translatedBody) }
+    try {
+      const parsed = JSON.parse(content) as { translatedBody: string }
+      return { translatedBody: this.normalize(parsed.translatedBody) }
+    } catch (_error) {
+      throw new Error(
+        `Failed to parse OpenAI response as JSON. Content: ${content}`,
+      )
+    }
   }
 
   private sanitize(input: string): string {
