@@ -62,6 +62,12 @@ const CONFIG = {
     ? Number(process.env.SAM_LOCAL_PORT)
     : 3002,
   dbPort: process.env.DB_PORT || 5432,
+  elasticMqPort: process.env.ELASTICMQ_PORT
+    ? Number(process.env.ELASTICMQ_PORT)
+    : 9324,
+  stepFunctionsPort: process.env.STEPFUNCTIONS_PORT
+    ? Number(process.env.STEPFUNCTIONS_PORT)
+    : 8083,
 }
 
 // AWS環境変数設定
@@ -159,7 +165,7 @@ async function checkStepFunctionsLocal(maxRetries = 30) {
   for (let i = 0; i < maxRetries; i++) {
     try {
       execSync(
-        `aws stepfunctions list-state-machines --endpoint-url http://localhost:8083 --query 'stateMachines' --output text > /dev/null 2>&1`,
+        `aws stepfunctions list-state-machines --endpoint-url http://localhost:${CONFIG.stepFunctionsPort} --query 'stateMachines' --output text > /dev/null 2>&1`,
         { stdio: "ignore" },
       )
       log.success("StepFunctions Localの起動を確認しました")
@@ -183,7 +189,7 @@ async function checkElasticMQ(maxRetries = 30) {
   for (let i = 0; i < maxRetries; i++) {
     try {
       execSync(
-        `aws --region ${CONFIG.awsRegion} --endpoint-url http://localhost:9324 sqs list-queues --query 'QueueUrls' --output text > /dev/null 2>&1`,
+        `aws --region ${CONFIG.awsRegion} --endpoint-url http://localhost:${CONFIG.elasticMqPort} sqs list-queues --query 'QueueUrls' --output text > /dev/null 2>&1`,
         { stdio: "ignore" },
       )
       log.success("ElasticMQの起動を確認しました")
@@ -635,7 +641,7 @@ function generateEnvJson() {
       STAGE: "local",
       APP_STAGE: "local",
       DB_HOST: "host.docker.internal",
-      DB_PORT: "5432",
+      DB_PORT: CONFIG.dbPort.toString(),
       DB_USER: "postgres",
       DB_PASSWORD: "password",
       DB_NAME: "chase_light",
@@ -651,7 +657,7 @@ function generateEnvJson() {
       STAGE: "local",
       APP_STAGE: "local",
       DB_HOST: "host.docker.internal",
-      DB_PORT: "5432",
+      DB_PORT: CONFIG.dbPort.toString(),
       DB_USER: "postgres",
       DB_PASSWORD: "password",
       DB_NAME: "chase_light",
@@ -667,7 +673,7 @@ function generateEnvJson() {
       STAGE: "local",
       APP_STAGE: "local",
       DB_HOST: "host.docker.internal",
-      DB_PORT: "5432",
+      DB_PORT: CONFIG.dbPort.toString(),
       DB_USER: "postgres",
       DB_PASSWORD: "password",
       DB_NAME: "chase_light",
@@ -684,7 +690,7 @@ function generateEnvJson() {
       STAGE: "local",
       APP_STAGE: "local",
       DB_HOST: "host.docker.internal",
-      DB_PORT: "5432",
+      DB_PORT: CONFIG.dbPort.toString(),
       DB_USER: "postgres",
       DB_PASSWORD: "password",
       DB_NAME: "chase_light",
@@ -695,6 +701,24 @@ function generateEnvJson() {
       AWS_REGION: "ap-northeast-1",
       AWS_ACCESS_KEY_ID: "dummy",
       AWS_SECRET_ACCESS_KEY: "dummy",
+    },
+    TranslateActivityBodyFunction: {
+      USE_AWS: "false",
+      STAGE: "local",
+      APP_STAGE: "local",
+      DB_HOST: "host.docker.internal",
+      DB_PORT: CONFIG.dbPort.toString(),
+      DB_USER: "postgres",
+      DB_PASSWORD: "password",
+      DB_NAME: "chase_light",
+      DB_SSL: "false",
+      NODE_ENV: "development",
+      LOG_LEVEL: "debug",
+      OPENAI_API_KEY: openaiApiKey,
+      AWS_REGION: "ap-northeast-1",
+      AWS_ACCESS_KEY_ID: "dummy",
+      AWS_SECRET_ACCESS_KEY: "dummy",
+      TRANSLATION_QUEUE_URL: `http://localhost:${CONFIG.elasticMqPort}/000000000000/translation-jobs-queue`,
     },
   }
 

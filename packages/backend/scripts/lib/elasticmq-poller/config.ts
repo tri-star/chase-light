@@ -5,6 +5,9 @@
 import fs from "fs"
 import path from "path"
 import { fileURLToPath } from "url"
+import dotenv from "dotenv"
+
+dotenv.config()
 
 // TypeScript設定インターフェース
 export interface PollerConfig {
@@ -47,9 +50,10 @@ export interface CommandLineArgs {
 }
 
 const samPort = process.env.SAM_LOCAL_PORT || "3002"
+const elasticMqPort = process.env.ELASTICMQ_PORT || "9324"
 // デフォルト設定
 const DEFAULT_CONFIG: Omit<PollerConfig, "queueName" | "lambdaFunctionName"> = {
-  elasticMqEndpoint: "http://localhost:9324",
+  elasticMqEndpoint: `http://localhost:${elasticMqPort}`,
   samLocalEndpoint: `http://localhost:${samPort}`,
   pollIntervalMs: 5000,
   maxMessages: 1,
