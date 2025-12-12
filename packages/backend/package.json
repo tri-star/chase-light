@@ -44,7 +44,8 @@
     "npm-run-all2": "^8.0.4",
     "tsx": "^4.20.6",
     "typescript": "^5.7.2",
-    "vitest": "^3.2.2"
+    "vitest": "^3.2.2",
+    "yaml": "^2.8.1"
   },
   "dependencies": {
     "@aws-sdk/client-lambda": "^3.913.0",
