@@ -11,6 +11,7 @@ Globals:
         USE_AWS: !Ref UseAws
         STAGE: !Ref Stage
         APP_STAGE: !Ref Stage
+        FRONTEND_URL: !Ref FrontendUrl
         DB_HOST: ""
         DB_PORT: ""
         DB_USER: ""
@@ -28,8 +29,28 @@ Parameters:
     Type: String
     Default: 'dev'
     Description: Stage environment (dev, staging, prod)
+  FrontendUrl:
+    Type: String
+    Default: '*'
+    Description: Comma-separated origins (or *) allowed for HttpApi CORS
+
+Conditions:
+  IsFrontendWildcard: !Equals [!Ref FrontendUrl, "*"]
 
 Resources:
+  BackendHttpApi:
+    Type: AWS::Serverless::HttpApi
+    Properties:
+      StageName: !Ref Stage
+      CorsConfiguration:
+        AllowOrigins:
+          - !Ref FrontendUrl
+        AllowHeaders:
+          - "*"
+        AllowMethods:
+          - "*"
+        AllowCredentials: !If [IsFrontendWildcard, false, true]
+
   # SQS Queues
   ProcessUpdatesQueue:
     Type: AWS::SQS::Queue
@@ -199,6 +220,43 @@ Resources:
                 - logs:CreateLogStream
                 - logs:PutLogEvents
               Resource: !Sub "arn:${AWS::Partition}:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/${AWS::StackName}-generate-digest-notifications*"
+        - Statement:
+            - Effect: Allow
+              Action:
+                - ssm:GetParameter
+              Resource:
+                - !Sub "arn:${AWS::Partition}:ssm:${AWS::Region}:${AWS::AccountId}:parameter/${Stage}/supabase/db_url"
+
+  BackendApiFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub "${AWS::StackName}-backend-api"
+      CodeUri: ../dist/lambda/api/
+      Handler: index.handler
+      Description: 'Hono API handler behind HttpApi'
+      MemorySize: 512
+      Timeout: 120
+      Events:
+        ApiRoot:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref BackendHttpApi
+            Path: /
+            Method: ANY
+        ApiProxy:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref BackendHttpApi
+            Path: /{proxy+}
+            Method: ANY
+      Policies:
+        - Statement:
+            - Effect: Allow
+              Action:
+                - logs:CreateLogGroup
+                - logs:CreateLogStream
+                - logs:PutLogEvents
+              Resource: !Sub "arn:${AWS::Partition}:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/${AWS::StackName}-backend-api*"
         - Statement:
             - Effect: Allow
               Action:
@@ -387,6 +445,12 @@ Resources:
       TreatMissingData: notBreaching
 
 Outputs:
+  BackendApiEndpoint:
+    Description: 'Base URL of the Backend HttpApi stage'
+    Value: !Sub "${BackendHttpApi.ApiEndpoint}/${Stage}"
+    Export:
+      Name: !Sub "${AWS::StackName}-BackendApiEndpoint"
+
   DataSourceUpdateDetectionStateMachineArn:
     Description: 'ARN of the data source update detection state machine'
     Value: !Ref DataSourceUpdateDetectionStateMachine
