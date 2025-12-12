@@ -1,20 +1,8 @@
 import { beforeEach, describe, expect, test } from "vitest"
 import { OpenAPIHono } from "@hono/zod-openapi"
 import { setupComponentTest, TestDataFactory } from "../../../../../../test"
-import { createActivityPresentationRoutes } from "../../../routes"
-import {
-  ListUserActivitiesUseCase,
-  GetActivityDetailUseCase,
-  ListDataSourceActivitiesUseCase,
-  RequestActivityTranslationUseCase,
-  GetActivityTranslationStatusUseCase,
-} from "../../../../application/use-cases"
-import {
-  DrizzleActivityQueryRepository,
-  DrizzleActivityTranslationStateRepository,
-  TranslationJobQueueStub,
-} from "../../../../infra"
-import { globalJWTAuth } from "../../../../../identity"
+import { createActivityTestApp } from "../../test-helpers/create-activity-test-app"
+import { TranslationJobQueueStub } from "../../../../infra"
 import { AuthTestHelper } from "../../../../../identity/test-helpers/auth-test-helper"
 import type { User } from "../../../../../identity/domain/user"
 import { ACTIVITY_STATUS, ACTIVITY_TYPE } from "../../../../domain"
@@ -108,35 +96,13 @@ describe("Activities API", () => {
     })
     await TestDataFactory.createTestUserWatch(otherUser.id, otherDataSource.id)
 
-    const repository = new DrizzleActivityQueryRepository()
-    const listUserActivitiesUseCase = new ListUserActivitiesUseCase(repository)
-    const getActivityDetailUseCase = new GetActivityDetailUseCase(repository)
-    const listDataSourceActivitiesUseCase = new ListDataSourceActivitiesUseCase(
-      repository,
-    )
-    const translationStateRepository =
-      new DrizzleActivityTranslationStateRepository()
     queueStub = new TranslationJobQueueStub()
-    const requestActivityTranslationUseCase =
-      new RequestActivityTranslationUseCase(
-        translationStateRepository,
-        queueStub,
-      )
-    const getActivityTranslationStatusUseCase =
-      new GetActivityTranslationStatusUseCase(translationStateRepository)
-
-    app = new OpenAPIHono()
-    app.use("*", globalJWTAuth)
-    app.route(
-      "/",
-      createActivityPresentationRoutes(
-        listUserActivitiesUseCase,
-        getActivityDetailUseCase,
-        listDataSourceActivitiesUseCase,
-        requestActivityTranslationUseCase,
-        getActivityTranslationStatusUseCase,
-      ),
-    )
+    const result = createActivityTestApp({
+      adapterOverrides: {
+        translationJobQueue: queueStub,
+      },
+    })
+    app = result.app
   })
 
   test("GET /activities でウォッチしているcompletedアクティビティ一覧を取得できる", async () => {

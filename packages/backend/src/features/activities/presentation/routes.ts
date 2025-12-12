@@ -1,40 +1,33 @@
 import { OpenAPIHono } from "@hono/zod-openapi"
-import type {
-  GetActivityDetailUseCase,
-  ListDataSourceActivitiesUseCase,
-  ListUserActivitiesUseCase,
-  RequestActivityTranslationUseCase,
-  GetActivityTranslationStatusUseCase,
-} from "../application/use-cases"
+import type { ActivityDeps } from "../application"
 import { createActivitiesRoutes } from "./routes/activities"
 import { createActivityTranslationsBodyRoutes } from "./routes/activities/translations-body"
 import { createDataSourceActivitiesRoutes } from "./routes/data-source-activities"
 
-export function createActivityPresentationRoutes(
-  listUserActivitiesUseCase: ListUserActivitiesUseCase,
-  getActivityDetailUseCase: GetActivityDetailUseCase,
-  listDataSourceActivitiesUseCase: ListDataSourceActivitiesUseCase,
-  requestActivityTranslationUseCase: RequestActivityTranslationUseCase,
-  getActivityTranslationStatusUseCase: GetActivityTranslationStatusUseCase,
-) {
+export function createActivityPresentationRoutes(deps: ActivityDeps) {
+  const { useCases } = deps
+
   const app = new OpenAPIHono()
 
   app.route(
     "/activities",
-    createActivitiesRoutes(listUserActivitiesUseCase, getActivityDetailUseCase),
+    createActivitiesRoutes(
+      useCases.listUserActivities,
+      useCases.getActivityDetail,
+    ),
   )
 
   app.route(
     "/activities",
     createActivityTranslationsBodyRoutes(
-      requestActivityTranslationUseCase,
-      getActivityTranslationStatusUseCase,
+      useCases.requestActivityTranslation,
+      useCases.getActivityTranslationStatus,
     ),
   )
 
   app.route(
     "/data-sources",
-    createDataSourceActivitiesRoutes(listDataSourceActivitiesUseCase),
+    createDataSourceActivitiesRoutes(useCases.listDataSourceActivities),
   )
 
   return app
