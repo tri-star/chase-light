@@ -7,11 +7,12 @@ const translationJobQueue = process.env.TRANSLATION_QUEUE_URL
   ? new SqsTranslationJobAdapter()
   : new TranslationJobQueueStub()
 
-const activityRoutes = createActivityPresentationRoutes({
+const deps = buildActivityDeps({
   adapters: {
     translationJobQueue,
   },
 })
+const activityRoutes = createActivityPresentationRoutes(deps)
 
 export default activityRoutes
 

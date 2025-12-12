@@ -95,11 +95,12 @@ describe("Data Source Activities API", () => {
     await TestDataFactory.createTestUserWatch(otherUser.id, otherDataSource.id)
 
     const queueStub = new TranslationJobQueueStub()
-    app = createActivityTestApp({
+    const result = createActivityTestApp({
       adapterOverrides: {
         translationJobQueue: queueStub,
       },
     })
+    app = result.app
   })
 
   test("GET /data-sources/{id}/activities で対象データソースのアクティビティを取得できる", async () => {

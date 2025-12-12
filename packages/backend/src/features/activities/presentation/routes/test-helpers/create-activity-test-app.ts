@@ -1,7 +1,12 @@
 import { OpenAPIHono } from "@hono/zod-openapi"
 import { globalJWTAuth } from "../../../../identity/middleware/exclusive-jwt-auth.middleware"
 import { createActivityPresentationRoutes } from "../../routes"
-import type { ActivityUseCases, ActivityAdapters } from "../../../application"
+import {
+  buildActivityDeps,
+  type ActivityUseCases,
+  type ActivityAdapters,
+  type ActivityDeps,
+} from "../../../application"
 
 /**
  * Activity テストアプリ作成のオプション
@@ -22,17 +27,20 @@ export type CreateActivityTestAppOptions = {
  * @param options - テストアプリ作成オプション
  * @returns テスト用のHonoアプリと依存関係
  */
-export function createActivityTestApp(options?: CreateActivityTestAppOptions) {
+export function createActivityTestApp(options?: CreateActivityTestAppOptions): {
+  app: OpenAPIHono
+  deps: ActivityDeps
+} {
   const app = new OpenAPIHono()
   app.use("*", globalJWTAuth)
 
-  app.route(
-    "/",
-    createActivityPresentationRoutes({
-      adapters: options?.adapterOverrides,
-      useCases: options?.useCaseOverrides,
-    }),
-  )
+  const deps = buildActivityDeps({
+    adapters: options?.adapterOverrides,
+    useCases: options?.useCaseOverrides,
+  })
 
-  return app
+  const presentationRoutes = createActivityPresentationRoutes(deps)
+  app.route("/", presentationRoutes)
+
+  return { app, deps }
 }

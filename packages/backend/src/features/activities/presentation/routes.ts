@@ -1,14 +1,10 @@
 import { OpenAPIHono } from "@hono/zod-openapi"
-import type { ActivityDepsOverrides } from "../application"
-import { buildActivityDeps } from "../application"
+import type { ActivityDeps } from "../application"
 import { createActivitiesRoutes } from "./routes/activities"
 import { createActivityTranslationsBodyRoutes } from "./routes/activities/translations-body"
 import { createDataSourceActivitiesRoutes } from "./routes/data-source-activities"
 
-export function createActivityPresentationRoutes(
-  overrides?: ActivityDepsOverrides,
-) {
-  const deps = buildActivityDeps(overrides)
+export function createActivityPresentationRoutes(deps: ActivityDeps) {
   const { useCases } = deps
 
   const app = new OpenAPIHono()

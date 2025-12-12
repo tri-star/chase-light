@@ -97,11 +97,12 @@ describe("Activities API", () => {
     await TestDataFactory.createTestUserWatch(otherUser.id, otherDataSource.id)
 
     queueStub = new TranslationJobQueueStub()
-    app = createActivityTestApp({
+    const result = createActivityTestApp({
       adapterOverrides: {
         translationJobQueue: queueStub,
       },
     })
+    app = result.app
   })
 
   test("GET /activities でウォッチしているcompletedアクティビティ一覧を取得できる", async () => {

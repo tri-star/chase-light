@@ -84,11 +84,12 @@ describe("Activity Translation API", () => {
     completedActivityId = completedActivity.id
 
     queueStub = new TranslationJobQueueStub()
-    app = createActivityTestApp({
+    const result = createActivityTestApp({
       adapterOverrides: {
         translationJobQueue: queueStub,
       },
     })
+    app = result.app
   })
 
   test("POST /activities/{id}/translations/body で翻訳ジョブをキュー投入できる", async () => {
