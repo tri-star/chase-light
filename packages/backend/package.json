@@ -3,7 +3,7 @@
   "type": "module",
   "scripts": {
     "build": "esbuild --bundle --outfile=./dist/index.js --platform=node --target=node20 ./src/index.ts",
-    "build:lambda": "node scripts/build-lambda.mjs",
+    "build:lambda": "tsx scripts/build-lambda.ts",
     "dev": "tsx src/server.ts",
     "zip": "zip -j lambda.zip dist/index.js",
     "deploy": "run-s build zip update",
