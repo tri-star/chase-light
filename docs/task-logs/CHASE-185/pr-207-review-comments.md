@@ -155,9 +155,31 @@ const { app, deps } = createActivityTestApp({ ... });
 
 ## 対応状況
 
-- [ ] コメント1: routes.ts のシグネチャ変更
-- [ ] コメント2: index.ts の修正
-- [ ] コメント3: create-activity-test-app.ts の改善
+- [x] コメント1: routes.ts のシグネチャ変更
+- [x] コメント2: index.ts の修正
+- [x] コメント3: create-activity-test-app.ts の改善
+
+## 実施内容
+
+### 変更ファイル
+
+1. **routes.ts**: `ActivityDepsOverrides` ではなく `ActivityDeps` を受け取るようにシグネチャ変更
+2. **index.ts**: `buildActivityDeps` を呼び出してから `createActivityPresentationRoutes` に渡すように変更
+3. **create-activity-test-app.ts**: 
+   - `buildActivityDeps` をインポート
+   - 関数内で `deps` を構築し、`{ app, deps }` を返すように変更
+   - 戻り値の型を明示的に指定
+4. **テストファイル3件**: `createActivityTestApp` の戻り値を `{ app, deps }` で受け取るように修正
+
+### テスト結果
+
+- ✅ 全25テストファイル、189テスト全て成功
+- ✅ lint, format エラーなし
+
+### コミット
+
+コミットハッシュ: 64fba57
+コミットメッセージ: refactor(CHASE-185): Activity DI責務分離の改善
 
 ## 参考リンク
 
