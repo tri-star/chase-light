@@ -458,6 +458,53 @@ export const getApiActivitiesActivityIdResponse = zod.object({
 
 
 /**
+ * ウォッチ済みアクティビティの本文翻訳をSQS経由で非同期実行します。force=falseの場合、進行中ジョブや完了済み翻訳は再投入しません。
+ * @summary アクティビティ本文の翻訳を非同期リクエスト
+ */
+export const postApiActivitiesActivityIdTranslationsBodyParams = zod.object({
+  "activityId": zod.string().describe('アクティビティID')
+})
+
+export const postApiActivitiesActivityIdTranslationsBodyBody = zod.object({
+  "force": zod.boolean().optional().describe('true の場合、終端ステータスでも再翻訳を許可。省略時は完了済みなら再キューしない。'),
+  "targetLanguage": zod.enum(['ja']).optional().describe('翻訳対象言語。省略時は ja 固定。')
+})
+
+export const postApiActivitiesActivityIdTranslationsBodyResponse = zod.object({
+  "success": zod.literal(true),
+  "data": zod.object({
+  "jobId": zod.string().nullable().describe('SQS MessageId等のジョブ識別子'),
+  "translationStatus": zod.enum(['queued', 'processing', 'completed', 'failed']),
+  "statusDetail": zod.string().nullable(),
+  "requestedAt": zod.iso.datetime({}),
+  "startedAt": zod.iso.datetime({}).nullable(),
+  "completedAt": zod.iso.datetime({}).nullable()
+})
+})
+
+
+/**
+ * 最新の本文翻訳ステータスを取得します。本文自体は返却しません。
+ * @summary アクティビティ本文翻訳ステータス取得
+ */
+export const getApiActivitiesActivityIdTranslationsBodyParams = zod.object({
+  "activityId": zod.string().describe('アクティビティID')
+})
+
+export const getApiActivitiesActivityIdTranslationsBodyResponse = zod.object({
+  "success": zod.literal(true),
+  "data": zod.object({
+  "jobId": zod.string().nullable().describe('SQS MessageId等のジョブ識別子'),
+  "translationStatus": zod.enum(['queued', 'processing', 'completed', 'failed']),
+  "statusDetail": zod.string().nullable(),
+  "requestedAt": zod.iso.datetime({}),
+  "startedAt": zod.iso.datetime({}).nullable(),
+  "completedAt": zod.iso.datetime({}).nullable()
+})
+})
+
+
+/**
  * 指定データソースに紐づくアクティビティを取得します。ウォッチしていない場合は404を返却します
  * @summary データソース別アクティビティ一覧取得
  */

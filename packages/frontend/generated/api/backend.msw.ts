@@ -17,6 +17,9 @@ import type {
   RequestHandlerOptions
 } from 'msw';
 
+import {
+  TranslationStatus
+} from './schemas';
 import type {
   ActivityDetailResponse,
   ActivityListResponse,
@@ -27,6 +30,8 @@ import type {
   NotificationDetailResponse,
   NotificationListResponse,
   SignUpResponse,
+  TranslationResponse,
+  TranslationStatusResponse,
   UserProfileResponse,
   UserSettingsResponse
 } from './schemas';
@@ -53,6 +58,10 @@ export const getPutApiDataSourcesIdResponseMock = (overrideResponse: Partial< Cr
 export const getGetApiActivitiesResponseMock = (overrideResponse: Partial< ActivityListResponse > = {}): ActivityListResponse => ({success: faker.datatype.boolean(), data: {items: Array.from({ length: faker.number.int({ min: 1, max: 10 }) }, (_, i) => i + 1).map(() => ({activity: {id: faker.string.uuid(), activityType: faker.helpers.arrayElement(['release','issue','pull_request'] as const), title: faker.string.alpha({length: {min: 10, max: 20}}), translatedTitle: faker.helpers.arrayElement([faker.string.alpha({length: {min: 10, max: 20}}), null]), summary: faker.helpers.arrayElement([faker.string.alpha({length: {min: 10, max: 20}}), null]), detail: faker.helpers.arrayElement([faker.helpers.arrayElement([faker.string.alpha({length: {min: 10, max: 20}}), null]), undefined]), translatedBody: faker.helpers.arrayElement([faker.string.alpha({length: {min: 10, max: 20}}), null]), status: faker.helpers.arrayElement(['pending','processing','completed','failed'] as const), statusDetail: faker.helpers.arrayElement([faker.string.alpha({length: {min: 10, max: 20}}), null]), version: faker.helpers.arrayElement([faker.string.alpha({length: {min: 10, max: 20}}), null]), occurredAt: `${faker.date.past().toISOString().split('.')[0]}Z`, lastUpdatedAt: `${faker.date.past().toISOString().split('.')[0]}Z`, source: {id: faker.string.uuid(), sourceType: faker.string.alpha({length: {min: 10, max: 20}}), name: faker.string.alpha({length: {min: 10, max: 20}}), url: faker.internet.url(), metadata: faker.helpers.arrayElement([{repositoryFullName: faker.helpers.arrayElement([faker.string.alpha({length: {min: 10, max: 20}}), undefined]), repositoryLanguage: faker.helpers.arrayElement([faker.helpers.arrayElement([faker.string.alpha({length: {min: 10, max: 20}}), null]), undefined]), starsCount: faker.helpers.arrayElement([faker.number.int({min: undefined, max: undefined}), undefined]), forksCount: faker.helpers.arrayElement([faker.number.int({min: undefined, max: undefined}), undefined]), openIssuesCount: faker.helpers.arrayElement([faker.number.int({min: undefined, max: undefined}), undefined])}, undefined])}}})), pagination: {page: faker.number.int({min: 1, max: undefined}), perPage: faker.number.int({min: 1, max: 100}), total: faker.number.int({min: 0, max: undefined}), totalPages: faker.number.int({min: 0, max: undefined}), hasNext: faker.datatype.boolean(), hasPrev: faker.datatype.boolean()}}, ...overrideResponse})
 
 export const getGetApiActivitiesActivityIdResponseMock = (overrideResponse: Partial< ActivityDetailResponse > = {}): ActivityDetailResponse => ({success: faker.datatype.boolean(), data: {activity: {id: faker.string.uuid(), activityType: faker.helpers.arrayElement(['release','issue','pull_request'] as const), title: faker.string.alpha({length: {min: 10, max: 20}}), translatedTitle: faker.helpers.arrayElement([faker.string.alpha({length: {min: 10, max: 20}}), null]), summary: faker.helpers.arrayElement([faker.string.alpha({length: {min: 10, max: 20}}), null]), detail: faker.string.alpha({length: {min: 10, max: 20}}), translatedBody: faker.helpers.arrayElement([faker.string.alpha({length: {min: 10, max: 20}}), null]), status: faker.helpers.arrayElement(['pending','processing','completed','failed'] as const), statusDetail: faker.helpers.arrayElement([faker.string.alpha({length: {min: 10, max: 20}}), null]), version: faker.helpers.arrayElement([faker.string.alpha({length: {min: 10, max: 20}}), null]), occurredAt: `${faker.date.past().toISOString().split('.')[0]}Z`, lastUpdatedAt: `${faker.date.past().toISOString().split('.')[0]}Z`, source: {id: faker.string.uuid(), sourceType: faker.string.alpha({length: {min: 10, max: 20}}), name: faker.string.alpha({length: {min: 10, max: 20}}), url: faker.internet.url(), metadata: faker.helpers.arrayElement([{repositoryFullName: faker.helpers.arrayElement([faker.string.alpha({length: {min: 10, max: 20}}), undefined]), repositoryLanguage: faker.helpers.arrayElement([faker.helpers.arrayElement([faker.string.alpha({length: {min: 10, max: 20}}), null]), undefined]), starsCount: faker.helpers.arrayElement([faker.number.int({min: undefined, max: undefined}), undefined]), forksCount: faker.helpers.arrayElement([faker.number.int({min: undefined, max: undefined}), undefined]), openIssuesCount: faker.helpers.arrayElement([faker.number.int({min: undefined, max: undefined}), undefined])}, undefined])}}}, ...overrideResponse})
+
+export const getPostApiActivitiesActivityIdTranslationsBodyResponseMock = (overrideResponse: Partial< TranslationResponse | TranslationResponse > = {}): TranslationResponse | TranslationResponse => (faker.helpers.arrayElement([{success: faker.datatype.boolean(), data: {jobId: faker.helpers.arrayElement([faker.string.alpha({length: {min: 10, max: 20}}), null]), translationStatus: faker.helpers.arrayElement(Object.values(TranslationStatus)), statusDetail: faker.helpers.arrayElement([faker.string.alpha({length: {min: 10, max: 20}}), null]), requestedAt: `${faker.date.past().toISOString().split('.')[0]}Z`, startedAt: faker.helpers.arrayElement([`${faker.date.past().toISOString().split('.')[0]}Z`, null]), completedAt: faker.helpers.arrayElement([`${faker.date.past().toISOString().split('.')[0]}Z`, null])}, ...overrideResponse}, {success: faker.datatype.boolean(), data: {jobId: faker.helpers.arrayElement([faker.string.alpha({length: {min: 10, max: 20}}), null]), translationStatus: faker.helpers.arrayElement(Object.values(TranslationStatus)), statusDetail: faker.helpers.arrayElement([faker.string.alpha({length: {min: 10, max: 20}}), null]), requestedAt: `${faker.date.past().toISOString().split('.')[0]}Z`, startedAt: faker.helpers.arrayElement([`${faker.date.past().toISOString().split('.')[0]}Z`, null]), completedAt: faker.helpers.arrayElement([`${faker.date.past().toISOString().split('.')[0]}Z`, null])}, ...overrideResponse}]))
+
+export const getGetApiActivitiesActivityIdTranslationsBodyResponseMock = (overrideResponse: Partial< TranslationStatusResponse > = {}): TranslationStatusResponse => ({success: faker.datatype.boolean(), data: {jobId: faker.helpers.arrayElement([faker.string.alpha({length: {min: 10, max: 20}}), null]), translationStatus: faker.helpers.arrayElement(Object.values(TranslationStatus)), statusDetail: faker.helpers.arrayElement([faker.string.alpha({length: {min: 10, max: 20}}), null]), requestedAt: `${faker.date.past().toISOString().split('.')[0]}Z`, startedAt: faker.helpers.arrayElement([`${faker.date.past().toISOString().split('.')[0]}Z`, null]), completedAt: faker.helpers.arrayElement([`${faker.date.past().toISOString().split('.')[0]}Z`, null])}, ...overrideResponse})
 
 export const getGetApiDataSourcesDataSourceIdActivitiesResponseMock = (overrideResponse: Partial< DataSourceActivityListResponse > = {}): DataSourceActivityListResponse => ({success: faker.datatype.boolean(), data: {dataSource: {id: faker.string.uuid(), sourceType: faker.string.alpha({length: {min: 10, max: 20}}), name: faker.string.alpha({length: {min: 10, max: 20}}), url: faker.internet.url(), metadata: faker.helpers.arrayElement([{repositoryFullName: faker.helpers.arrayElement([faker.string.alpha({length: {min: 10, max: 20}}), undefined]), repositoryLanguage: faker.helpers.arrayElement([faker.helpers.arrayElement([faker.string.alpha({length: {min: 10, max: 20}}), null]), undefined]), starsCount: faker.helpers.arrayElement([faker.number.int({min: undefined, max: undefined}), undefined]), forksCount: faker.helpers.arrayElement([faker.number.int({min: undefined, max: undefined}), undefined]), openIssuesCount: faker.helpers.arrayElement([faker.number.int({min: undefined, max: undefined}), undefined])}, undefined])}, items: Array.from({ length: faker.number.int({ min: 1, max: 10 }) }, (_, i) => i + 1).map(() => ({activity: {id: faker.string.uuid(), activityType: faker.helpers.arrayElement(['release','issue','pull_request'] as const), title: faker.string.alpha({length: {min: 10, max: 20}}), translatedTitle: faker.helpers.arrayElement([faker.string.alpha({length: {min: 10, max: 20}}), null]), summary: faker.helpers.arrayElement([faker.string.alpha({length: {min: 10, max: 20}}), null]), detail: faker.helpers.arrayElement([faker.helpers.arrayElement([faker.string.alpha({length: {min: 10, max: 20}}), null]), undefined]), translatedBody: faker.helpers.arrayElement([faker.string.alpha({length: {min: 10, max: 20}}), null]), status: faker.helpers.arrayElement(['pending','processing','completed','failed'] as const), statusDetail: faker.helpers.arrayElement([faker.string.alpha({length: {min: 10, max: 20}}), null]), version: faker.helpers.arrayElement([faker.string.alpha({length: {min: 10, max: 20}}), null]), occurredAt: `${faker.date.past().toISOString().split('.')[0]}Z`, lastUpdatedAt: `${faker.date.past().toISOString().split('.')[0]}Z`, source: {id: faker.string.uuid(), sourceType: faker.string.alpha({length: {min: 10, max: 20}}), name: faker.string.alpha({length: {min: 10, max: 20}}), url: faker.internet.url(), metadata: faker.helpers.arrayElement([{repositoryFullName: faker.helpers.arrayElement([faker.string.alpha({length: {min: 10, max: 20}}), undefined]), repositoryLanguage: faker.helpers.arrayElement([faker.helpers.arrayElement([faker.string.alpha({length: {min: 10, max: 20}}), null]), undefined]), starsCount: faker.helpers.arrayElement([faker.number.int({min: undefined, max: undefined}), undefined]), forksCount: faker.helpers.arrayElement([faker.number.int({min: undefined, max: undefined}), undefined]), openIssuesCount: faker.helpers.arrayElement([faker.number.int({min: undefined, max: undefined}), undefined])}, undefined])}}})), pagination: {page: faker.number.int({min: 1, max: undefined}), perPage: faker.number.int({min: 1, max: 100}), total: faker.number.int({min: 0, max: undefined}), totalPages: faker.number.int({min: 0, max: undefined}), hasNext: faker.datatype.boolean(), hasPrev: faker.datatype.boolean()}}, ...overrideResponse})
 
@@ -207,6 +216,30 @@ export const getGetApiActivitiesActivityIdMockHandler = (overrideResponse?: Acti
   }, options)
 }
 
+export const getPostApiActivitiesActivityIdTranslationsBodyMockHandler = (overrideResponse?: TranslationResponse | TranslationResponse | ((info: Parameters<Parameters<typeof http.post>[1]>[0]) => Promise<TranslationResponse | TranslationResponse> | TranslationResponse | TranslationResponse), options?: RequestHandlerOptions) => {
+  return http.post('*/api/activities/:activityId/translations/body', async (info) => {
+  
+    return new HttpResponse(JSON.stringify(overrideResponse !== undefined
+    ? (typeof overrideResponse === "function" ? await overrideResponse(info) : overrideResponse)
+    : getPostApiActivitiesActivityIdTranslationsBodyResponseMock()),
+      { status: 200,
+        headers: { 'Content-Type': 'application/json' }
+      })
+  }, options)
+}
+
+export const getGetApiActivitiesActivityIdTranslationsBodyMockHandler = (overrideResponse?: TranslationStatusResponse | ((info: Parameters<Parameters<typeof http.get>[1]>[0]) => Promise<TranslationStatusResponse> | TranslationStatusResponse), options?: RequestHandlerOptions) => {
+  return http.get('*/api/activities/:activityId/translations/body', async (info) => {
+  
+    return new HttpResponse(JSON.stringify(overrideResponse !== undefined
+    ? (typeof overrideResponse === "function" ? await overrideResponse(info) : overrideResponse)
+    : getGetApiActivitiesActivityIdTranslationsBodyResponseMock()),
+      { status: 200,
+        headers: { 'Content-Type': 'application/json' }
+      })
+  }, options)
+}
+
 export const getGetApiDataSourcesDataSourceIdActivitiesMockHandler = (overrideResponse?: DataSourceActivityListResponse | ((info: Parameters<Parameters<typeof http.get>[1]>[0]) => Promise<DataSourceActivityListResponse> | DataSourceActivityListResponse), options?: RequestHandlerOptions) => {
   return http.get('*/api/data-sources/:dataSourceId/activities', async (info) => {
   
@@ -255,6 +288,8 @@ export const getChaseLightAPIMock = () => [
   getDeleteApiDataSourcesIdMockHandler(),
   getGetApiActivitiesMockHandler(),
   getGetApiActivitiesActivityIdMockHandler(),
+  getPostApiActivitiesActivityIdTranslationsBodyMockHandler(),
+  getGetApiActivitiesActivityIdTranslationsBodyMockHandler(),
   getGetApiDataSourcesDataSourceIdActivitiesMockHandler(),
   getGetApiNotificationsMockHandler(),
   getGetApiNotificationsNotificationIdMockHandler()

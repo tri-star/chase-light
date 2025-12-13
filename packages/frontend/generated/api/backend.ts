@@ -26,6 +26,11 @@ import type {
   PutApiDataSourcesIdBody,
   SignUpRequest,
   SignUpResponse,
+  TranslationNotFoundResponse,
+  TranslationRequest,
+  TranslationResponse,
+  TranslationStatusNotFoundResponse,
+  TranslationStatusResponse,
   UpdateProfileRequest,
   UpdateSettingsRequest,
   UserErrorResponse,
@@ -788,6 +793,101 @@ export const getGetApiActivitiesActivityIdUrl = (activityId: string,) => {
 export const getApiActivitiesActivityId = async (activityId: string, options?: RequestInit): Promise<getApiActivitiesActivityIdResponse> => {
   
   return customFetch<getApiActivitiesActivityIdResponse>(getGetApiActivitiesActivityIdUrl(activityId),
+  {      
+    ...options,
+    method: 'GET'
+    
+    
+  }
+);}
+
+
+
+/**
+ * ウォッチ済みアクティビティの本文翻訳をSQS経由で非同期実行します。force=falseの場合、進行中ジョブや完了済み翻訳は再投入しません。
+ * @summary アクティビティ本文の翻訳を非同期リクエスト
+ */
+export type postApiActivitiesActivityIdTranslationsBodyResponse200 = {
+  data: TranslationResponse
+  status: 200
+}
+
+export type postApiActivitiesActivityIdTranslationsBodyResponse202 = {
+  data: TranslationResponse
+  status: 202
+}
+
+export type postApiActivitiesActivityIdTranslationsBodyResponse404 = {
+  data: TranslationNotFoundResponse
+  status: 404
+}
+    
+export type postApiActivitiesActivityIdTranslationsBodyResponseSuccess = (postApiActivitiesActivityIdTranslationsBodyResponse200 | postApiActivitiesActivityIdTranslationsBodyResponse202) & {
+  headers: Headers;
+};
+export type postApiActivitiesActivityIdTranslationsBodyResponseError = (postApiActivitiesActivityIdTranslationsBodyResponse404) & {
+  headers: Headers;
+};
+
+export type postApiActivitiesActivityIdTranslationsBodyResponse = (postApiActivitiesActivityIdTranslationsBodyResponseSuccess | postApiActivitiesActivityIdTranslationsBodyResponseError)
+
+export const getPostApiActivitiesActivityIdTranslationsBodyUrl = (activityId: string,) => {
+
+
+  
+
+  return `/api/activities/${activityId}/translations/body`
+}
+
+export const postApiActivitiesActivityIdTranslationsBody = async (activityId: string,
+    translationRequest: TranslationRequest, options?: RequestInit): Promise<postApiActivitiesActivityIdTranslationsBodyResponse> => {
+  
+  return customFetch<postApiActivitiesActivityIdTranslationsBodyResponse>(getPostApiActivitiesActivityIdTranslationsBodyUrl(activityId),
+  {      
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(
+      translationRequest,)
+  }
+);}
+
+
+
+/**
+ * 最新の本文翻訳ステータスを取得します。本文自体は返却しません。
+ * @summary アクティビティ本文翻訳ステータス取得
+ */
+export type getApiActivitiesActivityIdTranslationsBodyResponse200 = {
+  data: TranslationStatusResponse
+  status: 200
+}
+
+export type getApiActivitiesActivityIdTranslationsBodyResponse404 = {
+  data: TranslationStatusNotFoundResponse
+  status: 404
+}
+    
+export type getApiActivitiesActivityIdTranslationsBodyResponseSuccess = (getApiActivitiesActivityIdTranslationsBodyResponse200) & {
+  headers: Headers;
+};
+export type getApiActivitiesActivityIdTranslationsBodyResponseError = (getApiActivitiesActivityIdTranslationsBodyResponse404) & {
+  headers: Headers;
+};
+
+export type getApiActivitiesActivityIdTranslationsBodyResponse = (getApiActivitiesActivityIdTranslationsBodyResponseSuccess | getApiActivitiesActivityIdTranslationsBodyResponseError)
+
+export const getGetApiActivitiesActivityIdTranslationsBodyUrl = (activityId: string,) => {
+
+
+  
+
+  return `/api/activities/${activityId}/translations/body`
+}
+
+export const getApiActivitiesActivityIdTranslationsBody = async (activityId: string, options?: RequestInit): Promise<getApiActivitiesActivityIdTranslationsBodyResponse> => {
+  
+  return customFetch<getApiActivitiesActivityIdTranslationsBodyResponse>(getGetApiActivitiesActivityIdTranslationsBodyUrl(activityId),
   {      
     ...options,
     method: 'GET'
