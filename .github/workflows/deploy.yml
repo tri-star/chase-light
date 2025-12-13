@@ -1,11 +1,6 @@
-name: Deploy(Backend)
+name: Deploy
 
 on:
-  # push:
-  #   branches: [main]
-  #   paths:
-  #     - "packages/backend/**"
-  #     - "!packages/backend/docs/**"
   workflow_dispatch:
     inputs:
       env:
@@ -16,13 +11,42 @@ on:
         options:
           - dev
           - prod
+      deploy_backend:
+        description: "Deploy backend"
+        required: false
+        type: boolean
+        default: false
+      deploy_frontend:
+        description: "Deploy frontend"
+        required: false
+        type: boolean
+        default: false
 
 concurrency:
-  group: deploy-${{ github.ref }}
+  group: deploy-${{ github.ref }}-${{ inputs.env }}
   cancel-in-progress: false
 
 jobs:
-  deploy:
+  precheck:
+    runs-on: ubuntu-latest
+    outputs:
+      deploy_backend: ${{ steps.flags.outputs.deploy_backend }}
+      deploy_frontend: ${{ steps.flags.outputs.deploy_frontend }}
+    steps:
+      - id: flags
+        run: |
+          echo "deploy_backend=${{ github.event.inputs.deploy_backend }}" >> "$GITHUB_OUTPUT"
+          echo "deploy_frontend=${{ github.event.inputs.deploy_frontend }}" >> "$GITHUB_OUTPUT"
+      - name: Ensure at least one target selected
+        run: |
+          if [ "${{ github.event.inputs.deploy_backend }}" != "true" ] && [ "${{ github.event.inputs.deploy_frontend }}" != "true" ]; then
+            echo "⚠️ No deployment target selected. Enable deploy_backend and/or deploy_frontend."
+            exit 1
+          fi
+
+  deploy-backend:
+    needs: precheck
+    if: needs.precheck.outputs.deploy_backend == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 15
     environment: ${{ inputs.env }}
@@ -146,3 +170,73 @@ jobs:
         run: |
           echo "❌ Deployment failed"
           echo "Please check the logs above for details"
+
+  deploy-frontend:
+    needs: precheck
+    if: needs.precheck.outputs.deploy_frontend == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    environment: ${{ inputs.env }}
+
+    permissions:
+      id-token: write
+      contents: read
+
+    env:
+      NITRO_PRESET: aws-lambda
+      ASSETS_BUCKET: ${{ inputs.env }}-chase-light-app-assets
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # 6.0.1
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@41ff72655975bd51cab0327fa583b6e92b6d3061 # v4.2.0
+        with:
+          run_install: false
+
+      - name: Setup Node.js
+        uses: actions/setup-node@395ad3262231945c25e8478fd5baf05154b1d79f # v6.1.0
+        with:
+          node-version: "20"
+          cache: "pnpm"
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build frontend (Lambda preset)
+        run: pnpm --filter frontend build
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@61815dcd50bd041e203e49132bacad1fd04d2708 # v5.1.1
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          aws-region: ${{ vars.AWS_REGION || 'ap-northeast-1' }}
+
+      - name: Setup SAM CLI
+        uses: aws-actions/setup-sam@c71dd89d980e49367c70391e8ada4353f52f2800 # v2
+        with:
+          use-installer: true
+
+      - name: Validate SAM template
+        run: |
+          cd packages/frontend/infrastructure
+          sam validate --lint --template template.yaml
+
+      - name: Deploy with SAM
+        run: |
+          cd packages/frontend/infrastructure
+          sam deploy \
+            --config-file samconfig.toml \
+            --config-env ${{ inputs.env }} \
+            --no-confirm-changeset \
+            --no-fail-on-empty-changeset
+
+      - name: Sync static assets to S3
+        run: |
+          aws s3 sync packages/frontend/.output/public s3://$ASSETS_BUCKET/
+
+      - name: Show stack outputs
+        run: |
+          cd packages/frontend/infrastructure
+          sam list stack-outputs --stack-name chase-light-frontend-${{ inputs.env }} --output table

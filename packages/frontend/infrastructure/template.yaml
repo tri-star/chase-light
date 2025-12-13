@@ -1,0 +1,175 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: >
+  SAM template for Nuxt 3 SSR frontend deployed to AWS Lambda behind an HTTP API.
+  Build with NITRO_PRESET=aws-lambda pnpm --filter frontend build before sam build.
+
+Parameters:
+  ProjectName:
+    Type: String
+    Default: chase-light-frontend
+    Description: Base name used for resource naming.
+  Stage:
+    Type: String
+    AllowedValues:
+      - dev
+      - prod
+    Default: dev
+    Description: Deployment stage used in names and API stage.
+  SecretsArn:
+    Type: String
+    Description: ARN of Secrets Manager secret containing JSON with Nuxt runtime values.
+  AssetBucketName:
+    Type: String
+    Default: dev-chase-light-app-assets
+    Description: S3 bucket name to host .output/public (e.g., dev-chase-light-app-assets / prod-chase-light-app-assets).
+  MemorySize:
+    Type: Number
+    Default: 1024
+    MinValue: 128
+    MaxValue: 10240
+    Description: Lambda memory size (MB).
+  Timeout:
+    Type: Number
+    Default: 15
+    MinValue: 3
+    MaxValue: 29
+    Description: Lambda timeout (seconds).
+  LogRetentionDays:
+    Type: Number
+    Default: 14
+    AllowedValues: [1, 3, 5, 7, 14, 30, 60, 90, 120, 150, 180, 365]
+    Description: CloudWatch Logs retention in days.
+
+Globals:
+  Function:
+    Runtime: nodejs20.x
+    Architectures:
+      - x86_64
+    MemorySize: !Ref MemorySize
+    Timeout: !Ref Timeout
+    Tracing: Active
+    Environment:
+      Variables:
+        NODE_ENV: production
+
+Resources:
+  AssetsBucket:
+    Type: AWS::S3::Bucket
+    DeletionPolicy: Retain
+    UpdateReplacePolicy: Retain
+    Properties:
+      BucketName: !Ref AssetBucketName
+      VersioningConfiguration:
+        Status: Enabled
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: true
+        BlockPublicPolicy: true
+        IgnorePublicAcls: true
+        RestrictPublicBuckets: true
+      LifecycleConfiguration:
+        Rules:
+          - Id: ExpireOldVersions
+            Status: Enabled
+            NoncurrentVersionExpiration:
+              NoncurrentDays: 30
+
+  AssetsBucketPolicy:
+    Type: AWS::S3::BucketPolicy
+    Properties:
+      Bucket: !Ref AssetsBucket
+      PolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Deny
+            Principal: '*'
+            Action: s3:*
+            Resource:
+              - !GetAtt AssetsBucket.Arn
+              - !Join ['', [!GetAtt AssetsBucket.Arn, '/*']]
+            Condition:
+              Bool:
+                aws:SecureTransport: false
+
+  HttpApi:
+    Type: AWS::Serverless::HttpApi
+    Properties:
+      StageName: !Ref Stage
+      CorsConfiguration:
+        AllowOrigins:
+          - '*'
+        AllowMethods:
+          - GET
+          - POST
+          - PUT
+          - PATCH
+          - DELETE
+          - OPTIONS
+        AllowHeaders:
+          - Content-Type
+          - Authorization
+          - X-Requested-With
+          - X-Trace-Id
+        MaxAge: 600
+        AllowCredentials: false
+
+  NuxtFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub '${ProjectName}-${Stage}'
+      Description: Nuxt 3 SSR Lambda handler built with NITRO_PRESET=aws-lambda
+      CodeUri: ../.output/server
+      Handler: index.handler
+      Events:
+        ApiProxy:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref HttpApi
+            Path: /{proxy+}
+            Method: ANY
+        ApiRoot:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref HttpApi
+            Path: /
+            Method: ANY
+      Environment:
+        Variables:
+          NUXT_PUBLIC_BASE_URL: !Sub 'https://${HttpApi}.execute-api.${AWS::Region}.amazonaws.com/${Stage}'
+          AUTH0_DOMAIN: !Sub '{{resolve:secretsmanager:${SecretsArn}:SecretString:AUTH0_DOMAIN}}'
+          AUTH0_CLIENT_ID: !Sub '{{resolve:secretsmanager:${SecretsArn}:SecretString:AUTH0_CLIENT_ID}}'
+          AUTH0_CLIENT_SECRET: !Sub '{{resolve:secretsmanager:${SecretsArn}:SecretString:AUTH0_CLIENT_SECRET}}'
+          AUTH0_AUDIENCE: !Sub '{{resolve:secretsmanager:${SecretsArn}:SecretString:AUTH0_AUDIENCE}}'
+          NUXT_SESSION_SECRET: !Sub '{{resolve:secretsmanager:${SecretsArn}:SecretString:NUXT_SESSION_SECRET}}'
+          DATABASE_URL: !Sub '{{resolve:secretsmanager:${SecretsArn}:SecretString:DATABASE_URL}}'
+      Policies:
+        - AWSLambdaBasicExecutionRole
+        - Statement:
+            - Effect: Allow
+              Action:
+                - secretsmanager:GetSecretValue
+              Resource: !Ref SecretsArn
+      LoggingConfig:
+        LogFormat: JSON
+        ApplicationLogLevel: INFO
+        SystemLogLevel: INFO
+      Tags:
+        Project: !Ref ProjectName
+        Stage: !Ref Stage
+
+  FunctionLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Sub '/aws/lambda/${NuxtFunction}'
+      RetentionInDays: !Ref LogRetentionDays
+
+Outputs:
+  ApiEndpoint:
+    Description: HTTP API endpoint for the Nuxt app.
+    Value: !Sub 'https://${HttpApi}.execute-api.${AWS::Region}.amazonaws.com/${Stage}'
+  LambdaFunctionName:
+    Description: Deployed Lambda function name.
+    Value: !Ref NuxtFunction
+  AssetsBucketName:
+    Description: Bucket for static assets (.output/public).
+    Value: !Ref AssetsBucket
