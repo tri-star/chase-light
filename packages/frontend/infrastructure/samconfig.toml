@@ -1,0 +1,33 @@
+version = 0.1
+
+[dev]
+[dev.build.parameters]
+template_file = "template.yaml"
+use_container = false
+cached = true
+parallel = true
+
+[dev.deploy.parameters]
+stack_name = "chase-light-frontend-dev"
+region = "ap-northeast-1"
+capabilities = "CAPABILITY_IAM"
+resolve_s3 = true
+s3_prefix = "frontend/dev"
+confirm_changeset = true
+parameter_overrides = "ProjectName=chase-light-frontend Stage=dev SecretsArn=<SET_DEV_SECRET_ARN> AssetBucketName=dev-chase-light-app-assets"
+
+[prod]
+[prod.build.parameters]
+template_file = "template.yaml"
+use_container = false
+cached = true
+parallel = true
+
+[prod.deploy.parameters]
+stack_name = "chase-light-frontend-prod"
+region = "ap-northeast-1"
+capabilities = "CAPABILITY_IAM"
+resolve_s3 = true
+s3_prefix = "frontend/prod"
+confirm_changeset = true
+parameter_overrides = "ProjectName=chase-light-frontend Stage=prod SecretsArn=<SET_PROD_SECRET_ARN> AssetBucketName=prod-chase-light-app-assets"

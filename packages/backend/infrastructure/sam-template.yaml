@@ -44,11 +44,16 @@ Resources:
       StageName: !Ref Stage
       CorsConfiguration:
         AllowOrigins:
-          - !Ref FrontendUrl
+          - !Split [",", !Ref FrontendUrl]
         AllowHeaders:
-          - "*"
+          - "Content-Type"
+          - "Authorization"
         AllowMethods:
-          - "*"
+          - "GET"
+          - "POST"
+          - "PUT"
+          - "DELETE"
+          - "OPTIONS"
         AllowCredentials: !If [IsFrontendWildcard, false, true]
 
   # SQS Queues
