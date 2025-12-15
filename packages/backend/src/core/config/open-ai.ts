@@ -1,4 +1,4 @@
-import { SSMClient, GetParameterCommand } from "@aws-sdk/client-ssm"
+import { getSsmParameterValue } from "./ssm-parameter"
 
 interface OpenAiConfig {
   apiKey: string
@@ -20,8 +20,10 @@ export async function getOpenAiConfig(): Promise<OpenAiConfig> {
   try {
     if (useAws) {
       // AWS環境: SSM Parameter Storeから取得
-      const ssmParameterName = `/${stage}/openai/api_key`
-      const apiKey = await getApiKeyFromSSM(ssmParameterName)
+      const ssmParameterName = `/${stage}-chase-light/openai/api_key`
+      const apiKey = await getSsmParameterValue(ssmParameterName, {
+        withDecryption: true,
+      })
 
       if (!apiKey) {
         throw new Error(
@@ -47,33 +49,5 @@ export async function getOpenAiConfig(): Promise<OpenAiConfig> {
       throw new Error(`Failed to get OpenAI configuration: ${error.message}`)
     }
     throw new Error("Failed to get OpenAI configuration: Unknown error")
-  }
-}
-
-/**
- * SSM Parameter StoreからAPIキーを取得
- */
-async function getApiKeyFromSSM(parameterName: string): Promise<string | null> {
-  try {
-    if (!process.env.AWS_REGION) {
-      throw new Error("Missing environment variable: AWS_REGION")
-    }
-
-    const ssmClient = new SSMClient({
-      region: process.env.AWS_REGION,
-    })
-
-    const command = new GetParameterCommand({
-      Name: parameterName,
-      WithDecryption: true, // 暗号化されたパラメータを復号化
-    })
-
-    const response = await ssmClient.send(command)
-    return response.Parameter?.Value || null
-  } catch (error) {
-    if (error instanceof Error) {
-      throw new Error(`Failed to get parameter from SSM: ${error.message}`)
-    }
-    throw new Error("Failed to get parameter from SSM: Unknown error")
   }
 }

@@ -1,19 +1,6 @@
-import { SSMClient, GetParameterCommand } from "@aws-sdk/client-ssm"
 import { URL } from "url"
 import { config } from "dotenv"
-
-const getParameter = async (
-  client: SSMClient,
-  name: string,
-  withDecryption = false,
-) => {
-  const command = new GetParameterCommand({
-    Name: name,
-    WithDecryption: withDecryption,
-  })
-  const response = await client.send(command)
-  return response.Parameter?.Value
-}
+import { getSsmParameterValue } from "./ssm-parameter"
 
 const parsePostgresqlUrl = (url: string) => {
   try {
@@ -57,10 +44,10 @@ export const getDatabaseConfig = async () => {
       )
     }
 
-    const ssmClient = new SSMClient({ region: awsRegion })
-    const parameterName = `/${stage}/supabase/db_url`
-
-    const dbUrl = await getParameter(ssmClient, parameterName, true)
+    const parameterName = `/${stage}-chase-light/supabase/db_url`
+    const dbUrl = await getSsmParameterValue(parameterName, {
+      withDecryption: true,
+    })
 
     if (!dbUrl) {
       throw new Error(`Database URL parameter not found: ${parameterName}`)

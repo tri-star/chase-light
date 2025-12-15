@@ -7,6 +7,7 @@ import {
   afterEach,
   afterAll,
 } from "vitest"
+import { URL } from "url"
 
 const mockSend = vi.fn()
 
@@ -15,6 +16,7 @@ const originalEnv = {
   USE_AWS: process.env.USE_AWS,
   STAGE: process.env.APP_STAGE,
   AWS_REGION: process.env.AWS_REGION,
+  AWS_SESSION_TOKEN: process.env.AWS_SESSION_TOKEN,
   DB_HOST: process.env.DB_HOST,
   DB_PORT: process.env.DB_PORT,
   DB_NAME: process.env.DB_NAME,
@@ -39,11 +41,14 @@ describe("database config", () => {
     process.env.APP_STAGE = "test"
     delete process.env.USE_AWS
     delete process.env.AWS_REGION
+    delete process.env.AWS_SESSION_TOKEN
     delete process.env.DB_HOST
     delete process.env.DB_PORT
     delete process.env.DB_NAME
     delete process.env.DB_USER
     delete process.env.DB_PASSWORD
+
+    globalThis.fetch = vi.fn()
   })
 
   afterEach(() => {
@@ -54,11 +59,14 @@ describe("database config", () => {
     process.env.APP_STAGE = "test"
     delete process.env.USE_AWS
     delete process.env.AWS_REGION
+    delete process.env.AWS_SESSION_TOKEN
     delete process.env.DB_HOST
     delete process.env.DB_PORT
     delete process.env.DB_NAME
     delete process.env.DB_USER
     delete process.env.DB_PASSWORD
+
+    delete (globalThis as unknown as { fetch?: unknown }).fetch
   })
 
   afterAll(() => {
@@ -101,9 +109,24 @@ describe("database config", () => {
       process.env.USE_AWS = "true"
       process.env.AWS_REGION = "ap-northeast-1"
       process.env.APP_STAGE = "dev"
+      process.env.AWS_SESSION_TOKEN = "test-session-token"
     })
 
     it("Parameter StoreからPostgreSQL URLを取得してパースする", async () => {
+      ;(
+        globalThis.fetch as unknown as ReturnType<typeof vi.fn>
+      ).mockResolvedValue({
+        ok: true,
+        status: 200,
+        statusText: "OK",
+        json: async () => ({
+          Parameter: {
+            Value:
+              "postgresql://test.user@example.com:password123@db.example.com:5432/production_db?pgbouncer=true",
+          },
+        }),
+      })
+
       mockSend.mockResolvedValue({
         Parameter: {
           Value:
@@ -113,9 +136,21 @@ describe("database config", () => {
 
       const config = await getDatabaseConfig()
 
-      expect(mockSend).toHaveBeenCalledWith({
-        Name: "/dev/supabase/db_url",
-        WithDecryption: true,
+      expect(globalThis.fetch).toHaveBeenCalledOnce()
+      const [calledUrl, calledInit] = (
+        globalThis.fetch as unknown as ReturnType<typeof vi.fn>
+      ).mock.calls[0]
+      const url = new URL(calledUrl)
+      expect(url.origin).toBe("http://localhost:2773")
+      expect(url.pathname).toBe("/systemsmanager/parameters/get")
+      expect(url.searchParams.get("name")).toBe(
+        "/dev-chase-light/supabase/db_url",
+      )
+      expect(url.searchParams.get("withDecryption")).toBe("true")
+      expect(calledInit).toEqual({
+        headers: {
+          "X-Aws-Parameters-Secrets-Token": "test-session-token",
+        },
       })
 
       expect(config).toEqual({
@@ -136,10 +171,17 @@ describe("database config", () => {
     })
 
     it("ポート番号が未指定の場合はデフォルトの5432を使用する", async () => {
-      mockSend.mockResolvedValue({
-        Parameter: {
-          Value: "postgresql://user:pass@host/db",
-        },
+      ;(
+        globalThis.fetch as unknown as ReturnType<typeof vi.fn>
+      ).mockResolvedValue({
+        ok: true,
+        status: 200,
+        statusText: "OK",
+        json: async () => ({
+          Parameter: {
+            Value: "postgresql://user:pass@host/db",
+          },
+        }),
       })
 
       const config = await getDatabaseConfig()
@@ -148,10 +190,17 @@ describe("database config", () => {
     })
 
     it("ユーザー名にドット(.)が含まれる場合も正しくパースする", async () => {
-      mockSend.mockResolvedValue({
-        Parameter: {
-          Value: "postgresql://user.with.dots:password@host:5432/db",
-        },
+      ;(
+        globalThis.fetch as unknown as ReturnType<typeof vi.fn>
+      ).mockResolvedValue({
+        ok: true,
+        status: 200,
+        statusText: "OK",
+        json: async () => ({
+          Parameter: {
+            Value: "postgresql://user.with.dots:password@host:5432/db",
+          },
+        }),
       })
 
       const config = await getDatabaseConfig()
@@ -160,10 +209,17 @@ describe("database config", () => {
     })
 
     it("URLエンコードされた文字を正しくデコードする", async () => {
-      mockSend.mockResolvedValue({
-        Parameter: {
-          Value: "postgresql://user%40domain.com:password%21@host:5432/db",
-        },
+      ;(
+        globalThis.fetch as unknown as ReturnType<typeof vi.fn>
+      ).mockResolvedValue({
+        ok: true,
+        status: 200,
+        statusText: "OK",
+        json: async () => ({
+          Parameter: {
+            Value: "postgresql://user%40domain.com:password%21@host:5432/db",
+          },
+        }),
       })
 
       const config = await getDatabaseConfig()
@@ -173,22 +229,36 @@ describe("database config", () => {
     })
 
     it("Parameter Storeからの値が存在しない場合はエラーを投げる", async () => {
-      mockSend.mockResolvedValue({
-        Parameter: {
-          Value: undefined,
-        },
+      ;(
+        globalThis.fetch as unknown as ReturnType<typeof vi.fn>
+      ).mockResolvedValue({
+        ok: true,
+        status: 200,
+        statusText: "OK",
+        json: async () => ({
+          Parameter: {
+            Value: undefined,
+          },
+        }),
       })
 
       await expect(getDatabaseConfig()).rejects.toThrow(
-        "Database URL parameter not found: /dev/supabase/db_url",
+        "Database URL parameter not found: /dev-chase-light/supabase/db_url",
       )
     })
 
     it("不正なPostgreSQL URL形式の場合はエラーを投げる", async () => {
-      mockSend.mockResolvedValue({
-        Parameter: {
-          Value: "invalid-url-format",
-        },
+      ;(
+        globalThis.fetch as unknown as ReturnType<typeof vi.fn>
+      ).mockResolvedValue({
+        ok: true,
+        status: 200,
+        statusText: "OK",
+        json: async () => ({
+          Parameter: {
+            Value: "invalid-url-format",
+          },
+        }),
       })
 
       await expect(getDatabaseConfig()).rejects.toThrow(
