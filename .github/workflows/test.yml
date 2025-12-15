@@ -225,7 +225,7 @@ jobs:
           CI: true
 
       - name: Upload VRT test results
-        uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5.0.0
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
         if: failure()
         with:
           name: vrt-test-results
@@ -233,7 +233,7 @@ jobs:
           retention-days: 30
 
       - name: Upload VRT Playwright report
-        uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5.0.0
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
         if: failure()
         with:
           name: vrt-playwright-report
@@ -259,7 +259,7 @@ jobs:
           TEST_AUTH_ISSUER: http://localhost/test-auth
 
       - name: Upload Playwright report
-        uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5.0.0
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
         if: always()
         with:
           name: playwright-report
@@ -267,7 +267,7 @@ jobs:
           retention-days: 30
 
       - name: Upload Nuxt preview log
-        uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5.0.0
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
         if: always()
         with:
           name: nuxt-preview-log
@@ -275,7 +275,7 @@ jobs:
           retention-days: 30
 
       - name: Upload api-server log
-        uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5.0.0
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
         if: always()
         with:
           name: api-server-log
