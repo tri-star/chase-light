@@ -110,7 +110,7 @@ Resources:
             - Effect: Allow
               Action:
                 - ssm:GetParameter
-              Resource: !Sub "arn:${AWS::Partition}:ssm:${AWS::Region}:${AWS::AccountId}:parameter/${Stage}/supabase/db_url"
+              Resource: !Sub "arn:${AWS::Partition}:ssm:${AWS::Region}:${AWS::AccountId}:parameter/${Stage}-chase-light/supabase/db_url"
 
   DetectDataSourceUpdatesFunction:
     Type: AWS::Serverless::Function
@@ -131,7 +131,7 @@ Resources:
             - Effect: Allow
               Action:
                 - ssm:GetParameter
-              Resource: !Sub "arn:${AWS::Partition}:ssm:${AWS::Region}:${AWS::AccountId}:parameter/${Stage}/supabase/db_url"
+              Resource: !Sub "arn:${AWS::Partition}:ssm:${AWS::Region}:${AWS::AccountId}:parameter/${Stage}-chase-light/supabase/db_url"
 
   ProcessUpdatesFunction:
     Type: AWS::Serverless::Function
@@ -156,8 +156,8 @@ Resources:
             Action:
               - ssm:GetParameter
             Resource:
-              - !Sub "arn:${AWS::Partition}:ssm:${AWS::Region}:${AWS::AccountId}:parameter/${Stage}/supabase/db_url"
-              - !Sub "arn:${AWS::Partition}:ssm:${AWS::Region}:${AWS::AccountId}:parameter/${Stage}/openai/api_key"
+              - !Sub "arn:${AWS::Partition}:ssm:${AWS::Region}:${AWS::AccountId}:parameter/${Stage}-chase-light/supabase/db_url"
+              - !Sub "arn:${AWS::Partition}:ssm:${AWS::Region}:${AWS::AccountId}:parameter/${Stage}-chase-light/openai/api_key"
         - Statement:
           - Effect: Allow
             Action:
@@ -189,8 +189,8 @@ Resources:
             Action:
               - ssm:GetParameter
             Resource:
-              - !Sub "arn:${AWS::Partition}:ssm:${AWS::Region}:${AWS::AccountId}:parameter/${Stage}/supabase/db_url"
-              - !Sub "arn:${AWS::Partition}:ssm:${AWS::Region}:${AWS::AccountId}:parameter/${Stage}/openai/api_key"
+              - !Sub "arn:${AWS::Partition}:ssm:${AWS::Region}:${AWS::AccountId}:parameter/${Stage}-chase-light/supabase/db_url"
+              - !Sub "arn:${AWS::Partition}:ssm:${AWS::Region}:${AWS::AccountId}:parameter/${Stage}-chase-light/openai/api_key"
         - Statement:
           - Effect: Allow
             Action:
@@ -230,7 +230,7 @@ Resources:
               Action:
                 - ssm:GetParameter
               Resource:
-                - !Sub "arn:${AWS::Partition}:ssm:${AWS::Region}:${AWS::AccountId}:parameter/${Stage}/supabase/db_url"
+                - !Sub "arn:${AWS::Partition}:ssm:${AWS::Region}:${AWS::AccountId}:parameter/${Stage}-chase-light/supabase/db_url"
 
   BackendApiFunction:
     Type: AWS::Serverless::Function
@@ -267,7 +267,7 @@ Resources:
               Action:
                 - ssm:GetParameter
               Resource:
-                - !Sub "arn:${AWS::Partition}:ssm:${AWS::Region}:${AWS::AccountId}:parameter/${Stage}/supabase/db_url"
+                - !Sub "arn:${AWS::Partition}:ssm:${AWS::Region}:${AWS::AccountId}:parameter/${Stage}-chase-light/supabase/db_url"
 
   # Step Functions State Machine
   DataSourceUpdateDetectionStateMachine:
@@ -320,7 +320,7 @@ Resources:
                 - logs:CreateLogStream
                 - logs:PutLogEvents
                 - logs:DescribeLogStreams
-              Resource: 
+              Resource:
                 - !GetAtt DataSourceUpdateDetectionLogGroup.Arn
                 - !Sub "${DataSourceUpdateDetectionLogGroup.Arn}:*"
 
@@ -461,7 +461,7 @@ Outputs:
     Value: !Ref DataSourceUpdateDetectionStateMachine
     Export:
       Name: !Sub "${AWS::StackName}-DataSourceUpdateDetectionStateMachineArn"
-  
+
   ListDetectTargetsFunctionArn:
     Description: 'ARN of the list detect targets function'
     Value: !GetAtt ListDetectTargetsFunction.Arn
