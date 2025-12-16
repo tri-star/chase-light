@@ -21,7 +21,9 @@ Globals:
         DB_NAME: ""
         DB_SSL: "false"
         OPENAI_API_KEY: ""
-
+    Tags:
+      service: !Sub "chase-light-app"
+      env: !Ref Stage
 Parameters:
   UseAws:
     Type: String
@@ -46,7 +48,7 @@ Resources:
       StageName: !Ref Stage
       CorsConfiguration:
         AllowOrigins:
-          - !Split [",", !Ref FrontendUrl]
+          - "*"
         AllowHeaders:
           - "Content-Type"
           - "Authorization"
@@ -62,7 +64,7 @@ Resources:
   ProcessUpdatesQueue:
     Type: AWS::SQS::Queue
     Properties:
-      QueueName: !Sub "${AWS::StackName}-process-updates-queue"
+      QueueName: !Sub "${Stage}-chase-light-process-updates-queue"
       VisibilityTimeout: 360
       MessageRetentionPeriod: 1209600  # 14 days
       RedrivePolicy:
@@ -72,14 +74,14 @@ Resources:
   ProcessUpdatesDeadLetterQueue:
     Type: AWS::SQS::Queue
     Properties:
-      QueueName: !Sub "${AWS::StackName}-process-updates-dlq"
+      QueueName: !Sub "${Stage}-chase-light-process-updates-dlq"
       MessageRetentionPeriod: 1209600  # 14 days
 
   # Translation Jobs Queue
   TranslationJobsQueue:
     Type: AWS::SQS::Queue
     Properties:
-      QueueName: !Sub "${AWS::StackName}-translation-jobs-queue"
+      QueueName: !Sub "${Stage}-chase-light-translation-jobs-queue"
       VisibilityTimeout: 360
       MessageRetentionPeriod: 1209600  # 14 days
       RedrivePolicy:
@@ -89,14 +91,14 @@ Resources:
   TranslationJobsDeadLetterQueue:
     Type: AWS::SQS::Queue
     Properties:
-      QueueName: !Sub "${AWS::StackName}-translation-jobs-dlq"
+      QueueName: !Sub "${Stage}-chase-light-translation-jobs-dlq"
       MessageRetentionPeriod: 1209600  # 14 days
 
   # Lambda Functions
   ListDetectTargetsFunction:
     Type: AWS::Serverless::Function
     Properties:
-      FunctionName: !Sub "${AWS::StackName}-list-detect-targets"
+      FunctionName: !Sub "${Stage}-chase-light-list-detect-targets"
       CodeUri: ../dist/lambda/list-detect-targets/
       Handler: index.handler
       Description: 'List detect targets for monitoring'
@@ -107,7 +109,7 @@ Resources:
                 - logs:CreateLogGroup
                 - logs:CreateLogStream
                 - logs:PutLogEvents
-              Resource: !Sub "arn:${AWS::Partition}:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/${AWS::StackName}-list-detect-targets*"
+              Resource: !Sub "arn:${AWS::Partition}:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/${Stage}-chase-light-list-detect-targets*"
         - Statement:
             - Effect: Allow
               Action:
@@ -117,7 +119,7 @@ Resources:
   DetectDataSourceUpdatesFunction:
     Type: AWS::Serverless::Function
     Properties:
-      FunctionName: !Sub "${AWS::StackName}-detect-datasource-updates"
+      FunctionName: !Sub "${Stage}-chase-light-detect-datasource-updates"
       CodeUri: ../dist/lambda/detect-datasource-updates/
       Handler: index.handler
       Description: 'Detect updates for a data source'
@@ -128,7 +130,7 @@ Resources:
                 - logs:CreateLogGroup
                 - logs:CreateLogStream
                 - logs:PutLogEvents
-              Resource: !Sub "arn:${AWS::Partition}:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/${AWS::StackName}-detect-datasource-updates*"
+              Resource: !Sub "arn:${AWS::Partition}:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/${Stage}-chase-light-detect-datasource-updates*"
         - Statement:
             - Effect: Allow
               Action:
@@ -138,7 +140,7 @@ Resources:
   ProcessUpdatesFunction:
     Type: AWS::Serverless::Function
     Properties:
-      FunctionName: !Sub "${AWS::StackName}-process-updates"
+      FunctionName: !Sub "${Stage}-chase-light-process-updates"
       CodeUri: ../dist/lambda/process-updates/
       Handler: index.handler
       Runtime: nodejs22.x
@@ -171,7 +173,7 @@ Resources:
   TranslateActivityBodyFunction:
     Type: AWS::Serverless::Function
     Properties:
-      FunctionName: !Sub "${AWS::StackName}-translate-activity-body"
+      FunctionName: !Sub "${Stage}-chase-light-translate-activity-body"
       CodeUri: ../dist/lambda/translate-activity-body/
       Handler: index.handler
       Runtime: nodejs22.x
@@ -204,7 +206,7 @@ Resources:
   GenerateDigestNotificationsFunction:
     Type: AWS::Serverless::Function
     Properties:
-      FunctionName: !Sub "${AWS::StackName}-generate-digest-notifications"
+      FunctionName: !Sub "${Stage}-chase-light-generate-digest-notifications"
       CodeUri: ../dist/lambda/generate-digest-notifications/
       Handler: index.handler
       Description: 'Generate digest notifications for subscribed users'
@@ -216,7 +218,7 @@ Resources:
         GenerateDigestNotificationsSchedule:
           Type: Schedule
           Properties:
-            Name: !Sub "${AWS::StackName}-generate-digest-notifications-schedule"
+            Name: !Sub "${Stage}-chase-light-generate-digest-notifications-schedule"
             Description: "Run digest notification generation every 30 minutes"
             Schedule: "cron(0/30 * * * ? *)"
       Policies:
@@ -226,7 +228,7 @@ Resources:
                 - logs:CreateLogGroup
                 - logs:CreateLogStream
                 - logs:PutLogEvents
-              Resource: !Sub "arn:${AWS::Partition}:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/${AWS::StackName}-generate-digest-notifications*"
+              Resource: !Sub "arn:${AWS::Partition}:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/${Stage}-chase-light-generate-digest-notifications*"
         - Statement:
             - Effect: Allow
               Action:
@@ -237,7 +239,7 @@ Resources:
   BackendApiFunction:
     Type: AWS::Serverless::Function
     Properties:
-      FunctionName: !Sub "${AWS::StackName}-backend-api"
+      FunctionName: !Sub "${Stage}-chase-light-backend-api"
       CodeUri: ../dist/lambda/api/
       Handler: index.handler
       Description: 'Hono API handler behind HttpApi'
@@ -263,7 +265,7 @@ Resources:
                 - logs:CreateLogGroup
                 - logs:CreateLogStream
                 - logs:PutLogEvents
-              Resource: !Sub "arn:${AWS::Partition}:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/${AWS::StackName}-backend-api*"
+              Resource: !Sub "arn:${AWS::Partition}:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/${Stage}-chase-light-backend-api*"
         - Statement:
             - Effect: Allow
               Action:
@@ -275,7 +277,7 @@ Resources:
   DataSourceUpdateDetectionStateMachine:
     Type: AWS::Serverless::StateMachine
     Properties:
-      Name: !Sub "${AWS::StackName}-data-source-update-detection"
+      Name: !Sub "${Stage}-chase-light-data-source-update-detection"
       DefinitionUri: data-source-update-detection.asl.json
       DefinitionSubstitutions:
         ListDetectTargetsFunctionArn: !GetAtt ListDetectTargetsFunction.Arn
@@ -330,14 +332,14 @@ Resources:
   DataSourceUpdateDetectionLogGroup:
     Type: AWS::Logs::LogGroup
     Properties:
-      LogGroupName: !Sub "/aws/stepfunctions/${AWS::StackName}-data-source-update-detection"
+      LogGroupName: !Sub "/aws/stepfunctions/${Stage}-chase-light-data-source-update-detection"
       RetentionInDays: 30
 
   # EventBridge Rule for daily execution
   DataSourceUpdateDetectionScheduleRule:
     Type: AWS::Events::Rule
     Properties:
-      Name: !Sub "${AWS::StackName}-data-source-update-detection-schedule"
+      Name: !Sub "${Stage}-chase-light-data-source-update-detection-schedule"
       Description: "Daily execution of data source update detection workflow"
       ScheduleExpression: "cron(0 8 * * ? *)"  # Daily at 17:00 JST (08:00 UTC)
       State: ENABLED
@@ -371,14 +373,14 @@ Resources:
   AlertsTopic:
     Type: AWS::SNS::Topic
     Properties:
-      TopicName: !Sub "${AWS::StackName}-alerts"
+      TopicName: !Sub "${Stage}-chase-light-alerts"
       DisplayName: "Data source update detection alerts"
 
   # CloudWatch Alarms
   StepFunctionsExecutionFailedAlarm:
     Type: AWS::CloudWatch::Alarm
     Properties:
-      AlarmName: !Sub "${AWS::StackName}-stepfunctions-execution-failed"
+      AlarmName: !Sub "${Stage}-chase-light-stepfunctions-execution-failed"
       AlarmDescription: "Alert when Step Functions execution fails"
       MetricName: ExecutionsFailed
       Namespace: AWS/States
@@ -397,7 +399,7 @@ Resources:
   LambdaErrorsAlarm:
     Type: AWS::CloudWatch::Alarm
     Properties:
-      AlarmName: !Sub "${AWS::StackName}-lambda-errors"
+      AlarmName: !Sub "${Stage}-chase-light-lambda-errors"
       AlarmDescription: "Alert when Lambda functions have errors"
       MetricName: Errors
       Namespace: AWS/Lambda
@@ -416,7 +418,7 @@ Resources:
   ProcessUpdatesDeadLetterQueueAlarm:
     Type: AWS::CloudWatch::Alarm
     Properties:
-      AlarmName: !Sub "${AWS::StackName}-dlq-messages"
+      AlarmName: !Sub "${Stage}-chase-light-dlq-messages"
       AlarmDescription: "Alert when messages appear in DLQ"
       MetricName: ApproximateNumberOfVisibleMessages
       Namespace: AWS/SQS
@@ -435,7 +437,7 @@ Resources:
   TranslationJobsDeadLetterQueueAlarm:
     Type: AWS::CloudWatch::Alarm
     Properties:
-      AlarmName: !Sub "${AWS::StackName}-translation-dlq-messages"
+      AlarmName: !Sub "${Stage}-chase-light-translation-dlq-messages"
       AlarmDescription: "Alert when messages appear in Translation Jobs DLQ"
       MetricName: ApproximateNumberOfVisibleMessages
       Namespace: AWS/SQS
@@ -456,70 +458,70 @@ Outputs:
     Description: 'Base URL of the Backend HttpApi stage'
     Value: !Sub "${BackendHttpApi.ApiEndpoint}/${Stage}"
     Export:
-      Name: !Sub "${AWS::StackName}-BackendApiEndpoint"
+      Name: !Sub "${Stage}-chase-light-BackendApiEndpoint"
 
   DataSourceUpdateDetectionStateMachineArn:
     Description: 'ARN of the data source update detection state machine'
     Value: !Ref DataSourceUpdateDetectionStateMachine
     Export:
-      Name: !Sub "${AWS::StackName}-DataSourceUpdateDetectionStateMachineArn"
+      Name: !Sub "${Stage}-chase-light-DataSourceUpdateDetectionStateMachineArn"
 
   ListDetectTargetsFunctionArn:
     Description: 'ARN of the list detect targets function'
     Value: !GetAtt ListDetectTargetsFunction.Arn
     Export:
-      Name: !Sub "${AWS::StackName}-ListDetectTargetsFunctionArn"
+      Name: !Sub "${Stage}-chase-light-ListDetectTargetsFunctionArn"
 
   DetectDataSourceUpdatesFunctionArn:
     Description: 'ARN of the detect data source updates function'
     Value: !GetAtt DetectDataSourceUpdatesFunction.Arn
     Export:
-      Name: !Sub "${AWS::StackName}-DetectDataSourceUpdatesFunctionArn"
+      Name: !Sub "${Stage}-chase-light-DetectDataSourceUpdatesFunctionArn"
 
   ProcessUpdatesFunctionArn:
     Description: 'ARN of the process updates function'
     Value: !GetAtt ProcessUpdatesFunction.Arn
     Export:
-      Name: !Sub "${AWS::StackName}-ProcessUpdatesFunctionArn"
+      Name: !Sub "${Stage}-chase-light-ProcessUpdatesFunctionArn"
 
   ProcessUpdatesQueueUrl:
     Description: 'URL of the process updates SQS queue'
     Value: !Ref ProcessUpdatesQueue
     Export:
-      Name: !Sub "${AWS::StackName}-ProcessUpdatesQueueUrl"
+      Name: !Sub "${Stage}-chase-light-ProcessUpdatesQueueUrl"
 
   ProcessUpdatesQueueArn:
     Description: 'ARN of the process updates SQS queue'
     Value: !GetAtt ProcessUpdatesQueue.Arn
     Export:
-      Name: !Sub "${AWS::StackName}-ProcessUpdatesQueueArn"
+      Name: !Sub "${Stage}-chase-light-ProcessUpdatesQueueArn"
 
   ScheduleRuleArn:
     Description: 'ARN of the EventBridge schedule rule'
     Value: !GetAtt DataSourceUpdateDetectionScheduleRule.Arn
     Export:
-      Name: !Sub "${AWS::StackName}-ScheduleRuleArn"
+      Name: !Sub "${Stage}-chase-light-ScheduleRuleArn"
 
   AlertsTopicArn:
     Description: 'ARN of the SNS alerts topic'
     Value: !Ref AlertsTopic
     Export:
-      Name: !Sub "${AWS::StackName}-AlertsTopicArn"
+      Name: !Sub "${Stage}-chase-light-AlertsTopicArn"
 
   TranslateActivityBodyFunctionArn:
     Description: 'ARN of the translate activity body function'
     Value: !GetAtt TranslateActivityBodyFunction.Arn
     Export:
-      Name: !Sub "${AWS::StackName}-TranslateActivityBodyFunctionArn"
+      Name: !Sub "${Stage}-chase-light-TranslateActivityBodyFunctionArn"
 
   TranslationJobsQueueUrl:
     Description: 'URL of the translation jobs SQS queue'
     Value: !Ref TranslationJobsQueue
     Export:
-      Name: !Sub "${AWS::StackName}-TranslationJobsQueueUrl"
+      Name: !Sub "${Stage}-chase-light-TranslationJobsQueueUrl"
 
   TranslationJobsQueueArn:
     Description: 'ARN of the translation jobs SQS queue'
     Value: !GetAtt TranslationJobsQueue.Arn
     Export:
-      Name: !Sub "${AWS::StackName}-TranslationJobsQueueArn"
+      Name: !Sub "${Stage}-chase-light-TranslationJobsQueueArn"
