@@ -77,16 +77,19 @@ export function createJWTAuthMiddleware(options: JWTAuthOptions = {}) {
     onError = defaultErrorHandler,
   } = options
 
-  // 環境に応じたJWTValidatorを作成
-  let validator: JwtValidatorPort
+  // 環境に応じたJWTValidatorを遅延初期化（AWS環境ではSSM参照が必要なため）
+  let validatorPromise: Promise<JwtValidatorPort> | null = null
   const userRepository = new DrizzleUserRepository()
 
-  try {
-    validator = createJwtValidatorAdapter()
-  } catch (error) {
-    throw new Error(
-      `JWT Auth Middleware initialization failed: ${error instanceof Error ? error.message : "Unknown error"}`,
-    )
+  const getValidator = async () => {
+    if (!validatorPromise) {
+      validatorPromise = createJwtValidatorAdapter().catch((error) => {
+        validatorPromise = null
+        throw error
+      })
+    }
+
+    return await validatorPromise
   }
 
   return async (c: Context, next: Next) => {
@@ -105,6 +108,7 @@ export function createJWTAuthMiddleware(options: JWTAuthOptions = {}) {
       }
 
       // トークンを検証
+      const validator = await getValidator()
       const validationResult = await validator.validateAccessToken(token)
 
       if (!validationResult.valid) {

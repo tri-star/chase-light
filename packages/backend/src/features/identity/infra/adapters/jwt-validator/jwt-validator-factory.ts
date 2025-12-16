@@ -7,7 +7,7 @@ import type { Auth0Config } from "../../../types/auth.types"
 import type { JwtValidatorPort } from "../../../application/ports/jwt-validator.port"
 import { JwtValidatorAdapter } from "./jwt-validator.adapter"
 import { StubJwtValidatorAdapter } from "./stub-jwt-validator.adapter"
-import { getAuth0Config, validateAuth0Config } from "../../../utils/auth-config"
+import { getAuth0Config, validateAuth0Config } from "../../../../../core/config/auth0"
 
 /**
  * 環境に応じたJwtValidatorインスタンスを生成するファクトリー関数
@@ -17,17 +17,19 @@ import { getAuth0Config, validateAuth0Config } from "../../../utils/auth-config"
  */
 export function createJwtValidatorAdapter(
   config?: Auth0Config,
-): JwtValidatorPort {
+): Promise<JwtValidatorPort> {
   // テスト環境ではStubJwtValidatorAdapterを使用
   if (process.env.NODE_ENV === "test") {
-    return new StubJwtValidatorAdapter()
+    return Promise.resolve(new StubJwtValidatorAdapter())
   }
 
   // 本番環境では実際のJwtValidatorAdapterを使用
-  if (!config) {
-    config = getAuth0Config()
-    validateAuth0Config(config)
-  }
+  return (async () => {
+    if (!config) {
+      config = await getAuth0Config()
+      validateAuth0Config(config)
+    }
 
-  return new JwtValidatorAdapter(config)
+    return new JwtValidatorAdapter(config)
+  })()
 }
