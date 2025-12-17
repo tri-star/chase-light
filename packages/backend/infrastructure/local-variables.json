@@ -3,7 +3,7 @@
   "Variables": {
     "ProcessUpdatesQueueUrl": "http://elasticmq:9324/000000000000/process-updates-queue",
     "TranslationJobsQueueUrl": "http://elasticmq:9324/000000000000/translation-jobs-queue",
-    "ListDetectTargetsFunction.Arn": "ListDetectTargetsFunction",
+    "ListDetectTargetsFunctionArn": "ListDetectTargetsFunction",
     "DetectDataSourceUpdatesFunctionArn": "DetectDataSourceUpdatesFunction",
     "ProcessUpdatesFunctionArn": "ProcessUpdatesFunction",
     "TranslateActivityBodyFunctionArn": "TranslateActivityBodyFunction"
