@@ -6,8 +6,10 @@ Globals:
   Function:
     Timeout: 60
     Runtime: nodejs22.x
-    Layers:
-      - arn:aws:lambda:ap-northeast-1:133490724326:layer:AWS-Parameters-and-Secrets-Lambda-Extension:21
+    Layers: !If
+      - UseParamsSecretsExtension
+      - - arn:aws:lambda:ap-northeast-1:133490724326:layer:AWS-Parameters-and-Secrets-Lambda-Extension:21
+      - !Ref AWS::NoValue
     Environment:
       Variables:
         USE_AWS: !Ref UseAws
@@ -19,7 +21,7 @@ Globals:
         DB_USER: ""
         DB_PASSWORD: ""
         DB_NAME: ""
-        DB_SSL: "false"
+        DB_SSL: !Ref UseAws
         OPENAI_API_KEY: ""
     Tags:
       service: !Sub "chase-light-app"
@@ -40,6 +42,7 @@ Parameters:
 
 Conditions:
   IsFrontendWildcard: !Equals [!Ref FrontendUrl, "*"]
+  UseParamsSecretsExtension: !Equals [!Ref UseAws, "true"]
 
 Resources:
   BackendHttpApi:
