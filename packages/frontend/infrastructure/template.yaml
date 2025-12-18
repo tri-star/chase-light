@@ -118,7 +118,7 @@ Resources:
   NuxtFunction:
     Type: AWS::Serverless::Function
     Properties:
-      FunctionName: !Sub '${ProjectName}-${Stage}'
+      FunctionName: !Sub '${Stage}-${ProjectName}'
       Description: Nuxt 3 SSR Lambda handler built with NITRO_PRESET=aws-lambda
       CodeUri: ../.output/server
       Handler: index.handler
@@ -137,6 +137,8 @@ Resources:
             Method: ANY
       Environment:
         Variables:
+          NODE_ENV: !Sub '{{resolve:secretsmanager:${SecretsArn}:SecretString:NODE_ENV}}'
+          APP_STAGE: !Sub '{{resolve:secretsmanager:${SecretsArn}:SecretString:APP_STAGE}}'
           NUXT_PUBLIC_BASE_URL: !Sub 'https://${HttpApi}.execute-api.${AWS::Region}.amazonaws.com/${Stage}'
           AUTH0_DOMAIN: !Sub '{{resolve:secretsmanager:${SecretsArn}:SecretString:AUTH0_DOMAIN}}'
           AUTH0_CLIENT_ID: !Sub '{{resolve:secretsmanager:${SecretsArn}:SecretString:AUTH0_CLIENT_ID}}'
@@ -144,6 +146,7 @@ Resources:
           AUTH0_AUDIENCE: !Sub '{{resolve:secretsmanager:${SecretsArn}:SecretString:AUTH0_AUDIENCE}}'
           NUXT_SESSION_SECRET: !Sub '{{resolve:secretsmanager:${SecretsArn}:SecretString:NUXT_SESSION_SECRET}}'
           DATABASE_URL: !Sub '{{resolve:secretsmanager:${SecretsArn}:SecretString:DATABASE_URL}}'
+          BACKEND_API_URL: !Sub '{{resolve:secretsmanager:${SecretsArn}:SecretString:BACKEND_API_URL}}'
       Policies:
         - AWSLambdaBasicExecutionRole
         - Statement:
