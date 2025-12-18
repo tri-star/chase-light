@@ -12,8 +12,8 @@ import { getSsmParameterValue } from "./ssm-parameter"
 export async function getAuth0Config(): Promise<Auth0Config> {
   const isAWSEnvironment = process.env.USE_AWS === "true"
 
-  const audience = process.env.AUTH0_AUDIENCE
-  const appAudience = process.env.AUTH0_APP_AUDIENCE
+  let audience = process.env.AUTH0_AUDIENCE
+  let appAudience = process.env.AUTH0_APP_AUDIENCE
 
   let domain: string | null | undefined = process.env.AUTH0_DOMAIN
 
@@ -38,6 +38,22 @@ export async function getAuth0Config(): Promise<Auth0Config> {
 
     if (!domain) {
       throw new Error(`Auth0 domain parameter not found: ${parameterName}`)
+    }
+
+    const audienceParamName = `/${stage}-chase-light/auth0/audience`
+    const appAudienceParamName = `/${stage}-chase-light/auth0/app_audience`
+
+    const fetchedAudience = await getSsmParameterValue(audienceParamName)
+    const fetchedAppAudience = await getSsmParameterValue(appAudienceParamName)
+    if (!fetchedAudience) {
+      throw new Error(
+        `Auth0 audience parameter not found: ${audienceParamName}`,
+      )
+    }
+    if (!fetchedAppAudience) {
+      throw new Error(
+        `Auth0 app audience parameter not found: ${appAudienceParamName}`,
+      )
     }
   }
 
