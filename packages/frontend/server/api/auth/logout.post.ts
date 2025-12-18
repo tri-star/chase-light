@@ -7,7 +7,7 @@ export default defineEventHandler(async (event) => {
     await clearUserSession(event)
 
     // Auth0からもログアウト
-    const logoutUrl = generateAuth0LogoutUrl()
+    const logoutUrl = await generateAuth0LogoutUrl()
 
     return {
       success: true,

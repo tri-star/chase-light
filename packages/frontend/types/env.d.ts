@@ -32,6 +32,15 @@ declare global {
 
       // アプリケーションステージ（その他のファイルで使用される可能性）
       APP_STAGE?: string
+
+      // AWS環境フラグ（Lambda/ローカル切り替え）
+      USE_AWS?: 'true' | 'false'
+
+      // SecretsManager SecretId (ARN推奨)
+      SECRET_ID?: string
+
+      // Backend API base URL（ローカル開発用）
+      BACKEND_API_URL?: string
     }
   }
 }

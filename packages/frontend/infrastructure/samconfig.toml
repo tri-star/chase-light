@@ -14,7 +14,7 @@ capabilities = "CAPABILITY_IAM"
 resolve_s3 = true
 s3_prefix = "frontend/dev"
 confirm_changeset = true
-parameter_overrides = "ProjectName=chase-light-frontend Stage=dev SecretsArn=<SET_DEV_SECRET_ARN> AssetBucketName=dev-chase-light-app-assets"
+parameter_overrides = "ProjectName=chase-light-frontend Stage=dev SecretId=dev-chase-light-frontend AssetBucketName=dev-chase-light-frontend-assets"
 
 [prod]
 [prod.build.parameters]
@@ -30,4 +30,4 @@ capabilities = "CAPABILITY_IAM"
 resolve_s3 = true
 s3_prefix = "frontend/prod"
 confirm_changeset = true
-parameter_overrides = "ProjectName=chase-light-frontend Stage=prod SecretsArn=<SET_PROD_SECRET_ARN> AssetBucketName=prod-chase-light-app-assets"
+parameter_overrides = "ProjectName=chase-light-frontend Stage=prod SecretId=prod-chase-light-frontend AssetBucketName=prod-chase-light-frontend-assets"
