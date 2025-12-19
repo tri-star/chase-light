@@ -22,7 +22,7 @@ Parameters:
     Description: Deployment stage used in names and API stage.
   SecretId:
     Type: String
-    Description: ARN of Secrets Manager secret containing JSON with Nuxt runtime values.
+    Description: Secrets Manager secret name (recommended) containing JSON with Nuxt runtime values. Used with resolve:secretsmanager and IAM policy.
   AssetBucketName:
     Type: String
     Default: dev-chase-light-frontend-assets
@@ -105,7 +105,7 @@ Resources:
   HttpApi:
     Type: AWS::Serverless::HttpApi
     Properties:
-      StageName: !Ref Stage
+      Name: !Sub '${Stage}-${ProjectName}'
       CorsConfiguration:
         AllowOrigins:
           - '*'
@@ -124,6 +124,30 @@ Resources:
         MaxAge: 600
         AllowCredentials: false
 
+  NuxtFunctionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - lambda.amazonaws.com
+            Action:
+              - sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+      Policies:
+        - PolicyName: ReadNuxtRuntimeSecret
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - secretsmanager:GetSecretValue
+                Resource: !Sub 'arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:${SecretId}*'
+
   NuxtFunction:
     Type: AWS::Serverless::Function
     Properties:
@@ -131,36 +155,14 @@ Resources:
       Description: Nuxt 3 SSR Lambda handler built with NITRO_PRESET=aws-lambda
       CodeUri: ../.output/server
       Handler: index.handler
-      Events:
-        ApiProxy:
-          Type: HttpApi
-          Properties:
-            ApiId: !Ref HttpApi
-            Path: /{proxy+}
-            Method: ANY
-        ApiRoot:
-          Type: HttpApi
-          Properties:
-            ApiId: !Ref HttpApi
-            Path: /
-            Method: ANY
+      Role: !GetAtt NuxtFunctionRole.Arn
       Environment:
         Variables:
           USE_AWS: !Ref UseAws
-          NODE_ENV: !If
-            - UseParamsSecretsExtension
-            - !Sub '{{resolve:secretsmanager:${SecretId}:SecretString:NODE_ENV}}'
-            - production
           APP_STAGE: !Ref Stage
-          NUXT_PUBLIC_BASE_URL: !Sub 'https://${HttpApi}.execute-api.${AWS::Region}.amazonaws.com/${Stage}'
+          # NOTE: Do not reference HttpApi here to avoid circular dependencies (HttpApi <-> NuxtFunction).
+          # Set this value in Secrets Manager (SecretString:NUXT_PUBLIC_BASE_URL) instead.
           SECRET_ID: !Ref SecretId
-      Policies:
-        - AWSLambdaBasicExecutionRole
-        - Statement:
-            - Effect: Allow
-              Action:
-                - secretsmanager:GetSecretValue
-              Resource: !Ref SecretId
       LoggingConfig:
         LogFormat: JSON
         ApplicationLogLevel: INFO
@@ -168,11 +170,33 @@ Resources:
       Tags:
         Project: !Ref ProjectName
         Stage: !Ref Stage
+      Events:
+        ApiRoot:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref HttpApi
+            Path: /
+            Method: ANY
+        ApiProxy:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref HttpApi
+            Path: /{proxy+}
+            Method: ANY
+
+  NuxtFunctionInvokePermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName: !GetAtt NuxtFunction.Arn
+      Principal: apigateway.amazonaws.com
+      SourceArn: !Sub 'arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${HttpApi}/*/*/*'
 
   FunctionLogGroup:
     Type: AWS::Logs::LogGroup
     Properties:
-      LogGroupName: !Sub '/aws/lambda/${NuxtFunction}'
+      # Avoid referencing NuxtFunction (resource) to prevent circular dependencies.
+      LogGroupName: !Sub '/aws/lambda/${Stage}-${ProjectName}'
       RetentionInDays: !Ref LogRetentionDays
 
 Outputs:
