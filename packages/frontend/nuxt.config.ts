@@ -17,7 +17,7 @@ export default defineNuxtConfig({
   ],
   runtimeConfig: {
     // Private keys (only available on the server-side)
-    useAws: process.env.USE_AWS === 'true',
+    useAws: process.env.NUXT_USE_AWS === 'true',
     appStage: process.env.APP_STAGE,
     secretId: process.env.SECRET_ID,
     auth0Domain: process.env.AUTH0_DOMAIN,
