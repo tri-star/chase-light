@@ -172,7 +172,7 @@ Resources:
           APP_STAGE: !Ref Stage
           NUXT_PUBLIC_BASE_URL: !Sub '{{resolve:secretsmanager:${SecretId}:SecretString:NUXT_PUBLIC_BASE_URL}}'
           SECRET_ID: !Ref SecretId
-          ATTR_SERVICE_NAME: "chase-light-frontend"
+          ATTR_SERVICE_NAME: 'chase-light-frontend'
       LoggingConfig:
         LogFormat: JSON
         ApplicationLogLevel: INFO

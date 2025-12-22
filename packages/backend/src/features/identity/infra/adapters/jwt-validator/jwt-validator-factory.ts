@@ -7,7 +7,10 @@ import type { Auth0Config } from "../../../types/auth.types"
 import type { JwtValidatorPort } from "../../../application/ports/jwt-validator.port"
 import { JwtValidatorAdapter } from "./jwt-validator.adapter"
 import { StubJwtValidatorAdapter } from "./stub-jwt-validator.adapter"
-import { getAuth0Config, validateAuth0Config } from "../../../../../core/config/auth0"
+import {
+  getAuth0Config,
+  validateAuth0Config,
+} from "../../../../../core/config/auth0"
 
 /**
  * 環境に応じたJwtValidatorインスタンスを生成するファクトリー関数
