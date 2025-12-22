@@ -7,3 +7,4 @@ coverage
 *.min.css
 *.md
 generated/**/*
+infrastructure/.aws-sam/**/*

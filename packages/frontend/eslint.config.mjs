@@ -22,6 +22,6 @@ export default withNuxt(
     },
   },
   {
-    ignores: ['**/generated/**/*'],
+    ignores: ['**/generated/**/*', 'infrastructure/.aws-sam/**/*'],
   }
 )
