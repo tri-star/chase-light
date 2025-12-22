@@ -89,7 +89,7 @@ export const createAuthRoutes = () => {
       const request = c.req.valid("json")
 
       // UseCaseの依存関係を構築
-      const jwtValidator = createJwtValidatorAdapter()
+      const jwtValidator = await createJwtValidatorAdapter()
       const userRepository = new DrizzleUserRepository()
       const signUpUseCase = new SignUpUseCase(jwtValidator, userRepository)
 

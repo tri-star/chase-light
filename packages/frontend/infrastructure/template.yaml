@@ -1,7 +1,7 @@
 AWSTemplateFormatVersion: '2010-09-09'
 Transform: AWS::Serverless-2016-10-31
 Description: >
-  SAM template for Nuxt 3 SSR frontend deployed to AWS Lambda behind an HTTP API.
+  SAM template for Nuxt 3 SSR frontend deployed to AWS Lambda behind CloudFront.
   Build with NITRO_PRESET=aws-lambda pnpm --filter frontend build before sam build.
 
 Parameters:
@@ -9,6 +9,10 @@ Parameters:
     Type: String
     Default: chase-light-frontend
     Description: Base name used for resource naming.
+  UseAws:
+    Type: String
+    Default: 'true'
+    Description: Flag to indicate if running in AWS environment
   Stage:
     Type: String
     AllowedValues:
@@ -16,13 +20,16 @@ Parameters:
       - prod
     Default: dev
     Description: Deployment stage used in names and API stage.
-  SecretsArn:
+  SecretId:
     Type: String
-    Description: ARN of Secrets Manager secret containing JSON with Nuxt runtime values.
+    Description: Secrets Manager secret name (recommended) containing JSON with Nuxt runtime values. Used with resolve:secretsmanager and IAM policy.
   AssetBucketName:
     Type: String
-    Default: dev-chase-light-app-assets
-    Description: S3 bucket name to host .output/public (e.g., dev-chase-light-app-assets / prod-chase-light-app-assets).
+    Default: dev-chase-light-frontend-assets
+    Description: S3 bucket name to host .output/public (e.g., dev-chase-light-frontend-assets / prod-chase-light-frontend-assets).
+  OtlpLayerVersion:
+    Type: String
+    Description: OTLPレイヤのバージョン番号
   MemorySize:
     Type: Number
     Default: 1024
@@ -41,17 +48,27 @@ Parameters:
     AllowedValues: [1, 3, 5, 7, 14, 30, 60, 90, 120, 150, 180, 365]
     Description: CloudWatch Logs retention in days.
 
+Conditions:
+  UseParamsSecretsExtension: !Equals [!Ref UseAws, 'true']
+
 Globals:
   Function:
     Runtime: nodejs20.x
     Architectures:
       - x86_64
+    Layers: !If
+      - UseParamsSecretsExtension
+      - - arn:aws:lambda:ap-northeast-1:133490724326:layer:AWS-Parameters-and-Secrets-Lambda-Extension:21
+        - !Sub 'arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:layer:otel-collector:7'
+        - !Sub 'arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:layer:${Stage}-chase-light-otlp-layer:${OtlpLayerVersion}'
+      - !Ref AWS::NoValue
     MemorySize: !Ref MemorySize
     Timeout: !Ref Timeout
     Tracing: Active
     Environment:
       Variables:
         NODE_ENV: production
+        NODE_OPTIONS: '--import=/opt/nodejs/otel-setup.mjs'
 
 Resources:
   AssetsBucket:
@@ -74,6 +91,12 @@ Resources:
             NoncurrentVersionExpiration:
               NoncurrentDays: 30
 
+  AssetsOAI:
+    Type: AWS::CloudFront::CloudFrontOriginAccessIdentity
+    Properties:
+      CloudFrontOriginAccessIdentityConfig:
+        Comment: !Sub '${Stage}-${ProjectName}-assets-oai'
+
   AssetsBucketPolicy:
     Type: AWS::S3::BucketPolicy
     Properties:
@@ -81,6 +104,12 @@ Resources:
       PolicyDocument:
         Version: '2012-10-17'
         Statement:
+          - Effect: Allow
+            Principal:
+              CanonicalUser: !GetAtt AssetsOAI.S3CanonicalUserId
+            Action:
+              - s3:GetObject
+            Resource: !Join ['', [!GetAtt AssetsBucket.Arn, '/*']]
           - Effect: Deny
             Principal: '*'
             Action: s3:*
@@ -91,64 +120,59 @@ Resources:
               Bool:
                 aws:SecureTransport: false
 
-  HttpApi:
-    Type: AWS::Serverless::HttpApi
+  NuxtFunctionRole:
+    Type: AWS::IAM::Role
     Properties:
-      StageName: !Ref Stage
-      CorsConfiguration:
-        AllowOrigins:
-          - '*'
-        AllowMethods:
-          - GET
-          - POST
-          - PUT
-          - PATCH
-          - DELETE
-          - OPTIONS
-        AllowHeaders:
-          - Content-Type
-          - Authorization
-          - X-Requested-With
-          - X-Trace-Id
-        MaxAge: 600
-        AllowCredentials: false
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - lambda.amazonaws.com
+            Action:
+              - sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+      Policies:
+        - PolicyName: ReadNuxtRuntimeSecret
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - secretsmanager:GetSecretValue
+                Resource: !Sub 'arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:${SecretId}*'
+        - PolicyName: XRayWriteAccess
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - xray:PutTraceSegments
+                  - xray:PutTelemetryRecords
+                Resource: '*'
 
   NuxtFunction:
     Type: AWS::Serverless::Function
     Properties:
-      FunctionName: !Sub '${ProjectName}-${Stage}'
+      FunctionName: !Sub '${Stage}-${ProjectName}'
       Description: Nuxt 3 SSR Lambda handler built with NITRO_PRESET=aws-lambda
       CodeUri: ../.output/server
       Handler: index.handler
-      Events:
-        ApiProxy:
-          Type: HttpApi
-          Properties:
-            ApiId: !Ref HttpApi
-            Path: /{proxy+}
-            Method: ANY
-        ApiRoot:
-          Type: HttpApi
-          Properties:
-            ApiId: !Ref HttpApi
-            Path: /
-            Method: ANY
+      Role: !GetAtt NuxtFunctionRole.Arn
+      # NOTE: 既存の Function URL（AWS::Lambda::Url など）から移行する場合、
+      # 先に手動で Function URL 設定を削除してからデプロイしてください。
+      # 既存設定が残っていると CreateFunctionUrlConfig が 409(AlreadyExists) になります。
+      FunctionUrlConfig:
+        AuthType: NONE
       Environment:
         Variables:
-          NUXT_PUBLIC_BASE_URL: !Sub 'https://${HttpApi}.execute-api.${AWS::Region}.amazonaws.com/${Stage}'
-          AUTH0_DOMAIN: !Sub '{{resolve:secretsmanager:${SecretsArn}:SecretString:AUTH0_DOMAIN}}'
-          AUTH0_CLIENT_ID: !Sub '{{resolve:secretsmanager:${SecretsArn}:SecretString:AUTH0_CLIENT_ID}}'
-          AUTH0_CLIENT_SECRET: !Sub '{{resolve:secretsmanager:${SecretsArn}:SecretString:AUTH0_CLIENT_SECRET}}'
-          AUTH0_AUDIENCE: !Sub '{{resolve:secretsmanager:${SecretsArn}:SecretString:AUTH0_AUDIENCE}}'
-          NUXT_SESSION_SECRET: !Sub '{{resolve:secretsmanager:${SecretsArn}:SecretString:NUXT_SESSION_SECRET}}'
-          DATABASE_URL: !Sub '{{resolve:secretsmanager:${SecretsArn}:SecretString:DATABASE_URL}}'
-      Policies:
-        - AWSLambdaBasicExecutionRole
-        - Statement:
-            - Effect: Allow
-              Action:
-                - secretsmanager:GetSecretValue
-              Resource: !Ref SecretsArn
+          NUXT_USE_AWS: !Ref UseAws
+          APP_STAGE: !Ref Stage
+          NUXT_PUBLIC_BASE_URL: !Sub '{{resolve:secretsmanager:${SecretId}:SecretString:NUXT_PUBLIC_BASE_URL}}'
+          SECRET_ID: !Ref SecretId
+          ATTR_SERVICE_NAME: 'chase-light-frontend'
       LoggingConfig:
         LogFormat: JSON
         ApplicationLogLevel: INFO
@@ -157,16 +181,119 @@ Resources:
         Project: !Ref ProjectName
         Stage: !Ref Stage
 
+  NuxtOriginRequestPolicy:
+    Type: AWS::CloudFront::OriginRequestPolicy
+    Properties:
+      OriginRequestPolicyConfig:
+        Name: !Sub '${Stage}-${ProjectName}-nuxt-origin-request'
+        Comment: Forward all cookies and query strings to Nuxt Function URL origin (do not forward Host)
+        CookiesConfig:
+          CookieBehavior: all
+        QueryStringsConfig:
+          QueryStringBehavior: all
+        HeadersConfig:
+          HeaderBehavior: whitelist
+          Headers:
+            - Accept
+            - Accept-Language
+            - User-Agent
+            - Referer
+            - Origin
+
+  FrontendDistribution:
+    Type: AWS::CloudFront::Distribution
+    Properties:
+      DistributionConfig:
+        Comment: !Sub '${Stage}-chase-light'
+        Enabled: true
+        HttpVersion: http2
+        PriceClass: PriceClass_200
+        Origins:
+          - Id: assetsS3Origin
+            DomainName: !GetAtt AssetsBucket.RegionalDomainName
+            S3OriginConfig:
+              OriginAccessIdentity: !Sub 'origin-access-identity/cloudfront/${AssetsOAI}'
+          - Id: nuxtFunctionUrlOrigin
+            DomainName:
+              !Select [2, !Split ['/', !GetAtt NuxtFunctionUrl.FunctionUrl]]
+            CustomOriginConfig:
+              OriginProtocolPolicy: https-only
+              HTTPSPort: 443
+              OriginSSLProtocols:
+                - TLSv1.2
+        DefaultCacheBehavior:
+          TargetOriginId: nuxtFunctionUrlOrigin
+          ViewerProtocolPolicy: redirect-to-https
+          AllowedMethods:
+            - GET
+            - HEAD
+            - OPTIONS
+            - PUT
+            - POST
+            - PATCH
+            - DELETE
+          CachedMethods:
+            - GET
+            - HEAD
+          Compress: true
+          CachePolicyId: 4135ea2d-6df8-44a3-9df3-4b5a84be39ad
+          # Forward cookies and query strings to the Nuxt Function URL origin.
+          OriginRequestPolicyId: !Ref NuxtOriginRequestPolicy
+        CacheBehaviors:
+          - PathPattern: '_nuxt/*'
+            TargetOriginId: assetsS3Origin
+            ViewerProtocolPolicy: redirect-to-https
+            AllowedMethods:
+              - GET
+              - HEAD
+              - OPTIONS
+            CachedMethods:
+              - GET
+              - HEAD
+            Compress: true
+            CachePolicyId: 4135ea2d-6df8-44a3-9df3-4b5a84be39ad
+          - PathPattern: 'favicon.ico'
+            TargetOriginId: assetsS3Origin
+            ViewerProtocolPolicy: redirect-to-https
+            AllowedMethods:
+              - GET
+              - HEAD
+              - OPTIONS
+            CachedMethods:
+              - GET
+              - HEAD
+            Compress: true
+            CachePolicyId: 4135ea2d-6df8-44a3-9df3-4b5a84be39ad
+          - PathPattern: 'robots.txt'
+            TargetOriginId: assetsS3Origin
+            ViewerProtocolPolicy: redirect-to-https
+            AllowedMethods:
+              - GET
+              - HEAD
+              - OPTIONS
+            CachedMethods:
+              - GET
+              - HEAD
+            Compress: true
+            CachePolicyId: 4135ea2d-6df8-44a3-9df3-4b5a84be39ad
+
   FunctionLogGroup:
     Type: AWS::Logs::LogGroup
     Properties:
-      LogGroupName: !Sub '/aws/lambda/${NuxtFunction}'
+      # Avoid referencing NuxtFunction (resource) to prevent circular dependencies.
+      LogGroupName: !Sub '/aws/lambda/${Stage}-${ProjectName}'
       RetentionInDays: !Ref LogRetentionDays
 
 Outputs:
-  ApiEndpoint:
-    Description: HTTP API endpoint for the Nuxt app.
-    Value: !Sub 'https://${HttpApi}.execute-api.${AWS::Region}.amazonaws.com/${Stage}'
+  CloudFrontUrl:
+    Description: CloudFront URL for the Nuxt app.
+    Value: !Sub 'https://${FrontendDistribution.DomainName}'
+  CloudFrontDomainName:
+    Description: CloudFront domain name.
+    Value: !GetAtt FrontendDistribution.DomainName
+  LambdaFunctionUrl:
+    Description: Lambda Function URL (CloudFront origin).
+    Value: !GetAtt NuxtFunctionUrl.FunctionUrl
   LambdaFunctionName:
     Description: Deployed Lambda function name.
     Value: !Ref NuxtFunction

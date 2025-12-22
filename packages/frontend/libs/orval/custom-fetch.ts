@@ -1,4 +1,5 @@
 import type { ZodSchema } from 'zod'
+import { getRequiredSecretValue } from '~/server/utils/secrets'
 
 interface FetchOptions extends RequestInit {
   zodSchema?: ZodSchema<unknown>
@@ -65,112 +66,109 @@ export const customFetch = async <T>(
     }
   }
 
-  return fetch(process.env.BACKEND_API_URL + url, fetchOptions).then(
-    async (response) => {
-      if (!response.ok) {
-        let errorDetails: unknown
-        const contentType = response.headers.get('content-type')
+  const backendApiUrl = await getRequiredSecretValue('BACKEND_API_URL')
+  return fetch(backendApiUrl + url, fetchOptions).then(async (response) => {
+    if (!response.ok) {
+      let errorDetails: unknown
+      const contentType = response.headers.get('content-type')
 
-        if (contentType && contentType.includes('application/json')) {
-          try {
-            errorDetails = await response.json()
-          } catch {
-            errorDetails = await response.text()
-          }
-        } else {
+      if (contentType && contentType.includes('application/json')) {
+        try {
+          errorDetails = await response.json()
+        } catch {
           errorDetails = await response.text()
         }
-
-        const error = new Error(
-          `HTTP ${response.status}: ${response.statusText}`
-        )
-        ;(
-          error as unknown as {
-            status: number
-            data: unknown
-            headers: Headers
-          }
-        ).status = response.status
-        ;(
-          error as unknown as {
-            status: number
-            data: unknown
-            headers: Headers
-          }
-        ).data = errorDetails
-        ;(
-          error as unknown as {
-            status: number
-            data: unknown
-            headers: Headers
-          }
-        ).headers = response.headers
-        throw error
+      } else {
+        errorDetails = await response.text()
       }
 
-      // 204 / No Content 対応: body が無い場合は undefined
-      let payload: unknown = undefined
-      if (response.status !== 204) {
-        const contentType = response.headers.get('content-type')
-        if (contentType && contentType.includes('application/json')) {
-          try {
-            payload = await response.json()
-          } catch {
-            // JSON 期待だったが parse 失敗 → 生テキスト
-            try {
-              payload = await response.text()
-            } catch {
-              payload = undefined
-            }
-          }
-        } else {
+      const error = new Error(`HTTP ${response.status}: ${response.statusText}`)
+      ;(
+        error as unknown as {
+          status: number
+          data: unknown
+          headers: Headers
+        }
+      ).status = response.status
+      ;(
+        error as unknown as {
+          status: number
+          data: unknown
+          headers: Headers
+        }
+      ).data = errorDetails
+      ;(
+        error as unknown as {
+          status: number
+          data: unknown
+          headers: Headers
+        }
+      ).headers = response.headers
+      throw error
+    }
+
+    // 204 / No Content 対応: body が無い場合は undefined
+    let payload: unknown = undefined
+    if (response.status !== 204) {
+      const contentType = response.headers.get('content-type')
+      if (contentType && contentType.includes('application/json')) {
+        try {
+          payload = await response.json()
+        } catch {
+          // JSON 期待だったが parse 失敗 → 生テキスト
           try {
             payload = await response.text()
           } catch {
             payload = undefined
           }
         }
-      }
-
-      // Zod バリデーション (成功時のみ上書き)
-      if (options?.zodSchema) {
+      } else {
         try {
-          payload = options.zodSchema.parse(payload)
-        } catch (zodError) {
-          console.error('Response validation failed:', zodError)
-          const error = new Error('Response validation failed')
-          ;(
-            error as unknown as {
-              name: string
-              details: unknown
-              response: unknown
-            }
-          ).name = 'ValidationError'
-          ;(
-            error as unknown as {
-              name: string
-              details: unknown
-              response: unknown
-            }
-          ).details = zodError
-          ;(
-            error as unknown as {
-              name: string
-              details: unknown
-              response: unknown
-            }
-          ).response = payload
-          throw error
+          payload = await response.text()
+        } catch {
+          payload = undefined
         }
       }
-
-      // 合成レスポンス型 T にキャストして返却
-      const composite = {
-        data: payload,
-        status: response.status,
-        headers: response.headers,
-      } as unknown as T
-      return composite
     }
-  )
+
+    // Zod バリデーション (成功時のみ上書き)
+    if (options?.zodSchema) {
+      try {
+        payload = options.zodSchema.parse(payload)
+      } catch (zodError) {
+        console.error('Response validation failed:', zodError)
+        const error = new Error('Response validation failed')
+        ;(
+          error as unknown as {
+            name: string
+            details: unknown
+            response: unknown
+          }
+        ).name = 'ValidationError'
+        ;(
+          error as unknown as {
+            name: string
+            details: unknown
+            response: unknown
+          }
+        ).details = zodError
+        ;(
+          error as unknown as {
+            name: string
+            details: unknown
+            response: unknown
+          }
+        ).response = payload
+        throw error
+      }
+    }
+
+    // 合成レスポンス型 T にキャストして返却
+    const composite = {
+      data: payload,
+      status: response.status,
+      headers: response.headers,
+    } as unknown as T
+    return composite
+  })
 }

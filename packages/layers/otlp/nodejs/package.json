@@ -1,0 +1,26 @@
+{
+  "name": "common-layer",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "type": "module",
+  "author": "",
+  "license": "MIT",
+  "description": "",
+  "dependencies": {
+    "@opentelemetry/api": "^1.9.0",
+    "@opentelemetry/id-generator-aws-xray": "^2.1.0",
+    "@opentelemetry/instrumentation-aws-lambda": "^0.61.1",
+    "@opentelemetry/instrumentation-http": "^0.208.0",
+    "@opentelemetry/instrumentation-pg": "^0.61.2",
+    "@opentelemetry/instrumentation-undici": "^0.19.0",
+    "@opentelemetry/propagator-aws-xray-lambda": "^0.56.0",
+    "@opentelemetry/resource-detector-aws": "^2.9.0",
+    "@opentelemetry/resources": "^2.2.0",
+    "@opentelemetry/sdk-node": "^0.208.0",
+    "@opentelemetry/sdk-trace-base": "^2.2.0",
+    "@opentelemetry/semantic-conventions": "^1.38.0"
+  }
+}

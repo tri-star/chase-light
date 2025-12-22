@@ -3,15 +3,60 @@
  *
  * Auth0設定の取得と検証
  */
-import type { Auth0Config } from "../types/auth.types.js"
+import type { Auth0Config } from "../../features/identity/types/auth.types.js"
+import { getSsmParameterValue } from "./ssm-parameter"
 
 /**
  * 環境変数からAuth0設定を取得
  */
-export function getAuth0Config(): Auth0Config {
-  const domain = process.env.AUTH0_DOMAIN
-  const audience = process.env.AUTH0_AUDIENCE
-  const appAudience = process.env.AUTH0_APP_AUDIENCE
+export async function getAuth0Config(): Promise<Auth0Config> {
+  const isAWSEnvironment = process.env.USE_AWS === "true"
+
+  let audience: string | null | undefined = process.env.AUTH0_AUDIENCE
+  let appAudience: string | null | undefined = process.env.AUTH0_APP_AUDIENCE
+
+  let domain: string | null | undefined = process.env.AUTH0_DOMAIN
+
+  if (isAWSEnvironment) {
+    const awsRegion = process.env.AWS_REGION
+    const stage = process.env.APP_STAGE
+
+    if (!awsRegion) {
+      throw new Error(
+        "AWS_REGION environment variable is required when USE_AWS is true",
+      )
+    }
+
+    if (!stage) {
+      throw new Error(
+        "APP_STAGE environment variable is required when USE_AWS is true",
+      )
+    }
+
+    const parameterName = `/${stage}-chase-light/auth0/domain`
+    domain = await getSsmParameterValue(parameterName)
+
+    if (!domain) {
+      throw new Error(`Auth0 domain parameter not found: ${parameterName}`)
+    }
+
+    const audienceParamName = `/${stage}-chase-light/auth0/audience`
+    const appAudienceParamName = `/${stage}-chase-light/auth0/app_audience`
+
+    audience = await getSsmParameterValue(audienceParamName)
+    appAudience = await getSsmParameterValue(appAudienceParamName)
+
+    if (!audience) {
+      throw new Error(
+        `Auth0 audience parameter not found: ${audienceParamName}`,
+      )
+    }
+    if (!appAudience) {
+      throw new Error(
+        `Auth0 app audience parameter not found: ${appAudienceParamName}`,
+      )
+    }
+  }
 
   if (!domain) {
     throw new Error("AUTH0_DOMAIN environment variable is required")

@@ -14,7 +14,7 @@ export default defineEventHandler(async (event) => {
   })
 
   // Auth0認証URLにリダイレクト
-  const authUrl = generateAuth0AuthUrl(state)
+  const authUrl = await generateAuth0AuthUrl(state)
 
   await sendRedirect(event, authUrl)
 })

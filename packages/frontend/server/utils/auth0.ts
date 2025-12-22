@@ -6,6 +6,7 @@ import type {
   NotBeforeError,
 } from 'jsonwebtoken'
 import jwksClient from 'jwks-rsa'
+import { getAppRuntimeConfig, getRequiredSecretValue } from './secrets'
 
 /**
  * Auth0ユーティリティ
@@ -23,17 +24,26 @@ import jwksClient from 'jwks-rsa'
 /**
  * Auth0設定を取得する
  */
-function getAuth0Config() {
-  const config = useRuntimeConfig()
+async function getAuth0Config() {
+  const config = getAppRuntimeConfig()
+  const [domain, clientId, clientSecret, audience] = await Promise.all([
+    getRequiredSecretValue('AUTH0_DOMAIN'),
+    getRequiredSecretValue('AUTH0_CLIENT_ID'),
+    getRequiredSecretValue('AUTH0_CLIENT_SECRET'),
+    getRequiredSecretValue('AUTH0_AUDIENCE'),
+  ])
+
   return {
-    domain: config.auth0Domain!,
-    clientId: config.auth0ClientId!,
-    clientSecret: config.auth0ClientSecret!,
-    audience: config.auth0Audience!,
+    domain,
+    clientId,
+    clientSecret,
+    audience,
     scope: 'openid profile email offline_access',
     redirectUri: `${config.public.baseUrl}/api/auth/callback`,
   }
 }
+
+type Auth0ConfigResolved = Awaited<ReturnType<typeof getAuth0Config>>
 
 /**
  * デバッグログの設定を取得する
@@ -246,8 +256,8 @@ export interface Auth0TokenResponse {
 /**
  * Auth0認証URLを生成する
  */
-export function generateAuth0AuthUrl(state?: string): string {
-  const auth0Config = getAuth0Config()
+export async function generateAuth0AuthUrl(state?: string): Promise<string> {
+  const auth0Config = await getAuth0Config()
   const params = new URLSearchParams({
     response_type: 'code',
     client_id: auth0Config.clientId,
@@ -269,7 +279,7 @@ export function generateAuth0AuthUrl(state?: string): string {
 export async function exchangeCodeForTokens(
   code: string
 ): Promise<Auth0TokenResponse> {
-  const auth0Config = getAuth0Config()
+  const auth0Config = await getAuth0Config()
   const response = await fetch(`https://${auth0Config.domain}/oauth/token`, {
     method: 'POST',
     headers: {
@@ -297,7 +307,7 @@ export async function exchangeCodeForTokens(
  * アクセストークンからユーザー情報を取得する
  */
 export async function getUserInfo(accessToken: string): Promise<Auth0User> {
-  const auth0Config = getAuth0Config()
+  const auth0Config = await getAuth0Config()
   const response = await fetch(`https://${auth0Config.domain}/userinfo`, {
     headers: {
       Authorization: `Bearer ${accessToken}`,
@@ -318,7 +328,7 @@ export async function getUserInfo(accessToken: string): Promise<Auth0User> {
 export async function refreshAccessToken(
   refreshToken: string
 ): Promise<Auth0TokenResponse> {
-  const auth0Config = getAuth0Config()
+  const auth0Config = await getAuth0Config()
   const response = await fetch(`https://${auth0Config.domain}/oauth/token`, {
     method: 'POST',
     headers: {
@@ -343,8 +353,10 @@ export async function refreshAccessToken(
 /**
  * Auth0ログアウトURLを生成する
  */
-export function generateAuth0LogoutUrl(returnTo?: string): string {
-  const auth0Config = getAuth0Config()
+export async function generateAuth0LogoutUrl(
+  returnTo?: string
+): Promise<string> {
+  const auth0Config = await getAuth0Config()
   const params = new URLSearchParams({
     client_id: auth0Config.clientId,
   })
@@ -352,7 +364,7 @@ export function generateAuth0LogoutUrl(returnTo?: string): string {
   if (returnTo) {
     params.append('returnTo', returnTo)
   } else {
-    params.append('returnTo', useRuntimeConfig().public.baseUrl)
+    params.append('returnTo', getAppRuntimeConfig().public.baseUrl)
   }
 
   return `https://${auth0Config.domain}/v2/logout?${params.toString()}`
@@ -365,8 +377,8 @@ let cachedAuth0Domain: string | null = null
 /**
  * jwksClientインスタンスを取得（遅延初期化）
  */
-function getJwksClient(): ReturnType<typeof jwksClient> {
-  const auth0Config = getAuth0Config()
+async function getJwksClientAsync(): Promise<ReturnType<typeof jwksClient>> {
+  const auth0Config = await getAuth0Config()
 
   // ドメインが変わった場合は再初期化
   if (!globalJwksClient || cachedAuth0Domain !== auth0Config.domain) {
@@ -385,9 +397,9 @@ function getJwksClient(): ReturnType<typeof jwksClient> {
 export async function validateIdToken(
   idToken: string
 ): Promise<TokenValidationResult> {
-  const auth0Config = getAuth0Config()
+  const auth0Config = await getAuth0Config()
   // 遅延初期化されたclientを利用
-  const client = getJwksClient()
+  const client = await getJwksClientAsync()
 
   function getKey(header: JwtHeader, callback: SigningKeyCallback) {
     if (!header.kid) {
@@ -458,7 +470,7 @@ export async function validateIdToken(
  */
 function mapJwtErrorToValidationError(
   err: jwt.VerifyErrors,
-  auth0Config?: ReturnType<typeof getAuth0Config>
+  auth0Config?: Auth0ConfigResolved
 ): TokenValidationError {
   // TokenExpiredErrorの場合
   if (err.name === 'TokenExpiredError') {

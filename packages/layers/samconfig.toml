@@ -1,0 +1,20 @@
+version = 0.1
+
+# `sam deploy --config-env dev` / `sam deploy --config-env prod` で切り替える想定です。
+# region は環境変数 (AWS_REGION / AWS_DEFAULT_REGION) で指定してもOKです。
+
+[default.deploy.parameters]
+resolve_s3 = true
+confirm_changeset = true
+
+[dev.deploy.parameters]
+stack_name = "dev-chase-light-otlp-layer"
+parameter_overrides = "Stage=dev"
+resolve_s3 = true
+confirm_changeset = true
+
+[prod.deploy.parameters]
+stack_name = "prod-chase-light-otlp-layer"
+parameter_overrides = "Stage=prod"
+resolve_s3 = true
+confirm_changeset = true

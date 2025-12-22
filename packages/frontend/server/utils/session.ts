@@ -2,30 +2,43 @@ import type { H3Event } from 'h3'
 import { getCookie, setCookie } from 'h3'
 import { Pool } from 'pg'
 import crypto from 'crypto'
+import { getAppRuntimeConfig, getRequiredSecretValue } from './secrets'
 
 // PostgreSQL接続プール
 let pool: Pool | null = null
+let poolInitPromise: Promise<Pool> | null = null
 
-function getPool(): Pool {
-  if (!pool) {
-    const dbUrl = process.env.DATABASE_URL
+function isProdStage(stage?: string): boolean {
+  return stage === 'prod' || stage === 'production'
+}
+
+async function getPool(): Promise<Pool> {
+  if (pool) return pool
+  if (poolInitPromise) return poolInitPromise
+
+  poolInitPromise = (async () => {
+    const dbUrl = await getRequiredSecretValue('DATABASE_URL')
 
     if (!dbUrl) {
       throw new Error('DATABASE_URL is not configured')
     }
 
-    pool = new Pool({
+    const appStage = getAppRuntimeConfig().appStage
+
+    const createdPool = new Pool({
       connectionString: dbUrl,
-      ssl:
-        process.env.APP_STAGE === 'production'
-          ? { rejectUnauthorized: true }
-          : false,
+      ssl: isProdStage(appStage) ? { rejectUnauthorized: true } : false,
       // SCRAM認証の問題を回避するための明示的な設定
       connectionTimeoutMillis: 30000,
       idleTimeoutMillis: 30000,
     })
-  }
-  return pool
+
+    pool = createdPool
+    poolInitPromise = null
+    return createdPool
+  })()
+
+  return poolInitPromise
 }
 
 // セッションデータの型定義
@@ -50,7 +63,6 @@ export interface UserSession {
 const SESSION_CONFIG = {
   cookieName: 'nuxt-session',
   maxAge: 60 * 60 * 24 * 7, // 7 days
-  secure: process.env.APP_STAGE === 'prod',
   httpOnly: true,
   sameSite: 'lax' as const,
 }
@@ -80,10 +92,10 @@ function generateSessionId(): string {
 /**
  * セッションを暗号化する
  */
-function encryptSession(sessionId: string): string {
-  const config = useRuntimeConfig()
+async function encryptSession(sessionId: string): Promise<string> {
+  const sessionSecret = await getRequiredSecretValue('NUXT_SESSION_SECRET')
   const algorithm = 'aes-256-cbc'
-  const key = crypto.scryptSync(config.sessionSecret!, 'salt', 32)
+  const key = crypto.scryptSync(sessionSecret, 'salt', 32)
   const iv = crypto.randomBytes(16)
 
   const cipher = crypto.createCipheriv(algorithm, key, iv)
@@ -96,11 +108,11 @@ function encryptSession(sessionId: string): string {
 /**
  * セッションを復号化する
  */
-function decryptSession(encryptedSessionId: string): string {
+async function decryptSession(encryptedSessionId: string): Promise<string> {
   try {
-    const config = useRuntimeConfig()
+    const sessionSecret = await getRequiredSecretValue('NUXT_SESSION_SECRET')
     const algorithm = 'aes-256-cbc'
-    const key = crypto.scryptSync(config.sessionSecret!, 'salt', 32)
+    const key = crypto.scryptSync(sessionSecret, 'salt', 32)
 
     const parts = encryptedSessionId.split(':')
     if (parts.length !== 2) {
@@ -133,8 +145,8 @@ export async function getUserSession(
   }
 
   try {
-    const sessionId = decryptSession(sessionCookie)
-    const pool = getPool()
+    const sessionId = await decryptSession(sessionCookie)
+    const pool = await getPool()
 
     const result = await pool.query(
       'SELECT * FROM sessions WHERE id = $1 AND expires_at > NOW()',
@@ -178,7 +190,7 @@ export async function setUserSession(
   const now = new Date()
   const expiresAt = new Date(now.getTime() + SESSION_CONFIG.maxAge * 1000)
 
-  const pool = getPool()
+  const pool = await getPool()
 
   const session: UserSession = {
     id: sessionId,
@@ -214,10 +226,11 @@ export async function setUserSession(
   )
 
   // セッションクッキーを設定
-  const encryptedSessionId = encryptSession(sessionId)
+  const encryptedSessionId = await encryptSession(sessionId)
+  const appStage = getAppRuntimeConfig().appStage
   setCookie(event, SESSION_CONFIG.cookieName, encryptedSessionId, {
     maxAge: SESSION_CONFIG.maxAge,
-    secure: SESSION_CONFIG.secure,
+    secure: isProdStage(appStage),
     httpOnly: SESSION_CONFIG.httpOnly,
     sameSite: SESSION_CONFIG.sameSite,
   })
@@ -236,8 +249,8 @@ export async function clearUserSession(event: H3Event): Promise<boolean> {
   }
 
   try {
-    const sessionId = decryptSession(sessionCookie)
-    const pool = getPool()
+    const sessionId = await decryptSession(sessionCookie)
+    const pool = await getPool()
 
     await pool.query('DELETE FROM sessions WHERE id = $1', [sessionId])
 
@@ -291,8 +304,8 @@ export async function updateUserSession(
   }
 
   try {
-    const sessionId = decryptSession(sessionCookie)
-    const pool = getPool()
+    const sessionId = await decryptSession(sessionCookie)
+    const pool = await getPool()
 
     // 現在のセッションを取得
     const currentResult = await pool.query(
@@ -369,7 +382,7 @@ export async function updateUserSession(
  */
 export async function cleanupExpiredSessions(): Promise<void> {
   try {
-    const pool = getPool()
+    const pool = await getPool()
     await pool.query('DELETE FROM sessions WHERE expires_at < NOW()')
   } catch (error) {
     console.error('Failed to cleanup expired sessions:', error)

@@ -71,12 +71,6 @@ export {
   type AuthErrorDetails,
 } from "./errors/auth.error"
 
-// Utils (Phase 5で統合予定)
-export {
-  getAuth0Config,
-  validateAuth0Config,
-} from "./utils/auth-config"
-
 // JWT Validator (新アーキテクチャ: Adapter経由)
 export { createJwtValidatorAdapter } from "./infra/adapters/jwt-validator/jwt-validator-factory"
 export type { JwtValidatorPort } from "./application/ports/jwt-validator.port"

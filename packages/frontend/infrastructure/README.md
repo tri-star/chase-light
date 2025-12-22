@@ -13,16 +13,18 @@ Nuxt 3 を AWS Lambda + HTTP API で動かすための SAM テンプレートで
 - `.gitignore` … `.aws-sam` などのローカル生成物を除外
 
 ## 必要なシークレット
-Secrets Manager に JSON で格納し、ARN を `SecretsArn` パラメータに渡します。
+Secrets Manager に JSON で格納し、ARN を `SecretId` パラメータに渡します。
 
 ```json
 {
+  "NODE_ENV": "production",
   "AUTH0_DOMAIN": "example.us.auth0.com",
   "AUTH0_CLIENT_ID": "xxxxx",
   "AUTH0_CLIENT_SECRET": "xxxxx",
   "AUTH0_AUDIENCE": "https://example/api",
   "NUXT_SESSION_SECRET": "random-string",
-  "DATABASE_URL": "postgresql://..."
+  "DATABASE_URL": "postgresql://...",
+  "BACKEND_API_URL": "https://example-backend-api"
 }
 ```
 
@@ -42,7 +44,7 @@ Secrets Manager に JSON で格納し、ARN を `SecretsArn` パラメータに�
    ```
 
 3. デプロイ（例: dev）  
-   `samconfig.toml` の `SecretsArn` を事前に埋めた上で:
+   `samconfig.toml` の `SecretId` を事前に埋めた上で:
    ```bash
    sam deploy --config-env dev
    ```
@@ -94,7 +96,8 @@ jobs:
 ## テンプレートのポイント
 - HTTP API（`AWS::Serverless::HttpApi`）で `/{proxy+}` に全ルートを転送。
 - Lambda ランタイムは `nodejs20.x`、メモリ/タイムアウトはパラメータで可変。
-- Secrets Manager から必要な環境変数を動的参照（最小権限ポリシーで `secretsmanager:GetSecretValue` のみ付与）。
+- `SecretId` の Secrets Manager を参照し、値は実行時に Lambda Extension 経由で取得（`USE_AWS=true` の場合）。
+- `NODE_ENV` のみ、AWS環境では Secrets Manager の dynamic reference で設定。
 - `.output/public` 用に S3 バケットを自動作成（既存指定も可、削除ポリシーは Retain）。
 - CloudWatch Logs は JSON 形式・保持日数をパラメータ化。
 
