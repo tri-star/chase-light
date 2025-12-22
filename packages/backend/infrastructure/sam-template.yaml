@@ -251,6 +251,12 @@ Resources:
             Schedule: "cron(0/30 * * * ? *)"
       Policies:
         - !Ref SharedLambdaPolicy
+        - Statement:
+          - Effect: Allow
+            Action:
+              - ssm:GetParameter
+            Resource:
+              - !Sub "arn:${AWS::Partition}:ssm:${AWS::Region}:${AWS::AccountId}:parameter/${Stage}-chase-light/openai/api_key"
 
   BackendApiFunction:
     Type: AWS::Serverless::Function
