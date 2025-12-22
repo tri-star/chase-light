@@ -12,3 +12,4 @@ image_repositories = []
 [dev.local_invoke.parameters]
 env_vars = "env.json"
 parameter_overrides = "UseAws=false Stage=dev"
+region = "ap-northeast-1"
