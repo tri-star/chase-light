@@ -9,6 +9,8 @@ Globals:
     Layers: !If
       - UseParamsSecretsExtension
       - - arn:aws:lambda:ap-northeast-1:133490724326:layer:AWS-Parameters-and-Secrets-Lambda-Extension:21
+        - !Sub 'arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:layer:otel-collector:7'
+        - !Sub 'arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:layer:${Stage}-chase-light-otlp-layer:${OtlpLayerVersion}'
       - !Ref AWS::NoValue
     Environment:
       Variables:
@@ -23,6 +25,10 @@ Globals:
         DB_NAME: ""
         DB_SSL: !Ref UseAws
         OPENAI_API_KEY: ""
+        NODE_OPTIONS: !If [UseParamsSecretsExtension, '--import=/opt/nodejs/otel-setup.mjs', !Ref 'AWS::NoValue']
+        ATTR_SERVICE_NAME: "chase-light-backend"
+    Tracing: Active
+
     Tags:
       service: !Sub "chase-light-app"
       env: !Ref Stage
@@ -38,30 +44,44 @@ Parameters:
   FrontendUrl:
     Type: String
     Default: '*'
-    Description: Comma-separated origins (or *) allowed for HttpApi CORS
+    Description: Allowed origins list for HttpApi CORS (use * or comma-separated origins)
+  OtlpLayerVersion:
+    Type: String
+    Description: OTLPレイヤのバージョン番号
 
 Conditions:
-  IsFrontendWildcard: !Equals [!Ref FrontendUrl, "*"]
   UseParamsSecretsExtension: !Equals [!Ref UseAws, "true"]
 
 Resources:
   BackendHttpApi:
     Type: AWS::Serverless::HttpApi
     Properties:
-      StageName: !Ref Stage
+      StageName: $default
       CorsConfiguration:
-        AllowOrigins:
-          - "*"
+        AllowOrigins: ["*"]
         AllowHeaders:
           - "Content-Type"
           - "Authorization"
+          - "traceparent"
+          - "tracestate"
+          - "baggage"
+          - "X-Amzn-Trace-Id"
         AllowMethods:
           - "GET"
           - "POST"
           - "PUT"
           - "DELETE"
           - "OPTIONS"
-        AllowCredentials: !If [IsFrontendWildcard, false, true]
+        AllowCredentials: false
+      AccessLogSettings:
+        DestinationArn: !GetAtt BackendHttpApiAccessLogGroup.Arn
+        Format: '{"requestId":"$context.requestId","stage":"$context.stage","httpMethod":"$context.httpMethod","path":"$context.path","status":"$context.status","ip":"$context.identity.sourceIp","userAgent":"$context.identity.userAgent","integrationError":"$context.integrationErrorMessage","routeKey":"$context.routeKey"}'
+
+  BackendHttpApiAccessLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Sub "/aws/apigateway/${Stage}-chase-light-backend-http-api-access"
+      RetentionInDays: 14
 
   # SQS Queues
   ProcessUpdatesQueue:
@@ -97,6 +117,33 @@ Resources:
       QueueName: !Sub "${Stage}-chase-light-translation-jobs-dlq"
       MessageRetentionPeriod: 1209600  # 14 days
 
+  SharedLambdaPolicy:
+    Type: AWS::IAM::ManagedPolicy
+    Properties:
+      ManagedPolicyName: !Sub "${Stage}-chase-light-shared-lambda"
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Action:
+              - logs:CreateLogGroup
+              - logs:CreateLogStream
+              - logs:PutLogEvents
+            Resource: !Sub "arn:${AWS::Partition}:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/${Stage}-chase-light-*"
+          - Effect: Allow
+            Action:
+              - ssm:GetParameter
+            Resource:
+              - !Sub "arn:${AWS::Partition}:ssm:${AWS::Region}:${AWS::AccountId}:parameter/${Stage}-chase-light/supabase/db_url"
+              - !Sub "arn:${AWS::Partition}:ssm:${AWS::Region}:${AWS::AccountId}:parameter/${Stage}-chase-light/auth0/domain"
+              - !Sub "arn:${AWS::Partition}:ssm:${AWS::Region}:${AWS::AccountId}:parameter/${Stage}-chase-light/auth0/audience"
+              - !Sub "arn:${AWS::Partition}:ssm:${AWS::Region}:${AWS::AccountId}:parameter/${Stage}-chase-light/auth0/app_audience"
+          - Effect: Allow
+            Action:
+              - xray:PutTraceSegments
+              - xray:PutTelemetryRecords
+            Resource: '*'
+
   # Lambda Functions
   ListDetectTargetsFunction:
     Type: AWS::Serverless::Function
@@ -106,18 +153,7 @@ Resources:
       Handler: index.handler
       Description: 'List detect targets for monitoring'
       Policies:
-        - Statement:
-            - Effect: Allow
-              Action:
-                - logs:CreateLogGroup
-                - logs:CreateLogStream
-                - logs:PutLogEvents
-              Resource: !Sub "arn:${AWS::Partition}:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/${Stage}-chase-light-list-detect-targets*"
-        - Statement:
-            - Effect: Allow
-              Action:
-                - ssm:GetParameter
-              Resource: !Sub "arn:${AWS::Partition}:ssm:${AWS::Region}:${AWS::AccountId}:parameter/${Stage}-chase-light/supabase/db_url"
+        - !Ref SharedLambdaPolicy
 
   DetectDataSourceUpdatesFunction:
     Type: AWS::Serverless::Function
@@ -127,18 +163,7 @@ Resources:
       Handler: index.handler
       Description: 'Detect updates for a data source'
       Policies:
-        - Statement:
-            - Effect: Allow
-              Action:
-                - logs:CreateLogGroup
-                - logs:CreateLogStream
-                - logs:PutLogEvents
-              Resource: !Sub "arn:${AWS::Partition}:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/${Stage}-chase-light-detect-datasource-updates*"
-        - Statement:
-            - Effect: Allow
-              Action:
-                - ssm:GetParameter
-              Resource: !Sub "arn:${AWS::Partition}:ssm:${AWS::Region}:${AWS::AccountId}:parameter/${Stage}-chase-light/supabase/db_url"
+        - !Ref SharedLambdaPolicy
 
   ProcessUpdatesFunction:
     Type: AWS::Serverless::Function
@@ -158,12 +183,12 @@ Resources:
             BatchSize: 1
             MaximumBatchingWindowInSeconds: 0
       Policies:
+        - !Ref SharedLambdaPolicy
         - Statement:
           - Effect: Allow
             Action:
               - ssm:GetParameter
             Resource:
-              - !Sub "arn:${AWS::Partition}:ssm:${AWS::Region}:${AWS::AccountId}:parameter/${Stage}-chase-light/supabase/db_url"
               - !Sub "arn:${AWS::Partition}:ssm:${AWS::Region}:${AWS::AccountId}:parameter/${Stage}-chase-light/openai/api_key"
         - Statement:
           - Effect: Allow
@@ -191,12 +216,12 @@ Resources:
             BatchSize: 1
             MaximumBatchingWindowInSeconds: 0
       Policies:
+        - !Ref SharedLambdaPolicy
         - Statement:
           - Effect: Allow
             Action:
               - ssm:GetParameter
             Resource:
-              - !Sub "arn:${AWS::Partition}:ssm:${AWS::Region}:${AWS::AccountId}:parameter/${Stage}-chase-light/supabase/db_url"
               - !Sub "arn:${AWS::Partition}:ssm:${AWS::Region}:${AWS::AccountId}:parameter/${Stage}-chase-light/openai/api_key"
         - Statement:
           - Effect: Allow
@@ -225,19 +250,7 @@ Resources:
             Description: "Run digest notification generation every 30 minutes"
             Schedule: "cron(0/30 * * * ? *)"
       Policies:
-        - Statement:
-            - Effect: Allow
-              Action:
-                - logs:CreateLogGroup
-                - logs:CreateLogStream
-                - logs:PutLogEvents
-              Resource: !Sub "arn:${AWS::Partition}:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/${Stage}-chase-light-generate-digest-notifications*"
-        - Statement:
-            - Effect: Allow
-              Action:
-                - ssm:GetParameter
-              Resource:
-                - !Sub "arn:${AWS::Partition}:ssm:${AWS::Region}:${AWS::AccountId}:parameter/${Stage}-chase-light/supabase/db_url"
+        - !Ref SharedLambdaPolicy
 
   BackendApiFunction:
     Type: AWS::Serverless::Function
@@ -262,19 +275,7 @@ Resources:
             Path: /{proxy+}
             Method: ANY
       Policies:
-        - Statement:
-            - Effect: Allow
-              Action:
-                - logs:CreateLogGroup
-                - logs:CreateLogStream
-                - logs:PutLogEvents
-              Resource: !Sub "arn:${AWS::Partition}:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/${Stage}-chase-light-backend-api*"
-        - Statement:
-            - Effect: Allow
-              Action:
-                - ssm:GetParameter
-              Resource:
-                - !Sub "arn:${AWS::Partition}:ssm:${AWS::Region}:${AWS::AccountId}:parameter/${Stage}-chase-light/supabase/db_url"
+        - !Ref SharedLambdaPolicy
 
   # Step Functions State Machine
   DataSourceUpdateDetectionStateMachine:

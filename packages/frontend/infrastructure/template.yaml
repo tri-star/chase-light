@@ -27,6 +27,9 @@ Parameters:
     Type: String
     Default: dev-chase-light-frontend-assets
     Description: S3 bucket name to host .output/public (e.g., dev-chase-light-frontend-assets / prod-chase-light-frontend-assets).
+  OtlpLayerVersion:
+    Type: String
+    Description: OTLPレイヤのバージョン番号
   MemorySize:
     Type: Number
     Default: 1024
@@ -56,6 +59,8 @@ Globals:
     Layers: !If
       - UseParamsSecretsExtension
       - - arn:aws:lambda:ap-northeast-1:133490724326:layer:AWS-Parameters-and-Secrets-Lambda-Extension:21
+        - !Sub 'arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:layer:otel-collector:7'
+        - !Sub 'arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:layer:${Stage}-chase-light-otlp-layer:${OtlpLayerVersion}'
       - !Ref AWS::NoValue
     MemorySize: !Ref MemorySize
     Timeout: !Ref Timeout
@@ -63,6 +68,7 @@ Globals:
     Environment:
       Variables:
         NODE_ENV: production
+        NODE_OPTIONS: '--import=/opt/nodejs/otel-setup.mjs'
 
 Resources:
   AssetsBucket:
@@ -137,6 +143,15 @@ Resources:
                 Action:
                   - secretsmanager:GetSecretValue
                 Resource: !Sub 'arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:${SecretId}*'
+        - PolicyName: XRayWriteAccess
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - xray:PutTraceSegments
+                  - xray:PutTelemetryRecords
+                Resource: '*'
 
   NuxtFunction:
     Type: AWS::Serverless::Function
@@ -155,8 +170,9 @@ Resources:
         Variables:
           NUXT_USE_AWS: !Ref UseAws
           APP_STAGE: !Ref Stage
-          # NOTE: Set base URL in Secrets Manager (SecretString:NUXT_PUBLIC_BASE_URL).
+          NUXT_PUBLIC_BASE_URL: !Sub '{{resolve:secretsmanager:${SecretId}:SecretString:NUXT_PUBLIC_BASE_URL}}'
           SECRET_ID: !Ref SecretId
+          ATTR_SERVICE_NAME: "chase-light-frontend"
       LoggingConfig:
         LogFormat: JSON
         ApplicationLogLevel: INFO

@@ -14,7 +14,7 @@ capabilities = "CAPABILITY_IAM"
 resolve_s3 = true
 s3_prefix = "frontend/dev"
 confirm_changeset = true
-parameter_overrides = "ProjectName=chase-light-frontend Stage=dev SecretId=dev-chase-light-frontend AssetBucketName=dev-chase-light-frontend-assets"
+parameter_overrides = "ProjectName=chase-light-frontend Stage=dev SecretId=dev-chase-light-frontend AssetBucketName=dev-chase-light-frontend-assets OtlpLayerVersion=3"
 
 [prod]
 [prod.build.parameters]
