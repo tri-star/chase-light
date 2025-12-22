@@ -25,7 +25,7 @@ Globals:
         DB_NAME: ""
         DB_SSL: !Ref UseAws
         OPENAI_API_KEY: ""
-        NODE_OPTIONS: !If [UseParamsSecretsExtension, '--import=/opt/nodejs/otel-setup.mjs', !Ref 'AWS::NoValue']
+        NODE_OPTIONS: !If [UseParamsSecretsExtension, '--import=/opt/nodejs/otel-setup.mjs', '']
         ATTR_SERVICE_NAME: "chase-light-backend"
     Tracing: Active
 
