@@ -4,13 +4,8 @@ import fs from "node:fs"
 import path from "node:path"
 import { execSync } from "node:child_process"
 import { fileURLToPath } from "node:url"
-import {
-  defaultEsbuildConfig,
-  defaultPackageJsonConfig,
-  lambdaConfigs,
-  lambdaDefaults,
-  type LambdaConfig,
-} from "./lambda-config.js"
+import dotenv from "dotenv"
+import { buildLambdaConfig, type LambdaConfig } from "./lambda-config.js"
 import {
   loadLockfile,
   resolveDependencyVersions,
@@ -19,6 +14,14 @@ import {
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
+
+dotenv.config({ path: path.join(__dirname, "..", ".env") })
+const {
+  lambdaConfigs,
+  lambdaDefaults,
+  defaultEsbuildConfig,
+  defaultPackageJsonConfig,
+} = buildLambdaConfig()
 
 const DIST_DIR = path.join(__dirname, "..", "dist", "lambda")
 
@@ -79,6 +82,9 @@ const buildEsbuildCommand = (
   const externalArgs = externalPackages
     .map((pkg) => `--external:${pkg}`)
     .join(" ")
+  const sourcemapArg = defaultEsbuildConfig.sourcemap
+    ? `--sourcemap=${defaultEsbuildConfig.sourcemap}`
+    : ""
 
   return [
     "pnpm",
@@ -89,7 +95,7 @@ const buildEsbuildCommand = (
     `--platform=${defaultEsbuildConfig.platform}`,
     `--target=${defaultEsbuildConfig.target}`,
     `--format=${defaultEsbuildConfig.format}`,
-    `--sourcemap=${defaultEsbuildConfig.sourcemap}`,
+    sourcemapArg,
     `--minify=${defaultEsbuildConfig.minify}`,
     externalArgs,
   ]

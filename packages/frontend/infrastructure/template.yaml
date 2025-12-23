@@ -50,6 +50,7 @@ Parameters:
 
 Conditions:
   UseParamsSecretsExtension: !Equals [!Ref UseAws, 'true']
+  IsProd: !Equals [!Ref Stage, 'prod']
 
 Globals:
   Function:
@@ -68,7 +69,10 @@ Globals:
     Environment:
       Variables:
         NODE_ENV: production
-        NODE_OPTIONS: '--import=/opt/nodejs/otel-setup.mjs'
+        NODE_OPTIONS: !Join
+          - ' '
+          - - '--import=/opt/nodejs/otel-setup.mjs'
+            - !If [IsProd, '', '--enable-sourcemaps']
 
 Resources:
   AssetsBucket:
