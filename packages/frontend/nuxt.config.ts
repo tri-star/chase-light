@@ -1,5 +1,8 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
 
+const appStage = process.env.APP_STAGE ?? process.env.STAGE
+const isProd = appStage === 'prod'
+
 export default defineNuxtConfig({
   compatibilityDate: '2025-05-15',
   devtools: { enabled: true },
@@ -45,5 +48,5 @@ export default defineNuxtConfig({
   storybook: {
     enabled: false, // 開発サーバーとの同時起動はエラーが起きるので停止
   },
-  sourcemap: { client: 'hidden', server: true },
+  sourcemap: isProd ? false : { client: 'hidden', server: true },
 })

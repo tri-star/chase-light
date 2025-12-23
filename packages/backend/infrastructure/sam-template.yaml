@@ -25,7 +25,10 @@ Globals:
         DB_NAME: ""
         DB_SSL: !Ref UseAws
         OPENAI_API_KEY: ""
-        NODE_OPTIONS: !If [UseParamsSecretsExtension, '--import=/opt/nodejs/otel-setup.mjs', '']
+        NODE_OPTIONS: !Join
+          - " "
+          - - !If [UseParamsSecretsExtension, "--import=/opt/nodejs/otel-setup.mjs", ""]
+            - !If [IsProd, "", "--enable-sourcemaps"]
         ATTR_SERVICE_NAME: "chase-light-backend"
     Tracing: Active
 
@@ -51,6 +54,7 @@ Parameters:
 
 Conditions:
   UseParamsSecretsExtension: !Equals [!Ref UseAws, "true"]
+  IsProd: !Equals [!Ref Stage, "prod"]
 
 Resources:
   BackendHttpApi:
