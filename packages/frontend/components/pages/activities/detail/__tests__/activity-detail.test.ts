@@ -3,6 +3,8 @@ import { mountSuspended } from '@nuxt/test-utils/runtime'
 import type { ActivityDetail } from '~/features/activities/domain/activity'
 const activityId = 'activity-1'
 const fetchMock = vi.fn()
+const translationRequestMock = vi.fn()
+const translationGetStatusMock = vi.fn()
 
 vi.mock('~/features/activities/repositories/activity-detail-repository', () => {
   return {
@@ -11,6 +13,18 @@ vi.mock('~/features/activities/repositories/activity-detail-repository', () => {
     })),
   }
 })
+
+vi.mock(
+  '~/features/activities/repositories/activity-translation-repository',
+  () => {
+    return {
+      ActivityTranslationRepository: vi.fn().mockImplementation(() => ({
+        request: translationRequestMock,
+        getStatus: translationGetStatusMock,
+      })),
+    }
+  }
+)
 
 const buildActivity = (override?: Partial<ActivityDetail>): ActivityDetail => ({
   id: 'activity-1',
@@ -57,6 +71,8 @@ const mountPage = async (override?: Partial<ActivityDetail>) => {
 afterEach(() => {
   vi.clearAllMocks()
   fetchMock.mockReset()
+  translationRequestMock.mockReset()
+  translationGetStatusMock.mockReset()
 })
 
 describe('ActivityDetailPage', () => {
@@ -101,5 +117,50 @@ describe('ActivityDetailPage', () => {
     expect(wrapper.get('[data-testid="activity-body"]').text()).toContain(
       'Original body in English'
     )
+  })
+
+  describe('翻訳リクエスト機能', () => {
+    it('翻訳がない場合、翻訳リクエストバナーが表示される', async () => {
+      const wrapper = await mountPage({
+        translatedBody: null,
+        translatedTitle: null,
+      })
+
+      const banner = wrapper.find('[data-testid="translation-request-banner"]')
+      expect(banner.exists()).toBe(true)
+      expect(banner.text()).toContain('日本語訳がまだありません')
+
+      const requestButton = wrapper.find(
+        '[data-testid="request-translation-button"]'
+      )
+      expect(requestButton.exists()).toBe(true)
+    })
+
+    it('翻訳がある場合、翻訳リクエストバナーは表示されない', async () => {
+      const wrapper = await mountPage()
+
+      const banner = wrapper.find('[data-testid="translation-request-banner"]')
+      expect(banner.exists()).toBe(false)
+    })
+
+    it('翻訳リクエストボタンをクリックすると翻訳リクエストが送信される', async () => {
+      translationRequestMock.mockResolvedValue({
+        translationStatus: 'queued',
+        statusDetail: null,
+      })
+
+      const wrapper = await mountPage({
+        translatedBody: null,
+        translatedTitle: null,
+      })
+
+      const requestButton = wrapper.get(
+        '[data-testid="request-translation-button"]'
+      )
+      await requestButton.trigger('click')
+
+      expect(translationRequestMock).toHaveBeenCalledOnce()
+      expect(translationRequestMock).toHaveBeenCalledWith('activity-1')
+    })
   })
 })
