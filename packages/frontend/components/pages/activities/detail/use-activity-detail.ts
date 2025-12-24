@@ -10,7 +10,7 @@ export function useActivityDetail(activityId: string) {
   const activityDetailRepository = new ActivityDetailRepository()
 
   const fetchKey = computed(() => `activity-detail:${activityId}`)
-  const { data, error } = useAsyncData<ActivityDetail>(
+  const { data, error, refresh } = useAsyncData<ActivityDetail>(
     fetchKey.value,
     () => activityDetailRepository.fetch(activityId),
     {
@@ -72,5 +72,6 @@ export function useActivityDetail(activityId: string) {
     displayTitle,
     displayBody,
     handleToggleMode,
+    refresh,
   }
 }
