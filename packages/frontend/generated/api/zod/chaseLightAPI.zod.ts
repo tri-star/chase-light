@@ -434,6 +434,7 @@ export const getApiActivitiesActivityIdResponse = zod.object({
   "summary": zod.string().nullable().describe('本文の要約 (翻訳済み)'),
   "detail": zod.string().describe('表示用の詳細本文 (原文)'),
   "translatedBody": zod.string().nullable().describe('翻訳済み本文 (現状はnull)'),
+  "bodyTranslationStatus": zod.enum(['idle', 'queued', 'processing', 'completed', 'failed']).describe('本文翻訳のステータス'),
   "status": zod.enum(['pending', 'processing', 'completed', 'failed']).describe('処理ステータス'),
   "statusDetail": zod.string().nullable().describe('ステータスに関する補足'),
   "version": zod.string().nullable().describe('リリースバージョン'),
@@ -474,7 +475,7 @@ export const postApiActivitiesActivityIdTranslationsBodyResponse = zod.object({
   "success": zod.literal(true),
   "data": zod.object({
   "jobId": zod.string().nullable().describe('SQS MessageId等のジョブ識別子'),
-  "translationStatus": zod.enum(['queued', 'processing', 'completed', 'failed']),
+  "translationStatus": zod.enum(['idle', 'queued', 'processing', 'completed', 'failed']),
   "statusDetail": zod.string().nullable(),
   "requestedAt": zod.iso.datetime({}),
   "startedAt": zod.iso.datetime({}).nullable(),
@@ -495,7 +496,7 @@ export const getApiActivitiesActivityIdTranslationsBodyResponse = zod.object({
   "success": zod.literal(true),
   "data": zod.object({
   "jobId": zod.string().nullable().describe('SQS MessageId等のジョブ識別子'),
-  "translationStatus": zod.enum(['queued', 'processing', 'completed', 'failed']),
+  "translationStatus": zod.enum(['idle', 'queued', 'processing', 'completed', 'failed']),
   "statusDetail": zod.string().nullable(),
   "requestedAt": zod.iso.datetime({}),
   "startedAt": zod.iso.datetime({}).nullable(),
