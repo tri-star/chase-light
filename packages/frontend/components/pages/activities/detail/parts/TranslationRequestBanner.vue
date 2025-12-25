@@ -18,10 +18,10 @@ const bannerClass = computed(() => {
 
   switch (props.status) {
     case 'idle':
-      return `${baseClass} border-status-info-default bg-status-info-subtle`
+      return `${baseClass} border-status-warn-default bg-status-warn-subtle`
     case 'requesting':
     case 'polling':
-      return `${baseClass} border-status-info-default bg-status-info-subtle`
+      return `${baseClass} border-status-warn-default bg-status-warn-subtle`
     case 'failed':
       return `${baseClass} border-status-alert-default bg-status-alert-subtle`
     default:
@@ -29,15 +29,29 @@ const bannerClass = computed(() => {
   }
 })
 
+const iconName = computed(() => {
+  switch (props.status) {
+    case 'idle':
+      return 'i-heroicons-information-circle'
+    case 'requesting':
+    case 'polling':
+      return 'i-heroicons-arrow-path '
+    case 'failed':
+      return 'i-heroicons-exclamation-triangle'
+    default:
+      return ''
+  }
+})
+
 const iconClass = computed(() => {
   switch (props.status) {
     case 'idle':
-      return 'i-heroicons-information-circle text-status-info-default'
+      return 'text-status-warn-default'
     case 'requesting':
     case 'polling':
-      return 'i-heroicons-arrow-path text-status-info-default animate-spin'
+      return 'text-status-warn-default animate-spin'
     case 'failed':
-      return 'i-heroicons-exclamation-triangle text-status-alert-default'
+      return 'text-status-alert-default'
     default:
       return ''
   }
@@ -76,8 +90,8 @@ const handleRetry = () => {
 <template>
   <div :class="bannerClass" data-testid="translation-request-banner">
     <div class="flex items-center gap-3">
-      <Icon :name="iconClass" size="24" />
-      <p class="text-sm font-medium text-content-default">
+      <Icon :name="iconName" :class="iconClass" size="24" />
+      <p class="font-normal text-content-default">
         {{ message }}
       </p>
     </div>
@@ -85,8 +99,7 @@ const handleRetry = () => {
     <div class="flex items-center gap-2">
       <ClButton
         v-if="showRequestButton"
-        size="sm"
-        intent="primary"
+        intent="secondary"
         data-testid="request-translation-button"
         @click="handleRequest"
       >
