@@ -1,4 +1,4 @@
-import { ref, onUnmounted } from 'vue'
+import { ref, onUnmounted, onMounted } from 'vue'
 import { ActivityTranslationRepository } from '../repositories/activity-translation-repository'
 
 const POLLING_INTERVAL_MS = 3000 // 3秒
@@ -111,6 +111,12 @@ export function useTranslationRequest(
   // コンポーネントアンマウント時にクリーンアップ
   onUnmounted(() => {
     stopPolling()
+  })
+
+  onMounted(() => {
+    if (status.value === 'polling') {
+      startPolling()
+    }
   })
 
   return {
