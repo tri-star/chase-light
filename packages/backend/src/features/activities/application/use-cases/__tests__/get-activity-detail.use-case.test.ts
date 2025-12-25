@@ -22,6 +22,7 @@ describe("GetActivityDetailUseCase", () => {
         summary: "Summary",
         detail: "Detail",
         translatedBody: null,
+        bodyTranslationStatus: "idle",
         status: "completed",
         statusDetail: null,
         version: "v1.0",
