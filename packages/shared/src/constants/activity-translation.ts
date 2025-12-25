@@ -1,4 +1,5 @@
 export const ACTIVITY_BODY_TRANSLATION_STATUS = {
+  IDLE: "idle",
   QUEUED: "queued",
   PROCESSING: "processing",
   COMPLETED: "completed",
