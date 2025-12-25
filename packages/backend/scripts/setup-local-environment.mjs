@@ -341,18 +341,36 @@ async function startSamLocal(backgroundMode = false) {
     throw new Error(`ポート${CONFIG.samPort}が使用中です`)
   }
 
-  // バックグラウンドモードの場合は完全に切り離す
-  const spawnOptions = backgroundMode
-    ? {
+  // spawn オプションを組み立てる。
+  // バックグラウンド起動でも stdout/stderr をログファイルへ書き出すため、
+  // ファイルディスクリプタを直接 stdio に渡す方式を採る。
+  let spawnOptions
+  let logFd
+  const samLogPath = path.join(BACKEND_DIR, "sam-local.log")
+
+  if (backgroundMode) {
+    // ログファイルを追記モードで開き、stdout/stderr を同一 fd に接続する
+    try {
+      logFd = fs.openSync(samLogPath, "a")
+      spawnOptions = {
         cwd: BACKEND_DIR,
-        stdio: "ignore",
+        stdio: ["ignore", logFd, logFd],
         detached: true,
       }
-    : {
-        cwd: BACKEND_DIR,
-        stdio: ["ignore", "pipe", "pipe"],
-        detached: true,
-      }
+    } catch (err) {
+      // ファイルオープンに失敗したらフォールバックして ignore にする
+      log.warn(
+        `ログファイルを開けませんでした: ${err.message}。標準出力は無効化します`,
+      )
+      spawnOptions = { cwd: BACKEND_DIR, stdio: "ignore", detached: true }
+    }
+  } else {
+    spawnOptions = {
+      cwd: BACKEND_DIR,
+      stdio: ["ignore", "pipe", "pipe"],
+      detached: false,
+    }
+  }
 
   // SAM Localを起動
   const samProcess = spawn(
@@ -366,6 +384,8 @@ async function startSamLocal(backgroundMode = false) {
       CONFIG.samPort.toString(),
       "--template",
       "infrastructure/sam-template.yaml",
+      "--config-env",
+      "dev",
       "--env-vars",
       "infrastructure/env.json",
       "--docker-network",
@@ -374,17 +394,21 @@ async function startSamLocal(backgroundMode = false) {
     spawnOptions,
   )
 
-  // フォアグラウンドモードの場合のみログファイルにリダイレクト
+  // フォアグラウンドモードではパイプをログファイルに書き出す
   if (!backgroundMode) {
-    const logFile = fs.createWriteStream(
-      path.join(BACKEND_DIR, "sam-local.log"),
-    )
-    samProcess.stdout.pipe(logFile)
-    samProcess.stderr.pipe(logFile)
+    const logFile = fs.createWriteStream(samLogPath, { flags: "a" })
+    if (samProcess.stdout) samProcess.stdout.pipe(logFile)
+    if (samProcess.stderr) samProcess.stderr.pipe(logFile)
   }
 
-  // バックグラウンドモードの場合はプロセスを完全に独立させる
+  // バックグラウンドモードの場合はプロセスを完全に独立させ、親の fd は閉じる
   if (backgroundMode) {
+    try {
+      // 親プロセス側の fd は不要なので閉じる（子プロセスは fd を保持する）
+      if (typeof logFd === "number") fs.closeSync(logFd)
+    } catch (_e) {
+      // ignore
+    }
     samProcess.unref()
   }
 
