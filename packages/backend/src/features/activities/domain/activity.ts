@@ -2,6 +2,8 @@
  * アクティビティ機能で共有するドメイン定義とDTO
  */
 
+import type { ActivityBodyTranslationStatus } from "shared/constants"
+
 export const ACTIVITY_STATUS = {
   PENDING: "pending",
   PROCESSING: "processing",
@@ -90,6 +92,7 @@ export type ActivityListItemSummary = {
   summary: string | null
   detail?: string | null
   translatedBody: string | null
+  bodyTranslationStatus: ActivityBodyTranslationStatus
   status: ActivityStatus
   statusDetail: string | null
   version: string | null

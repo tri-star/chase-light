@@ -26,7 +26,7 @@ export function createActivity(dataSourceId: string): ActivitySeed {
     body: faker.lorem.paragraphs({ min: 100, max: 400 }),
     translatedTitle: fakerJA.lorem.sentence(),
     summary: fakerJA.lorem.sentence({ min: 10, max: 100 }),
-    translatedBody: fakerJA.lorem.paragraph({ min: 100, max: 400 }),
+    translatedBody: null,
     version: createVersion(),
     status: ACTIVITY_STATUS.COMPLETED,
     statusDetail: null,
