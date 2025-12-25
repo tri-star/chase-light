@@ -8,6 +8,7 @@ import {
   useTranslationRequest,
   type TranslationRequestStatus,
 } from '~/features/activities/composables/use-translation-request'
+import { watch } from 'vue'
 
 const props = defineProps<{
   activityId: string
@@ -52,9 +53,18 @@ const {
   errorMessage: translationErrorMessage,
   requestTranslation,
   onTranslationComplete,
+  syncStatusFromBackend,
 } = useTranslationRequest(
   props.activityId,
   mapToTranslationStatus(activity.value?.bodyTranslationStatus)
+)
+
+watch(
+  () => activity.value?.bodyTranslationStatus,
+  (backendStatus) => {
+    syncStatusFromBackend(mapToTranslationStatus(backendStatus))
+  },
+  { immediate: true }
 )
 
 // 翻訳完了時にアクティビティデータを再取得

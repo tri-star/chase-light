@@ -108,6 +108,17 @@ export function useTranslationRequest(
     }
   }
 
+  const syncStatusFromBackend = (nextStatus?: TranslationRequestStatus) => {
+    if (!nextStatus) return
+    if (status.value !== 'idle') return
+
+    status.value = nextStatus
+
+    if (nextStatus === 'polling') {
+      startPolling()
+    }
+  }
+
   // コンポーネントアンマウント時にクリーンアップ
   onUnmounted(() => {
     stopPolling()
@@ -126,5 +137,6 @@ export function useTranslationRequest(
     requestTranslation,
     stopPolling,
     onTranslationComplete,
+    syncStatusFromBackend,
   }
 }
