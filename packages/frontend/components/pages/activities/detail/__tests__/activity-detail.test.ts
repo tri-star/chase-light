@@ -34,6 +34,7 @@ const buildActivity = (override?: Partial<ActivityDetail>): ActivityDetail => ({
   summary: 'A new release is available',
   detail: 'Original body in English',
   translatedBody: '翻訳済みの本文です',
+  bodyTranslationStatus: 'completed',
   status: 'completed',
   statusDetail: null,
   version: 'v1.0.0',
@@ -124,6 +125,7 @@ describe('ActivityDetailPage', () => {
       const wrapper = await mountPage({
         translatedBody: null,
         translatedTitle: null,
+        bodyTranslationStatus: 'idle',
       })
 
       const banner = wrapper.find('[data-testid="translation-request-banner"]')
@@ -152,6 +154,7 @@ describe('ActivityDetailPage', () => {
       const wrapper = await mountPage({
         translatedBody: null,
         translatedTitle: null,
+        bodyTranslationStatus: 'idle',
       })
 
       const requestButton = wrapper.get(
