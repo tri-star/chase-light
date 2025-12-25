@@ -32,6 +32,11 @@ export function useActivityDetail(activityId: string) {
     () => !!(activity.value?.translatedTitle || activity.value?.translatedBody)
   )
 
+  const hasTranslatedBody = computed(
+    () =>
+      !!(activity.value?.translatedBody && activity.value.translatedBody !== '')
+  )
+
   // ユーザーがトグルしていない場合のみ、翻訳コンテンツの有無に応じて自動設定
   watch(
     hasTranslatedContent,
@@ -69,6 +74,7 @@ export function useActivityDetail(activityId: string) {
     mode,
     pageTitle,
     hasTranslatedContent,
+    hasTranslatedBody,
     displayTitle,
     displayBody,
     handleToggleMode,

@@ -10,6 +10,7 @@ const props = defineProps<{
   body: string
   mode: 'translated' | 'original'
   hasTranslatedContent: boolean
+  hasTranslatedBody: boolean
   translationStatus?: TranslationRequestStatus
   translationErrorMessage?: string | null
 }>()
@@ -28,7 +29,7 @@ const showTranslationBanner = computed(() => {
   // 翻訳済み本文がない場合に表示
   // ただし、翻訳完了状態の場合は非表示（データ再取得後に翻訳結果が表示されるため）
   return (
-    !props.hasTranslatedContent &&
+    !props.hasTranslatedBody &&
     props.translationStatus &&
     props.translationStatus !== 'completed'
   )
