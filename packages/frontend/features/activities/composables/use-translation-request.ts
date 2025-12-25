@@ -17,10 +17,14 @@ export type TranslationRequestStatus =
  * 翻訳リクエスト機能を提供するcomposable
  *
  * @param activityId - アクティビティID
+ * @param initialStatus - 翻訳ステータスの初期値（APIから取得した値）
  * @returns 翻訳リクエストの状態と操作
  */
-export function useTranslationRequest(activityId: string) {
-  const status = ref<TranslationRequestStatus>('idle')
+export function useTranslationRequest(
+  activityId: string,
+  initialStatus?: TranslationRequestStatus
+) {
+  const status = ref<TranslationRequestStatus>(initialStatus ?? 'idle')
   const errorMessage = ref<string | null>(null)
   const isPolling = ref(false)
   const onTranslationComplete = ref<(() => void) | null>(null)
