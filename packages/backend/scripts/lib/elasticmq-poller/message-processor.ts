@@ -72,15 +72,48 @@ export class MessageProcessor {
     functionName: string,
     payload: unknown,
   ): Promise<unknown> {
-    const command = new InvokeCommand({
+    // デバッグ用: 環境変数・設定を出力してSam CLI側でのregion未設定を確認しやすくする
+    logger.debug("invokeLambdaFunction: env", {
+      AWS_REGION: process.env.AWS_REGION,
+      AWS_DEFAULT_REGION: process.env.AWS_DEFAULT_REGION,
+      samLocalEndpoint: this.config.samLocalEndpoint,
+    })
+
+    const params = {
       FunctionName: functionName,
       Payload: JSON.stringify(payload),
       InvocationType: "RequestResponse", // 同期実行
-    })
+    }
 
-    logger.debug(`Lambda関数を実行中: ${functionName}`, payload)
+    logger.debug(`Lambda関数を実行中: ${functionName}`, { params, payload })
 
-    const response = await this.lambdaClient.send(command)
+    let response
+    try {
+      const command = new InvokeCommand(params)
+      response = await this.lambdaClient.send(command)
+    } catch (err) {
+      // LambdaClient 送信エラーを詳細ログで出す
+      const errorObj = err instanceof Error ? err : new Error(String(err))
+      logger.error(`LambdaClient.send エラー: ${functionName}`, errorObj)
+      logger.debug("invokeLambdaFunction: client config", {
+        endpoint: this.config.samLocalEndpoint,
+        region: (this.lambdaClient as any).config?.region,
+      })
+      throw errorObj
+    }
+
+    // レスポンスの生データをデバッグ出力
+    try {
+      logger.debug("Lambda raw response", {
+        StatusCode: response.StatusCode,
+        FunctionError: response.FunctionError,
+        Payload: response.Payload
+          ? Buffer.from(response.Payload).toString()
+          : undefined,
+      })
+    } catch (logErr) {
+      logger.debug("Lambda raw response ログ時にエラーが発生しました", logErr)
+    }
 
     // レスポンスを解析
     if (response.StatusCode !== 200) {
