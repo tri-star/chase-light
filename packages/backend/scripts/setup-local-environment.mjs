@@ -501,6 +501,10 @@ async function setupStepFunctions() {
     localVariables.ElasticMQ.ExternalEndpoint,
     "process-updates-queue",
   )
+  await createSQSQueue(
+    localVariables.ElasticMQ.ExternalEndpoint,
+    "translation-jobs-queue",
+  )
 
   // ASL変数置換
   log.info("ASLテンプレートの変数を置換中...")
