@@ -54,6 +54,7 @@ const {
   requestTranslation,
   onTranslationComplete,
   syncStatusFromBackend,
+  isTranslating,
 } = useTranslationRequest(
   props.activityId,
   mapToTranslationStatus(activity.value?.bodyTranslationStatus)
@@ -96,6 +97,7 @@ useSeoMeta({
         :has-translated-body="hasTranslatedBody"
         :translation-status="translationStatus"
         :translation-error-message="translationErrorMessage"
+        :is-translating="isTranslating"
         @request-translation="requestTranslation"
       />
     </template>

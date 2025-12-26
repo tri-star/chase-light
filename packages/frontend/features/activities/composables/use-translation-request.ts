@@ -1,4 +1,4 @@
-import { ref, onUnmounted, onMounted } from 'vue'
+import { ref, onUnmounted, onMounted, computed } from 'vue'
 import { ActivityTranslationRepository } from '../repositories/activity-translation-repository'
 
 const POLLING_INTERVAL_MS = 3000 // 3秒
@@ -28,6 +28,9 @@ export function useTranslationRequest(
   const errorMessage = ref<string | null>(null)
   const isPolling = ref(false)
   const onTranslationComplete = ref<(() => void) | null>(null)
+  const isTranslating = computed(
+    () => status.value === 'requesting' || status.value === 'polling'
+  )
 
   let pollingTimer: ReturnType<typeof setInterval> | null = null
   const repository = new ActivityTranslationRepository()
@@ -134,6 +137,7 @@ export function useTranslationRequest(
     status,
     errorMessage,
     isPolling,
+    isTranslating,
     requestTranslation,
     stopPolling,
     onTranslationComplete,

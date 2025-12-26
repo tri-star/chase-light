@@ -6,6 +6,7 @@ import type { TranslationRequestStatus } from '~/features/activities/composables
 const props = defineProps<{
   status: TranslationRequestStatus
   errorMessage?: string | null
+  isTranslating: boolean
 }>()
 
 const emit = defineEmits<{
@@ -49,7 +50,9 @@ const iconClass = computed(() => {
       return 'text-status-warn-default'
     case 'requesting':
     case 'polling':
-      return 'text-status-warn-default animate-spin'
+      return props.isTranslating
+        ? 'text-status-warn-default animate-spin'
+        : 'text-status-warn-default'
     case 'failed':
       return 'text-status-alert-default'
     default:
@@ -74,9 +77,7 @@ const message = computed(() => {
 
 const showRequestButton = computed(() => props.status === 'idle')
 const showRetryButton = computed(() => props.status === 'failed')
-const isProcessing = computed(
-  () => props.status === 'requesting' || props.status === 'polling'
-)
+const isProcessing = computed(() => props.isTranslating)
 
 const handleRequest = () => {
   emit('request')

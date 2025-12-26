@@ -13,6 +13,7 @@ const props = defineProps<{
   hasTranslatedBody: boolean
   translationStatus?: TranslationRequestStatus
   translationErrorMessage?: string | null
+  isTranslating: boolean
 }>()
 
 const emit = defineEmits<{
@@ -34,6 +35,11 @@ const showTranslationBanner = computed(() => {
     props.translationStatus !== 'completed'
   )
 })
+
+const bodyContainerClass = computed(() => [
+  'rounded-lg border border-surface-secondary-default bg-surface-secondary-default/50 p-4',
+  props.isTranslating ? 'animate-pulse' : '',
+])
 
 const handleRequestTranslation = () => {
   emit('requestTranslation')
@@ -84,14 +90,12 @@ const handleRequestTranslation = () => {
       v-if="showTranslationBanner"
       :status="translationStatus!"
       :error-message="translationErrorMessage"
+      :is-translating="props.isTranslating"
       @request="handleRequestTranslation"
       @retry="handleRequestTranslation"
     />
 
-    <div
-      class="rounded-lg border border-surface-secondary-default
-        bg-surface-secondary-default/50 p-4"
-    >
+    <div :class="bodyContainerClass" data-testid="activity-body-container">
       <p
         data-testid="activity-body"
         class="text-sm leading-relaxed whitespace-pre-wrap text-card-value"

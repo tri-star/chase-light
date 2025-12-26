@@ -145,6 +145,19 @@ describe('ActivityDetailPage', () => {
       expect(banner.exists()).toBe(false)
     })
 
+    it('翻訳中は本文エリアがpulseする', async () => {
+      const wrapper = await mountPage({
+        translatedBody: null,
+        translatedTitle: null,
+        bodyTranslationStatus: 'processing',
+      })
+
+      const bodyContainer = wrapper.get(
+        '[data-testid="activity-body-container"]'
+      )
+      expect(bodyContainer.classes()).toContain('animate-pulse')
+    })
+
     it('翻訳リクエストボタンをクリックすると翻訳リクエストが送信される', async () => {
       translationRequestMock.mockResolvedValue({
         translationStatus: 'queued',
