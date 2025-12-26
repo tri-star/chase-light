@@ -241,6 +241,7 @@ Resources:
       Handler: index.handler
       Description: 'Generate digest notifications for subscribed users'
       Timeout: 120
+      MemorySize: 512
       Environment:
         Variables:
           DIGEST_DEFAULT_LIMIT: "200"
