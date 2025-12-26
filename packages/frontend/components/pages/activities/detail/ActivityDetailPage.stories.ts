@@ -520,7 +520,9 @@ export const BodyTranslationRequestIdle: Story = {
     await step('翻訳リクエストバナー（idle）が表示される', async () => {
       const banner = await canvas.findByTestId('translation-request-banner')
       await expect(banner).toBeInTheDocument()
-      await expect(await canvas.findByText('日本語訳がまだありません')).toBeInTheDocument()
+      await expect(
+        await canvas.findByText('日本語訳がまだありません')
+      ).toBeInTheDocument()
       await expect(
         await canvas.findByTestId('request-translation-button')
       ).toBeInTheDocument()
@@ -568,7 +570,9 @@ export const BodyTranslationRequestFailed: Story = {
     await step('翻訳リクエストバナー（failed）が表示される', async () => {
       const banner = await canvas.findByTestId('translation-request-banner')
       await expect(banner).toBeInTheDocument()
-      await expect(await canvas.findByText('翻訳に失敗しました')).toBeInTheDocument()
+      await expect(
+        await canvas.findByText('翻訳に失敗しました')
+      ).toBeInTheDocument()
       await expect(
         await canvas.findByTestId('retry-translation-button')
       ).toBeInTheDocument()
