@@ -66,7 +66,8 @@ const toggleLabel = computed(() =>
       <div class="text-sm flex items-center gap-3 text-card-value">
         <Icon
           name="grommet-icons:github"
-          class="text-card-title h-5 w-5"
+          class="text-card-title"
+          size="40"
           aria-hidden="true"
         />
         <a
@@ -79,7 +80,11 @@ const toggleLabel = computed(() =>
           <ClHeading :level="2" class="text-lg font-semibold">
             {{ props.activity.source.name }}
           </ClHeading>
-          <span class="text-xs text-card-value opacity-70">外部リンク</span>
+          <Icon
+            name="i-heroicons-arrow-top-right-on-square-20-solid"
+            size="20"
+            class="text-xs text-card-value opacity-70"
+          />
         </a>
       </div>
 

@@ -116,13 +116,16 @@ const handleRetry = () => {
         再試行
       </ClButton>
 
-      <span
+      <ClButton
         v-if="isProcessing"
-        class="text-xs text-content-default opacity-60"
+        class="cursor-not-allowed"
+        intent="secondary"
+        :disabled="true"
+        :loading="true"
         data-testid="translation-processing-indicator"
       >
         処理中
-      </span>
+      </ClButton>
     </div>
   </div>
 </template>
