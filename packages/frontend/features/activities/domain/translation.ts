@@ -1,7 +1,12 @@
 /**
  * 翻訳ステータス
  */
-export type TranslationStatus = 'queued' | 'processing' | 'completed' | 'failed'
+export type TranslationStatus =
+  | 'idle'
+  | 'queued'
+  | 'processing'
+  | 'completed'
+  | 'failed'
 
 /**
  * 翻訳状態
