@@ -55,7 +55,10 @@ describe('use-translation-request', () => {
         statusDetail: null,
       } as TranslationState)
 
-      const mockGetStatus = vi.fn()
+      const mockGetStatus = vi.fn().mockResolvedValue({
+        translationStatus: 'processing',
+        statusDetail: null,
+      } as TranslationState)
 
       vi.mocked(ActivityTranslationRepository).mockImplementation(() => ({
         request: mockRequest,
@@ -66,6 +69,7 @@ describe('use-translation-request', () => {
         useTranslationRequest('test-id')
 
       await requestTranslation()
+      await vi.runAllTicks()
 
       expect(status.value).toBe('polling')
       expect(isPolling.value).toBe(true)
@@ -120,9 +124,8 @@ describe('use-translation-request', () => {
 
       await requestTranslation()
 
-      // 1回目のポーリング
-      await vi.advanceTimersByTimeAsync(3000)
-
+      // 初回ポーリングは即時実行
+      await vi.runAllTicks()
       expect(status.value).toBe('polling')
 
       // 2回目のポーリング
@@ -154,8 +157,8 @@ describe('use-translation-request', () => {
 
       await requestTranslation()
 
-      // 1回目のポーリング
-      await vi.advanceTimersByTimeAsync(3000)
+      // 初回ポーリングは即時実行
+      await vi.runAllTicks()
 
       expect(status.value).toBe('failed')
       expect(isPolling.value).toBe(false)
@@ -182,8 +185,8 @@ describe('use-translation-request', () => {
 
       await requestTranslation()
 
-      // 1回目のポーリング
-      await vi.advanceTimersByTimeAsync(3000)
+      // 初回ポーリングは即時実行
+      await vi.runAllTicks()
 
       expect(status.value).toBe('failed')
       expect(isPolling.value).toBe(false)

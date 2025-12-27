@@ -32,7 +32,7 @@ export function useTranslationRequest(
     () => status.value === 'requesting' || status.value === 'polling'
   )
 
-  let pollingTimer: ReturnType<typeof setInterval> | null = null
+  let pollingTimer: ReturnType<typeof setTimeout> | null = null
   const repository = new ActivityTranslationRepository()
 
   /**
@@ -43,7 +43,7 @@ export function useTranslationRequest(
     isPolling.value = true
     status.value = 'polling'
 
-    pollingTimer = setInterval(async () => {
+    const poll = async () => {
       try {
         const result = await repository.getStatus(activityId)
 
@@ -53,21 +53,31 @@ export function useTranslationRequest(
           status.value = 'completed'
           // 親に通知してアクティビティデータを再取得
           onTranslationComplete.value?.()
-        } else if (result.translationStatus === 'failed') {
+          return
+        }
+
+        if (result.translationStatus === 'failed') {
           // 翻訳失敗
           stopPolling()
           status.value = 'failed'
           errorMessage.value =
             result.statusDetail || '翻訳処理中にエラーが発生しました'
+          return
         }
-        // queued / processing の場合は継続
+
+        if (isPolling.value) {
+          // queued / processing の場合は継続
+          pollingTimer = setTimeout(poll, POLLING_INTERVAL_MS)
+        }
       } catch (error) {
         console.error('Translation status polling failed:', error)
         stopPolling()
         status.value = 'failed'
         errorMessage.value = 'ステータスの取得に失敗しました'
       }
-    }, POLLING_INTERVAL_MS)
+    }
+
+    poll()
   }
 
   /**
@@ -75,7 +85,7 @@ export function useTranslationRequest(
    */
   const stopPolling = () => {
     if (pollingTimer) {
-      clearInterval(pollingTimer)
+      clearTimeout(pollingTimer)
       pollingTimer = null
     }
     isPolling.value = false

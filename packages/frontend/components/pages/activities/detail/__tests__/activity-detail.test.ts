@@ -147,6 +147,15 @@ describe('ActivityDetailPage', () => {
     })
 
     it('翻訳中は本文エリアがpulseする', async () => {
+      translationGetStatusMock.mockResolvedValue({
+        translationStatus: 'processing',
+        statusDetail: null,
+        jobId: 'job-1',
+        requestedAt: '2024-05-02T00:00:00Z',
+        startedAt: '2024-05-02T00:00:01Z',
+        completedAt: null,
+      })
+
       const { wrapper } = await mountPage({
         translatedBody: null,
         translatedTitle: null,
