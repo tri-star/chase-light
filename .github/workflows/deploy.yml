@@ -96,13 +96,12 @@ jobs:
       - name: Validate SAM template
         run: |
           cd packages/backend/infrastructure
-          sam validate --lint --template sam-template.yaml
+          sam validate --lint
 
       - name: Deploy with SAM
         run: |
           cd packages/backend/infrastructure
           sam deploy \
-            --template-file sam-template.yaml \
             --stack-name chase-light-${{ inputs.env }} \
             --s3-bucket "${{ secrets.SAM_S3_BUCKET }}" \
             --s3-prefix "chase-light-${{ inputs.env }}" \

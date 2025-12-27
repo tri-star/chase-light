@@ -382,8 +382,6 @@ async function startSamLocal(backgroundMode = false) {
       "0.0.0.0",
       "--port",
       CONFIG.samPort.toString(),
-      "--template",
-      "infrastructure/sam-template.yaml",
       "--config-env",
       "dev",
       "--env-vars",

@@ -174,7 +174,7 @@ pnpm build:lambda
 
 # 2. SAMビルド
 cd infrastructure
-sam build -t sam-template.yaml
+sam build --config-env dev
 
 # 3. SAM Local API Gateway起動
 # 今時点ではAPI GateWayを利用するLambdaをSAMに登録していないため、後日対応予定

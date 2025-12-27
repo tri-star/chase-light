@@ -101,5 +101,5 @@ export AWS_ACCESS_KEY_ID=dummy
 export AWS_SECRET_ACCESS_KEY=dummy
 export AWS_REGION=ap-northeast-1
 
-sam local invoke --config-env dev -t sam-template.yaml GenerateDigestNotificationsFunction --event events/notification/generate-digest-notifications.json
+sam local invoke --config-env dev GenerateDigestNotificationsFunction --event events/notification/generate-digest-notifications.json
 ```

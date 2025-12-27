@@ -141,7 +141,6 @@ trust policy例（`github-actions-trust-policy.json`）:
 
    # dev環境へのデプロイ
    sam deploy \
-     --template-file sam-template.yaml \
      --stack-name chase-light-dev \
      --capabilities CAPABILITY_IAM \
      --parameter-overrides \
@@ -151,7 +150,6 @@ trust policy例（`github-actions-trust-policy.json`）:
 
    # prod環境へのデプロイ（将来）
    sam deploy \
-     --template-file sam-template.yaml \
      --stack-name chase-light-prod \
      --capabilities CAPABILITY_IAM \
      --parameter-overrides \
