@@ -30,6 +30,12 @@ export const activityDetailSchema = z
       description: "翻訳済み本文 (現状はnull)",
       example: null,
     }),
+    bodyTranslationStatus: z
+      .enum(["idle", "queued", "processing", "completed", "failed"])
+      .openapi({
+        description: "本文翻訳のステータス",
+        example: "idle",
+      }),
     status: z
       .enum(["pending", "processing", "completed", "failed"])
       .openapi({ description: "処理ステータス", example: "completed" }),

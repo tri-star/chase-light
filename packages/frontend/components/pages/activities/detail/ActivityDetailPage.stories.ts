@@ -87,6 +87,7 @@ const createActivityDetailResponse = (
 - APIエンドポイントが再構成されました
 
 **完全な変更履歴**: https://github.com/example/repo/compare/v0.9.0...v1.0.0`,
+        bodyTranslationStatus: 'completed',
         status: 'completed',
         statusDetail: null,
         version: 'v1.0.0',
@@ -256,6 +257,43 @@ const activityDetailProcessingHandler = http.get(
         statusDetail: '翻訳処理中です...',
         translatedTitle: null,
         translatedBody: null,
+      })
+    )
+  }
+)
+
+// 本文翻訳リクエスト（未翻訳/翻訳中/失敗）状態のアクティビティ
+const activityDetailBodyTranslationIdleHandler = http.get(
+  '*/api/activities/:activityId',
+  () => {
+    return HttpResponse.json(
+      createActivityDetailResponse({
+        translatedBody: null,
+        bodyTranslationStatus: 'idle',
+      })
+    )
+  }
+)
+
+const activityDetailBodyTranslationPollingHandler = http.get(
+  '*/api/activities/:activityId',
+  () => {
+    return HttpResponse.json(
+      createActivityDetailResponse({
+        translatedBody: null,
+        bodyTranslationStatus: 'processing',
+      })
+    )
+  }
+)
+
+const activityDetailBodyTranslationFailedHandler = http.get(
+  '*/api/activities/:activityId',
+  () => {
+    return HttpResponse.json(
+      createActivityDetailResponse({
+        translatedBody: null,
+        bodyTranslationStatus: 'failed',
       })
     )
   }
@@ -463,6 +501,81 @@ export const ProcessingStatus: Story = {
 
       const toggle = await canvas.findByTestId('translation-toggle')
       await expect(toggle).toBeDisabled()
+    })
+  },
+}
+
+/**
+ * 本文翻訳リクエストバナー：未翻訳（idle）
+ */
+export const BodyTranslationRequestIdle: Story = {
+  parameters: {
+    msw: {
+      handlers: [activityDetailBodyTranslationIdleHandler],
+    },
+  },
+  play: async ({ canvasElement, step }) => {
+    const canvas = within(canvasElement)
+
+    await step('翻訳リクエストバナー（idle）が表示される', async () => {
+      const banner = await canvas.findByTestId('translation-request-banner')
+      await expect(banner).toBeInTheDocument()
+      await expect(
+        await canvas.findByText('日本語訳がまだありません')
+      ).toBeInTheDocument()
+      await expect(
+        await canvas.findByTestId('request-translation-button')
+      ).toBeInTheDocument()
+    })
+  },
+}
+
+/**
+ * 本文翻訳リクエストバナー：翻訳中（polling）
+ */
+export const BodyTranslationRequestPolling: Story = {
+  parameters: {
+    msw: {
+      handlers: [activityDetailBodyTranslationPollingHandler],
+    },
+  },
+  play: async ({ canvasElement, step }) => {
+    const canvas = within(canvasElement)
+
+    await step('翻訳リクエストバナー（polling）が表示される', async () => {
+      const banner = await canvas.findByTestId('translation-request-banner')
+      await expect(banner).toBeInTheDocument()
+      await expect(
+        await canvas.findByText('翻訳中... しばらくお待ちください')
+      ).toBeInTheDocument()
+      await expect(
+        await canvas.findByTestId('translation-processing-indicator')
+      ).toBeInTheDocument()
+    })
+  },
+}
+
+/**
+ * 本文翻訳リクエストバナー：失敗（failed）
+ */
+export const BodyTranslationRequestFailed: Story = {
+  parameters: {
+    msw: {
+      handlers: [activityDetailBodyTranslationFailedHandler],
+    },
+  },
+  play: async ({ canvasElement, step }) => {
+    const canvas = within(canvasElement)
+
+    await step('翻訳リクエストバナー（failed）が表示される', async () => {
+      const banner = await canvas.findByTestId('translation-request-banner')
+      await expect(banner).toBeInTheDocument()
+      await expect(
+        await canvas.findByText('翻訳に失敗しました')
+      ).toBeInTheDocument()
+      await expect(
+        await canvas.findByTestId('retry-translation-button')
+      ).toBeInTheDocument()
     })
   },
 }

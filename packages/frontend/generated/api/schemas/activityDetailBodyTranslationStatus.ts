@@ -6,11 +6,14 @@
  * OpenAPI spec version: 1.0.0
  */
 
-export type TranslationStatus = typeof TranslationStatus[keyof typeof TranslationStatus];
+/**
+ * 本文翻訳のステータス
+ */
+export type ActivityDetailBodyTranslationStatus = typeof ActivityDetailBodyTranslationStatus[keyof typeof ActivityDetailBodyTranslationStatus];
 
 
 // eslint-disable-next-line @typescript-eslint/no-redeclare
-export const TranslationStatus = {
+export const ActivityDetailBodyTranslationStatus = {
   idle: 'idle',
   queued: 'queued',
   processing: 'processing',

@@ -11,6 +11,7 @@ export * from './activitiesErrorResponseError';
 export * from './activitiesErrorResponseErrorDetails';
 export * from './activityDetail';
 export * from './activityDetailActivityType';
+export * from './activityDetailBodyTranslationStatus';
 export * from './activityDetailResponse';
 export * from './activityDetailResponseData';
 export * from './activityDetailSource';

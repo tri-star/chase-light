@@ -2,12 +2,22 @@
 import { computed } from 'vue'
 import ClHeading from '~/components/base/ClHeading.vue'
 import ClIconButton from '~/components/base/ClIconButton.vue'
+import TranslationRequestBanner from './TranslationRequestBanner.vue'
+import type { TranslationRequestStatus } from '~/features/activities/composables/use-translation-request'
 
 const props = defineProps<{
   title: string
   body: string
   mode: 'translated' | 'original'
   hasTranslatedContent: boolean
+  hasTranslatedBody: boolean
+  translationStatus?: TranslationRequestStatus
+  translationErrorMessage?: string | null
+  isTranslating: boolean
+}>()
+
+const emit = defineEmits<{
+  (e: 'requestTranslation'): void
 }>()
 
 const modeLabel = computed(() =>
@@ -15,6 +25,25 @@ const modeLabel = computed(() =>
     ? '翻訳結果'
     : '原文'
 )
+
+const showTranslationBanner = computed(() => {
+  // 翻訳済み本文がない場合に表示
+  // ただし、翻訳完了状態の場合は非表示（データ再取得後に翻訳結果が表示されるため）
+  return (
+    !props.hasTranslatedBody &&
+    props.translationStatus &&
+    props.translationStatus !== 'completed'
+  )
+})
+
+const bodyContainerClass = computed(() => [
+  'rounded-lg border border-surface-secondary-default bg-surface-secondary-default/50 p-4',
+  props.isTranslating ? 'animate-pulse' : '',
+])
+
+const handleRequestTranslation = () => {
+  emit('requestTranslation')
+}
 </script>
 
 <template>
@@ -56,10 +85,17 @@ const modeLabel = computed(() =>
       </div>
     </div>
 
-    <div
-      class="rounded-lg border border-surface-secondary-default
-        bg-surface-secondary-default/50 p-4"
-    >
+    <!-- 翻訳リクエストバナー -->
+    <TranslationRequestBanner
+      v-if="showTranslationBanner"
+      :status="translationStatus!"
+      :error-message="translationErrorMessage"
+      :is-translating="props.isTranslating"
+      @request="handleRequestTranslation"
+      @retry="handleRequestTranslation"
+    />
+
+    <div :class="bodyContainerClass" data-testid="activity-body-container">
       <p
         data-testid="activity-body"
         class="text-sm leading-relaxed whitespace-pre-wrap text-card-value"

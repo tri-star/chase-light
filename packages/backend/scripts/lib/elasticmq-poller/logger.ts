@@ -24,7 +24,31 @@ function formatMessage(
 
   if (data !== undefined) {
     if (data && typeof data === "object") {
-      formattedMessage += `\n${JSON.stringify(data, null, 2)}`
+      // 安全なシリアライズ（循環参照がある場合に落ちないようにする）
+      try {
+        const seen = new WeakSet()
+        const safe = JSON.stringify(
+          data,
+          (_key, value) => {
+            if (value && typeof value === "object") {
+              if (seen.has(value)) return "[Circular]"
+              seen.add(value)
+            }
+            return value
+          },
+          2,
+        )
+        formattedMessage += `\n${safe}`
+      } catch {
+        // 万一 stringify が失敗したら型情報のみ出力
+        try {
+          formattedMessage += `\n[Unserializable object] ${Object.prototype.toString.call(
+            data,
+          )}`
+        } catch {
+          formattedMessage += `\n[Unserializable object]`
+        }
+      }
     } else {
       formattedMessage += ` ${String(data)}`
     }

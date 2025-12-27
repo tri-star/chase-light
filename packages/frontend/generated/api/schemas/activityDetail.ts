@@ -6,6 +6,7 @@
  * OpenAPI spec version: 1.0.0
  */
 import type { ActivityDetailActivityType } from './activityDetailActivityType';
+import type { ActivityDetailBodyTranslationStatus } from './activityDetailBodyTranslationStatus';
 import type { ActivityDetailStatus } from './activityDetailStatus';
 import type { ActivityDetailSource } from './activityDetailSource';
 
@@ -33,6 +34,8 @@ export interface ActivityDetail {
    * @nullable
    */
   translatedBody: string | null;
+  /** 本文翻訳のステータス */
+  bodyTranslationStatus: ActivityDetailBodyTranslationStatus;
   /** 処理ステータス */
   status: ActivityDetailStatus;
   /**

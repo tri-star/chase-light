@@ -1078,6 +1078,12 @@
             "description": "翻訳済み本文 (現状はnull)",
             "example": null
           },
+          "bodyTranslationStatus": {
+            "type": "string",
+            "enum": ["idle", "queued", "processing", "completed", "failed"],
+            "description": "本文翻訳のステータス",
+            "example": "idle"
+          },
           "status": {
             "type": "string",
             "enum": ["pending", "processing", "completed", "failed"],
@@ -1177,6 +1183,7 @@
           "summary",
           "detail",
           "translatedBody",
+          "bodyTranslationStatus",
           "status",
           "statusDetail",
           "version",
@@ -1206,7 +1213,7 @@
       },
       "TranslationStatus": {
         "type": "string",
-        "enum": ["queued", "processing", "completed", "failed"]
+        "enum": ["idle", "queued", "processing", "completed", "failed"]
       },
       "TranslationState": {
         "type": "object",
