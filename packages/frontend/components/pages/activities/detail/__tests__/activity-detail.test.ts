@@ -1,10 +1,18 @@
-import { afterEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { mountSuspended } from '@nuxt/test-utils/runtime'
+import type { VueWrapper } from '@vue/test-utils'
 import type { ActivityDetail } from '~/features/activities/domain/activity'
+import { createActivity } from '~/features/activities/domain/factories/activity-factory'
+import type { ActivityDetailRepository } from '~/features/activities/repositories/activity-detail-repository'
+import type { ActivityTranslationRepository } from '~/features/activities/repositories/activity-translation-repository'
+
 const activityId = 'activity-1'
-const fetchMock = vi.fn()
-const translationRequestMock = vi.fn()
-const translationGetStatusMock = vi.fn()
+const fetchMock = vi.fn<ActivityDetailRepository['fetch']>()
+const translationRequestMock = vi.fn<ActivityTranslationRepository['request']>()
+const translationGetStatusMock =
+  vi.fn<ActivityTranslationRepository['getStatus']>()
+
+let currentWrapper: VueWrapper | null = null
 
 vi.mock('~/features/activities/repositories/activity-detail-repository', () => {
   return {
@@ -26,64 +34,53 @@ vi.mock(
   }
 )
 
-const buildActivity = (override?: Partial<ActivityDetail>): ActivityDetail => ({
-  id: 'activity-1',
-  activityType: 'release',
-  title: 'Release v1.0',
-  translatedTitle: 'リリース v1.0',
-  summary: 'A new release is available',
-  detail: 'Original body in English',
-  translatedBody: '翻訳済みの本文です',
-  bodyTranslationStatus: 'completed',
-  status: 'completed',
-  statusDetail: null,
-  version: 'v1.0.0',
-  occurredAt: '2024-05-01T12:00:00Z',
-  lastUpdatedAt: '2024-05-02T12:00:00Z',
-  source: {
-    id: 'source-1',
-    sourceType: 'github',
-    name: 'nuxt/nuxt',
-    url: 'https://github.com/nuxt/nuxt',
-    metadata: {
-      repositoryFullName: 'nuxt/nuxt',
-      repositoryLanguage: 'TypeScript',
-      starsCount: 1000,
-      forksCount: 100,
-      openIssuesCount: 10,
-    },
-  },
-  ...override,
-})
-
 const mountPage = async (override?: Partial<ActivityDetail>) => {
-  fetchMock.mockResolvedValue(buildActivity(override))
+  const activity = createActivity(override)
+  fetchMock.mockResolvedValue(activity)
 
-  const Page = (
-    await import('~/components/pages/activities/detail/ActivityDetailPage.vue')
-  ).default
-  return mountSuspended(Page, {
+  // 毎回新しくインポートして、コンポーネントの状態を完全にリセット
+  const { default: Page } = await import(
+    '~/components/pages/activities/detail/ActivityDetailPage.vue?t=' +
+      Date.now()
+  )
+  const wrapper = await mountSuspended(Page, {
     props: {
       activityId,
     },
   })
+
+  currentWrapper = wrapper
+  return { wrapper, activity }
 }
 
+beforeEach(() => {
+  // モックの呼び出し履歴だけをクリア（実装は保持）
+  fetchMock.mockClear()
+  translationRequestMock.mockClear()
+  translationGetStatusMock.mockClear()
+  // タイマーもクリア
+  vi.clearAllTimers()
+})
+
 afterEach(() => {
-  vi.clearAllMocks()
-  fetchMock.mockReset()
-  translationRequestMock.mockReset()
-  translationGetStatusMock.mockReset()
+  // 前のwrapperがあれば確実にunmount
+  if (currentWrapper) {
+    currentWrapper.unmount()
+    currentWrapper = null
+  }
+  vi.clearAllTimers()
 })
 
 describe('ActivityDetailPage', () => {
   it('詳細情報を表示する', async () => {
-    const wrapper = await mountPage()
+    const { wrapper, activity } = await mountPage()
 
-    expect(wrapper.text()).toContain('nuxt/nuxt')
-    expect(wrapper.text()).toContain('リリース v1.0')
+    expect(wrapper.text()).toContain(activity.source.name)
+    if (activity.translatedTitle) {
+      expect(wrapper.text()).toContain(activity.translatedTitle)
+    }
     expect(wrapper.get('[data-testid="activity-body"]').text()).toContain(
-      '翻訳済みの本文です'
+      activity.translatedBody ?? activity.detail
     )
 
     const actions = wrapper.findAll('[data-testid="cl-icon-button"]')
@@ -91,38 +88,42 @@ describe('ActivityDetailPage', () => {
   })
 
   it('トグルで翻訳と原文を切り替える', async () => {
-    const wrapper = await mountPage()
+    const { wrapper, activity } = await mountPage()
 
-    expect(wrapper.text()).toContain('リリース v1.0')
-    expect(wrapper.get('[data-testid="activity-body"]').text()).toContain(
-      '翻訳済みの本文です'
-    )
+    if (activity.translatedTitle) {
+      expect(wrapper.text()).toContain(activity.translatedTitle)
+    }
+    if (activity.translatedBody) {
+      expect(wrapper.get('[data-testid="activity-body"]').text()).toContain(
+        activity.translatedBody
+      )
+    }
 
     await wrapper.get('[data-testid="translation-toggle"]').trigger('click')
 
-    expect(wrapper.text()).toContain('Release v1.0')
+    expect(wrapper.text()).toContain(activity.title)
     expect(wrapper.get('[data-testid="activity-body"]').text()).toContain(
-      'Original body in English'
+      activity.detail
     )
   })
 
   it('翻訳がない場合は原文のみ表示し、トグルは無効化する', async () => {
-    const wrapper = await mountPage({
+    const { wrapper, activity } = await mountPage({
       translatedBody: null,
       translatedTitle: null,
     })
 
     const toggle = wrapper.get('[data-testid="translation-toggle"]')
     expect(toggle.attributes('disabled')).toBeDefined()
-    expect(wrapper.text()).toContain('Release v1.0')
+    expect(wrapper.text()).toContain(activity.title)
     expect(wrapper.get('[data-testid="activity-body"]').text()).toContain(
-      'Original body in English'
+      activity.detail
     )
   })
 
   describe('翻訳リクエスト機能', () => {
     it('翻訳がない場合、翻訳リクエストバナーが表示される', async () => {
-      const wrapper = await mountPage({
+      const { wrapper } = await mountPage({
         translatedBody: null,
         translatedTitle: null,
         bodyTranslationStatus: 'idle',
@@ -139,14 +140,14 @@ describe('ActivityDetailPage', () => {
     })
 
     it('翻訳がある場合、翻訳リクエストバナーは表示されない', async () => {
-      const wrapper = await mountPage()
+      const { wrapper } = await mountPage()
 
       const banner = wrapper.find('[data-testid="translation-request-banner"]')
       expect(banner.exists()).toBe(false)
     })
 
     it('翻訳中は本文エリアがpulseする', async () => {
-      const wrapper = await mountPage({
+      const { wrapper } = await mountPage({
         translatedBody: null,
         translatedTitle: null,
         bodyTranslationStatus: 'processing',
@@ -160,11 +161,15 @@ describe('ActivityDetailPage', () => {
 
     it('翻訳リクエストボタンをクリックすると翻訳リクエストが送信される', async () => {
       translationRequestMock.mockResolvedValue({
+        jobId: 'job-1',
         translationStatus: 'queued',
         statusDetail: null,
+        requestedAt: '2024-05-02T00:00:00Z',
+        startedAt: null,
+        completedAt: null,
       })
 
-      const wrapper = await mountPage({
+      const { wrapper } = await mountPage({
         translatedBody: null,
         translatedTitle: null,
         bodyTranslationStatus: 'idle',
