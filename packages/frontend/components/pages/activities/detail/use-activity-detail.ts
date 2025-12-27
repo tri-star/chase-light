@@ -10,7 +10,7 @@ export function useActivityDetail(activityId: string) {
   const activityDetailRepository = new ActivityDetailRepository()
 
   const fetchKey = computed(() => `activity-detail:${activityId}`)
-  const { data, error } = useAsyncData<ActivityDetail>(
+  const { data, error, refresh } = useAsyncData<ActivityDetail>(
     fetchKey.value,
     () => activityDetailRepository.fetch(activityId),
     {
@@ -30,6 +30,11 @@ export function useActivityDetail(activityId: string) {
 
   const hasTranslatedContent = computed(
     () => !!(activity.value?.translatedTitle || activity.value?.translatedBody)
+  )
+
+  const hasTranslatedBody = computed(
+    () =>
+      !!(activity.value?.translatedBody && activity.value.translatedBody !== '')
   )
 
   // ユーザーがトグルしていない場合のみ、翻訳コンテンツの有無に応じて自動設定
@@ -69,8 +74,10 @@ export function useActivityDetail(activityId: string) {
     mode,
     pageTitle,
     hasTranslatedContent,
+    hasTranslatedBody,
     displayTitle,
     displayBody,
     handleToggleMode,
+    refresh,
   }
 }

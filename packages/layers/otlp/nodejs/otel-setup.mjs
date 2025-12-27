@@ -29,7 +29,7 @@ register('import-in-the-middle/hook.mjs', import.meta.url, registerOptions)
 
 console.info('START OTEL SETUP')
 
-diag.setLogger(new DiagConsoleLogger(), DiagLogLevel.DEBUG)
+diag.setLogger(new DiagConsoleLogger(), DiagLogLevel.INFO)
 
 const _resource = resourceFromAttributes({
     [ATTR_SERVICE_NAME]: process.env.ATTR_SERVICE_NAME || 'chase-light-api',

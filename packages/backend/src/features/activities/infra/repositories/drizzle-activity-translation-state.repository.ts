@@ -21,6 +21,7 @@ const activityTranslationRowSchema = z.object({
   activityId: z.string(),
   body: z.string(),
   translationStatus: z.enum([
+    ACTIVITY_BODY_TRANSLATION_STATUS.IDLE,
     ACTIVITY_BODY_TRANSLATION_STATUS.QUEUED,
     ACTIVITY_BODY_TRANSLATION_STATUS.PROCESSING,
     ACTIVITY_BODY_TRANSLATION_STATUS.COMPLETED,

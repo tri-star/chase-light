@@ -156,7 +156,7 @@ export const activities = pgTable(
     translatedBody: text("translated_body"),
     bodyTranslationStatus: text("body_translation_status")
       .notNull()
-      .default("completed"),
+      .default("idle"),
     bodyTranslationStatusDetail: text("body_translation_status_detail"),
     bodyTranslationRequestedAt: timestamp("body_translation_requested_at", {
       withTimezone: true,

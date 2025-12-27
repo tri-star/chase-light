@@ -23,6 +23,7 @@ import type {
 } from "../../domain"
 import { ACTIVITY_SORT_FIELDS, ACTIVITY_SORT_ORDER } from "../../domain"
 import type { ActivityQueryRepository } from "../../domain/repositories/activity-query.repository"
+import type { ActivityBodyTranslationStatus } from "shared/constants"
 import z from "zod"
 
 const SUMMARY_MAX_LENGTH = 280
@@ -36,6 +37,7 @@ type BaseActivityRow = {
   body: string
   summary: string | null
   translatedBody: string | null
+  bodyTranslationStatus: ActivityBodyTranslationStatus
   status: ActivityStatus
   statusDetail: string | null
   version: string | null
@@ -195,6 +197,7 @@ export class DrizzleActivityQueryRepository implements ActivityQueryRepository {
         summary: this.resolveSummary(row.summary, row.body),
         detail: row.body,
         translatedBody: row.translatedBody,
+        bodyTranslationStatus: row.bodyTranslationStatus,
         status: row.status,
         statusDetail: row.statusDetail,
         version: row.version,
@@ -215,6 +218,7 @@ export class DrizzleActivityQueryRepository implements ActivityQueryRepository {
       body: activities.body,
       summary: activities.summary,
       translatedBody: activities.translatedBody,
+      bodyTranslationStatus: activities.bodyTranslationStatus,
       status: activities.status,
       statusDetail: activities.statusDetail,
       version: activities.version,
@@ -330,6 +334,7 @@ export class DrizzleActivityQueryRepository implements ActivityQueryRepository {
         summary: this.resolveSummary(row.summary, row.body),
         detail: null,
         translatedBody: row.translatedBody,
+        bodyTranslationStatus: row.bodyTranslationStatus,
         status: row.status,
         statusDetail: row.statusDetail,
         version: row.version,

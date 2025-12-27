@@ -6,12 +6,10 @@ Globals:
   Function:
     Timeout: 60
     Runtime: nodejs22.x
-    Layers: !If
-      - UseParamsSecretsExtension
-      - - arn:aws:lambda:ap-northeast-1:133490724326:layer:AWS-Parameters-and-Secrets-Lambda-Extension:21
-        - !Sub 'arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:layer:otel-collector:7'
-        - !Sub 'arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:layer:${Stage}-chase-light-otlp-layer:${OtlpLayerVersion}'
-      - !Ref AWS::NoValue
+    Layers:
+      - !If [UseParamsSecretsExtension, arn:aws:lambda:ap-northeast-1:133490724326:layer:AWS-Parameters-and-Secrets-Lambda-Extension:21, !Ref AWS::NoValue]
+      - !If [UseParamsSecretsExtension, !Sub 'arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:layer:otel-collector:7', !Ref AWS::NoValue]
+      - !If [UseParamsSecretsExtension, !Sub 'arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:layer:${Stage}-chase-light-otlp-layer:${OtlpLayerVersion}', !Ref AWS::NoValue]
     Environment:
       Variables:
         USE_AWS: !Ref UseAws
@@ -27,8 +25,8 @@ Globals:
         OPENAI_API_KEY: ""
         NODE_OPTIONS: !Join
           - " "
-          - - !If [UseParamsSecretsExtension, "--import=/opt/nodejs/otel-setup.mjs", ""]
-            - !If [IsProd, "", "--enable-sourcemaps"]
+          - !If [UseParamsSecretsExtension, "--import=/opt/nodejs/otel-setup.mjs", ""]
+          - !If [IsProd, "", "--enable-source-maps"]
         ATTR_SERVICE_NAME: "chase-light-backend"
     Tracing: Active
 
@@ -243,6 +241,7 @@ Resources:
       Handler: index.handler
       Description: 'Generate digest notifications for subscribed users'
       Timeout: 120
+      MemorySize: 512
       Environment:
         Variables:
           DIGEST_DEFAULT_LIMIT: "200"
