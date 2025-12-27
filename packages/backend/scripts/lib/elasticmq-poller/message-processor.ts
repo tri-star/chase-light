@@ -2,7 +2,11 @@
  * Message Processing Logic for ElasticMQ Poller
  */
 
-import { LambdaClient, InvokeCommand } from "@aws-sdk/client-lambda"
+import {
+  LambdaClient,
+  InvokeCommand,
+  InvokeCommandInput,
+} from "@aws-sdk/client-lambda"
 import { type Message } from "@aws-sdk/client-sqs"
 import { type PollerConfig } from "./config.js"
 import { logger } from "./logger.js"
@@ -79,7 +83,7 @@ export class MessageProcessor {
       samLocalEndpoint: this.config.samLocalEndpoint,
     })
 
-    const params = {
+    const params: InvokeCommandInput = {
       FunctionName: functionName,
       Payload: JSON.stringify(payload),
       InvocationType: "RequestResponse", // 同期実行
@@ -97,7 +101,7 @@ export class MessageProcessor {
       logger.error(`LambdaClient.send エラー: ${functionName}`, errorObj)
       logger.debug("invokeLambdaFunction: client config", {
         endpoint: this.config.samLocalEndpoint,
-        region: (this.lambdaClient as any).config?.region,
+        region: this.lambdaClient.config?.region,
       })
       throw errorObj
     }
