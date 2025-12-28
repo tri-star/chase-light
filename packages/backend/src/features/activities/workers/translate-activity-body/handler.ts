@@ -2,23 +2,12 @@ import type { SQSEvent, SQSBatchResponse, Context } from "aws-lambda"
 import { connectDb } from "../../../../db/connection"
 import { TransactionManager } from "../../../../core/db"
 import { DrizzleActivityTranslationStateRepository } from "../../infra"
-import { BodyTranslationAdapter, BodyTranslationStubAdapter } from "../../infra"
 import { ProcessActivityTranslationJobUseCase } from "../../application/use-cases"
+import { createBodyTranslationPort } from "../../infra/adapters/translation/body-translation.factory"
 
 type TranslateActivityBodyInput = {
   activityId: string
   targetLanguage?: string
-}
-
-const createBodyTranslationPort = () => {
-  if (
-    process.env.OPENAI_API_KEY &&
-    process.env.USE_TRANSLATION_STUB !== "true"
-  ) {
-    return new BodyTranslationAdapter(process.env.OPENAI_API_KEY)
-  }
-
-  return new BodyTranslationStubAdapter()
 }
 
 export const handler = async (
@@ -47,7 +36,7 @@ export const handler = async (
       await TransactionManager.transaction(async () => {
         const translationStateRepository =
           new DrizzleActivityTranslationStateRepository()
-        const bodyTranslationPort = createBodyTranslationPort()
+        const bodyTranslationPort = await createBodyTranslationPort()
         const useCase = new ProcessActivityTranslationJobUseCase(
           translationStateRepository,
           bodyTranslationPort,

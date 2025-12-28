@@ -72,8 +72,7 @@ Globals:
         NODE_OPTIONS: !Join
           - ' '
           - - '--import=/opt/nodejs/otel-setup.mjs'
-            - !If [IsProd, '', '--enable-sourcemaps']
-
+            - !If [IsProd, '', '--enable-source-maps']
 Resources:
   AssetsBucket:
     Type: AWS::S3::Bucket
