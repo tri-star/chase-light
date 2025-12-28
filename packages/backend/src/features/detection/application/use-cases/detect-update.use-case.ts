@@ -115,9 +115,7 @@ export class DetectUpdateUseCase {
       body: release.body || "",
       version: release.tag_name,
       githubData: JSON.stringify(release),
-      createdAt: release.published_at
-        ? new Date(release.published_at)
-        : new Date(release.created_at),
+      createdAt: new Date(),
     }))
 
     const result = await this.activityRepository.upsertMany(activitiesToSave)
@@ -149,7 +147,7 @@ export class DetectUpdateUseCase {
       body: issue.body || "",
       version: null,
       githubData: JSON.stringify(issue),
-      createdAt: new Date(issue.created_at),
+      createdAt: new Date(),
     }))
 
     const result = await this.activityRepository.upsertMany(activitiesToSave)
@@ -185,7 +183,7 @@ export class DetectUpdateUseCase {
       body: pr.body || "",
       version: null,
       githubData: JSON.stringify(pr),
-      createdAt: new Date(pr.created_at),
+      createdAt: new Date(),
     }))
 
     const result = await this.activityRepository.upsertMany(activitiesToSave)
