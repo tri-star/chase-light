@@ -82,12 +82,15 @@ export class GenerateDigestNotificationsUseCase {
     let userStates = await this.digestUserStateRepository.fetchUserStates({
       limit,
     })
+    console.debug("input", input)
+    console.debug("userStates", userStates)
 
     if (userStates.length === 0) {
       const initialContexts =
         await this.digestUserStateRepository.fetchInitialUserContexts({
           limit,
         })
+      console.debug("initialContexts", initialContexts)
 
       if (initialContexts.length === 0) {
         return {
@@ -107,6 +110,8 @@ export class GenerateDigestNotificationsUseCase {
       since: input.since,
       until: input.until,
     })
+    console.debug("userStates", userStates)
+    console.debug("userWindows", userWindows)
 
     if (userWindows.length === 0) {
       return {
@@ -122,6 +127,7 @@ export class GenerateDigestNotificationsUseCase {
       userWindows,
       maxEntriesPerGroup: this.maxEntriesPerGroup,
     })
+    console.debug("candidates", candidates)
 
     if (candidates.length === 0) {
       return {
@@ -144,6 +150,7 @@ export class GenerateDigestNotificationsUseCase {
 
       const { groupResults, fallbackGroups } =
         await this.buildGroupResults(candidate)
+      console.debug("groupResults", groupResults)
 
       const notificationCreated =
         candidate.totalActivities > 0 && groupResults.length > 0
@@ -156,6 +163,7 @@ export class GenerateDigestNotificationsUseCase {
         fallbackGroups,
         notificationCreated,
       })
+      console.debug("windowSummaries", windowSummaries)
 
       updates.push({
         userId: candidate.userId,
@@ -172,6 +180,7 @@ export class GenerateDigestNotificationsUseCase {
         groups: groupResults,
         activityCount: candidate.totalActivities,
       })
+      console.debug("metadata", metadata)
 
       drafts.push({
         notification: {
