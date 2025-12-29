@@ -58,7 +58,7 @@
     "@octokit/rest": "^22.0.0",
     "@scalar/hono-api-reference": "^0.9.5",
     "dotenv": "^17.2.2",
-    "drizzle-orm": "^0.44.2",
+    "drizzle-orm": "^0.45.1",
     "hono": "^4.10.2",
     "jsonwebtoken": "^9.0.3",
     "jwks-rsa": "^3.2.0",
