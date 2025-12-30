@@ -59,8 +59,8 @@ Globals:
       - x86_64
     Layers: !If
       - UseParamsSecretsExtension
-      - - arn:aws:lambda:ap-northeast-1:133490724326:layer:AWS-Parameters-and-Secrets-Lambda-Extension:21
-        - !Sub 'arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:layer:otel-collector:7'
+      - - arn:aws:lambda:ap-southeast-1:044395824272:layer:AWS-Parameters-and-Secrets-Lambda-Extension:21
+        - !Sub 'arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:layer:otel-collector:1'
         - !Sub 'arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:layer:${Stage}-chase-light-otlp-layer:${OtlpLayerVersion}'
       - !Ref AWS::NoValue
     MemorySize: !Ref MemorySize

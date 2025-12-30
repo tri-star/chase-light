@@ -9,12 +9,12 @@ parallel = true
 
 [dev.deploy.parameters]
 stack_name = "dev-chase-light-frontend"
-region = "ap-northeast-1"
+region = "ap-southeast-1"
 capabilities = "CAPABILITY_IAM"
 resolve_s3 = true
 s3_prefix = "frontend/dev"
 confirm_changeset = true
-parameter_overrides = "ProjectName=chase-light-frontend Stage=dev SecretId=dev-chase-light-frontend AssetBucketName=dev-chase-light-frontend-assets OtlpLayerVersion=4"
+parameter_overrides = "ProjectName=chase-light-frontend Stage=dev SecretId=dev-chase-light-frontend AssetBucketName=dev-chase-light-frontend-assets OtlpLayerVersion=1"
 
 [prod]
 [prod.build.parameters]
@@ -25,7 +25,7 @@ parallel = true
 
 [prod.deploy.parameters]
 stack_name = "chase-light-frontend-prod"
-region = "ap-northeast-1"
+region = "ap-southeast-1"
 capabilities = "CAPABILITY_IAM"
 resolve_s3 = true
 s3_prefix = "frontend/prod"

@@ -51,7 +51,7 @@ MonitoringDashboard:
           - ["AWS/States", "ExecutionsFailed"]
           - ["AWS/States", "ExecutionsStarted"]
         Period: 300
-        Region: "ap-northeast-1"
+        Region: "ap-southeast-1"
 
     - Type: "Metric"
       Properties:
@@ -61,7 +61,7 @@ MonitoringDashboard:
           - ["AWS/Lambda", "Errors"]
           - ["AWS/Lambda", "Invocations"]
         Period: 300
-        Region: "ap-northeast-1"
+        Region: "ap-southeast-1"
 
     - Type: "Metric"
       Properties:
@@ -71,7 +71,7 @@ MonitoringDashboard:
           - ["AWS/SQS", "NumberOfMessagesSent"]
           - ["AWS/SQS", "NumberOfMessagesReceived"]
         Period: 300
-        Region: "ap-northeast-1"
+        Region: "ap-southeast-1"
 
 LogRetentionPolicies:
   StepFunctions: 30  # 30日間
@@ -82,7 +82,7 @@ AlertingGuidelines:
   CriticalAlerts:
     - "Step Functions実行失敗"
     - "DLQメッセージ蓄積"
-    
+
   WarningAlerts:
     - "Lambda エラー率5%超過"
     - "実行時間異常"
@@ -92,7 +92,7 @@ AlertingGuidelines:
       Description: "メール通知"
       Endpoints:
         - "Email addresses configured in SNS topic"
-    
+
     - Type: "CloudWatch Logs Insights"
       Description: "ログ分析クエリ"
       Queries:
@@ -101,7 +101,7 @@ AlertingGuidelines:
           | filter @message like /ERROR/
           | sort @timestamp desc
           | limit 100
-        
+
         PerformanceAnalysis: |
           fields @timestamp, @duration
           | filter @type = "REPORT"
