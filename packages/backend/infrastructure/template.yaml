@@ -51,6 +51,10 @@ Parameters:
   OtlpLayerVersion:
     Type: String
     Description: OTLPレイヤのバージョン番号
+  BackendApiZoneId:
+    Type: String
+    Description: Route53 zone ID for Backend API
+
 
 Conditions:
   UseParamsSecretsExtension: !Equals [!Ref UseAws, "true"]
@@ -77,7 +81,30 @@ Resources:
           - "DELETE"
           - "OPTIONS"
         AllowCredentials: false
-
+  BackendApiCustomDomain:
+    Type: AWS::ApiGatewayV2::DomainName
+    Properties:
+      DomainName: !If [IsProd, api.chase-light.jp, !Sub "api.${Stage}.chase-light.jp"]
+      DomainNameConfigurations:
+        - CertificateArn: !Sub "{{resolve:ssm:/${Stage}-chase-light/backend_api/certificate_arn}}"
+          EndpointType: REGIONAL
+          SecurityPolicy: TLS_1_2
+  ApiMapping:
+    Type: AWS::ApiGatewayV2::ApiMapping
+    Properties:
+      ApiId: !Ref BackendHttpApi
+      DomainName: !Ref BackendApiCustomDomain
+      Stage: $default
+  BackendApiDnsRecord:
+    Type: AWS::Route53::RecordSet
+    Properties:
+      HostedZoneId: !Ref BackendApiZoneId
+      Name: !If [IsProd, api.chase-light.jp, !Sub "api.${Stage}.chase-light.jp"]
+      Type: A
+      AliasTarget:
+        DNSName: !GetAtt BackendApiCustomDomain.RegionalDomainName
+        HostedZoneId: !GetAtt BackendApiCustomDomain.RegionalHostedZoneId
+        EvaluateTargetHealth: false
 
   BackendHttpApiAccessLogGroup:
     Type: AWS::Logs::LogGroup

@@ -6,10 +6,18 @@ s3_prefix = "dev-chase-light-backend"
 region = "ap-southeast-1"
 confirm_changeset = true
 capabilities = "CAPABILITY_IAM CAPABILITY_NAMED_IAM"
-parameter_overrides = "UseAws=true Stage=dev OtlpLayerVersion=1"
+parameter_overrides = [
+  "UseAws=true",
+  "Stage=dev",
+  "OtlpLayerVersion=1",
+  "BackendApiZoneId=Z087615130E3WNOSQ6IVU"
+]
 image_repositories = []
 
 [dev.local_invoke.parameters]
 env_vars = "env.json"
-parameter_overrides = "UseAws=false Stage=dev"
+parameter_overrides = [
+  "UseAws=false",
+  "Stage=dev"
+]
 region = "ap-southeast-1"

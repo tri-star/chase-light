@@ -207,6 +207,12 @@ Resources:
     Type: AWS::CloudFront::Distribution
     Properties:
       DistributionConfig:
+        Aliases:
+          - !If [IsProd, 'chase-light.jp', !Sub '${Stage}.chase-light.jp']
+        ViewerCertificate:
+          AcmCertificateArn: !Sub "{{resolve:ssm:/${Stage}-chase-light/cloudfront/certificate_arn}}"
+          SslSupportMethod: sni-only
+          MinimumProtocolVersion: TLSv1.2_2021
         Comment: !Sub '${Stage}-chase-light'
         Enabled: true
         HttpVersion: http2
@@ -279,6 +285,17 @@ Resources:
               - HEAD
             Compress: true
             CachePolicyId: 4135ea2d-6df8-44a3-9df3-4b5a84be39ad
+
+  CloudFrontDnsRecord:
+    Type: AWS::Route53::RecordSet
+    Properties:
+      HostedZoneId: !Sub "{{resolve:ssm:/${Stage}-chase-light/route53/zone_id}}"
+      Name: !If [IsProd, 'chase-light.jp', !Sub '${Stage}.chase-light.jp']
+      Type: A
+      AliasTarget:
+        DNSName: !GetAtt FrontendDistribution.DomainName
+        HostedZoneId: Z2FDTNDATAQYW2  # CloudFront固定値
+        EvaluateTargetHealth: false
 
   FunctionLogGroup:
     Type: AWS::Logs::LogGroup
