@@ -1,4 +1,15 @@
-import { and, asc, desc, eq, gte, lte, sql, type SQL } from "drizzle-orm"
+import {
+  and,
+  asc,
+  desc,
+  eq,
+  gte,
+  ilike,
+  lte,
+  or,
+  sql,
+  type SQL,
+} from "drizzle-orm"
 import { TransactionManager } from "../../../../core/db"
 import {
   activities,
@@ -305,6 +316,20 @@ export class DrizzleActivityQueryRepository implements ActivityQueryRepository {
 
     if (normalizedFilters.until) {
       conditions.push(lte(activities.createdAt, normalizedFilters.until))
+    }
+
+    if (normalizedFilters.keyword && normalizedFilters.keyword.trim() !== "") {
+      const searchPattern = `%${normalizedFilters.keyword}%`
+      const keywordConditions: SQL[] = [
+        ilike(activities.title, searchPattern),
+        ilike(activities.translatedTitle, searchPattern),
+        ilike(activities.translatedBody, searchPattern),
+        ilike(activities.summary, searchPattern),
+        ilike(activities.version, searchPattern),
+        ilike(dataSources.name, searchPattern),
+        ilike(repositories.fullName, searchPattern),
+      ]
+      conditions.push(or(...keywordConditions)!)
     }
 
     if (conditions.length === 0) {
