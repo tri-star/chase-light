@@ -321,7 +321,7 @@ export class DrizzleActivityQueryRepository implements ActivityQueryRepository {
     }
 
     if (normalizedFilters.keyword && normalizedFilters.keyword.trim() !== "") {
-      const searchPattern = `%${normalizedFilters.keyword}%`
+      const searchPattern = `%${normalizedFilters.keyword.trim()}%`
       const keywordConditions: SQL[] = [
         ilike(activities.title, searchPattern),
         ilike(activities.translatedTitle, searchPattern),

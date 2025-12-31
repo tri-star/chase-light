@@ -343,7 +343,11 @@ describe("Activities API", () => {
         headers: AuthTestHelper.createAuthHeaders(testToken),
       })
 
-      expect(response.status).toBe(400)
+      expect(response.status).toBe(200)
+      const body = await response.json()
+
+      expect(body.success).toBe(true)
+      expect(body.data.items.length).toBeGreaterThan(0)
     })
   })
 })
