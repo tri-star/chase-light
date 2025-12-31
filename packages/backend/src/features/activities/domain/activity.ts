@@ -134,6 +134,7 @@ export type ActivitiesListFilters = {
   status?: ActivityStatus
   since?: Date
   until?: Date
+  keyword?: string
 }
 
 export type ActivitiesListQuery = {
