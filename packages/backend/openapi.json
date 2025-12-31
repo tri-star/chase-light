@@ -3039,6 +3039,19 @@
             "description": "ソート順",
             "name": "order",
             "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 100,
+              "description": "検索キーワード (部分一致、大文字小文字区別なし)",
+              "example": "react"
+            },
+            "required": false,
+            "description": "検索キーワード (部分一致、大文字小文字区別なし)",
+            "name": "keyword",
+            "in": "query"
           }
         ],
         "responses": {
@@ -3386,6 +3399,19 @@
             "required": false,
             "description": "ソート順",
             "name": "order",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 100,
+              "description": "検索キーワード (部分一致、大文字小文字区別なし)",
+              "example": "react"
+            },
+            "required": false,
+            "description": "検索キーワード (部分一致、大文字小文字区別なし)",
+            "name": "keyword",
             "in": "query"
           }
         ],

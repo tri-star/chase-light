@@ -276,10 +276,12 @@ export class DrizzleActivityQueryRepository implements ActivityQueryRepository {
     const countPromise = connection
       .select({ count: sql<number>`count(*)` })
       .from(activities)
+      .innerJoin(dataSources, eq(dataSources.id, activities.dataSourceId))
       .innerJoin(
         userWatches,
         eq(userWatches.dataSourceId, activities.dataSourceId),
       )
+      .leftJoin(repositories, eq(repositories.dataSourceId, dataSources.id))
       .where(options.where)
 
     const [rows, [{ count }]] = await Promise.all([rowsPromise, countPromise])
