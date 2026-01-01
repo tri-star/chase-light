@@ -28,29 +28,25 @@ watch(filterKeyword, (newValue) => {
       <div class="w-full max-w-4xl space-y-6">
         <ClTextField
           v-model="filterKeyword"
-          type="search"
+          type="text"
           placeholder="キーワードで検索..."
           aria-label="アクティビティ検索フィールド"
         >
           <template #prefix>
             <Icon
               name="heroicons:magnifying-glass"
-              class="absolute left-3 h-5 w-5 text-card-label"
+              size="20"
               aria-hidden="true"
             />
           </template>
           <template v-if="filterKeyword" #suffix>
             <button
               type="button"
-              class="absolute right-3 text-card-label hover:text-card-value"
+              class="h-5 hover:text-card-value"
               aria-label="検索キーワードをクリア"
               @click="filterKeyword = ''"
             >
-              <Icon
-                name="heroicons:x-mark"
-                class="h-5 w-5"
-                aria-hidden="true"
-              />
+              <Icon name="heroicons:x-mark" size="20" aria-hidden="true" />
             </button>
           </template>
         </ClTextField>

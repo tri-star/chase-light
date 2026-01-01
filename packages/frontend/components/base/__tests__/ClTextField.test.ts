@@ -84,7 +84,7 @@ describe('ClTextField', () => {
       expect(input.element.disabled).toBe(false)
     })
 
-    test('disabledがtrueの場合、opacity-50クラスが適用される', () => {
+    test('disabledがtrueの場合、opacity-50クラスが親要素に適用される', () => {
       const wrapper = mount(ClTextField, {
         props: {
           modelValue: '',
@@ -92,8 +92,8 @@ describe('ClTextField', () => {
         },
       })
 
-      const input = wrapper.find('input')
-      expect(input.classes()).toContain('opacity-50')
+      const container = wrapper.find('div')
+      expect(container.classes()).toContain('opacity-50')
     })
   })
 

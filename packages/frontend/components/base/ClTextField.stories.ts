@@ -92,7 +92,7 @@ export const WithPrefix: Story = {
     template: `
       <ClTextField v-bind="args">
         <template #prefix>
-          <Icon name="heroicons:magnifying-glass" class="absolute left-3 h-5 w-5 text-card-label" aria-hidden="true" />
+          <Icon name="heroicons:magnifying-glass" size="20" aria-hidden="true" />
         </template>
       </ClTextField>
     `,
@@ -111,8 +111,8 @@ export const WithSuffix: Story = {
     template: `
       <ClTextField v-bind="args">
         <template #suffix>
-          <button type="button" class="absolute right-3 text-card-label hover:text-card-value">
-            <Icon name="heroicons:x-mark" class="h-5 w-5" aria-hidden="true" />
+          <button type="button" class="hover:text-card-value">
+            <Icon name="heroicons:x-mark" size="20" aria-hidden="true" />
           </button>
         </template>
       </ClTextField>

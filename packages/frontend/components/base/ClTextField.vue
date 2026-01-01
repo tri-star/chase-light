@@ -49,11 +49,28 @@ const handleChange = (event: Event) => {
   const value = target.value
   emit('change', value)
 }
+const slots = useSlots()
+
+const hasPrefix = computed(() => !!slots.prefix)
+const hasSuffix = computed(() => !!slots.suffix)
 </script>
 
 <template>
-  <div class="relative inline-flex w-full items-center">
-    <slot name="prefix" />
+  <div
+    :class="[
+      'relative inline-flex w-full items-center rounded-md border',
+      'border-surface-secondary-default bg-card-default',
+      `focus-within:ring-interactive-focused/20
+      focus-within:border-interactive-focused focus-within:ring-2`,
+      disabled ? 'cursor-not-allowed opacity-50' : 'hover:bg-card-hovered',
+    ]"
+  >
+    <span
+      v-if="$slots.prefix"
+      class="flex items-center justify-center pl-3 text-card-label"
+    >
+      <slot name="prefix" />
+    </span>
     <input
       :value="modelValue"
       :type="type"
@@ -61,18 +78,21 @@ const handleChange = (event: Event) => {
       :disabled="disabled"
       :aria-label="ariaLabel"
       :class="[
-        'text-sm flex-1 rounded-md border',
-        'border-surface-secondary-default bg-card-default px-4 py-2',
+        'text-sm flex-1 bg-transparent py-2',
         'text-card-value placeholder:text-card-label',
-        `focus:ring-interactive-focused/20 focus:border-interactive-focused
-        focus:ring-2 focus:outline-none`,
-        disabled
-          ? 'cursor-not-allowed opacity-50'
-          : 'cursor-text hover:bg-card-hovered',
+        'focus:outline-none',
+        hasPrefix ? 'pl-2' : 'pl-4',
+        hasSuffix ? 'pr-2' : 'pr-4',
+        disabled ? 'cursor-not-allowed' : 'cursor-text',
       ]"
       @input="handleInput"
       @change="handleChange"
     />
-    <slot name="suffix" />
+    <span
+      v-if="$slots.suffix"
+      class="flex items-center justify-center pr-3 text-card-label"
+    >
+      <slot name="suffix" />
+    </span>
   </div>
 </template>
