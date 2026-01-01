@@ -9,6 +9,14 @@ import ActivityItemSkeleton from './ActivityItemSkeleton.vue'
 import ActivityListItem from './ActivityListItem.vue'
 import ClDivider from '~/components/base/ClDivider.vue'
 
+interface Props {
+  keyword?: string
+}
+
+const props = withDefaults(defineProps<Props>(), {
+  keyword: '',
+})
+
 const DEFAULT_PAGINATION: ActivityListResponseDataPagination = {
   page: 1,
   perPage: 20,
@@ -27,6 +35,13 @@ const pagination = ref<ActivityListResponseDataPagination>({
 
 const hasNextPage = computed(() => pagination.value.hasNext)
 
+const resetList = () => {
+  activities.value = []
+  pagination.value = { ...DEFAULT_PAGINATION }
+  enabled.value = true
+  fetchError.value = null
+}
+
 const loadMoreActivities = async () => {
   if (pagination.value.page > 1 && !hasNextPage.value) {
     enabled.value = false
@@ -40,6 +55,7 @@ const loadMoreActivities = async () => {
         params: {
           page: pagination.value.page,
           perPage: pagination.value.perPage,
+          keyword: props.keyword || undefined,
         },
       }
     )
@@ -64,6 +80,15 @@ const loadMoreActivities = async () => {
     enabled.value = false
   }
 }
+
+// keyword変更時にリストをリセット
+watch(
+  () => props.keyword,
+  () => {
+    resetList()
+    loadMoreActivities()
+  }
+)
 
 defineExpose({ loadMoreActivities })
 

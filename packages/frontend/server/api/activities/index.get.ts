@@ -29,6 +29,7 @@ export default defineEventHandler(
       until: query.until as string,
       sort: 'updatedAt',
       order: 'desc',
+      keyword: query.keyword as string | undefined,
     }
 
     const validatedParams = validateWithZod(
