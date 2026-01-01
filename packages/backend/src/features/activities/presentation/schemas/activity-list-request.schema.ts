@@ -58,6 +58,10 @@ export const activityListRequestSchema = z
     }),
     sort: sortFieldEnum,
     order: sortOrderEnum,
+    keyword: z.string().max(100).optional().openapi({
+      description: "検索キーワード (部分一致、大文字小文字区別なし)",
+      example: "react",
+    }),
   })
   .openapi("ActivityListRequest")
 

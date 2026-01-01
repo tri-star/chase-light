@@ -65,6 +65,7 @@ export function createActivitiesRoutes(
       until: query.until ? new Date(query.until) : undefined,
       sort: query.sort,
       order: query.order,
+      keyword: query.keyword,
     })
 
     return c.json(mapListResultToResponse(result), 200)

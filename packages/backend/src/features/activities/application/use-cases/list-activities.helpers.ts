@@ -21,6 +21,7 @@ export type ActivitiesListInputOptions = {
   until?: Date
   sort?: ActivitySortField
   order?: ActivitySortOrder
+  keyword?: string
 }
 
 export type NormalizedActivitiesListOptions = {
@@ -44,6 +45,7 @@ export function normalizeActivitiesListOptions(
     status: options.status ?? DEFAULT_ACTIVITY_STATUS_FILTER,
     since: options.since,
     until: options.until,
+    keyword: options.keyword,
   }
 
   return {

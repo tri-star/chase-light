@@ -174,4 +174,180 @@ describe("Activities API", () => {
 
     expect(response.status).toBe(400)
   })
+
+  describe("キーワード検索機能", () => {
+    beforeEach(async () => {
+      const { dataSource: testDataSource } =
+        await TestDataFactory.createCompleteDataSourceSet(testUser.id, {
+          dataSource: {
+            sourceId: "facebook/react",
+            name: "React Library",
+            url: "https://github.com/facebook/react",
+          },
+        })
+
+      await TestDataFactory.createTestActivity(testDataSource.id, {
+        activityType: ACTIVITY_TYPE.RELEASE,
+        status: ACTIVITY_STATUS.COMPLETED,
+        title: "React 18.0.0 released",
+        translatedTitle: "React 18.0.0 がリリースされました",
+        body: "This is a major release with new concurrent features",
+        translatedBody: "これは新しい並行処理機能を含むメジャーリリースです",
+        summary: "新しい並行処理機能を含むメジャーリリース",
+        version: "18.0.0",
+      })
+
+      await TestDataFactory.createTestActivity(testDataSource.id, {
+        activityType: ACTIVITY_TYPE.ISSUE,
+        status: ACTIVITY_STATUS.COMPLETED,
+        title: "Bug in useState hook",
+        translatedTitle: null,
+        body: "useState is not working correctly",
+        translatedBody: null,
+        summary: null,
+        version: null,
+      })
+
+      await TestDataFactory.createTestActivity(testDataSource.id, {
+        activityType: ACTIVITY_TYPE.PULL_REQUEST,
+        status: ACTIVITY_STATUS.COMPLETED,
+        title: "Fix TypeScript types",
+        translatedTitle: null,
+        body: "Improve type definitions",
+        translatedBody: null,
+        summary: null,
+        version: null,
+      })
+    })
+
+    test("keywordでアクティビティタイトルを検索し、該当結果が返ること", async () => {
+      const response = await app.request("/activities?keyword=React", {
+        headers: AuthTestHelper.createAuthHeaders(testToken),
+      })
+
+      expect(response.status).toBe(200)
+      const body = await response.json()
+
+      expect(body.success).toBe(true)
+      expect(body.data.items.length).toBeGreaterThan(0)
+      expect(
+        body.data.items.some((item: { activity: { title: string } }) =>
+          item.activity.title.includes("React"),
+        ),
+      ).toBe(true)
+    })
+
+    test("keywordで翻訳タイトルを検索し、該当結果が返ること", async () => {
+      const response = await app.request(
+        "/activities?keyword=リリースされました",
+        {
+          headers: AuthTestHelper.createAuthHeaders(testToken),
+        },
+      )
+
+      expect(response.status).toBe(200)
+      const body = await response.json()
+
+      expect(body.success).toBe(true)
+      expect(body.data.items.length).toBeGreaterThan(0)
+      expect(
+        body.data.items.some(
+          (item: { activity: { translatedTitle: string | null } }) =>
+            item.activity.translatedTitle?.includes("リリースされました"),
+        ),
+      ).toBe(true)
+    })
+
+    test("keywordで翻訳本文を検索し、該当結果が返ること", async () => {
+      const response = await app.request("/activities?keyword=並行処理", {
+        headers: AuthTestHelper.createAuthHeaders(testToken),
+      })
+
+      expect(response.status).toBe(200)
+      const body = await response.json()
+
+      expect(body.success).toBe(true)
+      expect(body.data.items.length).toBeGreaterThan(0)
+    })
+
+    test("keywordでデータソース名を検索し、該当結果が返ること", async () => {
+      const response = await app.request("/activities?keyword=Library", {
+        headers: AuthTestHelper.createAuthHeaders(testToken),
+      })
+
+      expect(response.status).toBe(200)
+      const body = await response.json()
+
+      expect(body.success).toBe(true)
+      expect(body.data.items.length).toBeGreaterThan(0)
+    })
+
+    test("keywordでリポジトリ名(owner/repo)を検索し、該当結果が返ること", async () => {
+      // Note: このテストはrepositoryデータが存在する場合のみ動作する
+      // facebook/react データソースにはrepositoryデータが作成されているはず
+      const response = await app.request("/activities?keyword=react", {
+        headers: AuthTestHelper.createAuthHeaders(testToken),
+      })
+
+      expect(response.status).toBe(200)
+      const body = await response.json()
+
+      expect(body.success).toBe(true)
+      // repositoryのfull_name検索も含めたOR検索なので、
+      // データソース名やタイトルで"react"にマッチすれば結果が返る
+      expect(body.data.items.length).toBeGreaterThan(0)
+    })
+
+    test("大文字小文字を区別せずに検索できること(ILIKE動作確認)", async () => {
+      const response = await app.request("/activities?keyword=REACT", {
+        headers: AuthTestHelper.createAuthHeaders(testToken),
+      })
+
+      expect(response.status).toBe(200)
+      const body = await response.json()
+
+      expect(body.success).toBe(true)
+      expect(body.data.items.length).toBeGreaterThan(0)
+    })
+
+    test("該当なしの場合は空配列が返ること", async () => {
+      const response = await app.request(
+        "/activities?keyword=nonexistentkeyword12345",
+        {
+          headers: AuthTestHelper.createAuthHeaders(testToken),
+        },
+      )
+
+      expect(response.status).toBe(200)
+      const body = await response.json()
+
+      expect(body.success).toBe(true)
+      expect(body.data.items).toHaveLength(0)
+      expect(body.data.pagination.total).toBe(0)
+    })
+
+    test("keywordパラメータなしの場合は従来通りの動作をすること", async () => {
+      const response = await app.request("/activities", {
+        headers: AuthTestHelper.createAuthHeaders(testToken),
+      })
+
+      expect(response.status).toBe(200)
+      const body = await response.json()
+
+      expect(body.success).toBe(true)
+      expect(body.data.items.length).toBeGreaterThan(0)
+    })
+
+    test("keywordが空文字の場合は無視されること", async () => {
+      const response = await app.request("/activities?keyword=", {
+        headers: AuthTestHelper.createAuthHeaders(testToken),
+      })
+
+      expect(response.status).toBe(200)
+      const body = await response.json()
+
+      expect(body.success).toBe(true)
+      expect(body.data.items.length).toBeGreaterThan(0)
+    })
+  })
 })
