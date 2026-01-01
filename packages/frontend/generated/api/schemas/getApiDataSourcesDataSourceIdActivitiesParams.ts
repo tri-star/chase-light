@@ -46,4 +46,10 @@ sort?: GetApiDataSourcesDataSourceIdActivitiesSort;
  * ソート順
  */
 order?: GetApiDataSourcesDataSourceIdActivitiesOrder;
+/**
+ * 検索キーワード (部分一致、大文字小文字区別なし)
+ * @minLength 1
+ * @maxLength 100
+ */
+keyword?: string;
 };

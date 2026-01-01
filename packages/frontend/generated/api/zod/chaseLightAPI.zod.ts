@@ -353,7 +353,8 @@ export const deleteApiDataSourcesIdParams = zod.object({
  */
 export const getApiActivitiesQueryPageDefault = 1;export const getApiActivitiesQueryPerPageDefault = 20;
 export const getApiActivitiesQueryPerPageMax = 100;
-export const getApiActivitiesQueryStatusDefault = "completed";export const getApiActivitiesQuerySortDefault = "createdAt";export const getApiActivitiesQueryOrderDefault = "desc";
+export const getApiActivitiesQueryStatusDefault = "completed";export const getApiActivitiesQuerySortDefault = "createdAt";export const getApiActivitiesQueryOrderDefault = "desc";export const getApiActivitiesQueryKeywordMax = 100;
+
 
 export const getApiActivitiesQueryParams = zod.object({
   "page": zod.number().min(1).default(getApiActivitiesQueryPageDefault).describe('ページ番号 (1始まり)'),
@@ -363,7 +364,8 @@ export const getApiActivitiesQueryParams = zod.object({
   "since": zod.iso.datetime({}).optional().describe('取得期間の開始日時 (ISO8601)'),
   "until": zod.iso.datetime({}).optional().describe('取得期間の終了日時 (ISO8601)'),
   "sort": zod.enum(['createdAt', 'updatedAt']).default(getApiActivitiesQuerySortDefault).describe('ソート対象フィールド'),
-  "order": zod.enum(['asc', 'desc']).default(getApiActivitiesQueryOrderDefault).describe('ソート順')
+  "order": zod.enum(['asc', 'desc']).default(getApiActivitiesQueryOrderDefault).describe('ソート順'),
+  "keyword": zod.string().min(1).max(getApiActivitiesQueryKeywordMax).optional().describe('検索キーワード (部分一致、大文字小文字区別なし)')
 })
 
 export const getApiActivitiesResponseDataPaginationPerPageMax = 100;
@@ -515,7 +517,8 @@ export const getApiDataSourcesDataSourceIdActivitiesParams = zod.object({
 
 export const getApiDataSourcesDataSourceIdActivitiesQueryPageDefault = 1;export const getApiDataSourcesDataSourceIdActivitiesQueryPerPageDefault = 20;
 export const getApiDataSourcesDataSourceIdActivitiesQueryPerPageMax = 100;
-export const getApiDataSourcesDataSourceIdActivitiesQueryStatusDefault = "completed";export const getApiDataSourcesDataSourceIdActivitiesQuerySortDefault = "createdAt";export const getApiDataSourcesDataSourceIdActivitiesQueryOrderDefault = "desc";
+export const getApiDataSourcesDataSourceIdActivitiesQueryStatusDefault = "completed";export const getApiDataSourcesDataSourceIdActivitiesQuerySortDefault = "createdAt";export const getApiDataSourcesDataSourceIdActivitiesQueryOrderDefault = "desc";export const getApiDataSourcesDataSourceIdActivitiesQueryKeywordMax = 100;
+
 
 export const getApiDataSourcesDataSourceIdActivitiesQueryParams = zod.object({
   "page": zod.number().min(1).default(getApiDataSourcesDataSourceIdActivitiesQueryPageDefault).describe('ページ番号 (1始まり)'),
@@ -525,7 +528,8 @@ export const getApiDataSourcesDataSourceIdActivitiesQueryParams = zod.object({
   "since": zod.iso.datetime({}).optional().describe('取得期間の開始日時 (ISO8601)'),
   "until": zod.iso.datetime({}).optional().describe('取得期間の終了日時 (ISO8601)'),
   "sort": zod.enum(['createdAt', 'updatedAt']).default(getApiDataSourcesDataSourceIdActivitiesQuerySortDefault).describe('ソート対象フィールド'),
-  "order": zod.enum(['asc', 'desc']).default(getApiDataSourcesDataSourceIdActivitiesQueryOrderDefault).describe('ソート順')
+  "order": zod.enum(['asc', 'desc']).default(getApiDataSourcesDataSourceIdActivitiesQueryOrderDefault).describe('ソート順'),
+  "keyword": zod.string().min(1).max(getApiDataSourcesDataSourceIdActivitiesQueryKeywordMax).optional().describe('検索キーワード (部分一致、大文字小文字区別なし)')
 })
 
 export const getApiDataSourcesDataSourceIdActivitiesResponseDataPaginationPerPageMax = 100;
