@@ -66,8 +66,8 @@ importers:
         specifier: ^17.2.2
         version: 17.2.2
       drizzle-orm:
-        specifier: ^0.44.2
-        version: 0.44.5(@types/pg@8.15.5)(pg@8.16.3)
+        specifier: ^0.45.1
+        version: 0.45.1(@types/pg@8.15.5)(pg@8.16.3)
       hono:
         specifier: ^4.10.2
         version: 4.10.2
@@ -128,7 +128,7 @@ importers:
         version: 0.31.4
       drizzle-seed:
         specifier: ^0.3.1
-        version: 0.3.1(drizzle-orm@0.44.5(@types/pg@8.15.5)(pg@8.16.3))
+        version: 0.3.1(drizzle-orm@0.45.1(@types/pg@8.15.5)(pg@8.16.3))
       esbuild:
         specifier: ^0.27.1
         version: 0.27.1
@@ -161,7 +161,7 @@ importers:
         version: 1.13.0(magicast@0.5.1)(vite@7.1.5(@types/node@24.7.1)(jiti@2.6.1)(lightningcss@1.30.1)(terser@5.44.1)(tsx@4.20.6)(yaml@2.8.1))(vue@3.5.24(typescript@5.9.3))
       '@nuxtjs/storybook':
         specifier: ^9.0.1
-        version: 9.0.1(@biomejs/biome@2.2.4)(@types/node@24.7.1)(eslint@9.36.0(jiti@2.6.1))(lightningcss@1.30.1)(magicast@0.5.1)(nuxt@3.19.2(@biomejs/biome@2.2.4)(@netlify/blobs@9.1.2)(@parcel/watcher@2.5.1)(@types/node@24.7.1)(@vue/compiler-sfc@3.5.26)(db0@0.3.4(drizzle-orm@0.44.5(@types/pg@8.15.5)(pg@8.16.3)))(drizzle-orm@0.44.5(@types/pg@8.15.5)(pg@8.16.3))(eslint@9.36.0(jiti@2.6.1))(ioredis@5.8.2)(lightningcss@1.30.1)(magicast@0.5.1)(optionator@0.9.4)(rollup@4.53.3)(terser@5.44.1)(tsx@4.20.6)(typescript@5.9.3)(vite@7.1.5(@types/node@24.7.1)(jiti@2.6.1)(lightningcss@1.30.1)(terser@5.44.1)(tsx@4.20.6)(yaml@2.8.1))(vue-tsc@3.1.1(typescript@5.9.3))(yaml@2.8.1))(optionator@0.9.4)(rollup@4.53.3)(storybook@9.0.5(@testing-library/dom@10.4.0)(prettier@3.6.2))(terser@5.44.1)(tsx@4.20.6)(typescript@5.9.3)(vite@7.1.5(@types/node@24.7.1)(jiti@2.6.1)(lightningcss@1.30.1)(terser@5.44.1)(tsx@4.20.6)(yaml@2.8.1))(vue-tsc@3.1.1(typescript@5.9.3))(vue@3.5.24(typescript@5.9.3))(yaml@2.8.1)
+        version: 9.0.1(@biomejs/biome@2.2.4)(@types/node@24.7.1)(eslint@9.36.0(jiti@2.6.1))(lightningcss@1.30.1)(magicast@0.5.1)(nuxt@3.19.2(@biomejs/biome@2.2.4)(@netlify/blobs@9.1.2)(@parcel/watcher@2.5.1)(@types/node@24.7.1)(@vue/compiler-sfc@3.5.26)(db0@0.3.4(drizzle-orm@0.45.1(@types/pg@8.15.5)(pg@8.16.3)))(drizzle-orm@0.45.1(@types/pg@8.15.5)(pg@8.16.3))(eslint@9.36.0(jiti@2.6.1))(ioredis@5.8.2)(lightningcss@1.30.1)(magicast@0.5.1)(optionator@0.9.4)(rollup@4.53.3)(terser@5.44.1)(tsx@4.20.6)(typescript@5.9.3)(vite@7.1.5(@types/node@24.7.1)(jiti@2.6.1)(lightningcss@1.30.1)(terser@5.44.1)(tsx@4.20.6)(yaml@2.8.1))(vue-tsc@3.1.1(typescript@5.9.3))(yaml@2.8.1))(optionator@0.9.4)(rollup@4.53.3)(storybook@9.0.5(@testing-library/dom@10.4.0)(prettier@3.6.2))(terser@5.44.1)(tsx@4.20.6)(typescript@5.9.3)(vite@7.1.5(@types/node@24.7.1)(jiti@2.6.1)(lightningcss@1.30.1)(terser@5.44.1)(tsx@4.20.6)(yaml@2.8.1))(vue-tsc@3.1.1(typescript@5.9.3))(vue@3.5.24(typescript@5.9.3))(yaml@2.8.1)
       '@pinia/nuxt':
         specifier: 0.11.3
         version: 0.11.3(magicast@0.5.1)(pinia@3.0.4(typescript@5.9.3)(vue@3.5.24(typescript@5.9.3)))
@@ -182,7 +182,7 @@ importers:
         version: 3.2.0
       nuxt:
         specifier: ^3.17.5
-        version: 3.19.2(@biomejs/biome@2.2.4)(@netlify/blobs@9.1.2)(@parcel/watcher@2.5.1)(@types/node@24.7.1)(@vue/compiler-sfc@3.5.26)(db0@0.3.4(drizzle-orm@0.44.5(@types/pg@8.15.5)(pg@8.16.3)))(drizzle-orm@0.44.5(@types/pg@8.15.5)(pg@8.16.3))(eslint@9.36.0(jiti@2.6.1))(ioredis@5.8.2)(lightningcss@1.30.1)(magicast@0.5.1)(optionator@0.9.4)(rollup@4.53.3)(terser@5.44.1)(tsx@4.20.6)(typescript@5.9.3)(vite@7.1.5(@types/node@24.7.1)(jiti@2.6.1)(lightningcss@1.30.1)(terser@5.44.1)(tsx@4.20.6)(yaml@2.8.1))(vue-tsc@3.1.1(typescript@5.9.3))(yaml@2.8.1)
+        version: 3.19.2(@biomejs/biome@2.2.4)(@netlify/blobs@9.1.2)(@parcel/watcher@2.5.1)(@types/node@24.7.1)(@vue/compiler-sfc@3.5.26)(db0@0.3.4(drizzle-orm@0.45.1(@types/pg@8.15.5)(pg@8.16.3)))(drizzle-orm@0.45.1(@types/pg@8.15.5)(pg@8.16.3))(eslint@9.36.0(jiti@2.6.1))(ioredis@5.8.2)(lightningcss@1.30.1)(magicast@0.5.1)(optionator@0.9.4)(rollup@4.53.3)(terser@5.44.1)(tsx@4.20.6)(typescript@5.9.3)(vite@7.1.5(@types/node@24.7.1)(jiti@2.6.1)(lightningcss@1.30.1)(terser@5.44.1)(tsx@4.20.6)(yaml@2.8.1))(vue-tsc@3.1.1(typescript@5.9.3))(yaml@2.8.1)
       nuxt-auth-utils:
         specifier: 0.5.20
         version: 0.5.20(magicast@0.5.1)
@@ -234,7 +234,7 @@ importers:
         version: 1.56.1
       '@storybook-vue/nuxt':
         specifier: 9.0.1
-        version: 9.0.1(@biomejs/biome@2.2.4)(@types/node@24.7.1)(eslint@9.36.0(jiti@2.6.1))(lightningcss@1.30.1)(magicast@0.5.1)(nuxt@3.19.2(@biomejs/biome@2.2.4)(@netlify/blobs@9.1.2)(@parcel/watcher@2.5.1)(@types/node@24.7.1)(@vue/compiler-sfc@3.5.26)(db0@0.3.4(drizzle-orm@0.44.5(@types/pg@8.15.5)(pg@8.16.3)))(drizzle-orm@0.44.5(@types/pg@8.15.5)(pg@8.16.3))(eslint@9.36.0(jiti@2.6.1))(ioredis@5.8.2)(lightningcss@1.30.1)(magicast@0.5.1)(optionator@0.9.4)(rollup@4.53.3)(terser@5.44.1)(tsx@4.20.6)(typescript@5.9.3)(vite@7.1.5(@types/node@24.7.1)(jiti@2.6.1)(lightningcss@1.30.1)(terser@5.44.1)(tsx@4.20.6)(yaml@2.8.1))(vue-tsc@3.1.1(typescript@5.9.3))(yaml@2.8.1))(optionator@0.9.4)(rollup@4.53.3)(storybook@9.0.5(@testing-library/dom@10.4.0)(prettier@3.6.2))(terser@5.44.1)(tsx@4.20.6)(typescript@5.9.3)(vite@7.1.5(@types/node@24.7.1)(jiti@2.6.1)(lightningcss@1.30.1)(terser@5.44.1)(tsx@4.20.6)(yaml@2.8.1))(vue-tsc@3.1.1(typescript@5.9.3))(vue@3.5.24(typescript@5.9.3))(yaml@2.8.1)
+        version: 9.0.1(@biomejs/biome@2.2.4)(@types/node@24.7.1)(eslint@9.36.0(jiti@2.6.1))(lightningcss@1.30.1)(magicast@0.5.1)(nuxt@3.19.2(@biomejs/biome@2.2.4)(@netlify/blobs@9.1.2)(@parcel/watcher@2.5.1)(@types/node@24.7.1)(@vue/compiler-sfc@3.5.26)(db0@0.3.4(drizzle-orm@0.45.1(@types/pg@8.15.5)(pg@8.16.3)))(drizzle-orm@0.45.1(@types/pg@8.15.5)(pg@8.16.3))(eslint@9.36.0(jiti@2.6.1))(ioredis@5.8.2)(lightningcss@1.30.1)(magicast@0.5.1)(optionator@0.9.4)(rollup@4.53.3)(terser@5.44.1)(tsx@4.20.6)(typescript@5.9.3)(vite@7.1.5(@types/node@24.7.1)(jiti@2.6.1)(lightningcss@1.30.1)(terser@5.44.1)(tsx@4.20.6)(yaml@2.8.1))(vue-tsc@3.1.1(typescript@5.9.3))(yaml@2.8.1))(optionator@0.9.4)(rollup@4.53.3)(storybook@9.0.5(@testing-library/dom@10.4.0)(prettier@3.6.2))(terser@5.44.1)(tsx@4.20.6)(typescript@5.9.3)(vite@7.1.5(@types/node@24.7.1)(jiti@2.6.1)(lightningcss@1.30.1)(terser@5.44.1)(tsx@4.20.6)(yaml@2.8.1))(vue-tsc@3.1.1(typescript@5.9.3))(vue@3.5.24(typescript@5.9.3))(yaml@2.8.1)
       '@storybook/addon-docs':
         specifier: 9.0.5
         version: 9.0.5(@types/react@18.3.23)(storybook@9.0.5(@testing-library/dom@10.4.0)(prettier@3.6.2))
@@ -270,7 +270,7 @@ importers:
         version: 2.0.5(msw@2.11.3(@types/node@24.7.1)(typescript@5.9.3))
       nitropack:
         specifier: 2.12.9
-        version: 2.12.9(@netlify/blobs@9.1.2)(drizzle-orm@0.44.5(@types/pg@8.15.5)(pg@8.16.3))
+        version: 2.12.9(@netlify/blobs@9.1.2)(drizzle-orm@0.45.1(@types/pg@8.15.5)(pg@8.16.3))
       orval:
         specifier: ^7.13.0
         version: 7.13.0(openapi-types@12.1.3)(typescript@5.9.3)
@@ -5541,8 +5541,8 @@ packages:
     resolution: {integrity: sha512-tCPWVZWZqWVx2XUsVpJRnH9Mx0ClVOf5YUHerZ5so1OKSlqww4zy1R5ksEdGRcO3tM3zj0PYN6V48TbQCL1RfA==}
     hasBin: true
 
-  drizzle-orm@0.44.5:
-    resolution: {integrity: sha512-jBe37K7d8ZSKptdKfakQFdeljtu3P2Cbo7tJoJSVZADzIKOBo9IAJPOmMsH2bZl90bZgh8FQlD8BjxXA/zuBkQ==}
+  drizzle-orm@0.45.1:
+    resolution: {integrity: sha512-Te0FOdKIistGNPMq2jscdqngBRfBpC8uMFVwqjf6gtTVJHIQ/dosgV/CLBU2N4ZJBsXL5savCba9b0YJskKdcA==}
     peerDependencies:
       '@aws-sdk/client-rds-data': '>=3'
       '@cloudflare/workers-types': '>=4'
@@ -13078,11 +13078,11 @@ snapshots:
       - vue-tsc
       - yaml
 
-  '@nuxtjs/storybook@9.0.1(@biomejs/biome@2.2.4)(@types/node@24.7.1)(eslint@9.36.0(jiti@2.6.1))(lightningcss@1.30.1)(magicast@0.5.1)(nuxt@3.19.2(@biomejs/biome@2.2.4)(@netlify/blobs@9.1.2)(@parcel/watcher@2.5.1)(@types/node@24.7.1)(@vue/compiler-sfc@3.5.26)(db0@0.3.4(drizzle-orm@0.44.5(@types/pg@8.15.5)(pg@8.16.3)))(drizzle-orm@0.44.5(@types/pg@8.15.5)(pg@8.16.3))(eslint@9.36.0(jiti@2.6.1))(ioredis@5.8.2)(lightningcss@1.30.1)(magicast@0.5.1)(optionator@0.9.4)(rollup@4.53.3)(terser@5.44.1)(tsx@4.20.6)(typescript@5.9.3)(vite@7.1.5(@types/node@24.7.1)(jiti@2.6.1)(lightningcss@1.30.1)(terser@5.44.1)(tsx@4.20.6)(yaml@2.8.1))(vue-tsc@3.1.1(typescript@5.9.3))(yaml@2.8.1))(optionator@0.9.4)(rollup@4.53.3)(storybook@9.0.5(@testing-library/dom@10.4.0)(prettier@3.6.2))(terser@5.44.1)(tsx@4.20.6)(typescript@5.9.3)(vite@7.1.5(@types/node@24.7.1)(jiti@2.6.1)(lightningcss@1.30.1)(terser@5.44.1)(tsx@4.20.6)(yaml@2.8.1))(vue-tsc@3.1.1(typescript@5.9.3))(vue@3.5.24(typescript@5.9.3))(yaml@2.8.1)':
+  '@nuxtjs/storybook@9.0.1(@biomejs/biome@2.2.4)(@types/node@24.7.1)(eslint@9.36.0(jiti@2.6.1))(lightningcss@1.30.1)(magicast@0.5.1)(nuxt@3.19.2(@biomejs/biome@2.2.4)(@netlify/blobs@9.1.2)(@parcel/watcher@2.5.1)(@types/node@24.7.1)(@vue/compiler-sfc@3.5.26)(db0@0.3.4(drizzle-orm@0.45.1(@types/pg@8.15.5)(pg@8.16.3)))(drizzle-orm@0.45.1(@types/pg@8.15.5)(pg@8.16.3))(eslint@9.36.0(jiti@2.6.1))(ioredis@5.8.2)(lightningcss@1.30.1)(magicast@0.5.1)(optionator@0.9.4)(rollup@4.53.3)(terser@5.44.1)(tsx@4.20.6)(typescript@5.9.3)(vite@7.1.5(@types/node@24.7.1)(jiti@2.6.1)(lightningcss@1.30.1)(terser@5.44.1)(tsx@4.20.6)(yaml@2.8.1))(vue-tsc@3.1.1(typescript@5.9.3))(yaml@2.8.1))(optionator@0.9.4)(rollup@4.53.3)(storybook@9.0.5(@testing-library/dom@10.4.0)(prettier@3.6.2))(terser@5.44.1)(tsx@4.20.6)(typescript@5.9.3)(vite@7.1.5(@types/node@24.7.1)(jiti@2.6.1)(lightningcss@1.30.1)(terser@5.44.1)(tsx@4.20.6)(yaml@2.8.1))(vue-tsc@3.1.1(typescript@5.9.3))(vue@3.5.24(typescript@5.9.3))(yaml@2.8.1)':
     dependencies:
       '@nuxt/devtools-kit': 2.6.3(magicast@0.5.1)(vite@7.1.5(@types/node@24.7.1)(jiti@2.6.1)(lightningcss@1.30.1)(terser@5.44.1)(tsx@4.20.6)(yaml@2.8.1))
       '@nuxt/kit': 3.19.2(magicast@0.5.1)
-      '@storybook-vue/nuxt': 9.0.1(@biomejs/biome@2.2.4)(@types/node@24.7.1)(eslint@9.36.0(jiti@2.6.1))(lightningcss@1.30.1)(magicast@0.5.1)(nuxt@3.19.2(@biomejs/biome@2.2.4)(@netlify/blobs@9.1.2)(@parcel/watcher@2.5.1)(@types/node@24.7.1)(@vue/compiler-sfc@3.5.26)(db0@0.3.4(drizzle-orm@0.44.5(@types/pg@8.15.5)(pg@8.16.3)))(drizzle-orm@0.44.5(@types/pg@8.15.5)(pg@8.16.3))(eslint@9.36.0(jiti@2.6.1))(ioredis@5.8.2)(lightningcss@1.30.1)(magicast@0.5.1)(optionator@0.9.4)(rollup@4.53.3)(terser@5.44.1)(tsx@4.20.6)(typescript@5.9.3)(vite@7.1.5(@types/node@24.7.1)(jiti@2.6.1)(lightningcss@1.30.1)(terser@5.44.1)(tsx@4.20.6)(yaml@2.8.1))(vue-tsc@3.1.1(typescript@5.9.3))(yaml@2.8.1))(optionator@0.9.4)(rollup@4.53.3)(storybook@9.0.5(@testing-library/dom@10.4.0)(prettier@3.6.2))(terser@5.44.1)(tsx@4.20.6)(typescript@5.9.3)(vite@7.1.5(@types/node@24.7.1)(jiti@2.6.1)(lightningcss@1.30.1)(terser@5.44.1)(tsx@4.20.6)(yaml@2.8.1))(vue-tsc@3.1.1(typescript@5.9.3))(vue@3.5.24(typescript@5.9.3))(yaml@2.8.1)
+      '@storybook-vue/nuxt': 9.0.1(@biomejs/biome@2.2.4)(@types/node@24.7.1)(eslint@9.36.0(jiti@2.6.1))(lightningcss@1.30.1)(magicast@0.5.1)(nuxt@3.19.2(@biomejs/biome@2.2.4)(@netlify/blobs@9.1.2)(@parcel/watcher@2.5.1)(@types/node@24.7.1)(@vue/compiler-sfc@3.5.26)(db0@0.3.4(drizzle-orm@0.45.1(@types/pg@8.15.5)(pg@8.16.3)))(drizzle-orm@0.45.1(@types/pg@8.15.5)(pg@8.16.3))(eslint@9.36.0(jiti@2.6.1))(ioredis@5.8.2)(lightningcss@1.30.1)(magicast@0.5.1)(optionator@0.9.4)(rollup@4.53.3)(terser@5.44.1)(tsx@4.20.6)(typescript@5.9.3)(vite@7.1.5(@types/node@24.7.1)(jiti@2.6.1)(lightningcss@1.30.1)(terser@5.44.1)(tsx@4.20.6)(yaml@2.8.1))(vue-tsc@3.1.1(typescript@5.9.3))(yaml@2.8.1))(optionator@0.9.4)(rollup@4.53.3)(storybook@9.0.5(@testing-library/dom@10.4.0)(prettier@3.6.2))(terser@5.44.1)(tsx@4.20.6)(typescript@5.9.3)(vite@7.1.5(@types/node@24.7.1)(jiti@2.6.1)(lightningcss@1.30.1)(terser@5.44.1)(tsx@4.20.6)(yaml@2.8.1))(vue-tsc@3.1.1(typescript@5.9.3))(vue@3.5.24(typescript@5.9.3))(yaml@2.8.1)
       chalk: 5.6.2
       consola: 3.4.2
       defu: 6.1.4
@@ -14868,7 +14868,7 @@ snapshots:
       '@stoplight/yaml-ast-parser': 0.0.50
       tslib: 2.8.1
 
-  '@storybook-vue/nuxt@9.0.1(@biomejs/biome@2.2.4)(@types/node@24.7.1)(eslint@9.36.0(jiti@2.6.1))(lightningcss@1.30.1)(magicast@0.5.1)(nuxt@3.19.2(@biomejs/biome@2.2.4)(@netlify/blobs@9.1.2)(@parcel/watcher@2.5.1)(@types/node@24.7.1)(@vue/compiler-sfc@3.5.26)(db0@0.3.4(drizzle-orm@0.44.5(@types/pg@8.15.5)(pg@8.16.3)))(drizzle-orm@0.44.5(@types/pg@8.15.5)(pg@8.16.3))(eslint@9.36.0(jiti@2.6.1))(ioredis@5.8.2)(lightningcss@1.30.1)(magicast@0.5.1)(optionator@0.9.4)(rollup@4.53.3)(terser@5.44.1)(tsx@4.20.6)(typescript@5.9.3)(vite@7.1.5(@types/node@24.7.1)(jiti@2.6.1)(lightningcss@1.30.1)(terser@5.44.1)(tsx@4.20.6)(yaml@2.8.1))(vue-tsc@3.1.1(typescript@5.9.3))(yaml@2.8.1))(optionator@0.9.4)(rollup@4.53.3)(storybook@9.0.5(@testing-library/dom@10.4.0)(prettier@3.6.2))(terser@5.44.1)(tsx@4.20.6)(typescript@5.9.3)(vite@7.1.5(@types/node@24.7.1)(jiti@2.6.1)(lightningcss@1.30.1)(terser@5.44.1)(tsx@4.20.6)(yaml@2.8.1))(vue-tsc@3.1.1(typescript@5.9.3))(vue@3.5.24(typescript@5.9.3))(yaml@2.8.1)':
+  '@storybook-vue/nuxt@9.0.1(@biomejs/biome@2.2.4)(@types/node@24.7.1)(eslint@9.36.0(jiti@2.6.1))(lightningcss@1.30.1)(magicast@0.5.1)(nuxt@3.19.2(@biomejs/biome@2.2.4)(@netlify/blobs@9.1.2)(@parcel/watcher@2.5.1)(@types/node@24.7.1)(@vue/compiler-sfc@3.5.26)(db0@0.3.4(drizzle-orm@0.45.1(@types/pg@8.15.5)(pg@8.16.3)))(drizzle-orm@0.45.1(@types/pg@8.15.5)(pg@8.16.3))(eslint@9.36.0(jiti@2.6.1))(ioredis@5.8.2)(lightningcss@1.30.1)(magicast@0.5.1)(optionator@0.9.4)(rollup@4.53.3)(terser@5.44.1)(tsx@4.20.6)(typescript@5.9.3)(vite@7.1.5(@types/node@24.7.1)(jiti@2.6.1)(lightningcss@1.30.1)(terser@5.44.1)(tsx@4.20.6)(yaml@2.8.1))(vue-tsc@3.1.1(typescript@5.9.3))(yaml@2.8.1))(optionator@0.9.4)(rollup@4.53.3)(storybook@9.0.5(@testing-library/dom@10.4.0)(prettier@3.6.2))(terser@5.44.1)(tsx@4.20.6)(typescript@5.9.3)(vite@7.1.5(@types/node@24.7.1)(jiti@2.6.1)(lightningcss@1.30.1)(terser@5.44.1)(tsx@4.20.6)(yaml@2.8.1))(vue-tsc@3.1.1(typescript@5.9.3))(vue@3.5.24(typescript@5.9.3))(yaml@2.8.1)':
     dependencies:
       '@nuxt/kit': 3.19.2(magicast@0.5.1)
       '@nuxt/schema': 3.19.2
@@ -14879,7 +14879,7 @@ snapshots:
       '@storybook/vue3-vite': 9.1.2(storybook@9.0.5(@testing-library/dom@10.4.0)(prettier@3.6.2))(vite@7.1.5(@types/node@24.7.1)(jiti@2.6.1)(lightningcss@1.30.1)(terser@5.44.1)(tsx@4.20.6)(yaml@2.8.1))(vue@3.5.24(typescript@5.9.3))
       json-stable-stringify: 1.3.0
       mlly: 1.8.0
-      nuxt: 3.19.2(@biomejs/biome@2.2.4)(@netlify/blobs@9.1.2)(@parcel/watcher@2.5.1)(@types/node@24.7.1)(@vue/compiler-sfc@3.5.26)(db0@0.3.4(drizzle-orm@0.44.5(@types/pg@8.15.5)(pg@8.16.3)))(drizzle-orm@0.44.5(@types/pg@8.15.5)(pg@8.16.3))(eslint@9.36.0(jiti@2.6.1))(ioredis@5.8.2)(lightningcss@1.30.1)(magicast@0.5.1)(optionator@0.9.4)(rollup@4.53.3)(terser@5.44.1)(tsx@4.20.6)(typescript@5.9.3)(vite@7.1.5(@types/node@24.7.1)(jiti@2.6.1)(lightningcss@1.30.1)(terser@5.44.1)(tsx@4.20.6)(yaml@2.8.1))(vue-tsc@3.1.1(typescript@5.9.3))(yaml@2.8.1)
+      nuxt: 3.19.2(@biomejs/biome@2.2.4)(@netlify/blobs@9.1.2)(@parcel/watcher@2.5.1)(@types/node@24.7.1)(@vue/compiler-sfc@3.5.26)(db0@0.3.4(drizzle-orm@0.45.1(@types/pg@8.15.5)(pg@8.16.3)))(drizzle-orm@0.45.1(@types/pg@8.15.5)(pg@8.16.3))(eslint@9.36.0(jiti@2.6.1))(ioredis@5.8.2)(lightningcss@1.30.1)(magicast@0.5.1)(optionator@0.9.4)(rollup@4.53.3)(terser@5.44.1)(tsx@4.20.6)(typescript@5.9.3)(vite@7.1.5(@types/node@24.7.1)(jiti@2.6.1)(lightningcss@1.30.1)(terser@5.44.1)(tsx@4.20.6)(yaml@2.8.1))(vue-tsc@3.1.1(typescript@5.9.3))(yaml@2.8.1)
       ofetch: 1.4.1
       pathe: 2.0.3
       storybook: 9.0.5(@testing-library/dom@10.4.0)(prettier@3.6.2)
@@ -16857,9 +16857,9 @@ snapshots:
       es-errors: 1.3.0
       is-data-view: 1.0.2
 
-  db0@0.3.4(drizzle-orm@0.44.5(@types/pg@8.15.5)(pg@8.16.3)):
+  db0@0.3.4(drizzle-orm@0.45.1(@types/pg@8.15.5)(pg@8.16.3)):
     optionalDependencies:
-      drizzle-orm: 0.44.5(@types/pg@8.15.5)(pg@8.16.3)
+      drizzle-orm: 0.45.1(@types/pg@8.15.5)(pg@8.16.3)
 
   de-indent@1.0.2: {}
 
@@ -17015,16 +17015,16 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  drizzle-orm@0.44.5(@types/pg@8.15.5)(pg@8.16.3):
+  drizzle-orm@0.45.1(@types/pg@8.15.5)(pg@8.16.3):
     optionalDependencies:
       '@types/pg': 8.15.5
       pg: 8.16.3
 
-  drizzle-seed@0.3.1(drizzle-orm@0.44.5(@types/pg@8.15.5)(pg@8.16.3)):
+  drizzle-seed@0.3.1(drizzle-orm@0.45.1(@types/pg@8.15.5)(pg@8.16.3)):
     dependencies:
       pure-rand: 6.1.0
     optionalDependencies:
-      drizzle-orm: 0.44.5(@types/pg@8.15.5)(pg@8.16.3)
+      drizzle-orm: 0.45.1(@types/pg@8.15.5)(pg@8.16.3)
 
   dunder-proto@1.0.1:
     dependencies:
@@ -19387,7 +19387,7 @@ snapshots:
       jsonpath-plus: 10.3.0
       lodash.topath: 4.5.2
 
-  nitropack@2.12.9(@netlify/blobs@9.1.2)(drizzle-orm@0.44.5(@types/pg@8.15.5)(pg@8.16.3)):
+  nitropack@2.12.9(@netlify/blobs@9.1.2)(drizzle-orm@0.45.1(@types/pg@8.15.5)(pg@8.16.3)):
     dependencies:
       '@cloudflare/kv-asset-handler': 0.4.0
       '@rollup/plugin-alias': 5.1.1(rollup@4.53.3)
@@ -19408,7 +19408,7 @@ snapshots:
       cookie-es: 2.0.0
       croner: 9.1.0
       crossws: 0.3.5
-      db0: 0.3.4(drizzle-orm@0.44.5(@types/pg@8.15.5)(pg@8.16.3))
+      db0: 0.3.4(drizzle-orm@0.45.1(@types/pg@8.15.5)(pg@8.16.3))
       defu: 6.1.4
       destr: 2.0.5
       dot-prop: 10.1.0
@@ -19454,7 +19454,7 @@ snapshots:
       unenv: 2.0.0-rc.24
       unimport: 5.5.0
       unplugin-utils: 0.3.1
-      unstorage: 1.17.3(@netlify/blobs@9.1.2)(db0@0.3.4(drizzle-orm@0.44.5(@types/pg@8.15.5)(pg@8.16.3)))(ioredis@5.8.2)
+      unstorage: 1.17.3(@netlify/blobs@9.1.2)(db0@0.3.4(drizzle-orm@0.45.1(@types/pg@8.15.5)(pg@8.16.3)))(ioredis@5.8.2)
       untyped: 2.0.0
       unwasm: 0.3.11
       youch: 4.1.0-beta.13
@@ -19595,7 +19595,7 @@ snapshots:
       - bcrypt
       - magicast
 
-  nuxt@3.19.2(@biomejs/biome@2.2.4)(@netlify/blobs@9.1.2)(@parcel/watcher@2.5.1)(@types/node@24.7.1)(@vue/compiler-sfc@3.5.26)(db0@0.3.4(drizzle-orm@0.44.5(@types/pg@8.15.5)(pg@8.16.3)))(drizzle-orm@0.44.5(@types/pg@8.15.5)(pg@8.16.3))(eslint@9.36.0(jiti@2.6.1))(ioredis@5.8.2)(lightningcss@1.30.1)(magicast@0.5.1)(optionator@0.9.4)(rollup@4.53.3)(terser@5.44.1)(tsx@4.20.6)(typescript@5.9.3)(vite@7.1.5(@types/node@24.7.1)(jiti@2.6.1)(lightningcss@1.30.1)(terser@5.44.1)(tsx@4.20.6)(yaml@2.8.1))(vue-tsc@3.1.1(typescript@5.9.3))(yaml@2.8.1):
+  nuxt@3.19.2(@biomejs/biome@2.2.4)(@netlify/blobs@9.1.2)(@parcel/watcher@2.5.1)(@types/node@24.7.1)(@vue/compiler-sfc@3.5.26)(db0@0.3.4(drizzle-orm@0.45.1(@types/pg@8.15.5)(pg@8.16.3)))(drizzle-orm@0.45.1(@types/pg@8.15.5)(pg@8.16.3))(eslint@9.36.0(jiti@2.6.1))(ioredis@5.8.2)(lightningcss@1.30.1)(magicast@0.5.1)(optionator@0.9.4)(rollup@4.53.3)(terser@5.44.1)(tsx@4.20.6)(typescript@5.9.3)(vite@7.1.5(@types/node@24.7.1)(jiti@2.6.1)(lightningcss@1.30.1)(terser@5.44.1)(tsx@4.20.6)(yaml@2.8.1))(vue-tsc@3.1.1(typescript@5.9.3))(yaml@2.8.1):
     dependencies:
       '@nuxt/cli': 3.28.0(magicast@0.5.1)
       '@nuxt/devalue': 2.0.2
@@ -19630,7 +19630,7 @@ snapshots:
       mlly: 1.8.0
       mocked-exports: 0.1.1
       nanotar: 0.2.0
-      nitropack: 2.12.9(@netlify/blobs@9.1.2)(drizzle-orm@0.44.5(@types/pg@8.15.5)(pg@8.16.3))
+      nitropack: 2.12.9(@netlify/blobs@9.1.2)(drizzle-orm@0.45.1(@types/pg@8.15.5)(pg@8.16.3))
       nypm: 0.6.1
       ofetch: 1.4.1
       ohash: 2.0.11
@@ -19654,7 +19654,7 @@ snapshots:
       unimport: 5.2.0
       unplugin: 2.3.10
       unplugin-vue-router: 0.15.0(@vue/compiler-sfc@3.5.26)(typescript@5.9.3)(vue-router@4.5.1(vue@3.5.24(typescript@5.9.3)))(vue@3.5.24(typescript@5.9.3))
-      unstorage: 1.17.1(@netlify/blobs@9.1.2)(db0@0.3.4(drizzle-orm@0.44.5(@types/pg@8.15.5)(pg@8.16.3)))(ioredis@5.8.2)
+      unstorage: 1.17.1(@netlify/blobs@9.1.2)(db0@0.3.4(drizzle-orm@0.45.1(@types/pg@8.15.5)(pg@8.16.3)))(ioredis@5.8.2)
       untyped: 2.0.0
       vue: 3.5.24(typescript@5.9.3)
       vue-bundle-renderer: 2.1.2
@@ -21628,7 +21628,7 @@ snapshots:
       '@unrs/resolver-binding-win32-ia32-msvc': 1.11.1
       '@unrs/resolver-binding-win32-x64-msvc': 1.11.1
 
-  unstorage@1.17.1(@netlify/blobs@9.1.2)(db0@0.3.4(drizzle-orm@0.44.5(@types/pg@8.15.5)(pg@8.16.3)))(ioredis@5.8.2):
+  unstorage@1.17.1(@netlify/blobs@9.1.2)(db0@0.3.4(drizzle-orm@0.45.1(@types/pg@8.15.5)(pg@8.16.3)))(ioredis@5.8.2):
     dependencies:
       anymatch: 3.1.3
       chokidar: 4.0.3
@@ -21640,10 +21640,10 @@ snapshots:
       ufo: 1.6.1
     optionalDependencies:
       '@netlify/blobs': 9.1.2
-      db0: 0.3.4(drizzle-orm@0.44.5(@types/pg@8.15.5)(pg@8.16.3))
+      db0: 0.3.4(drizzle-orm@0.45.1(@types/pg@8.15.5)(pg@8.16.3))
       ioredis: 5.8.2
 
-  unstorage@1.17.3(@netlify/blobs@9.1.2)(db0@0.3.4(drizzle-orm@0.44.5(@types/pg@8.15.5)(pg@8.16.3)))(ioredis@5.8.2):
+  unstorage@1.17.3(@netlify/blobs@9.1.2)(db0@0.3.4(drizzle-orm@0.45.1(@types/pg@8.15.5)(pg@8.16.3)))(ioredis@5.8.2):
     dependencies:
       anymatch: 3.1.3
       chokidar: 4.0.3
@@ -21655,7 +21655,7 @@ snapshots:
       ufo: 1.6.1
     optionalDependencies:
       '@netlify/blobs': 9.1.2
-      db0: 0.3.4(drizzle-orm@0.44.5(@types/pg@8.15.5)(pg@8.16.3))
+      db0: 0.3.4(drizzle-orm@0.45.1(@types/pg@8.15.5)(pg@8.16.3))
       ioredis: 5.8.2
 
   until-async@3.0.2: {}
