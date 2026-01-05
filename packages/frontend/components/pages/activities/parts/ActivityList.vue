@@ -1,92 +1,26 @@
 <script setup lang="ts">
-import ClSection from '~/components/base/ClSection.vue'
-import type {
-  ActivityListResponse,
-  ActivityListResponseDataItemsItem,
-  ActivityListResponseDataPagination,
-} from '~/generated/api/schemas'
+import type { ActivityListItem as ActivityItem } from '~/features/activities/domain/activity-list'
 import ActivityItemSkeleton from './ActivityItemSkeleton.vue'
 import ActivityListItem from './ActivityListItem.vue'
 import ClDivider from '~/components/base/ClDivider.vue'
 
-const DEFAULT_PAGINATION: ActivityListResponseDataPagination = {
-  page: 1,
-  perPage: 20,
-  total: 0,
-  totalPages: 0,
-  hasNext: false,
-  hasPrev: false,
+interface Props {
+  activities: ActivityItem[]
+  isLoading: boolean
+  isInitialLoading: boolean
+  hasNextPage: boolean
+  fetchError: string | null
+  isEmpty: boolean
 }
 
-const enabled = ref(true)
-const fetchError = ref<string | null>(null)
-const activities = ref<ActivityListResponseDataItemsItem[]>([])
-const pagination = ref<ActivityListResponseDataPagination>({
-  ...DEFAULT_PAGINATION,
-})
-
-const hasNextPage = computed(() => pagination.value.hasNext)
-
-const loadMoreActivities = async () => {
-  if (pagination.value.page > 1 && !hasNextPage.value) {
-    enabled.value = false
-    return
-  }
-
-  try {
-    const { data, success } = await $fetch<ActivityListResponse>(
-      '/api/activities',
-      {
-        params: {
-          page: pagination.value.page,
-          perPage: pagination.value.perPage,
-        },
-      }
-    )
-
-    if (success) {
-      const activityListInfo = data
-
-      activities.value = [...activities.value, ...activityListInfo.items]
-      pagination.value = {
-        ...activityListInfo.pagination,
-        page: pagination.value.page + 1,
-      }
-      fetchError.value = null
-      enabled.value = activityListInfo.pagination.hasNext
-    } else {
-      throw new Error('アクティビティの取得に失敗しました')
-    }
-  } catch (err) {
-    console.error('Failed to load more activities:', err)
-    fetchError.value =
-      err instanceof Error ? err.message : 'アクティビティの取得に失敗しました'
-    enabled.value = false
-  }
-}
-
-defineExpose({ loadMoreActivities })
-
-const { isLoading, handleLoad } = useInfiniteScroll(loadMoreActivities, {
-  initialLoadingState: true,
-  threshold: 200,
-  enabled: enabled,
-})
-
-const isEmpty = computed(
-  () => activities.value.length === 0 && !fetchError.value && !isLoading.value
-)
+defineProps<Props>()
 
 const skeletonPlaceholders = computed(() => Array.from({ length: 10 }))
-
-onMounted(() => {
-  handleLoad()
-})
 </script>
 
 <template>
-  <ClSection class="w-full justify-start md:max-w-4/6">
-    <div v-if="isLoading && pagination.page === 1" class="space-y-6">
+  <div>
+    <div v-if="isInitialLoading" class="space-y-6">
       <ActivityItemSkeleton
         v-for="(_, index) in skeletonPlaceholders"
         :key="`skeleton-${index}`"
@@ -124,5 +58,5 @@ onMounted(() => {
     >
       読み込み中...
     </div>
-  </ClSection>
+  </div>
 </template>
