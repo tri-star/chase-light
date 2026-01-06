@@ -91,17 +91,12 @@ const activityTypeLabels: Record<string, string> = {
                     }}
                   </span>
 
-                  <a
-                    v-if="entry.url"
-                    :href="entry.url"
-                    target="_blank"
-                    rel="noopener noreferrer"
+                  <NuxtLink
+                    :to="{ path: `/activities/${entry.activityId}` }"
                     data-id="activity-title"
-                    class="transition-colors hover:text-surface-primary-default"
                   >
                     {{ entry.title }}
-                  </a>
-                  <span v-else data-id="activity-title">{{ entry.title }}</span>
+                  </NuxtLink>
                 </h4>
 
                 <!-- 要約 -->
