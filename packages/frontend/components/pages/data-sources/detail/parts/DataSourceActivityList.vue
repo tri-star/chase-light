@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed } from 'vue'
+import ActivityTypeBadge from '~/components/common/ActivityTypeBadge.vue'
 import ClDivider from '~/components/base/ClDivider.vue'
 import ClHeading from '~/components/base/ClHeading.vue'
 import type {
@@ -8,20 +9,6 @@ import type {
 } from '~/features/data-sources/domain/data-source-detail'
 import { formatDate } from '~/utils/date'
 
-type ActivityType = 'release' | 'issue' | 'pull_request'
-
-const activityTypeLabels: Record<ActivityType, string> = {
-  release: 'Release',
-  issue: 'Issue',
-  pull_request: 'PR',
-}
-
-const activityTypeClasses: Record<ActivityType, string> = {
-  release: 'bg-status-info-subtle text-status-info-default',
-  issue: 'bg-status-warn-subtle text-status-warn-default',
-  pull_request: 'bg-status-success-subtle text-status-success-default',
-}
-
 const props = defineProps<{
   activities: DataSourceActivityItem[]
   pagination?: DataSourceActivityPagination
@@ -29,17 +16,6 @@ const props = defineProps<{
 }>()
 
 const hasActivities = computed(() => props.activities.length > 0)
-
-const getActivityTypeLabel = (type: string) => {
-  return activityTypeLabels[type as ActivityType] || type
-}
-
-const getActivityBadgeClass = (type: string) => {
-  return (
-    activityTypeClasses[type as ActivityType] ||
-    'bg-surface-secondary-default text-card-value'
-  )
-}
 
 const formatActivityDate = (date: string) => {
   return formatDate(date, 'minutes')
@@ -77,12 +53,10 @@ const formatActivityDate = (date: string) => {
         <div class="space-y-2 py-2">
           <div class="flex items-start justify-between gap-3">
             <div class="flex items-center gap-2">
-              <span
-                class="rounded text-xs px-2 py-0.5 font-semibold"
-                :class="getActivityBadgeClass(item.activity.activityType)"
-              >
-                {{ getActivityTypeLabel(item.activity.activityType) }}
-              </span>
+              <ActivityTypeBadge
+                :activity-type="item.activity.activityType"
+                size="sm"
+              />
               <span
                 v-if="item.activity.version"
                 class="text-xs text-card-value"
