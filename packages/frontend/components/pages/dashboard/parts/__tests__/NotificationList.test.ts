@@ -4,6 +4,20 @@ import NotificationList from '../NotificationList.vue'
 import type { NotificationListItem } from '~/generated/api/schemas'
 import NotificationCard from '~/components/pages/dashboard/parts/NotificationCard.vue'
 
+const mountNotificationList = (props: {
+  notifications?: NotificationListItem[]
+  loading?: boolean
+  error?: string
+}) =>
+  mount(NotificationList, {
+    props,
+    global: {
+      stubs: {
+        NuxtLink: RouterLinkStub,
+      },
+    },
+  })
+
 const createMockNotifications = (): NotificationListItem[] => {
   return [
     {
@@ -92,27 +106,21 @@ const createMockNotifications = (): NotificationListItem[] => {
 describe('NotificationList', () => {
   test('通知一覧が正常に表示される', () => {
     const notifications = createMockNotifications()
-    const wrapper = mount(NotificationList, {
-      props: { notifications },
-    })
+    const wrapper = mountNotificationList({ notifications })
 
     const cards = wrapper.findAllComponents(NotificationCard)
     expect(cards.length).toBe(2)
   })
 
   test('ローディング状態が正しく表示される', () => {
-    const wrapper = mount(NotificationList, {
-      props: { loading: true },
-    })
+    const wrapper = mountNotificationList({ loading: true })
 
     expect(wrapper.find('.animate-pulse').exists()).toBe(true)
     expect(wrapper.text()).not.toContain('新しい通知はありません')
   })
 
   test('エラー状態が正しく表示される', () => {
-    const wrapper = mount(NotificationList, {
-      props: { error: 'ネットワークエラー' },
-    })
+    const wrapper = mountNotificationList({ error: 'ネットワークエラー' })
 
     expect(wrapper.text()).toContain('通知の読み込みに失敗しました')
     expect(wrapper.text()).toContain('ネットワークエラー')
@@ -120,9 +128,7 @@ describe('NotificationList', () => {
   })
 
   test('空の状態が正しく表示される', () => {
-    const wrapper = mount(NotificationList, {
-      props: { notifications: [] },
-    })
+    const wrapper = mountNotificationList({ notifications: [] })
 
     expect(wrapper.text()).toContain('新しい通知はありません')
     expect(wrapper.text()).toContain(
@@ -131,8 +137,10 @@ describe('NotificationList', () => {
   })
 
   test('通知が0件の場合はローディングやエラーが表示されない', () => {
-    const wrapper = mount(NotificationList, {
-      props: { notifications: [], loading: false, error: undefined },
+    const wrapper = mountNotificationList({
+      notifications: [],
+      loading: false,
+      error: undefined,
     })
 
     expect(wrapper.find('.animate-pulse').exists()).toBe(false)
@@ -140,9 +148,7 @@ describe('NotificationList', () => {
   })
 
   test('ローディング中はエラーメッセージが表示されない', () => {
-    const wrapper = mount(NotificationList, {
-      props: { loading: true, error: 'エラー' },
-    })
+    const wrapper = mountNotificationList({ loading: true, error: 'エラー' })
 
     expect(wrapper.find('.animate-pulse').exists()).toBe(true)
     expect(wrapper.text()).not.toContain('通知の読み込みに失敗しました')
@@ -150,14 +156,7 @@ describe('NotificationList', () => {
 
   test('複数の通知が正しい順序で表示される', () => {
     const notifications = createMockNotifications()
-    const wrapper = mount(NotificationList, {
-      props: { notifications },
-      global: {
-        stubs: {
-          NuxtLink: RouterLinkStub,
-        },
-      },
-    })
+    const wrapper = mountNotificationList({ notifications })
 
     const text = wrapper.text()
     const reactIndex = text.indexOf('facebook/react')

@@ -49,38 +49,40 @@ const createMockNotification = (
   }
 }
 
+const mountNotificationCard = (item: NotificationListItem) =>
+  mount(NotificationCard, {
+    props: { item },
+    global: {
+      stubs: {
+        NuxtLink: RouterLinkStub,
+      },
+    },
+  })
+
 describe('NotificationCard', () => {
   test('通知カードが正常に表示される', () => {
     const item = createMockNotification()
-    const wrapper = mount(NotificationCard, {
-      props: { item },
-    })
+    const wrapper = mountNotificationCard(item)
 
     expect(wrapper.text()).toContain('React 19.0.0 リリース')
   })
 
   test('データソース名とリンクが表示される', () => {
     const item = createMockNotification()
-    const wrapper = mount(NotificationCard, {
-      props: { item },
-      global: {
-        stubs: {
-          NuxtLink: RouterLinkStub,
-        },
-      },
-    })
+    const wrapper = mountNotificationCard(item)
 
-    const link = wrapper.findComponent(RouterLinkStub)
-    expect(link.exists()).toBe(true)
-    expect(link.text()).toContain('facebook/react')
-    expect(link.props('to')).toBe('/data-sources/ds-1')
+    const links = wrapper.findAllComponents(RouterLinkStub)
+    const dataSourceLink = links.find(
+      (link) => link.attributes('data-id') === 'data-source-link'
+    )
+    expect(dataSourceLink).toBeTruthy()
+    expect(dataSourceLink?.text()).toContain('facebook/react')
+    expect(dataSourceLink?.props('to')).toBe('/data-sources/ds-1')
   })
 
   test('アクティビティグループ別にラベルが表示される', () => {
     const item = createMockNotification()
-    const wrapper = mount(NotificationCard, {
-      props: { item },
-    })
+    const wrapper = mountNotificationCard(item)
 
     const groupLabel = wrapper.find('[data-id="activity-group-label"]')
     expect(groupLabel.exists()).toBe(true)
@@ -89,9 +91,7 @@ describe('NotificationCard', () => {
 
   test('アクティビティエントリのタイトルと要約が表示される', () => {
     const item = createMockNotification()
-    const wrapper = mount(NotificationCard, {
-      props: { item },
-    })
+    const wrapper = mountNotificationCard(item)
 
     const title = wrapper.find('[data-id="activity-title"]')
     expect(title.exists()).toBe(true)
@@ -101,57 +101,15 @@ describe('NotificationCard', () => {
 
   test('アクティビティエントリのURLリンクが正しく表示される', () => {
     const item = createMockNotification()
-    const wrapper = mount(NotificationCard, {
-      props: { item },
-    })
+    const wrapper = mountNotificationCard(item)
 
-    const activityLink = wrapper.find('[data-id="activity-title"]')
-    expect(activityLink.exists()).toBe(true)
-    expect(activityLink.element.tagName).toBe('A')
-    expect(activityLink.attributes('href')).toBe(
-      'https://github.com/facebook/react/releases/tag/v19.0.0'
+    const links = wrapper.findAllComponents(RouterLinkStub)
+    const activityLink = links.find(
+      (link) => link.attributes('data-id') === 'activity-title'
     )
-    expect(activityLink.text()).toBe('React 19.0.0 リリース')
-  })
-
-  test('URLがnullの場合はリンクではなくテキストとして表示される', () => {
-    const item = createMockNotification({
-      dataSources: [
-        {
-          id: 'ds-1',
-          name: 'test/repo',
-          url: 'https://github.com/test/repo',
-          sourceType: 'github_repository',
-          repository: {
-            fullName: 'test/repo',
-          },
-          groups: [
-            {
-              activityType: 'issue',
-              entries: [
-                {
-                  activityId: 'act-1',
-                  title: 'テストイシュー',
-                  summary: 'サマリー',
-                  occurredAt: '2025-10-28T09:00:00Z',
-                  url: null,
-                  displayOrder: 0,
-                },
-              ],
-            },
-          ],
-        },
-      ],
-    })
-    const wrapper = mount(NotificationCard, {
-      props: { item },
-    })
-
-    const titleEl = wrapper.find('[data-id="activity-title"]')
-    expect(titleEl.exists()).toBe(true)
-    // URLがnullのときはリンクではなくテキスト
-    expect(titleEl.element.tagName).not.toBe('A')
-    expect(titleEl.text()).toBe('テストイシュー')
+    expect(activityLink).toBeTruthy()
+    expect(activityLink?.props('to')).toEqual({ path: '/activities/act-1' })
+    expect(activityLink?.text()).toBe('React 19.0.0 リリース')
   })
 
   test('複数のアクティビティグループが表示される', () => {
@@ -196,14 +154,61 @@ describe('NotificationCard', () => {
         },
       ],
     })
-    const wrapper = mount(NotificationCard, {
-      props: { item },
-    })
+    const wrapper = mountNotificationCard(item)
 
     const labels = wrapper.findAll('[data-id="activity-group-label"]')
     const labelTexts = labels.map((l) => l.text())
     expect(labelTexts).toContain('リリース')
     expect(labelTexts).toContain('Issue')
+
+    const links = wrapper
+      .findAllComponents(RouterLinkStub)
+      .filter((link) => link.attributes('data-id') === 'activity-title')
+    expect(links).toHaveLength(2)
+    expect(links[0].props('to')).toEqual({ path: '/activities/act-1' })
+    expect(links[0].text()).toBe('リリース1')
+    expect(links[1].props('to')).toEqual({ path: '/activities/act-2' })
+    expect(links[1].text()).toBe('イシュー1')
+  })
+
+  test('URLがnullの場合でもアクティビティ詳細へのリンクが表示される', () => {
+    const item = createMockNotification({
+      dataSources: [
+        {
+          id: 'ds-1',
+          name: 'test/repo',
+          url: 'https://github.com/test/repo',
+          sourceType: 'github_repository',
+          repository: {
+            fullName: 'test/repo',
+          },
+          groups: [
+            {
+              activityType: 'issue',
+              entries: [
+                {
+                  activityId: 'act-1',
+                  title: 'テストイシュー',
+                  summary: 'サマリー',
+                  occurredAt: '2025-10-28T09:00:00Z',
+                  url: null,
+                  displayOrder: 0,
+                },
+              ],
+            },
+          ],
+        },
+      ],
+    })
+    const wrapper = mountNotificationCard(item)
+
+    const links = wrapper.findAllComponents(RouterLinkStub)
+    const activityLink = links.find(
+      (link) => link.attributes('data-id') === 'activity-title'
+    )
+    expect(activityLink).toBeTruthy()
+    expect(activityLink?.props('to')).toEqual({ path: '/activities/act-1' })
+    expect(activityLink?.text()).toBe('テストイシュー')
   })
 
   test('アクティビティエントリが6件以上の場合は最大5件までしか表示されない', () => {
@@ -235,9 +240,7 @@ describe('NotificationCard', () => {
         },
       ],
     })
-    const wrapper = mount(NotificationCard, {
-      props: { item },
-    })
+    const wrapper = mountNotificationCard(item)
 
     const titles = wrapper.findAll('[data-id="activity-title"]')
     expect(titles.length).toBe(5)
@@ -303,14 +306,7 @@ describe('NotificationCard', () => {
         },
       ],
     })
-    const wrapper = mount(NotificationCard, {
-      props: { item },
-      global: {
-        stubs: {
-          NuxtLink: RouterLinkStub,
-        },
-      },
-    })
+    const wrapper = mountNotificationCard(item)
 
     const srcLinks = wrapper.findAll('[data-id="data-source-link"]')
     expect(srcLinks.length).toBe(2)
