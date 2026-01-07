@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed } from 'vue'
+import ActivityTypeBadge from '~/components/common/ActivityTypeBadge.vue'
 import ClHeading from '~/components/base/ClHeading.vue'
 import type { ActivityListResponseDataItemsItem } from '~/generated/api/schemas'
 import { formatDate, formatRelativeDate } from '~/utils/date'
@@ -7,18 +8,6 @@ import { formatDate, formatRelativeDate } from '~/utils/date'
 const props = defineProps<{
   activity: ActivityListResponseDataItemsItem
 }>()
-
-const activityTypeLabels: Record<string, string> = {
-  release: 'リリース',
-  issue: 'Issue',
-  pull_request: 'PR',
-}
-
-const activityTypeClasses: Record<string, string> = {
-  release: 'bg-status-info-subtle text-status-info-default',
-  issue: 'bg-status-warn-subtle text-status-warn-default',
-  pull_request: 'bg-status-success-subtle text-status-success-default',
-}
 
 const activityData = computed(() => props.activity.activity)
 
@@ -28,18 +17,6 @@ const activityTitle = computed(() => {
 
 const activitySummary = computed(() => {
   return activityData.value.summary || '要約はまだ登録されていません'
-})
-
-const activityTypeLabel = computed(() => {
-  const type = activityData.value.activityType
-  return activityTypeLabels[type] || type
-})
-
-const activityBadgeClass = computed(() => {
-  const type = activityData.value.activityType
-  return (
-    activityTypeClasses[type] || 'bg-surface-secondary-default text-card-value'
-  )
 })
 
 const dataSourceName = computed(() => activityData.value.source.name)
@@ -59,13 +36,7 @@ const occurredAtRelative = computed(() =>
       <div class="text-xs tracking-wide text-card-value uppercase opacity-60">
         {{ occurredAtMinutes }}
       </div>
-      <span
-        class="text-xs rounded inline-flex items-center justify-center px-3 py-1
-          font-medium"
-        :class="activityBadgeClass"
-      >
-        {{ activityTypeLabel }}
-      </span>
+      <ActivityTypeBadge :activity-type="activityData.activityType" />
     </header>
 
     <div class="space-y-2">

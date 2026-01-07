@@ -1,23 +1,10 @@
 <script setup lang="ts">
 import { computed } from 'vue'
+import ActivityTypeBadge from '~/components/common/ActivityTypeBadge.vue'
 import ClButton from '~/components/base/ClButton.vue'
 import ClHeading from '~/components/base/ClHeading.vue'
 import type { ActivityDetail } from '~/features/activities/domain/activity'
 import { formatDate, formatRelativeDate } from '~/utils/date'
-
-type ActivityType = NonNullable<ActivityDetail['activityType']>
-
-const activityTypeLabels: Record<ActivityType, string> = {
-  release: 'リリース',
-  issue: 'Issue',
-  pull_request: 'PR',
-}
-
-const activityTypeClasses: Record<ActivityType, string> = {
-  release: 'bg-status-info-subtle text-status-info-default',
-  issue: 'bg-status-warn-subtle text-status-warn-default',
-  pull_request: 'bg-status-success-subtle text-status-success-default',
-}
 
 const props = defineProps<{
   activity: ActivityDetail
@@ -28,18 +15,6 @@ const props = defineProps<{
 const emit = defineEmits<{
   (e: 'toggleMode'): void
 }>()
-
-const activityTypeLabel = computed(() => {
-  const type = props.activity.activityType
-  return activityTypeLabels[type] || type
-})
-
-const activityBadgeClass = computed(() => {
-  const type = props.activity.activityType
-  return (
-    activityTypeClasses[type] || 'bg-surface-secondary-default text-card-value'
-  )
-})
 
 const occurredAt = computed(() =>
   formatDate(props.activity.occurredAt, 'minutes')
@@ -89,12 +64,7 @@ const toggleLabel = computed(() =>
       </div>
 
       <div class="text-xs flex flex-wrap items-center gap-3 text-card-value">
-        <span
-          class="rounded inline-flex items-center gap-1 px-3 py-1 font-semibold"
-          :class="activityBadgeClass"
-        >
-          {{ activityTypeLabel }}
-        </span>
+        <ActivityTypeBadge :activity-type="props.activity.activityType" />
         <div class="inline-flex items-center gap-2">
           <Icon
             name="i-heroicons-calendar-days-20-solid"

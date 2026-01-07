@@ -86,7 +86,7 @@ describe('NotificationCard', () => {
 
     const groupLabel = wrapper.find('[data-id="activity-group-label"]')
     expect(groupLabel.exists()).toBe(true)
-    expect(groupLabel.text()).toBe('リリース')
+    expect(groupLabel.text()).toBe('Release')
   })
 
   test('アクティビティエントリのタイトルと要約が表示される', () => {
@@ -158,7 +158,7 @@ describe('NotificationCard', () => {
 
     const labels = wrapper.findAll('[data-id="activity-group-label"]')
     const labelTexts = labels.map((l) => l.text())
-    expect(labelTexts).toContain('リリース')
+    expect(labelTexts).toContain('Release')
     expect(labelTexts).toContain('Issue')
 
     const links = wrapper

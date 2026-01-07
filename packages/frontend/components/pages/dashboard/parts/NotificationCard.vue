@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import ActivityTypeBadge from '~/components/common/ActivityTypeBadge.vue'
 import ClHeading from '~/components/base/ClHeading.vue'
 import type { NotificationListItem } from '~/generated/api/schemas'
 
@@ -7,12 +8,6 @@ interface Props {
 }
 
 const props = defineProps<Props>()
-
-const activityTypeLabels: Record<string, string> = {
-  release: 'リリース',
-  issue: 'Issue',
-  pull_request: 'PR',
-}
 </script>
 
 <template>
@@ -72,23 +67,11 @@ const activityTypeLabels: Record<string, string> = {
                   class="text-sm flex items-center gap-x-4 font-medium
                     text-card-value"
                 >
-                  <span
-                    class="rounded inline-flex w-16 items-center justify-center
-                      px-2 py-1 font-medium"
-                    data-id="activity-group-label"
-                    :class="{
-                      'bg-status-info-subtle text-status-info-default':
-                        group.activityType === 'release',
-                      'bg-status-warn-subtle text-status-warn-default':
-                        group.activityType === 'issue',
-                      'bg-status-success-subtle text-status-success-default':
-                        group.activityType === 'pull_request',
-                    }"
-                  >
-                    {{
-                      activityTypeLabels[group.activityType] ||
-                      group.activityType
-                    }}
+                  <span class="inline-flex w-16" data-id="activity-group-label">
+                    <ActivityTypeBadge
+                      :activity-type="group.activityType"
+                      size="sm"
+                    />
                   </span>
 
                   <NuxtLink
