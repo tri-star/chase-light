@@ -68,7 +68,7 @@
     "memfs": "^4.37.1",
     "msw": "^2.12.7",
     "msw-storybook-addon": "^2.0.4",
-    "nitropack": "2.12.9",
+    "nitropack": "2.13.4",
     "orval": "^7.13.0",
     "playwright-core": "^1.57.0",
     "prettier": "^3.6.2",
@@ -77,7 +77,7 @@
     "prettier-plugin-tailwindcss": "^0.7.1",
     "storybook": "9.0.5",
     "tsx": "^4.20.6",
-    "vitest": "^3.2.2",
+    "vitest": "^4.1.0",
     "vue-tsc": "^3.1.1"
   },
   "msw": {
